@@ -21,6 +21,7 @@
   --animate-fade-in-up: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-draw-chart: drawChart 2.5s ease-out forwards;
   --animate-marquee: marquee 25s linear infinite;
+  --animate-shimmer: shimmer 2s ease-in-out infinite;
   
   @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(20px); }
@@ -34,6 +35,11 @@
   @keyframes marquee {
     from { transform: translateX(0); }
     to { transform: translateX(-100%); }
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
   }
 }
 
