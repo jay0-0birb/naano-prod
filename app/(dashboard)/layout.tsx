@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import DashboardSidebar from '@/components/dashboard/sidebar';
 import DashboardHeader from '@/components/dashboard/header';
+import SessionValidator from '@/components/dashboard/session-validator';
 
 export default async function DashboardLayout({
   children,
@@ -28,6 +29,7 @@ export default async function DashboardLayout({
   
   return (
     <div className="flex min-h-screen bg-[#020408] text-slate-300">
+      <SessionValidator userId={user.id} />
       <DashboardSidebar 
         role={profile?.role || 'saas'} 
         onboardingCompleted={profile?.onboarding_completed || false}

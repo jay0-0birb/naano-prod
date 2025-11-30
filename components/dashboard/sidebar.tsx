@@ -1,42 +1,45 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { 
-  LayoutDashboard, 
-  MessageSquare, 
-  Settings, 
-  LogOut, 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  MessageSquare,
+  Settings,
+  LogOut,
   Hexagon,
   ShoppingBag,
   FileText,
   Users,
   Handshake,
-  AlertCircle
-} from 'lucide-react';
-import { signOut } from '@/app/(dashboard)/actions';
+  AlertCircle,
+} from "lucide-react";
+import { forceLogout } from "@/lib/auth-utils";
 
 interface SidebarProps {
   role: string;
   onboardingCompleted: boolean;
 }
 
-export default function DashboardSidebar({ role, onboardingCompleted }: SidebarProps) {
+export default function DashboardSidebar({
+  role,
+  onboardingCompleted,
+}: SidebarProps) {
   const pathname = usePathname();
-  const isCreator = role === 'influencer';
+  const isCreator = role === "influencer";
 
   const handleSignOut = async () => {
-    await signOut();
-    window.location.href = '/';
+    // Force logout with complete session clearing
+    await forceLogout();
   };
 
   const isActive = (path: string) => pathname === path;
 
-  const linkClass = (path: string) => 
+  const linkClass = (path: string) =>
     `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
       isActive(path)
-        ? 'bg-white/5 text-white'
-        : 'hover:bg-white/5 hover:text-white'
+        ? "bg-white/5 text-white"
+        : "hover:bg-white/5 hover:text-white"
     }`;
 
   return (
@@ -50,8 +53,8 @@ export default function DashboardSidebar({ role, onboardingCompleted }: SidebarP
 
       {/* Onboarding Alert */}
       {!onboardingCompleted && (
-        <Link 
-          href="/dashboard/onboarding" 
+        <Link
+          href="/dashboard/onboarding"
           className="mx-4 mt-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg flex items-center gap-2 hover:bg-amber-500/20 transition-colors"
         >
           <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
@@ -63,8 +66,8 @@ export default function DashboardSidebar({ role, onboardingCompleted }: SidebarP
         <div className="px-2 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
           Menu
         </div>
-        
-        <Link href="/dashboard" className={linkClass('/dashboard')}>
+
+        <Link href="/dashboard" className={linkClass("/dashboard")}>
           <LayoutDashboard className="w-5 h-5" />
           <span className="text-sm">Vue d'ensemble</span>
         </Link>
@@ -72,11 +75,17 @@ export default function DashboardSidebar({ role, onboardingCompleted }: SidebarP
         {/* Creator-specific menu */}
         {isCreator ? (
           <>
-            <Link href="/dashboard/marketplace" className={linkClass('/dashboard/marketplace')}>
+            <Link
+              href="/dashboard/marketplace"
+              className={linkClass("/dashboard/marketplace")}
+            >
               <ShoppingBag className="w-5 h-5" />
               <span className="text-sm">Marketplace</span>
             </Link>
-            <Link href="/dashboard/applications" className={linkClass('/dashboard/applications')}>
+            <Link
+              href="/dashboard/applications"
+              className={linkClass("/dashboard/applications")}
+            >
               <FileText className="w-5 h-5" />
               <span className="text-sm">Mes candidatures</span>
             </Link>
@@ -84,7 +93,17 @@ export default function DashboardSidebar({ role, onboardingCompleted }: SidebarP
         ) : (
           /* SaaS-specific menu */
           <>
-            <Link href="/dashboard/candidates" className={linkClass('/dashboard/candidates')}>
+            <Link
+              href="/dashboard/marketplace"
+              className={linkClass("/dashboard/marketplace")}
+            >
+              <ShoppingBag className="w-5 h-5" />
+              <span className="text-sm">Créateurs</span>
+            </Link>
+            <Link
+              href="/dashboard/candidates"
+              className={linkClass("/dashboard/candidates")}
+            >
               <Users className="w-5 h-5" />
               <span className="text-sm">Candidatures</span>
             </Link>
@@ -92,23 +111,32 @@ export default function DashboardSidebar({ role, onboardingCompleted }: SidebarP
         )}
 
         {/* Common menu items */}
-        <Link href="/dashboard/collaborations" className={linkClass('/dashboard/collaborations')}>
+        <Link
+          href="/dashboard/collaborations"
+          className={linkClass("/dashboard/collaborations")}
+        >
           <Handshake className="w-5 h-5" />
           <span className="text-sm">Collaborations</span>
         </Link>
-        
-        <Link href="/dashboard/messages" className={linkClass('/dashboard/messages')}>
+
+        <Link
+          href="/dashboard/messages"
+          className={linkClass("/dashboard/messages")}
+        >
           <MessageSquare className="w-5 h-5" />
           <span className="text-sm">Messages</span>
         </Link>
       </nav>
 
       <div className="p-4 border-t border-white/5">
-        <Link href="/dashboard/settings" className={linkClass('/dashboard/settings')}>
+        <Link
+          href="/dashboard/settings"
+          className={linkClass("/dashboard/settings")}
+        >
           <Settings className="w-5 h-5" />
           <span className="text-sm">Paramètres</span>
         </Link>
-        <button 
+        <button
           onClick={handleSignOut}
           className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors mt-1"
         >
@@ -119,4 +147,3 @@ export default function DashboardSidebar({ role, onboardingCompleted }: SidebarP
     </aside>
   );
 }
-

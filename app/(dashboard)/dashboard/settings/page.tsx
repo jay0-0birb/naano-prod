@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { Settings, User, CreditCard, Bell, Shield, CheckCircle2 } from 'lucide-react';
 import StripeConnectButton from '@/components/settings/stripe-connect-button';
+import SettingsClient from '@/components/settings/settings-client';
 
 interface PageProps {
   searchParams: { stripe?: string };
@@ -26,19 +27,45 @@ export default async function SettingsPage({ searchParams }: PageProps) {
 
   const isCreator = profile?.role === 'influencer';
 
-  // Get creator profile for Stripe status
+  // Get creator profile or saas company
   let stripeConnected = false;
+  let creatorProfile = null;
+  let saasCompany = null;
+
   if (isCreator) {
-    const { data: creatorProfile } = await supabase
+    const { data } = await supabase
       .from('creator_profiles')
-      .select('stripe_account_id, stripe_onboarding_completed')
+      .select('*')
       .eq('profile_id', user.id)
       .single();
     
-    stripeConnected = creatorProfile?.stripe_onboarding_completed || false;
+    creatorProfile = data;
+    stripeConnected = data?.stripe_onboarding_completed || false;
+  } else {
+    const { data } = await supabase
+      .from('saas_companies')
+      .select('*')
+      .eq('profile_id', user.id)
+      .single();
+    
+    saasCompany = data;
   }
 
   const stripeStatus = searchParams.stripe;
+
+  return (
+    <SettingsClient 
+      profile={profile}
+      creatorProfile={creatorProfile}
+      saasCompany={saasCompany}
+      stripeConnected={stripeConnected}
+      stripeStatus={stripeStatus}
+    />
+  );
+}
+
+function OriginalSettingsPage({ profile, creatorProfile, saasCompany, stripeConnected, stripeStatus }: any) {
+  const isCreator = profile?.role === 'influencer';
 
   return (
     <div className="max-w-3xl">
@@ -183,4 +210,6 @@ export default async function SettingsPage({ searchParams }: PageProps) {
     </div>
   );
 }
+
+// This is now just for reference, actual rendering is in SettingsClient
 

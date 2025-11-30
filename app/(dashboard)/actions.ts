@@ -204,6 +204,11 @@ export async function getCurrentUserProfile() {
 
 export async function signOut() {
   const supabase = await createClient()
-  await supabase.auth.signOut()
+  
+  // Sign out from Supabase (clears session)
+  await supabase.auth.signOut({ scope: 'local' })
+  
+  // Return success - client will handle redirect
+  return { success: true }
 }
 

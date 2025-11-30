@@ -35,10 +35,30 @@ export async function updateSession(request: NextRequest) {
 
   let user = null
   try {
-    const { data } = await supabase.auth.getUser()
-    user = data.user
+    const { data, error } = await supabase.auth.getUser()
+    
+    // If there's an error or no user, clear any stale cookies
+    if (error || !data.user) {
+      const allCookies = request.cookies.getAll()
+      allCookies.forEach((cookie) => {
+        if (cookie.name.startsWith('sb-')) {
+          supabaseResponse.cookies.delete(cookie.name)
+        }
+      })
+      user = null
+    } else {
+      user = data.user
+    }
   } catch (error) {
     console.error('Middleware Auth Error:', error)
+    // Clear cookies on error
+    const allCookies = request.cookies.getAll()
+    allCookies.forEach((cookie) => {
+      if (cookie.name.startsWith('sb-')) {
+        supabaseResponse.cookies.delete(cookie.name)
+      }
+    })
+    user = null
   }
 
   if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
