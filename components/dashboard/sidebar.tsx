@@ -13,6 +13,7 @@ import {
   Users,
   Handshake,
   AlertCircle,
+  GraduationCap,
 } from "lucide-react";
 import { forceLogout } from "@/lib/auth-utils";
 
@@ -125,6 +126,14 @@ export default function DashboardSidebar({
         >
           <MessageSquare className="w-5 h-5" />
           <span className="text-sm">Messages</span>
+        </Link>
+
+        <Link
+          href="/dashboard/academy"
+          className={linkClass("/dashboard/academy")}
+        >
+          <GraduationCap className="w-5 h-5" />
+          <span className="text-sm">Academy</span>
         </Link>
       </nav>
 

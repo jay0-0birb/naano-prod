@@ -229,7 +229,18 @@ export async function HEAD(
   { params }: { params: Promise<{ hash: string }> }
 ) {
   const { hash } = await params;
-  const supabase = await createClient();
+  
+  // Use service role to bypass RLS (public endpoint)
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  );
 
   try {
     const { data: trackingLink } = await supabase
@@ -251,6 +262,8 @@ export async function HEAD(
         user_agent: userAgent,
         referrer: 'preview',
       });
+      
+      console.log('Impression logged for:', hash);
     }
 
     return new NextResponse(null, { status: 200 });
