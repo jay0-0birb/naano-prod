@@ -47,7 +47,7 @@ export async function updateSession(request: NextRequest) {
       })
       user = null
     } else {
-      user = data.user
+    user = data.user
     }
   } catch (error) {
     console.error('Middleware Auth Error:', error)

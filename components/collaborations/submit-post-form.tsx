@@ -31,14 +31,14 @@ export default function SubmitPostForm({ collaborationId }: SubmitPostFormProps)
     setError(null);
 
     try {
-      const result = await submitPost(collaborationId, url);
+    const result = await submitPost(collaborationId, url);
 
-      if (result.error) {
+    if (result.error) {
         console.error('Submit error:', result.error);
-        setError(result.error);
-      } else {
-        setSuccess(true);
-        setUrl('');
+      setError(result.error);
+    } else {
+      setSuccess(true);
+      setUrl('');
         // Reset success after 3 seconds and reload page
         setTimeout(() => {
           setSuccess(false);

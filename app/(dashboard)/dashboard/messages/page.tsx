@@ -5,10 +5,11 @@ import ConversationList from '@/components/messages/conversation-list';
 import ChatView from '@/components/messages/chat-view';
 
 interface PageProps {
-  searchParams: { conversation?: string };
+  searchParams: Promise<{ conversation?: string }>;
 }
 
 export default async function MessagesPage({ searchParams }: PageProps) {
+  const { conversation: conversationParam } = await searchParams;
   const supabase = await createClient();
   
   const { data: { user } } = await supabase.auth.getUser();
@@ -70,7 +71,7 @@ export default async function MessagesPage({ searchParams }: PageProps) {
   }
 
   // Get the active conversation
-  const activeConversationId = searchParams.conversation;
+  const activeConversationId = conversationParam;
   const activeConversation = conversations.find(c => c.id === activeConversationId);
 
   return (
