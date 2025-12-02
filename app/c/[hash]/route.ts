@@ -146,24 +146,72 @@ export async function GET(
 
     // Add campaign name (collaboration ID)
     destinationUrl.searchParams.set('utm_campaign', trackingLink.collaboration_id);
+    
+    // Add session ID for server-side tracking (works even in private browsing!)
+    // SaaS can capture this and send it back via webhook
+    destinationUrl.searchParams.set('naano_session', sessionId);
 
-    // 7. Create response with redirect
-    const response = NextResponse.redirect(destinationUrl.toString());
+    // 7. Set cookie and redirect
+    // Use HTML page approach to ensure cookie is set before redirect
+    // This is more reliable than setting cookie on redirect response
+    // Always show redirect page to set cookie (even if track_revenue is off, we might need it later)
+    const html = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Redirecting...</title>
+            <script>
+              // Set the attribution cookie
+              document.cookie = "${COOKIE_NAME}=${sessionId}; path=/; max-age=${COOKIE_LIFETIME_DAYS * 24 * 60 * 60}; SameSite=Lax";
+              // Redirect after a tiny delay to ensure cookie is set
+              setTimeout(function() {
+                window.location.href = "${destinationUrl.toString().replace(/"/g, '\\"')}";
+              }, 50);
+            </script>
+            <style>
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+              }
+              .loader {
+                text-align: center;
+              }
+              .spinner {
+                width: 40px;
+                height: 40px;
+                border: 3px solid rgba(255,255,255,0.3);
+                border-top-color: white;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin: 0 auto 16px;
+              }
+              @keyframes spin {
+                to { transform: rotate(360deg); }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="loader">
+              <div class="spinner"></div>
+              <p>Redirecting...</p>
+            </div>
+          </body>
+        </html>
+      `;
 
-    // 8. Set 30-day attribution cookie (if revenue tracking is enabled)
-    if (trackingLink.track_revenue) {
-      response.cookies.set({
-        name: COOKIE_NAME,
-        value: sessionId,
-        maxAge: COOKIE_LIFETIME_DAYS * 24 * 60 * 60, // 30 days in seconds
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-      });
-    }
-
-    return response;
+    return new NextResponse(html, {
+      headers: {
+        'Content-Type': 'text/html',
+      },
+    });
 
   } catch (error) {
     console.error('Tracking redirect error:', error);
