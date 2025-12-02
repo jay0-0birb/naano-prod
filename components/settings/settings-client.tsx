@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { User, CreditCard, Bell, Shield, CheckCircle2, Edit2 } from 'lucide-react';
 import StripeConnectButton from '@/components/settings/stripe-connect-button';
+import StripeConnectSaasButton from '@/components/settings/stripe-connect-saas-button';
+import RevenueTrackingSetup from '@/components/collaborations/revenue-tracking-setup';
 import EditProfileForm from '@/components/settings/edit-profile-form';
 import EditCreatorProfileForm from '@/components/settings/edit-creator-profile-form';
 import EditSaasProfileForm from '@/components/settings/edit-saas-profile-form';
@@ -230,6 +232,48 @@ export default function SettingsClient({
             <p className="text-xs text-slate-500">
               Stripe Connect permet de recevoir les paiements des entreprises SaaS directement sur votre compte bancaire.
             </p>
+          </div>
+        )}
+
+        {/* Revenue Tracking Section (SaaS only) */}
+        {!isCreator && saasCompany && (
+          <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+                <CreditCard className="w-5 h-5 text-green-400" />
+              </div>
+              <div>
+                <h3 className="font-medium text-white">Suivi du Chiffre d'Affaires</h3>
+                <p className="text-xs text-slate-500">Configurez le tracking des ventes générées par vos ambassadeurs</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {/* Option 1: Stripe Connect (Easiest) */}
+              <div className="p-4 bg-gradient-to-br from-[#635BFF]/10 to-[#635BFF]/5 border border-[#635BFF]/20 rounded-xl">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-sm font-medium text-white">Option 1 : Stripe Connect</span>
+                  <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">Recommandé</span>
+                </div>
+                <p className="text-xs text-slate-400 mb-4">
+                  Connectez votre Stripe et le CA sera tracké automatiquement. Aucun code à ajouter !
+                </p>
+                <StripeConnectSaasButton 
+                  isConnected={!!saasCompany.stripe_account_id}
+                  connectedAt={saasCompany.stripe_connected_at}
+                />
+              </div>
+
+              {/* Divider */}
+              <div className="flex items-center gap-4">
+                <div className="flex-1 h-px bg-white/10" />
+                <span className="text-xs text-slate-500">ou</span>
+                <div className="flex-1 h-px bg-white/10" />
+              </div>
+
+              {/* Option 2 & 3: Pixel & Webhook */}
+              <RevenueTrackingSetup />
+            </div>
           </div>
         )}
 
