@@ -1,14 +1,13 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { Settings, User, CreditCard, Bell, Shield, CheckCircle2 } from 'lucide-react';
-import StripeConnectButton from '@/components/settings/stripe-connect-button';
 import SettingsClient from '@/components/settings/settings-client';
 
 interface PageProps {
-  searchParams: { stripe?: string };
+  searchParams: Promise<{ stripe?: string }>;
 }
 
 export default async function SettingsPage({ searchParams }: PageProps) {
+  const { stripe: stripeStatus } = await searchParams;
   const supabase = await createClient();
   
   const { data: { user } } = await supabase.auth.getUser();
@@ -51,7 +50,12 @@ export default async function SettingsPage({ searchParams }: PageProps) {
     saasCompany = data;
   }
 
-  const stripeStatus = searchParams.stripe;
+  // Get notification preferences
+  const { data: notificationPrefs } = await supabase
+    .from('notification_preferences')
+    .select('email_new_applications, email_new_messages, email_collaboration_updates')
+    .eq('user_id', user.id)
+    .single();
 
   return (
     <SettingsClient 
@@ -60,6 +64,7 @@ export default async function SettingsPage({ searchParams }: PageProps) {
       saasCompany={saasCompany}
       stripeConnected={stripeConnected}
       stripeStatus={stripeStatus}
+      initialNotificationPrefs={notificationPrefs || undefined}
     />
   );
 }

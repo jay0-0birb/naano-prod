@@ -1,14 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { User, CreditCard, Bell, Shield, CheckCircle2, Edit2 } from 'lucide-react';
+import { User, CreditCard, Bell, Shield, CheckCircle2, Edit2, Loader2 } from 'lucide-react';
 import StripeConnectButton from '@/components/settings/stripe-connect-button';
 import StripeConnectSaasButton from '@/components/settings/stripe-connect-saas-button';
 import RevenueTrackingSetup from '@/components/collaborations/revenue-tracking-setup';
 import EditProfileForm from '@/components/settings/edit-profile-form';
 import EditCreatorProfileForm from '@/components/settings/edit-creator-profile-form';
 import EditSaasProfileForm from '@/components/settings/edit-saas-profile-form';
+import { createClient } from '@/lib/supabase/client';
+
+interface NotificationPreferences {
+  email_new_applications: boolean;
+  email_new_messages: boolean;
+  email_collaboration_updates: boolean;
+}
 
 interface SettingsClientProps {
   profile: any;
@@ -16,6 +23,7 @@ interface SettingsClientProps {
   saasCompany: any;
   stripeConnected: boolean;
   stripeStatus: string | undefined;
+  initialNotificationPrefs?: NotificationPreferences;
 }
 
 export default function SettingsClient({ 
@@ -23,14 +31,50 @@ export default function SettingsClient({
   creatorProfile, 
   saasCompany, 
   stripeConnected, 
-  stripeStatus 
+  stripeStatus,
+  initialNotificationPrefs
 }: SettingsClientProps) {
   const router = useRouter();
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showEditCreatorProfile, setShowEditCreatorProfile] = useState(false);
   const [showEditSaasProfile, setShowEditSaasProfile] = useState(false);
+  
+  // Notification preferences state
+  const [notifPrefs, setNotifPrefs] = useState<NotificationPreferences>({
+    email_new_applications: initialNotificationPrefs?.email_new_applications ?? true,
+    email_new_messages: initialNotificationPrefs?.email_new_messages ?? true,
+    email_collaboration_updates: initialNotificationPrefs?.email_collaboration_updates ?? true,
+  });
+  const [savingNotifs, setSavingNotifs] = useState(false);
 
   const isCreator = profile?.role === 'influencer';
+
+  const handleNotificationChange = async (key: keyof NotificationPreferences, value: boolean) => {
+    const newPrefs = { ...notifPrefs, [key]: value };
+    setNotifPrefs(newPrefs);
+    setSavingNotifs(true);
+
+    const supabase = createClient();
+    
+    // Upsert the preferences
+    const { error } = await supabase
+      .from('notification_preferences')
+      .upsert({
+        user_id: profile.id,
+        ...newPrefs,
+        updated_at: new Date().toISOString(),
+      }, {
+        onConflict: 'user_id'
+      });
+
+    if (error) {
+      console.error('Failed to save notification preferences:', error);
+      // Revert on error
+      setNotifPrefs(prev => ({ ...prev, [key]: !value }));
+    }
+
+    setSavingNotifs(false);
+  };
 
   const handleSuccess = () => {
     setShowEditProfile(false);
@@ -279,28 +323,61 @@ export default function SettingsClient({
 
         {/* Notifications Section */}
         <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
-              <Bell className="w-5 h-5 text-amber-400" />
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                <Bell className="w-5 h-5 text-amber-400" />
+              </div>
+              <div>
+                <h3 className="font-medium text-white">Notifications par email</h3>
+                <p className="text-xs text-slate-500">Recevez des emails pour ces événements</p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-medium text-white">Notifications</h3>
-              <p className="text-xs text-slate-500">Préférences de notification</p>
-            </div>
+            {savingNotifs && (
+              <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
+            )}
           </div>
 
           <div className="space-y-4">
-            <label className="flex items-center justify-between py-3 border-b border-white/5 cursor-pointer">
-              <span className="text-sm text-slate-400">Nouvelles candidatures</span>
-              <input type="checkbox" defaultChecked className="w-4 h-4 accent-blue-500" />
+            <label className="flex items-center justify-between py-3 border-b border-white/5 cursor-pointer group">
+              <div>
+                <span className="text-sm text-white block">Nouvelles candidatures</span>
+                <span className="text-xs text-slate-500">
+                  {isCreator ? 'Quand une entreprise vous contacte' : 'Quand un créateur postule'}
+                </span>
+              </div>
+              <input 
+                type="checkbox" 
+                checked={notifPrefs.email_new_applications}
+                onChange={(e) => handleNotificationChange('email_new_applications', e.target.checked)}
+                className="w-5 h-5 accent-blue-500 cursor-pointer" 
+              />
             </label>
-            <label className="flex items-center justify-between py-3 border-b border-white/5 cursor-pointer">
-              <span className="text-sm text-slate-400">Nouveaux messages</span>
-              <input type="checkbox" defaultChecked className="w-4 h-4 accent-blue-500" />
+            <label className="flex items-center justify-between py-3 border-b border-white/5 cursor-pointer group">
+              <div>
+                <span className="text-sm text-white block">Nouveaux messages</span>
+                <span className="text-xs text-slate-500">Quand vous recevez un message</span>
+              </div>
+              <input 
+                type="checkbox" 
+                checked={notifPrefs.email_new_messages}
+                onChange={(e) => handleNotificationChange('email_new_messages', e.target.checked)}
+                className="w-5 h-5 accent-blue-500 cursor-pointer" 
+              />
             </label>
-            <label className="flex items-center justify-between py-3 cursor-pointer">
-              <span className="text-sm text-slate-400">Mises à jour de collaboration</span>
-              <input type="checkbox" defaultChecked className="w-4 h-4 accent-blue-500" />
+            <label className="flex items-center justify-between py-3 cursor-pointer group">
+              <div>
+                <span className="text-sm text-white block">Mises à jour de collaboration</span>
+                <span className="text-xs text-slate-500">
+                  {isCreator ? 'Candidatures acceptées, posts validés...' : 'Nouveaux posts soumis, etc.'}
+                </span>
+              </div>
+              <input 
+                type="checkbox" 
+                checked={notifPrefs.email_collaboration_updates}
+                onChange={(e) => handleNotificationChange('email_collaboration_updates', e.target.checked)}
+                className="w-5 h-5 accent-blue-500 cursor-pointer" 
+              />
             </label>
           </div>
         </div>

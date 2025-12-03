@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { notifyCollaborationAccepted } from '@/lib/notifications'
 
 export async function updateApplicationStatus(applicationId: string, status: 'accepted' | 'rejected') {
   const supabase = await createClient()
@@ -98,6 +99,9 @@ export async function updateApplicationStatus(applicationId: string, status: 'ac
             ])
         }
       }
+
+      // Notify creator that their application was accepted
+      notifyCollaborationAccepted(collaboration.id).catch(console.error)
     }
   }
 

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { notifyPostSubmitted, notifyPostValidated } from '@/lib/notifications'
 
 export async function submitPost(collaborationId: string, linkedinPostUrl: string) {
   const supabase = await createClient()
@@ -68,6 +69,9 @@ export async function submitPost(collaborationId: string, linkedinPostUrl: strin
     return { error: error.message }
   }
 
+  // Notify SaaS that a post was submitted
+  notifyPostSubmitted(collaborationId).catch(console.error)
+
   revalidatePath(`/dashboard/collaborations/${collaborationId}`)
   return { success: true }
 }
@@ -118,6 +122,9 @@ export async function validatePost(proofId: string) {
   if (error) {
     return { error: error.message }
   }
+
+  // Notify creator that their post was validated
+  notifyPostValidated(proof.collaboration_id).catch(console.error)
 
   revalidatePath(`/dashboard/collaborations/${proof.collaboration_id}`)
   return { success: true }

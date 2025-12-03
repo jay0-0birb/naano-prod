@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { notifyNewMessage } from '@/lib/notifications'
 
 export async function sendMessage(conversationId: string, content: string) {
   const supabase = await createClient()
@@ -37,6 +38,9 @@ export async function sendMessage(conversationId: string, content: string) {
   if (error) {
     return { error: error.message }
   }
+
+  // Trigger email notification (async, don't wait)
+  notifyNewMessage(data.id, conversationId, user.id).catch(console.error)
 
   revalidatePath('/dashboard/messages')
   

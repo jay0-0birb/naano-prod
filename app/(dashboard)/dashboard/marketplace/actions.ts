@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { notifyNewApplication } from '@/lib/notifications'
 
 interface ApplyToSaasParams {
   creatorId: string;
@@ -41,7 +42,7 @@ export async function applyToSaas({ creatorId, saasId, message }: ApplyToSaasPar
   }
 
   // Create application
-  const { error } = await supabase
+  const { error, data: newApplication } = await supabase
     .from('applications')
     .insert({
       creator_id: creatorId,
@@ -49,9 +50,16 @@ export async function applyToSaas({ creatorId, saasId, message }: ApplyToSaasPar
       message: message || null,
       status: 'pending',
     })
+    .select('id')
+    .single()
 
   if (error) {
     return { error: error.message }
+  }
+
+  // Trigger email notification to SaaS (async, don't wait)
+  if (newApplication) {
+    notifyNewApplication(newApplication.id).catch(console.error)
   }
 
   revalidatePath('/dashboard/marketplace')
