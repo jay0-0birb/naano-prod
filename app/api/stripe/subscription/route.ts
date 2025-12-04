@@ -79,27 +79,44 @@ export async function POST(request: Request) {
       }, { status: 503 });
     }
 
-    // If already has subscription, update it
+    // If already has subscription, create a checkout session for the upgrade/downgrade
+    // This shows the payment page - old subscription will be cancelled when new one is created
     if (saasCompany.stripe_subscription_id) {
       const subscription = await stripe.subscriptions.retrieve(saasCompany.stripe_subscription_id);
-      
-      await stripe.subscriptions.update(saasCompany.stripe_subscription_id, {
-        items: [{
-          id: subscription.items.data[0].id,
-          price: priceId,
-        }],
-        proration_behavior: 'create_prorations',
+      const customerId = subscription.customer as string;
+      const oldSubscriptionId = saasCompany.stripe_subscription_id;
+
+      // Create new checkout session for the new plan
+      // The old subscription will be cancelled in the webhook when new one is confirmed
+      const session = await stripe.checkout.sessions.create({
+        mode: 'subscription',
+        payment_method_types: ['card'],
+        customer: customerId, // Use existing customer
+        line_items: [
+          {
+            price: priceId,
+            quantity: 1,
+          },
+        ],
+        success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/finances?subscription=success&tier=${targetTier}`,
+        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/finances?subscription=cancelled`,
+        metadata: {
+          saas_id: saasCompany.id,
+          tier: targetTier,
+          user_id: user.id,
+          old_subscription_id: oldSubscriptionId, // Store old subscription ID to cancel it later
+          is_upgrade: 'true',
+        },
+        subscription_data: {
+          metadata: {
+            saas_id: saasCompany.id,
+            tier: targetTier,
+            old_subscription_id: oldSubscriptionId,
+          },
+        },
       });
 
-      await supabase
-        .from('saas_companies')
-        .update({ subscription_tier: targetTier })
-        .eq('id', saasCompany.id);
-
-      return NextResponse.json({ 
-        success: true, 
-        message: `Plan mis à jour vers ${SAAS_TIERS[targetTier].name}` 
-      });
+      return NextResponse.json({ url: session.url });
     }
 
     // Create new checkout session for new subscription

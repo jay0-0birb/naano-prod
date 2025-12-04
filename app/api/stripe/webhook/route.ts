@@ -56,8 +56,26 @@ export async function POST(request: Request) {
         ) {
           const saasId = session.metadata.saas_id;
           const tier = session.metadata.tier;
+          const oldSubscriptionId = session.metadata.old_subscription_id;
+          const isUpgrade = session.metadata.is_upgrade === "true";
 
           if (saasId && tier) {
+            // If this is an upgrade/downgrade, cancel the old subscription
+            if (isUpgrade && oldSubscriptionId) {
+              try {
+                await stripe.subscriptions.cancel(oldSubscriptionId);
+                console.log(
+                  `Cancelled old subscription ${oldSubscriptionId} for SaaS ${saasId}`
+                );
+              } catch (err) {
+                console.error(
+                  `Error cancelling old subscription ${oldSubscriptionId}:`,
+                  err
+                );
+                // Continue anyway - new subscription is created
+              }
+            }
+
             await supabaseAdmin
               .from("saas_companies")
               .update({
@@ -67,7 +85,11 @@ export async function POST(request: Request) {
               })
               .eq("id", saasId);
 
-            console.log(`Subscription created for SaaS ${saasId}: ${tier}`);
+            console.log(
+              `Subscription ${
+                isUpgrade ? "upgraded" : "created"
+              } for SaaS ${saasId}: ${tier}`
+            );
           }
         }
 
@@ -149,8 +171,28 @@ export async function POST(request: Request) {
       const subscription = event.data.object as any;
       const saasId = subscription.metadata?.saas_id;
       const tier = subscription.metadata?.tier;
+      const oldSubscriptionId = subscription.metadata?.old_subscription_id;
 
       if (saasId && tier) {
+        // If this is an upgrade/downgrade, cancel the old subscription
+        if (
+          oldSubscriptionId &&
+          event.type === "customer.subscription.created"
+        ) {
+          try {
+            await stripe.subscriptions.cancel(oldSubscriptionId);
+            console.log(
+              `Cancelled old subscription ${oldSubscriptionId} for SaaS ${saasId}`
+            );
+          } catch (err) {
+            console.error(
+              `Error cancelling old subscription ${oldSubscriptionId}:`,
+              err
+            );
+            // Continue anyway - new subscription is created
+          }
+        }
+
         await supabaseAdmin
           .from("saas_companies")
           .update({
