@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { stripe } from '@/lib/stripe';
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     if (!stripe) {
       return NextResponse.json({ error: 'Stripe non configuré' }, { status: 503 });
@@ -14,6 +14,10 @@ export async function POST() {
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
+
+    // Get return path from request body (optional)
+    const body = await request.json().catch(() => ({}));
+    const returnPath = body.returnPath || 'settings';
 
     // Get creator profile
     const { data: creatorProfile } = await supabase
@@ -59,11 +63,21 @@ export async function POST() {
         .eq('id', creatorProfile.id);
     }
 
+    // Determine return URL based on returnPath
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
+    const returnUrl = returnPath === 'finances' 
+      ? `${baseUrl}/dashboard/finances?stripe=success`
+      : `${baseUrl}/dashboard/settings?stripe=success`;
+    
+    const refreshUrl = returnPath === 'finances'
+      ? `${baseUrl}/dashboard/finances?stripe=refresh`
+      : `${baseUrl}/dashboard/settings?stripe=refresh`;
+
     // Create account link for onboarding
     const accountLink = await stripe.accountLinks.create({
       account: accountId,
-      refresh_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/settings?stripe=refresh`,
-      return_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/settings?stripe=success`,
+      refresh_url: refreshUrl,
+      return_url: returnUrl,
       type: 'account_onboarding',
     });
 

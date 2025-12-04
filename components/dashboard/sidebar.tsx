@@ -14,6 +14,7 @@ import {
   Handshake,
   AlertCircle,
   GraduationCap,
+  Wallet,
 } from "lucide-react";
 import { forceLogout } from "@/lib/auth-utils";
 import UnreadBadge from "./unread-badge";
@@ -132,6 +133,14 @@ export default function DashboardSidebar({
             <span className="text-sm">Messages</span>
           </div>
           <UnreadBadge userId={userId} />
+        </Link>
+
+        <Link
+          href="/dashboard/finances"
+          className={linkClass("/dashboard/finances")}
+        >
+          <Wallet className="w-5 h-5" />
+          <span className="text-sm">Finances</span>
         </Link>
 
         <Link

@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowRight, ShoppingBag, FileText, Users, Handshake } from 'lucide-react';
+import { ArrowRight, ShoppingBag, FileText, Users, Handshake, Wallet } from 'lucide-react';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -22,8 +22,8 @@ export default async function DashboardPage() {
 
   const isCreator = profile?.role === 'influencer';
 
-  // Fetch all stats in parallel based on role
-  let stats = { collaborations: 0, messages: 0, pending: 0 };
+  // Fetch basic stats
+  let stats = { collaborations: 0, pending: 0 };
 
   if (isCreator) {
     const { data: creatorProfile } = await supabase
@@ -33,7 +33,6 @@ export default async function DashboardPage() {
       .single();
 
     if (creatorProfile) {
-      // Parallel queries for creator stats
       const [applicationsResult, collaborationsResult] = await Promise.all([
         supabase
           .from('applications')
@@ -43,7 +42,7 @@ export default async function DashboardPage() {
         supabase
           .from('collaborations')
           .select('*', { count: 'exact', head: true })
-          .eq('status', 'active')
+          .eq('status', 'active'),
       ]);
       
       stats.pending = applicationsResult.count || 0;
@@ -57,7 +56,6 @@ export default async function DashboardPage() {
       .single();
 
     if (saasCompany) {
-      // Parallel queries for SaaS stats
       const [candidatesResult, collaborationsResult] = await Promise.all([
         supabase
           .from('applications')
@@ -67,7 +65,7 @@ export default async function DashboardPage() {
         supabase
           .from('collaborations')
           .select('*', { count: 'exact', head: true })
-          .eq('status', 'active')
+          .eq('status', 'active'),
       ]);
       
       stats.pending = candidatesResult.count || 0;
@@ -87,7 +85,7 @@ export default async function DashboardPage() {
       </p>
       
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
           <div className="text-slate-400 text-sm mb-1">
             {isCreator ? 'Candidatures en attente' : 'Candidatures reçues'}
@@ -97,10 +95,6 @@ export default async function DashboardPage() {
         <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
           <div className="text-slate-400 text-sm mb-1">Collaborations actives</div>
           <div className="text-3xl font-semibold text-white">{stats.collaborations}</div>
-        </div>
-        <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
-          <div className="text-slate-400 text-sm mb-1">Messages non lus</div>
-          <div className="text-3xl font-semibold text-white">{stats.messages}</div>
         </div>
       </div>
 
@@ -143,6 +137,23 @@ export default async function DashboardPage() {
                 <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-purple-400 group-hover:translate-x-1 transition-all" />
               </div>
             </Link>
+            <Link 
+              href="/dashboard/finances"
+              className="group p-6 rounded-2xl border border-white/10 bg-[#0A0C10] hover:border-green-500/30 hover:bg-green-500/5 transition-all"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center">
+                    <Wallet className="w-6 h-6 text-green-400" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-white">Mes finances</h4>
+                    <p className="text-sm text-slate-400">Commissions et paiements</p>
+                  </div>
+                </div>
+                <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-green-400 group-hover:translate-x-1 transition-all" />
+              </div>
+            </Link>
           </>
         ) : (
           <>
@@ -178,6 +189,23 @@ export default async function DashboardPage() {
                   </div>
                 </div>
                 <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-green-400 group-hover:translate-x-1 transition-all" />
+              </div>
+            </Link>
+            <Link 
+              href="/dashboard/finances"
+              className="group p-6 rounded-2xl border border-white/10 bg-[#0A0C10] hover:border-amber-500/30 hover:bg-amber-500/5 transition-all"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                    <Wallet className="w-6 h-6 text-amber-400" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-white">Finances & Plans</h4>
+                    <p className="text-sm text-slate-400">Gérez votre abonnement</p>
+                  </div>
+                </div>
+                <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-amber-400 group-hover:translate-x-1 transition-all" />
               </div>
             </Link>
           </>

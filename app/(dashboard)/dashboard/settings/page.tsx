@@ -1,13 +1,14 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import SettingsClient from '@/components/settings/settings-client';
+import { verifyStripeConnectStatus } from '@/lib/stripe-status';
 
 interface PageProps {
-  searchParams: Promise<{ stripe?: string }>;
+  searchParams: Promise<{ stripe?: string; stripe_success?: string; stripe_error?: string }>;
 }
 
 export default async function SettingsPage({ searchParams }: PageProps) {
-  const { stripe: stripeStatus } = await searchParams;
+  const { stripe: stripeStatus, stripe_success, stripe_error } = await searchParams;
   const supabase = await createClient();
   
   const { data: { user } } = await supabase.auth.getUser();
@@ -27,6 +28,7 @@ export default async function SettingsPage({ searchParams }: PageProps) {
   const isCreator = profile?.role === 'influencer';
 
   // Get creator profile or saas company
+  // Note: Verification happens client-side to avoid revalidatePath during render
   let stripeConnected = false;
   let creatorProfile = null;
   let saasCompany = null;
@@ -57,13 +59,18 @@ export default async function SettingsPage({ searchParams }: PageProps) {
     .eq('user_id', user.id)
     .single();
 
+  // Determine which stripe status to show
+  const finalStripeStatus = stripeStatus || (stripe_success ? 'success' : undefined);
+  const stripeError = stripe_error;
+
   return (
     <SettingsClient 
       profile={profile}
       creatorProfile={creatorProfile}
       saasCompany={saasCompany}
       stripeConnected={stripeConnected}
-      stripeStatus={stripeStatus}
+      stripeStatus={finalStripeStatus}
+      stripeError={stripeError}
       initialNotificationPrefs={notificationPrefs || undefined}
     />
   );
