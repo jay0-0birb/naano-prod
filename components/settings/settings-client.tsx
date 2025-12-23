@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import StripeConnectButton from "@/components/settings/stripe-connect-button";
 import StripeConnectSaasButton from "@/components/settings/stripe-connect-saas-button";
+import CardRegistrationButton from "@/components/settings/card-registration-button";
 import RevenueTrackingSetup from "@/components/collaborations/revenue-tracking-setup";
 import EditProfileForm from "@/components/settings/edit-profile-form";
 import EditCreatorProfileForm from "@/components/settings/edit-creator-profile-form";
@@ -388,7 +389,58 @@ export default function SettingsClient({
           </div>
         )}
 
-        {/* Revenue Tracking Section (SaaS only) */}
+        {/* Card Registration Section (SaaS only) - BP1.md: Required for billing */}
+        {!isCreator && saasCompany && (
+          <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                <CreditCard className="w-5 h-5 text-blue-400" />
+              </div>
+              <div>
+                <h3 className="font-medium text-white">
+                  Carte bancaire
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Enregistrez une carte pour payer les leads générés
+                </p>
+              </div>
+            </div>
+
+            <div className="p-4 bg-white/[0.02] rounded-xl border border-white/5 mb-4">
+              {saasCompany.card_on_file ? (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-white mb-1">Carte enregistrée</p>
+                    <p className="text-xs text-slate-500">
+                      {saasCompany.card_brand && saasCompany.card_brand.charAt(0).toUpperCase() + saasCompany.card_brand.slice(1)}
+                      {saasCompany.card_last4 && ` •••• ${saasCompany.card_last4}`}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 text-green-400">
+                    <CheckCircle2 className="w-5 h-5" />
+                    <span className="text-sm">Enregistrée</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-white mb-1">Aucune carte enregistrée</p>
+                    <p className="text-xs text-slate-500">
+                      Vous devez enregistrer une carte pour utiliser Naano et payer les leads générés par vos créateurs.
+                    </p>
+                  </div>
+                  <CardRegistrationButton />
+                </div>
+              )}
+            </div>
+
+            <p className="text-xs text-slate-500">
+              Cette carte sera utilisée pour payer automatiquement les leads lorsque vous atteignez 100€ de dette ou à la fin du mois.
+            </p>
+          </div>
+        )}
+
+        {/* Revenue Tracking Section (SaaS only) - Optional */}
         {!isCreator && saasCompany && (
           <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-6">
@@ -397,7 +449,7 @@ export default function SettingsClient({
               </div>
               <div>
                 <h3 className="font-medium text-white">
-                  Suivi du Chiffre d'Affaires
+                  Suivi du Chiffre d'Affaires (Optionnel)
                 </h3>
                 <p className="text-xs text-slate-500">
                   Configurez le tracking des ventes générées par vos

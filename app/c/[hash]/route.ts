@@ -104,9 +104,9 @@ export async function GET(
     const eventType = isClick && trackingLink.track_clicks ? 'click' : 
                      trackingLink.track_impressions ? 'impression' : null;
 
-    // 5. Log the event (async, don't wait for it)
+    // 5. Log the event and create lead if it's a click (BP1 model: every click = lead)
     if (eventType) {
-      supabase
+      const { error: eventError } = await supabase
         .from('link_events')
         .insert({
           tracked_link_id: trackingLink.id,
@@ -116,11 +116,83 @@ export async function GET(
           referrer: referrer,
           session_id: sessionId,
         })
-        .then(({ error }) => {
-          if (error) {
-            console.error(`Error logging ${eventType}:`, error);
+        .select('id')
+        .single();
+
+      if (eventError) {
+        console.error(`Error logging ${eventType}:`, eventError);
+      } else if (eventType === 'click') {
+        // Automatically create a lead for this click (BP1 model)
+        console.log('[LEAD CREATION] Starting lead creation for click...');
+        
+        // Fetch collaboration data directly to get creator_id and saas_id
+        const { data: collaboration, error: collabError } = await supabase
+          .from('collaborations')
+          .select(`
+            id,
+            application_id,
+            applications:application_id (
+              creator_id,
+              saas_id
+            )
+          `)
+          .eq('id', trackingLink.collaboration_id)
+          .single();
+
+        if (collabError) {
+          console.error('[LEAD CREATION] ❌ Error fetching collaboration:', collabError);
+        } else if (!collaboration) {
+          console.error('[LEAD CREATION] ❌ Collaboration not found:', trackingLink.collaboration_id);
+        } else {
+          // Try to get IDs from nested structure first
+          let creatorId = (collaboration as any)?.applications?.creator_id;
+          let saasId = (collaboration as any)?.applications?.saas_id;
+
+          // Fallback: fetch application directly if nested structure failed
+          if (!creatorId || !saasId) {
+            console.log('[LEAD CREATION] Nested structure failed, fetching application directly...');
+            const { data: application, error: appError } = await supabase
+              .from('applications')
+              .select('creator_id, saas_id')
+              .eq('id', collaboration.application_id)
+              .single();
+
+            if (appError) {
+              console.error('[LEAD CREATION] ❌ Error fetching application:', appError);
+            } else {
+              creatorId = application?.creator_id;
+              saasId = application?.saas_id;
+            }
           }
-        });
+
+          console.log('[LEAD CREATION] Attempting to create lead:', {
+            collaboration_id: trackingLink.collaboration_id,
+            application_id: collaboration.application_id,
+            creator_id: creatorId,
+            saas_id: saasId,
+            tracked_link_id: trackingLink.id,
+          });
+
+          if (!creatorId || !saasId) {
+            console.error('[LEAD CREATION] ❌ Missing creator_id or saas_id:', { creatorId, saasId });
+          } else {
+            // Create lead using database function (BP1 model: every click = lead)
+            // The database function handles deduplication internally
+            const { data: leadId, error: leadError } = await supabase.rpc('create_lead', {
+              p_tracked_link_id: trackingLink.id,
+              p_creator_id: creatorId,
+              p_saas_id: saasId,
+            });
+
+            if (leadError) {
+              console.error('[LEAD CREATION] ❌ Error creating lead:', leadError);
+              console.error('[LEAD CREATION] Error details:', JSON.stringify(leadError, null, 2));
+            } else {
+              console.log('[LEAD CREATION] ✅ Lead created successfully! Lead ID:', leadId);
+            }
+          }
+        }
+      }
     }
 
     // 6. Build the destination URL with UTM parameters

@@ -3,31 +3,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 /**
- * CONVERSION TRACKING API
+ * LEAD TRACKING API (BP1 Model)
  * 
- * Supports TWO methods:
- * 1. JavaScript Pixel (reads cookie from request)
- * 2. Server Webhook (receives session_id + API key)
+ * Creates a lead when user clicks tracking link
+ * This replaces the old conversion tracking
  * 
  * Usage:
- * 
- * PIXEL:
- * fetch('/api/track/conversion', {
- *   method: 'POST',
- *   credentials: 'include',
- *   body: JSON.stringify({ revenue: 100, order_id: '123' })
- * });
- * 
- * WEBHOOK:
- * fetch('/api/track/conversion', {
- *   method: 'POST',
- *   headers: { 'Authorization': 'Bearer saas-api-key-123' },
- *   body: JSON.stringify({ 
- *     session_id: 'uuid-123',
- *     revenue: 100,
- *     order_id: '123'
- *   })
- * });
+ * - Called automatically when tracking link is clicked
+ * - Or manually via API with session_id
  */
 
 const COOKIE_NAME = 'naano_attribution';
@@ -48,25 +31,7 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json();
-    const { revenue, net_revenue, stripe_fee, order_id, customer_email, session_id } = body;
-
-    // Validate revenue
-    if (!revenue || typeof revenue !== 'number' || revenue <= 0) {
-      return NextResponse.json(
-        { error: 'Invalid revenue amount' },
-        { status: 400 }
-      );
-    }
-
-    // Calculate net revenue and Stripe fees if not provided
-    // If net_revenue is provided, use it; otherwise assume revenue is gross
-    const grossRevenue = revenue;
-    const netRevenue = net_revenue !== undefined 
-      ? net_revenue 
-      : revenue; // Default to gross if net not provided (backward compatible)
-    const stripeFee = stripe_fee !== undefined 
-      ? stripe_fee 
-      : (grossRevenue - netRevenue); // Calculate fee if not provided
+    const { session_id } = body;
 
     // Determine tracking method: Webhook (has session_id) or Pixel (has cookie)
     let trackingSessionId: string | null = null;
@@ -124,7 +89,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find the tracking link by session_id
+    // Find the tracking link by session_id (from click event)
     const { data: existingEvent } = await supabase
       .from('link_events')
       .select('tracked_link_id')
@@ -143,36 +108,70 @@ export async function POST(request: NextRequest) {
 
     const trackedLinkId = existingEvent.tracked_link_id;
 
-    // Check if this session already converted (prevent double-counting)
-    const { data: existingConversion } = await supabase
-      .from('link_events')
-      .select('id')
-      .eq('tracked_link_id', trackedLinkId)
-      .eq('session_id', trackingSessionId)
-      .eq('event_type', 'conversion')
+    // Get tracked link details to find collaboration
+    const { data: trackedLink } = await supabase
+      .from('tracked_links')
+      .select(`
+        id,
+        collaboration_id,
+        collaborations!inner(
+          id,
+          applications!inner(
+            creator_id,
+            saas_id
+          )
+        )
+      `)
+      .eq('id', trackedLinkId)
       .single();
 
-    if (existingConversion) {
+    if (!trackedLink) {
+      return NextResponse.json(
+        { error: 'Tracked link not found' },
+        { status: 404 }
+      );
+    }
+
+    const collaboration = trackedLink.collaborations as any;
+    const application = collaboration?.applications as any;
+    const creatorId = application?.creator_id;
+    const saasId = application?.saas_id;
+
+    if (!creatorId || !saasId) {
+      return NextResponse.json(
+        { error: 'Could not determine creator or SaaS from collaboration' },
+        { status: 404 }
+      );
+    }
+
+    // Check if this session already created a lead (prevent double-counting)
+    const { data: existingLead } = await supabase
+      .from('leads')
+      .select('id')
+      .eq('tracked_link_id', trackedLinkId)
+      .eq('creator_id', creatorId)
+      .eq('saas_id', saasId)
+      .eq('status', 'validated')
+      .single();
+
+    if (existingLead) {
       return NextResponse.json(
         { 
           success: true, 
-          message: 'Conversion already recorded',
-          conversion_id: existingConversion.id
+          message: 'Lead already created for this session',
+          lead_id: existingLead.id
         },
         { status: 200 }
       );
     }
 
-    // Log the conversion
-    const { data: conversion, error: conversionError } = await supabase
+    // Log lead event in link_events
+    const { data: leadEvent } = await supabase
       .from('link_events')
       .insert({
         tracked_link_id: trackedLinkId,
-        event_type: 'conversion',
+        event_type: 'lead',
         session_id: trackingSessionId,
-        revenue_amount: grossRevenue, // Gross revenue (what customer paid)
-        net_revenue_amount: netRevenue, // Net revenue (after Stripe fees)
-        stripe_fee_amount: stripeFee, // Stripe fees deducted
         ip_address: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown',
         user_agent: request.headers.get('user-agent') || 'unknown',
         referrer: trackingMethod,
@@ -180,34 +179,67 @@ export async function POST(request: NextRequest) {
       .select('id')
       .single();
 
-    if (conversionError) {
-      console.error('Error logging conversion:', conversionError);
+    // Create lead using database function (BP1 model)
+    // This function:
+    // - Gets SaaS's current plan
+    // - Calculates lead_value (€2.50 / €2.00 / €1.60)
+    // - Sets creator_earnings to €1.20 (fixed)
+    // - Updates creator wallet (pending)
+    // - Updates SaaS debt
+    const { data: leadId, error: leadError } = await supabase.rpc('create_lead', {
+      p_tracked_link_id: trackedLinkId,
+      p_creator_id: creatorId,
+      p_saas_id: saasId,
+    });
+
+    if (leadError) {
+      console.error('Error creating lead:', leadError);
       return NextResponse.json(
-        { error: 'Failed to log conversion' },
+        { error: 'Failed to create lead', details: leadError.message },
         { status: 500 }
       );
     }
 
-    console.log('Conversion tracked:', {
+    // Get created lead details
+    const { data: lead } = await supabase
+      .from('leads')
+      .select('id, saas_plan, lead_value, creator_earnings, naano_margin_brut, status')
+      .eq('id', leadId)
+      .single();
+
+    // Check if SaaS should be billed (threshold reached)
+    const { data: shouldBill } = await supabase.rpc('should_bill_saas', {
+      p_saas_id: saasId,
+    });
+
+    console.log('Lead created:', {
       method: trackingMethod,
       session_id: trackingSessionId,
-      revenue,
-      order_id,
-      conversion_id: conversion.id
+      lead_id: leadId,
+      saas_plan: lead?.saas_plan,
+      lead_value: lead?.lead_value,
+      should_bill: shouldBill,
     });
 
     return NextResponse.json(
       {
         success: true,
-        message: 'Conversion tracked successfully',
-        conversion_id: conversion.id,
+        message: 'Lead created successfully',
+        lead: {
+          id: leadId,
+          saas_plan: lead?.saas_plan,
+          lead_value: lead?.lead_value,
+          creator_earnings: lead?.creator_earnings,
+          naano_margin_brut: lead?.naano_margin_brut,
+        },
+        should_bill: shouldBill,
         method: trackingMethod
       },
       { status: 200 }
     );
 
   } catch (error) {
-    console.error('Conversion tracking error:', error);
+    console.error('Lead tracking error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -63,8 +63,16 @@ export async function POST(request: Request) {
         .eq('id', creatorProfile.id);
     }
 
-    // Determine return URL based on returnPath
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
+    // Determine base URL dynamically.
+    // On localhost, ALWAYS use the current request origin (correct port).
+    // In production, prefer NEXT_PUBLIC_APP_URL if set.
+    const requestUrl = new URL(request.url);
+    const isLocalhost =
+      requestUrl.hostname === 'localhost' || requestUrl.hostname === '127.0.0.1';
+
+    const baseUrl = isLocalhost
+      ? `${requestUrl.protocol}//${requestUrl.host}`
+      : process.env.NEXT_PUBLIC_APP_URL || `${requestUrl.protocol}//${requestUrl.host}`;
     const returnUrl = returnPath === 'finances' 
       ? `${baseUrl}/dashboard/finances?stripe=success`
       : `${baseUrl}/dashboard/settings?stripe=success`;

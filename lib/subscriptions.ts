@@ -29,7 +29,7 @@ export async function getSaasSubscription() {
 
   // Count active creators
   const { data: activeCreators } = await supabase.rpc('count_saas_active_creators', {
-    saas_id: saasCompany.id
+    p_saas_id: saasCompany.id
   });
 
   return {
@@ -72,7 +72,7 @@ export async function getCreatorSubscription() {
 
   // Count active SaaS partnerships
   const { data: activeSaas } = await supabase.rpc('count_creator_active_saas', {
-    creator_id: creatorProfile.id
+    p_creator_id: creatorProfile.id
   });
 
   return {

@@ -15,10 +15,11 @@ import {
   Info,
   Loader2,
   Settings,
-  RefreshCw
+  RefreshCw,
+  FileText
 } from 'lucide-react';
 import Link from 'next/link';
-import { SAAS_TIERS, SaasTier, COMMISSION_CONFIG } from '@/lib/subscription-config';
+import { SAAS_TIERS, SaasTier } from '@/lib/subscription-config';
 import { refreshStripeStatus } from '@/lib/stripe-status';
 import { verifySubscriptionStatus } from '@/lib/subscription-status';
 
@@ -34,9 +35,11 @@ interface CreatorData {
   activeSaas: number;
   maxSaas: number;
   stripeConnected: boolean;
-  commissionRate: number;
-  platformFee: number;
   minPayout: number;
+  pendingBalance: number; // BP1.md: Waiting for SaaS payment
+  availableBalance: number; // BP1.md: Ready for payout
+  totalEarned: number; // Lifetime total
+  payoutHistory: any[];
 }
 
 interface SaasData {
@@ -47,7 +50,13 @@ interface SaasData {
   activeCreators: number;
   maxCreators: number;
   allTiers: typeof SAAS_TIERS;
-  commissionConfig: typeof COMMISSION_CONFIG;
+  currentDebt: number; // BP1.md: Current accumulated debt
+  totalLeads: number; // Total leads generated
+  totalInvoiced: number; // Total amount invoiced
+  invoices: any[]; // Billing invoices
+  cardOnFile: boolean; // Card registration status
+  cardLast4: string | null; // Last 4 digits of card
+  cardBrand: string | null; // Card brand (visa, mastercard, etc.)
 }
 
 interface FinancesPageClientProps {
@@ -70,6 +79,18 @@ export default function FinancesPageClient({
   const [loadingTier, setLoadingTier] = useState<SaasTier | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [stripeLoading, setStripeLoading] = useState(false);
+  const [payoutLoading, setPayoutLoading] = useState(false);
+
+  // Debug: Log what we're rendering
+  useEffect(() => {
+    console.log('FinancesPageClient render:', { 
+      isCreator, 
+      hasCreatorData: !!creatorData, 
+      hasSaasData: !!saasData,
+      selectedTab,
+      saasDataKeys: saasData ? Object.keys(saasData) : null
+    });
+  }, [isCreator, creatorData, saasData, selectedTab]);
 
   // Auto-verify and refresh if we have success message but status not updated
   useEffect(() => {
@@ -268,6 +289,47 @@ export default function FinancesPageClient({
     }
   };
 
+  // Handle payout request for creators
+  const handleRequestPayout = async () => {
+    setPayoutLoading(true);
+    setError(null);
+
+    try {
+      const supabase = (await import('@/lib/supabase/client')).createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        setError('Non authentifié');
+        setPayoutLoading(false);
+        return;
+      }
+
+      const response = await fetch('/api/payouts/request', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        setError(data.error);
+        setPayoutLoading(false);
+        return;
+      }
+
+      if (data.success) {
+        // Success! Refresh the page to show updated earnings
+        router.refresh();
+      }
+    } catch (err) {
+      setError('Une erreur est survenue');
+      setPayoutLoading(false);
+    }
+  };
+
   // Handle manage subscription (Stripe portal)
   const handleManageSubscription = async () => {
     setStripeLoading(true);
@@ -295,6 +357,12 @@ export default function FinancesPageClient({
     }
   };
 
+  // Handle card registration (BP1.md: Card required for SaaS)
+  const handleAddCard = async () => {
+    // Redirect to settings page where card setup will be handled
+    router.push('/dashboard/settings');
+  };
+
   // Creator View
   if (isCreator && creatorData) {
     return (
@@ -303,7 +371,7 @@ export default function FinancesPageClient({
         <div className="mb-8">
           <h1 className="text-2xl font-normal text-white mb-1">💰 Finances</h1>
           <p className="text-slate-400 text-sm">
-            Gérez vos partenariats et commissions
+            Gérez vos gains et demandez vos virements
           </p>
         </div>
 
@@ -337,7 +405,7 @@ export default function FinancesPageClient({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div className="bg-black/20 rounded-xl p-4">
               <p className="text-purple-200 text-sm mb-1">Partenariats actifs</p>
               <p className="text-2xl font-bold text-white">
@@ -346,9 +414,18 @@ export default function FinancesPageClient({
               </p>
             </div>
             <div className="bg-black/20 rounded-xl p-4">
-              <p className="text-purple-200 text-sm mb-1">Commission</p>
-              <p className="text-2xl font-bold text-white">{creatorData.commissionRate}%</p>
-              <p className="text-xs text-purple-200">du CA généré</p>
+              <p className="text-purple-200 text-sm mb-1">Total gagné</p>
+              <p className="text-2xl font-bold text-white">
+                {creatorData.totalEarned.toFixed(2)}€
+              </p>
+              <p className="text-xs text-purple-200">Depuis le début</p>
+            </div>
+            <div className="bg-black/20 rounded-xl p-4">
+              <p className="text-purple-200 text-sm mb-1">Disponible</p>
+              <p className="text-2xl font-bold text-white">
+                {creatorData.availableBalance.toFixed(2)}€
+              </p>
+              <p className="text-xs text-purple-200">Prêt pour virement</p>
             </div>
           </div>
         </div>
@@ -427,74 +504,188 @@ export default function FinancesPageClient({
           )}
         </div>
 
-        {/* How it works */}
-        <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
+        {/* Wallet Overview - Simplified */}
+        <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6 mb-6">
           <h3 className="font-medium text-white mb-4 flex items-center gap-2">
-            <Info className="w-5 h-5 text-blue-400" />
-            Comment fonctionnent les commissions
+            <Wallet className="w-5 h-5 text-purple-400" />
+            Solde de votre portefeuille
           </h3>
           
-          <div className="space-y-4">
-            <div className="flex items-start gap-4 p-4 bg-white/[0.02] rounded-xl">
-              <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 font-bold shrink-0">1</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+              <p className="text-xs text-blue-400 mb-1 font-medium">En attente</p>
+              <p className="text-2xl font-bold text-white">
+                {creatorData.pendingBalance.toFixed(2)}€
+              </p>
+              <p className="text-xs text-slate-400 mt-1">
+                En attente que le SaaS paie Naano. Une fois payé, cet argent passera en "Disponible".
+              </p>
+            </div>
+            <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-xl">
+              <p className="text-xs text-green-400 mb-1 font-medium">Disponible</p>
+              <p className="text-2xl font-bold text-white">
+                {creatorData.availableBalance.toFixed(2)}€
+              </p>
+              <p className="text-xs text-slate-400 mt-1">
+                Prêt pour virement. Cliquez sur "Retirer" pour recevoir cet argent sur votre compte Stripe.
+              </p>
+            </div>
+          </div>
+          
+          <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl">
+            <p className="text-xs text-purple-400 mb-1 font-medium">Total gagné (lifetime)</p>
+            <p className="text-2xl font-bold text-white">
+              {creatorData.totalEarned.toFixed(2)}€
+            </p>
+            <p className="text-xs text-slate-400 mt-1">
+              Total de tous vos gains depuis le début (En attente + Disponible + Déjà retiré)
+            </p>
+          </div>
+            
+          {/* How it works */}
+          <div className="pt-6 border-t border-white/10">
+            <h4 className="text-sm font-medium text-white mb-3 flex items-center gap-2">
+              <Info className="w-4 h-4 text-blue-400" />
+              Comment ça fonctionne
+            </h4>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 font-bold shrink-0 text-xs">1</div>
               <div>
-                <h4 className="text-sm text-white font-medium">Vous générez des ventes</h4>
-                <p className="text-xs text-slate-500 mt-1">
-                  Partagez votre lien tracké. Chaque vente est attribuée à vous pendant 30 jours.
+                  <p className="text-xs text-white font-medium">Vous générez des leads</p>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Partagez votre lien tracké. Chaque lead validé vous rapporte 1,20€.
                 </p>
               </div>
             </div>
-            
-            <div className="flex items-start gap-4 p-4 bg-white/[0.02] rounded-xl">
-              <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 font-bold shrink-0">2</div>
-              <div>
-                <h4 className="text-sm text-white font-medium">Vous gagnez {creatorData.commissionRate}%</h4>
-                <p className="text-xs text-slate-500 mt-1">
-                  Sur chaque vente, vous recevez {creatorData.commissionRate}% du CA. 
-                  Konex prélève {creatorData.platformFee}% de frais sur votre commission.
-                </p>
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 font-bold shrink-0 text-xs">2</div>
+                <div>
+                  <p className="text-xs text-white font-medium">Paiement par le SaaS</p>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Le SaaS paie Naano, votre solde passe de "En attente" à "Disponible".
+                  </p>
+          </div>
               </div>
-            </div>
-            
-            <div className="flex items-start gap-4 p-4 bg-white/[0.02] rounded-xl">
-              <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 font-bold shrink-0">3</div>
-              <div>
-                <h4 className="text-sm text-white font-medium">Demandez un virement</h4>
-                <p className="text-xs text-slate-500 mt-1">
-                  Dès que vous atteignez {creatorData.minPayout}€, demandez un virement instantané via Stripe.
-                </p>
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 font-bold shrink-0 text-xs">3</div>
+                <div>
+                  <p className="text-xs text-white font-medium">Demandez un virement</p>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Dès que vous avez {creatorData.minPayout}€ disponible, retirez via Stripe.
+                  </p>
+              </div>
+              </div>
               </div>
             </div>
           </div>
 
-          {/* Example calculation */}
-          <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
-            <p className="text-xs text-blue-400 mb-2 font-medium">💡 Exemple pour 1 000€ de CA généré</p>
-            <div className="space-y-1 text-xs">
-              <div className="flex justify-between">
-                <span className="text-slate-400">Votre commission (15%)</span>
-                <span className="text-white">150,00€</span>
+          {/* Payout Section (BP1.md) */}
+          {creatorData.availableBalance > 0 && (
+            <div className="mt-6 p-6 bg-green-500/10 border border-green-500/20 rounded-xl">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h4 className="text-lg font-medium text-white mb-1">Solde disponible</h4>
+                  <p className="text-3xl font-bold text-green-400">
+                    {creatorData.availableBalance.toFixed(2)}€
+                  </p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Total gagné: {creatorData.totalEarned.toFixed(2)}€
+                  </p>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">Frais Konex (15% de 150€)</span>
-                <span className="text-red-400">-22,50€</span>
-              </div>
-              <div className="flex justify-between pt-2 border-t border-blue-500/20">
-                <span className="text-blue-400 font-medium">Vous recevez</span>
-                <span className="text-blue-400 font-medium">127,50€</span>
+
+              {creatorData.stripeConnected ? (
+                creatorData.availableBalance >= creatorData.minPayout ? (
+                  <button
+                    onClick={handleRequestPayout}
+                    disabled={payoutLoading}
+                    className="w-full py-3 bg-green-500 hover:bg-green-400 text-white rounded-xl font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {payoutLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Traitement en cours...
+                      </>
+                    ) : (
+                      <>
+                        <Wallet className="w-4 h-4" />
+                        Retirer ({creatorData.availableBalance.toFixed(2)}€)
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+                    <p className="text-sm text-amber-400">
+                      Montant minimum requis: {creatorData.minPayout}€. 
+                      Il vous manque {(creatorData.minPayout - creatorData.availableBalance).toFixed(2)}€.
+                    </p>
+                  </div>
+                )
+              ) : (
+                <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+                  <p className="text-sm text-amber-400">
+                    Connectez votre compte Stripe pour recevoir vos gains.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Payout History */}
+          {creatorData.payoutHistory && creatorData.payoutHistory.length > 0 && (
+            <div className="mt-6 p-6 bg-[#0A0C10] border border-white/10 rounded-xl">
+              <h4 className="text-lg font-medium text-white mb-4">Historique des virements</h4>
+              <div className="space-y-3">
+                {creatorData.payoutHistory.map((payout: any) => (
+                  <div key={payout.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                    <div>
+                      <p className="text-sm text-white font-medium">
+                        {payout.amount.toFixed(2)}€
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        {new Date(payout.created_at).toLocaleDateString('fr-FR')}
+                      </p>
+        </div>
+                    <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      payout.status === 'completed' ? 'bg-green-500/20 text-green-400' :
+                      payout.status === 'processing' ? 'bg-blue-500/20 text-blue-400' :
+                      payout.status === 'failed' ? 'bg-red-500/20 text-red-400' :
+                      'bg-slate-500/20 text-slate-400'
+                    }`}>
+                      {payout.status === 'completed' ? 'Complété' :
+                       payout.status === 'processing' ? 'En cours' :
+                       payout.status === 'failed' ? 'Échoué' : 'En attente'}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
-        </div>
+          )}
       </div>
     );
   }
 
   // SaaS View
-  if (!isCreator && saasData) {
+  if (!isCreator) {
+    if (!saasData) {
+      return (
+        <div className="max-w-5xl">
+          <div className="mb-8">
+            <h1 className="text-2xl font-normal text-white mb-1">💼 Finances & Plans</h1>
+            <p className="text-slate-400 text-sm">
+              Gérez votre abonnement et votre facturation
+            </p>
+          </div>
+          <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6">
+            <p className="text-red-400">Erreur: Données SaaS non trouvées</p>
+          </div>
+        </div>
+      );
+    }
     const tabs = [
       { id: 'plan', label: 'Mon Plan' },
-      { id: 'commissions', label: 'Commissions' },
+      { id: 'commissions', label: 'Facturation' }, // BP1.md: Changed from "Commissions" to "Facturation"
     ];
 
     return (
@@ -503,7 +694,7 @@ export default function FinancesPageClient({
         <div className="mb-8">
           <h1 className="text-2xl font-normal text-white mb-1">💼 Finances & Plans</h1>
           <p className="text-slate-400 text-sm">
-            Gérez votre abonnement et vos commissions
+            Gérez votre abonnement et votre facturation
           </p>
         </div>
 
@@ -527,7 +718,13 @@ export default function FinancesPageClient({
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setSelectedTab(tab.id as 'plan' | 'commissions')}
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Tab clicked:', tab.id);
+                setSelectedTab(tab.id as 'plan' | 'commissions');
+              }}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 selectedTab === tab.id
                   ? 'bg-white/10 text-white'
@@ -538,6 +735,79 @@ export default function FinancesPageClient({
             </button>
           ))}
         </div>
+
+        {/* Card Registration Section - Show first if no card */}
+        {!saasData.cardOnFile && (
+          <div className="mb-6 bg-amber-500/10 border border-amber-500/20 rounded-2xl p-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0">
+                <CreditCard className="w-6 h-6 text-amber-400" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-white mb-2">
+                  Carte bancaire requise
+                </h3>
+                <p className="text-slate-400 text-sm mb-4">
+                  Vous devez enregistrer une carte bancaire pour utiliser Naano. 
+                  Cette carte sera utilisée pour payer les leads générés par vos créateurs.
+                </p>
+                <button
+                  onClick={handleAddCard}
+                  disabled={stripeLoading}
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
+                >
+                  {stripeLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Chargement...
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="w-4 h-4" />
+                      Ajouter une carte
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Card Status - Show if card is registered */}
+        {saasData.cardOnFile && (
+          <div className="mb-6 bg-green-500/10 border border-green-500/20 rounded-2xl p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
+                  <Check className="w-6 h-6 text-green-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-1">
+                    Carte enregistrée
+                  </h3>
+                  <p className="text-slate-400 text-sm">
+                    {saasData.cardBrand && saasData.cardBrand.charAt(0).toUpperCase() + saasData.cardBrand.slice(1)} 
+                    {saasData.cardLast4 && ` •••• ${saasData.cardLast4}`}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={handleAddCard}
+                disabled={stripeLoading}
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
+              >
+                {stripeLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <Settings className="w-4 h-4" />
+                    Modifier
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
 
         {selectedTab === 'plan' && (
           <div className="space-y-6">
@@ -592,8 +862,13 @@ export default function FinancesPageClient({
                   </p>
                 </div>
                 <div className="bg-black/20 rounded-xl p-4">
-                  <p className="text-white/70 text-sm mb-1">Frais plateforme</p>
-                  <p className="text-2xl font-bold text-white">{saasData.tierConfig.platformFee}%</p>
+                  <p className="text-white/70 text-sm mb-1">Prix par lead</p>
+                  <p className="text-2xl font-bold text-white">
+                    {saasData.tier === 'starter' ? '2,50€' :
+                     saasData.tier === 'growth' ? '2,00€' :
+                     saasData.tier === 'scale' ? '1,60€' : 'N/A'}
+                  </p>
+                  <p className="text-xs text-white/60 mt-1">Selon votre plan</p>
                 </div>
                 <div className="bg-black/20 rounded-xl p-4">
                   <p className="text-white/70 text-sm mb-1">Statut</p>
@@ -666,7 +941,7 @@ export default function FinancesPageClient({
                         ))}
                         <li className="flex items-center gap-2 text-sm text-slate-300">
                           <Check className="w-4 h-4 text-green-400 shrink-0" />
-                          {tier.platformFee}% frais plateforme
+                          {tierKey === 'starter' ? '2,50€' : tierKey === 'growth' ? '2,00€' : '1,60€'} par lead
                         </li>
                       </ul>
 
@@ -709,81 +984,180 @@ export default function FinancesPageClient({
 
         {selectedTab === 'commissions' && (
           <div className="space-y-6">
-            {/* Commission Info */}
-            <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
+            {/* Billing Overview */}
+            <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-6 mb-6">
               <h3 className="font-medium text-white mb-4 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-green-400" />
-                Comment fonctionnent les commissions
+                <TrendingUp className="w-5 h-5 text-white" />
+                Vue d'ensemble de la facturation
               </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div className="p-4 bg-white/[0.02] rounded-xl border border-white/5">
-                  <p className="text-sm text-slate-400 mb-1">Commission créateur</p>
-                  <p className="text-2xl font-bold text-white">{saasData.commissionConfig.creatorRate}%</p>
-                  <p className="text-xs text-slate-500 mt-1">du CA généré</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-black/20 rounded-xl p-4">
+                  <p className="text-blue-200 text-sm mb-1">Dette actuelle</p>
+                  <p className="text-3xl font-bold text-white">
+                    {saasData.currentDebt.toFixed(2)}€
+                  </p>
+                  <p className="text-xs text-blue-200 mt-1 mb-3">
+                    {saasData.currentDebt >= 100 
+                      ? '⚠️ Facturation imminente' 
+                      : `${(100 - saasData.currentDebt).toFixed(2)}€ avant facturation`}
+                  </p>
+                  {saasData.currentDebt >= 100 && (
+                    <button
+                      onClick={async () => {
+                        if (!confirm(`Payer ${saasData.currentDebt.toFixed(2)}€ maintenant ?`)) return;
+                        
+                        try {
+                          const response = await fetch('/api/billing/check-and-bill', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({})
+                          });
+                          
+                          const result = await response.json();
+                          
+                          if (result.success || result.billed_count > 0) {
+                            alert('Facturation en cours... Vous serez redirigé dans quelques secondes.');
+                            setTimeout(() => window.location.reload(), 2000);
+                          } else {
+                            alert('Erreur: ' + (result.error || 'Impossible de facturer'));
+                          }
+                        } catch (error: any) {
+                          alert('Erreur: ' + error.message);
+                        }
+                      }}
+                      className="w-full px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                    >
+                      <CreditCard className="w-4 h-4" />
+                      Payer maintenant
+                    </button>
+                  )}
                 </div>
-                <div className="p-4 bg-white/[0.02] rounded-xl border border-white/5">
-                  <p className="text-sm text-slate-400 mb-1">Frais plateforme (votre plan)</p>
-                  <p className="text-2xl font-bold text-white">{saasData.tierConfig.platformFee}%</p>
-                  <p className="text-xs text-slate-500 mt-1">du CA généré</p>
+                <div className="bg-black/20 rounded-xl p-4">
+                  <p className="text-blue-200 text-sm mb-1">Total leads</p>
+                  <p className="text-3xl font-bold text-white">
+                    {saasData.totalLeads}
+                  </p>
+                  <p className="text-xs text-blue-200 mt-1">Leads validés</p>
                 </div>
+                <div className="bg-black/20 rounded-xl p-4">
+                  <p className="text-blue-200 text-sm mb-1">Total facturé</p>
+                  <p className="text-3xl font-bold text-white">
+                    {saasData.totalInvoiced.toFixed(2)}€
+                  </p>
+                  <p className="text-xs text-blue-200 mt-1">Toutes factures payées</p>
               </div>
-
-              {/* Cost comparison table */}
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-white/10">
-                      <th className="text-left py-3 text-slate-400 font-medium">Pour 1 000€ de CA</th>
-                      <th className="text-center py-3 text-slate-400 font-medium">Starter</th>
-                      <th className="text-center py-3 text-slate-400 font-medium">Growth</th>
-                      <th className="text-center py-3 text-slate-400 font-medium">Scale</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-b border-white/5">
-                      <td className="py-3 text-slate-300">Commission créateur</td>
-                      <td className="py-3 text-center text-white">150€</td>
-                      <td className="py-3 text-center text-white">150€</td>
-                      <td className="py-3 text-center text-white">150€</td>
-                    </tr>
-                    <tr className="border-b border-white/5">
-                      <td className="py-3 text-slate-300">Frais plateforme</td>
-                      <td className="py-3 text-center text-white">50€</td>
-                      <td className="py-3 text-center text-white">30€</td>
-                      <td className="py-3 text-center text-white">10€</td>
-                    </tr>
-                    <tr className="border-b border-white/5">
-                      <td className="py-3 text-slate-300">Abonnement</td>
-                      <td className="py-3 text-center text-white">0€</td>
-                      <td className="py-3 text-center text-white">59€</td>
-                      <td className="py-3 text-center text-white">89€</td>
-                    </tr>
-                    <tr className="bg-green-500/5">
-                      <td className="py-3 text-green-400 font-medium">Coût total</td>
-                      <td className="py-3 text-center text-green-400 font-medium">200€</td>
-                      <td className="py-3 text-center text-green-400 font-medium">239€</td>
-                      <td className="py-3 text-center text-green-400 font-medium">249€</td>
-                    </tr>
-                  </tbody>
-                </table>
               </div>
-
-              <p className="text-xs text-slate-500 mt-4">
-                💡 Le plan Scale devient rentable à partir de ~2 500€/mois de CA généré.
-              </p>
             </div>
 
-            {/* Coming soon notice */}
-            <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6 text-center">
-              <div className="w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center mx-auto mb-4">
-                <Wallet className="w-8 h-8 text-blue-400" />
+            {/* How Billing Works */}
+              <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
+                <h3 className="font-medium text-white mb-4 flex items-center gap-2">
+                <Info className="w-5 h-5 text-blue-400" />
+                Comment fonctionne la facturation
+                </h3>
+
+              <div className="space-y-4 mb-6">
+                <div className="flex items-start gap-3 p-4 bg-white/[0.02] rounded-xl">
+                  <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 font-bold shrink-0 text-sm">1</div>
+                  <div>
+                    <h4 className="text-sm text-white font-medium">Vous recevez des leads</h4>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Chaque lead validé ajoute {saasData.tier === 'starter' ? '2,50€' : saasData.tier === 'growth' ? '2,00€' : '1,60€'} à votre dette.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-4 bg-white/[0.02] rounded-xl">
+                  <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 font-bold shrink-0 text-sm">2</div>
+                  <div>
+                    <h4 className="text-sm text-white font-medium">Facturation automatique</h4>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Vous êtes facturé automatiquement lorsque vous atteignez 100€ de dette ou à la fin du mois.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-4 bg-white/[0.02] rounded-xl">
+                  <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 font-bold shrink-0 text-sm">3</div>
+                  <div>
+                    <h4 className="text-sm text-white font-medium">Paiement par carte</h4>
+                    <p className="text-xs text-slate-400 mt-1">
+                      La facture est prélevée automatiquement sur votre carte enregistrée.
+                    </p>
+                  </div>
+                  </div>
+                </div>
+
+              {/* Pricing by Plan */}
+              <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+                <p className="text-xs text-blue-400 mb-3 font-medium">💡 Prix par lead selon votre plan</p>
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Plan Starter</span>
+                    <span className="text-white font-medium">2,50€</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Plan Growth</span>
+                    <span className="text-white font-medium">2,00€</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Plan Scale</span>
+                    <span className="text-white font-medium">1,60€</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t border-blue-500/20">
+                    <span className="text-blue-400 font-medium">Créateur reçoit</span>
+                    <span className="text-blue-400 font-medium">1,20€ (fixe)</span>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-lg font-medium text-white mb-2">Historique des commissions</h3>
-              <p className="text-slate-400 text-sm mb-4">
-                L'historique détaillé des commissions apparaîtra ici quand vos créateurs généreront des ventes.
-              </p>
             </div>
+
+            {/* Invoice History */}
+            {saasData.invoices && saasData.invoices.length > 0 ? (
+              <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
+                <h3 className="font-medium text-white mb-4 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-blue-400" />
+                  Historique des factures
+                </h3>
+                <div className="space-y-3">
+                  {saasData.invoices.map((invoice: any) => {
+                    const period = invoice.period_start 
+                      ? new Date(invoice.period_start).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })
+                      : 'N/A';
+                        
+                        return (
+                      <div key={invoice.id} className="p-4 bg-white/[0.02] rounded-xl border border-white/5">
+                            <div className="flex items-center justify-between">
+                              <div>
+                            <p className="text-sm text-white font-medium">
+                              {invoice.invoice_number || `Facture #${invoice.id.slice(0, 8)}`}
+                            </p>
+                            <p className="text-xs text-slate-400">
+                              {period} • {invoice.leads_count} leads
+                            </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-sm font-medium text-white">
+                              {Number(invoice.amount_ht).toFixed(2)}€ HT
+                                </p>
+                            <p className="text-xs text-slate-400">
+                              {invoice.status === 'paid' ? 'Payée' : 
+                               invoice.status === 'sent' ? 'Envoyée' : 
+                               invoice.status === 'failed' ? 'Échouée' : 'Brouillon'}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+              </div>
+            ) : (
+              <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6 text-center">
+                <p className="text-slate-400 text-sm">
+                  Aucune facture pour le moment. Les factures apparaîtront ici une fois que vous atteignez 100€ de dette ou la fin du mois.
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>

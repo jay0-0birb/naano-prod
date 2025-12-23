@@ -252,13 +252,30 @@ RETURNS TABLE(
 ) AS $$
 BEGIN
   RETURN QUERY
+  WITH link_metrics AS (
+    SELECT 
+      COUNT(*) FILTER (WHERE le.event_type = 'impression') as impressions,
+      COUNT(*) FILTER (WHERE le.event_type = 'click') as clicks
+    FROM link_events le
+    JOIN tracked_links tl ON tl.id = le.tracked_link_id
+    WHERE tl.collaboration_id = collab_id
+  ),
+  lead_revenue AS (
+    -- BP1 model: CA généré on collaboration page = lifetime creator earnings for this collab
+    -- We include both 'validated' (not yet billed) and 'billed' (already paid by SaaS)
+    -- so influencers always see the TOTAL CA generated, even after invoicing.
+    SELECT COALESCE(SUM(creator_earnings), 0) as revenue
+    FROM leads l
+    JOIN tracked_links tl ON tl.id = l.tracked_link_id
+    WHERE tl.collaboration_id = collab_id
+      AND l.status IN ('validated', 'billed')
+  )
   SELECT 
-    COUNT(*) FILTER (WHERE le.event_type = 'impression') as impressions,
-    COUNT(*) FILTER (WHERE le.event_type = 'click') as clicks,
-    COALESCE(SUM(le.revenue_amount) FILTER (WHERE le.event_type = 'conversion'), 0) as revenue
-  FROM link_events le
-  JOIN tracked_links tl ON tl.id = le.tracked_link_id
-  WHERE tl.collaboration_id = collab_id;
+    lm.impressions,
+    lm.clicks,
+    lr.revenue
+  FROM link_metrics lm
+  CROSS JOIN lead_revenue lr;
 END;
 $$ LANGUAGE plpgsql;
 

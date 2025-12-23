@@ -1,10 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import Stripe from 'stripe';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20.acacia',
-});
+import { stripe } from '@/lib/stripe';
 
 // Create admin client for database operations
 const supabaseAdmin = createClient(
@@ -12,7 +8,7 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Minimum payout amount in EUR
+// Minimum payout amount in EUR (from BP1.md)
 const MIN_PAYOUT_AMOUNT = 50;
 
 export async function POST(request: Request) {
@@ -49,93 +45,76 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    // Get pending earnings
-    const { data: pendingAmount, error: earningsError } = await supabaseAdmin.rpc(
-      'get_creator_pending_earnings',
-      { p_creator_profile_id: creatorProfile.id }
-    );
+    // Get creator wallet (BP1.md model)
+    const { data: wallet, error: walletError } = await supabaseAdmin
+      .from('creator_wallets')
+      .select('available_balance')
+      .eq('creator_id', creatorProfile.id)
+      .single();
 
-    if (earningsError) {
-      console.error('Error getting pending earnings:', earningsError);
-      return NextResponse.json({ error: 'Erreur lors du calcul des gains' }, { status: 500 });
+    if (walletError || !wallet) {
+      console.error('Error getting wallet:', walletError);
+      return NextResponse.json({ error: 'Erreur lors de la récupération du portefeuille' }, { status: 500 });
     }
 
-    // Check minimum amount
-    if ((pendingAmount || 0) < MIN_PAYOUT_AMOUNT) {
+    const availableBalance = Number(wallet.available_balance || 0);
+
+    // Check minimum amount (BP1.md: €50 threshold)
+    if (availableBalance < MIN_PAYOUT_AMOUNT) {
       return NextResponse.json({ 
-        error: `Montant minimum requis: ${MIN_PAYOUT_AMOUNT}€. Vous avez ${pendingAmount?.toFixed(2) || 0}€` 
+        error: `Montant minimum requis: ${MIN_PAYOUT_AMOUNT}€. Vous avez ${availableBalance.toFixed(2)}€ disponible` 
       }, { status: 400 });
     }
 
-    // Get all approved commissions for this creator
-    const { data: commissions, error: commissionsError } = await supabaseAdmin
-      .from('commissions')
-      .select(`
-        id,
-        creator_net_amount,
-        collaboration_id,
-        collaborations:collaboration_id (
-          applications:application_id (
-            creator_id
-          )
-        )
-      `)
-      .in('status', ['pending', 'approved'])
-      .gt('creator_net_amount', 0);
+    // Use all available balance for payout
+    const payoutAmount = availableBalance;
+    const amountInCents = Math.round(payoutAmount * 100);
 
-    if (commissionsError) {
-      console.error('Error getting commissions:', commissionsError);
-      return NextResponse.json({ error: 'Erreur lors de la récupération des commissions' }, { status: 500 });
-    }
-
-    // Filter commissions for this creator
-    const creatorCommissions = commissions?.filter(c => 
-      (c.collaborations as any)?.applications?.creator_id === creatorProfile.id
-    ) || [];
-
-    if (creatorCommissions.length === 0) {
-      return NextResponse.json({ error: 'Aucune commission à verser' }, { status: 400 });
-    }
-
-    // Calculate total payout amount (in cents for Stripe)
-    const totalAmount = creatorCommissions.reduce((sum, c) => sum + (c.creator_net_amount || 0), 0);
-    const amountInCents = Math.round(totalAmount * 100);
-
-    // Create payout record
-    const { data: payout, error: payoutError } = await supabaseAdmin
-      .from('commission_payouts')
-      .insert({
-        creator_profile_id: creatorProfile.id,
-        amount: totalAmount,
-        currency: 'eur',
-        stripe_account_id: creatorProfile.stripe_account_id,
-        status: 'processing',
-      })
-      .select()
-      .single();
+    // Create payout and invoice using database function (BP1.md)
+    const { data: payoutId, error: payoutError } = await supabaseAdmin.rpc(
+      'create_creator_payout',
+      {
+        p_creator_id: creatorProfile.id,
+        p_amount: payoutAmount,
+        p_stripe_account_id: creatorProfile.stripe_account_id,
+      }
+    );
 
     if (payoutError) {
-      console.error('Error creating payout record:', payoutError);
-      return NextResponse.json({ error: 'Erreur lors de la création du virement' }, { status: 500 });
+      console.error('Error creating payout:', payoutError);
+      return NextResponse.json({ 
+        error: 'Erreur lors de la création du virement',
+        details: payoutError.message 
+      }, { status: 500 });
+    }
+
+    // Get payout details
+    const { data: payout } = await supabaseAdmin
+      .from('creator_payouts')
+      .select('*')
+      .eq('id', payoutId)
+      .single();
+
+    if (!payout) {
+      return NextResponse.json({ error: 'Payout not found after creation' }, { status: 500 });
     }
 
     try {
-      // Create Stripe transfer
+      // Create Stripe transfer (Naano → Creator)
       const transfer = await stripe.transfers.create({
         amount: amountInCents,
         currency: 'eur',
         destination: creatorProfile.stripe_account_id,
-        description: `Konex - Paiement commissions (${creatorCommissions.length} commissions)`,
+        description: `Naano - Paiement commissions (${payoutAmount.toFixed(2)}€)`,
         metadata: {
           payout_id: payout.id,
           creator_profile_id: creatorProfile.id,
-          commission_count: creatorCommissions.length.toString(),
         },
       });
 
       // Update payout with Stripe transfer ID
       await supabaseAdmin
-        .from('commission_payouts')
+        .from('creator_payouts')
         .update({
           stripe_transfer_id: transfer.id,
           status: 'completed',
@@ -143,26 +122,23 @@ export async function POST(request: Request) {
         })
         .eq('id', payout.id);
 
-      // Update all commissions to paid status
-      const commissionIds = creatorCommissions.map(c => c.id);
-      await supabaseAdmin
-        .from('commissions')
-        .update({
-          status: 'paid',
-          paid_at: new Date().toISOString(),
-          payout_id: payout.id,
-        })
-        .in('id', commissionIds);
+      // Get creator invoice (created by function)
+      const { data: creatorInvoice } = await supabaseAdmin
+        .from('creator_invoices')
+        .select('*')
+        .eq('payout_id', payout.id)
+        .single();
 
       return NextResponse.json({
         success: true,
         message: 'Virement effectué avec succès',
         payout: {
           id: payout.id,
-          amount: totalAmount,
+          amount: payoutAmount,
           currency: 'eur',
-          commissions_count: creatorCommissions.length,
           stripe_transfer_id: transfer.id,
+          invoice_id: creatorInvoice?.id,
+          invoice_number: creatorInvoice?.invoice_number,
         },
       });
 

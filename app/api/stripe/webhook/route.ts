@@ -115,8 +115,29 @@ export async function POST(request: Request) {
     case "payment_intent.succeeded": {
       const paymentIntent = event.data.object as any;
 
-      // Check if this is from a connected account (SaaS revenue tracking)
-      if (event.account) {
+      // BP1 Model: Handle billing invoice payment
+      if (paymentIntent.metadata?.invoice_id) {
+        const invoiceId = paymentIntent.metadata.invoice_id;
+        const saasId = paymentIntent.metadata.saas_id;
+
+        // Update invoice status
+        await supabaseAdmin
+          .from("billing_invoices")
+          .update({
+            status: "paid",
+            paid_at: new Date().toISOString(),
+            stripe_payment_intent_id: paymentIntent.id,
+          })
+          .eq("id", invoiceId);
+
+        // Note: bill_saas() function already moves wallets from pending to available
+        // when invoice is created. This webhook just confirms payment succeeded.
+        // If payment fails, we'd need to reverse the wallet movement (not implemented yet).
+
+        console.log(`Billing invoice ${invoiceId} paid successfully`);
+      }
+      // Legacy: Check if this is from a connected account (old revenue tracking)
+      else if (event.account) {
         await handleConnectedAccountPayment(
           event.account,
           paymentIntent,
@@ -137,14 +158,30 @@ export async function POST(request: Request) {
     }
 
     case "payment_intent.payment_failed": {
-      const paymentIntent = event.data.object;
+      const paymentIntent = event.data.object as any;
 
-      await supabaseAdmin
-        .from("payments")
-        .update({ status: "failed" })
-        .eq("stripe_payment_intent_id", paymentIntent.id);
+      // BP1 Model: Handle billing invoice payment failure
+      if (paymentIntent.metadata?.invoice_id) {
+        const invoiceId = paymentIntent.metadata.invoice_id;
 
-      console.log(`Payment failed: ${paymentIntent.id}`);
+        await supabaseAdmin
+          .from("billing_invoices")
+          .update({
+            status: "failed",
+          })
+          .eq("id", invoiceId);
+
+        console.log(`Billing invoice ${invoiceId} payment failed`);
+      }
+      // Legacy: Old payment system
+      else {
+        await supabaseAdmin
+          .from("payments")
+          .update({ status: "failed" })
+          .eq("stripe_payment_intent_id", paymentIntent.id);
+
+        console.log(`Payment failed: ${paymentIntent.id}`);
+      }
       break;
     }
 
@@ -248,8 +285,110 @@ export async function POST(request: Request) {
       break;
     }
 
-    default:
-      console.log(`Unhandled event type: ${event.type}`);
+    // =====================================================
+    // BP1 MODEL: Transfer events (Creator payouts)
+    // =====================================================
+    default: {
+      // Handle transfer events (not in Stripe TypeScript types, so check string)
+      const eventType = event.type as string;
+      if (eventType.startsWith("transfer.")) {
+        const transfer = event.data.object as any;
+
+        if (transfer.metadata?.payout_id) {
+          if (eventType === "transfer.created") {
+            await supabaseAdmin
+              .from("creator_payouts")
+              .update({
+                stripe_transfer_id: transfer.id,
+                status: "processing",
+              })
+              .eq("id", transfer.metadata.payout_id);
+            console.log(
+              `Transfer created for payout ${transfer.metadata.payout_id}`
+            );
+          } else if (eventType === "transfer.paid") {
+            await supabaseAdmin
+              .from("creator_payouts")
+              .update({
+                status: "completed",
+                completed_at: new Date().toISOString(),
+              })
+              .eq("id", transfer.metadata.payout_id);
+            console.log(
+              `Transfer completed for payout ${transfer.metadata.payout_id}`
+            );
+          } else if (
+            eventType === "transfer.failed" ||
+            eventType === "transfer.reversed"
+          ) {
+            await supabaseAdmin
+              .from("creator_payouts")
+              .update({
+                status: "failed",
+                failed_at: new Date().toISOString(),
+                error_message: transfer.failure_message || "Transfer failed",
+              })
+              .eq("id", transfer.metadata.payout_id);
+
+            // Refund the amount back to creator's available balance
+            const { data: payout } = await supabaseAdmin
+              .from("creator_payouts")
+              .select("creator_id, amount")
+              .eq("id", transfer.metadata.payout_id)
+              .single();
+
+            if (payout) {
+              await supabaseAdmin.rpc("move_wallet_pending_to_available", {
+                p_creator_id: payout.creator_id,
+                p_amount: payout.amount,
+              });
+            }
+
+            console.log(
+              `Transfer failed for payout ${transfer.metadata.payout_id}`
+            );
+          }
+        }
+      } else {
+        console.log(`Unhandled event type: ${event.type}`);
+      }
+      break;
+    }
+
+    // =====================================================
+    // BP1 MODEL: Setup Intent (Card validation)
+    // =====================================================
+    case "setup_intent.succeeded": {
+      const setupIntent = event.data.object as any;
+
+      if (
+        setupIntent.metadata?.saas_id &&
+        setupIntent.metadata?.purpose === "card_validation"
+      ) {
+        const paymentMethodId = setupIntent.payment_method as string;
+
+        if (paymentMethodId) {
+          const paymentMethod = await stripe.paymentMethods.retrieve(
+            paymentMethodId
+          );
+
+          await supabaseAdmin
+            .from("saas_companies")
+            .update({
+              card_on_file: true,
+              card_last4: paymentMethod.card?.last4 || null,
+              card_brand: paymentMethod.card?.brand || null,
+              stripe_setup_intent_id: setupIntent.id,
+            })
+            .eq("id", setupIntent.metadata.saas_id);
+
+          console.log(
+            `Card validated for SaaS ${setupIntent.metadata.saas_id}`
+          );
+        }
+      }
+      break;
+    }
   }
 
   return NextResponse.json({ received: true });
@@ -281,14 +420,74 @@ async function handleConnectedAccountPayment(
 
     // 2. Extract revenue amount (in cents, convert to euros)
     const amountCents = paymentData.amount || paymentData.amount_total || 0;
-    const revenue = amountCents / 100;
+    const grossRevenue = amountCents / 100;
 
-    if (revenue <= 0) {
+    if (grossRevenue <= 0) {
       console.log("Payment has no revenue, skipping");
       return;
     }
 
-    // 3. Try to find attribution via metadata or customer email
+    // 3. Calculate Stripe fees and net revenue
+    // Try to get actual fee from balance_transaction if available
+    let stripeFee = 0;
+    let netRevenue = grossRevenue;
+
+    // Check if we have balance_transaction data (from charge or payment_intent)
+    const balanceTransactionId =
+      paymentData.balance_transaction ||
+      paymentData.charge?.balance_transaction ||
+      paymentData.payment_intent?.charges?.data?.[0]?.balance_transaction;
+
+    if (balanceTransactionId && stripe) {
+      try {
+        // Fetch balance transaction to get actual fees
+        const balanceTransaction = await stripe.balanceTransactions.retrieve(
+          balanceTransactionId,
+          { stripeAccount: stripeAccountId }
+        );
+
+        // Fee is in cents, convert to euros
+        stripeFee = (balanceTransaction.fee || 0) / 100;
+        netRevenue = grossRevenue - stripeFee;
+      } catch (error) {
+        console.warn(
+          `Could not fetch balance transaction ${balanceTransactionId}, using estimated fees`
+        );
+        // Fall back to estimated fees
+        const isEU =
+          paymentData.billing_details?.address?.country
+            ?.toUpperCase()
+            .startsWith("EU") ||
+          paymentData.billing_details?.address?.country === "FR" ||
+          paymentData.billing_details?.address?.country === "DE" ||
+          paymentData.billing_details?.address?.country === "ES" ||
+          paymentData.billing_details?.address?.country === "IT";
+
+        // EU: 3.2% + €0.25, Non-EU: 3.9% + €0.25
+        const feeRate = isEU ? 0.032 : 0.039;
+        const fixedFee = 0.25;
+        stripeFee = Math.round((grossRevenue * feeRate + fixedFee) * 100) / 100;
+        netRevenue = grossRevenue - stripeFee;
+      }
+    } else {
+      // No balance transaction available, estimate fees
+      const isEU =
+        paymentData.billing_details?.address?.country
+          ?.toUpperCase()
+          .startsWith("EU") ||
+        paymentData.billing_details?.address?.country === "FR" ||
+        paymentData.billing_details?.address?.country === "DE" ||
+        paymentData.billing_details?.address?.country === "ES" ||
+        paymentData.billing_details?.address?.country === "IT";
+
+      // EU: 3.2% + €0.25, Non-EU: 3.9% + €0.25
+      const feeRate = isEU ? 0.032 : 0.039;
+      const fixedFee = 0.25;
+      stripeFee = Math.round((grossRevenue * feeRate + fixedFee) * 100) / 100;
+      netRevenue = grossRevenue - stripeFee;
+    }
+
+    // 4. Try to find attribution via metadata or customer email
     // Option A: Check if naano_session is in metadata
     const naanoSession = paymentData.metadata?.naano_session;
 
@@ -357,7 +556,7 @@ async function handleConnectedAccountPayment(
       }
     }
 
-    // 4. If we found attribution, log the conversion
+    // 5. If we found attribution, log the conversion
     if (trackedLinkId && sessionId) {
       // Check for duplicate
       const { data: existingConversion } = await supabaseAdmin
@@ -373,14 +572,16 @@ async function handleConnectedAccountPayment(
           tracked_link_id: trackedLinkId,
           event_type: "conversion",
           session_id: sessionId,
-          revenue_amount: revenue,
+          revenue_amount: grossRevenue, // Gross revenue (what customer paid)
+          net_revenue_amount: netRevenue, // Net revenue (after Stripe fees)
+          stripe_fee_amount: stripeFee, // Stripe fees deducted
           referrer: `stripe:${paymentData.id}`, // Store Stripe payment ID to prevent duplicates
           ip_address: "stripe_webhook",
           user_agent: `stripe_${eventType}`,
         });
 
         console.log(
-          `✅ Revenue attributed: €${revenue} for ${saasCompany.company_name} via Stripe Connect`
+          `✅ Revenue attributed: €${grossRevenue} gross (€${netRevenue} net after €${stripeFee} fees) for ${saasCompany.company_name} via Stripe Connect`
         );
       } else {
         console.log(`Duplicate conversion skipped: ${paymentData.id}`);

@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { SAAS_TIERS, CREATOR_TIERS, SaasTier, CreatorTier, COMMISSION_CONFIG } from '@/lib/subscription-config';
+import { SAAS_TIERS, CREATOR_TIERS, SaasTier, CreatorTier } from '@/lib/subscription-config';
 import { verifyStripeConnectStatus } from '@/lib/stripe-status';
+import { getCreatorWalletSummary, getCreatorPayoutHistory, getSaasBillingSummary } from '@/lib/wallet';
 import FinancesPageClient from './page-client';
 
 interface PageProps {
@@ -43,7 +44,7 @@ export default async function FinancesPage({ searchParams }: PageProps) {
     let activeSaas = 0;
     try {
       const { data } = await supabase.rpc('count_creator_active_saas', {
-        creator_id: creatorProfile.id
+        p_creator_id: creatorProfile.id
       });
       activeSaas = data || 0;
     } catch {
@@ -60,6 +61,10 @@ export default async function FinancesPage({ searchParams }: PageProps) {
       ? 'Votre compte Stripe a été configuré avec succès !'
       : undefined;
 
+    // Get wallet summary (BP1.md model)
+    const walletSummary = await getCreatorWalletSummary();
+    const payoutHistory = await getCreatorPayoutHistory();
+
     return (
       <FinancesPageClient
         isCreator={true}
@@ -69,18 +74,20 @@ export default async function FinancesPage({ searchParams }: PageProps) {
           activeSaas,
           maxSaas: CREATOR_TIERS[tier].maxSaas,
           stripeConnected: creatorProfile.stripe_onboarding_completed || false,
-          commissionRate: COMMISSION_CONFIG.creatorRate,
-          platformFee: COMMISSION_CONFIG.platformCreatorFee,
-          minPayout: COMMISSION_CONFIG.minPayoutAmount,
+          minPayout: 50, // BP1.md: €50 threshold
+          pendingBalance: walletSummary.pendingBalance, // Waiting for SaaS payment
+          availableBalance: walletSummary.availableBalance, // Ready for payout
+          totalEarned: walletSummary.totalEarned,
+          payoutHistory: payoutHistory.payouts,
         }}
         stripeMessage={stripeMessage}
       />
     );
   } else {
-    // Get SaaS data
+    // Get SaaS data (including card info)
     const { data: saasCompany } = await supabase
       .from('saas_companies')
-      .select('id, company_name, subscription_tier, subscription_status, stripe_subscription_id')
+      .select('id, company_name, subscription_tier, subscription_status, stripe_subscription_id, card_on_file, card_last4, card_brand')
       .eq('profile_id', user.id)
       .single();
 
@@ -91,17 +98,46 @@ export default async function FinancesPage({ searchParams }: PageProps) {
     // Count active creators - handle if function doesn't exist
     let activeCreators = 0;
     try {
-      const { data } = await supabase.rpc('count_saas_active_creators', {
-        saas_id: saasCompany.id
+      const { data, error } = await supabase.rpc('count_saas_active_creators', {
+        p_saas_id: saasCompany.id
       });
-      activeCreators = data || 0;
-    } catch {
+      
+      if (error) {
+        console.error('Error calling count_saas_active_creators:', error);
+        throw error;
+      }
+      
+      // RPC function returns INTEGER directly, not wrapped
+      activeCreators = typeof data === 'number' ? data : (data?.[0]?.count_saas_active_creators || 0);
+    } catch (err) {
+      console.error('Error counting active creators, using fallback:', err);
       // Function may not exist yet, count manually
-      const { count } = await supabase
+      // Get all active collaborations for this SaaS and count distinct creators
+      const { data: collabs, error: collabError } = await supabase
         .from('collaborations')
-        .select('*', { count: 'exact', head: true })
+        .select(`
+          application_id,
+          applications!inner(
+            creator_id,
+            saas_id
+          )
+        `)
         .eq('status', 'active');
-      activeCreators = count || 0;
+      
+      if (collabError) {
+        console.error('Error fetching collaborations:', collabError);
+      } else if (collabs) {
+        // Filter by SaaS ID and get unique creator IDs
+        const uniqueCreators = new Set(
+          collabs
+            .map((c: any) => c.applications)
+            .filter((app: any) => app?.saas_id === saasCompany.id)
+            .map((app: any) => app?.creator_id)
+            .filter(Boolean)
+        );
+        activeCreators = uniqueCreators.size;
+        console.log('Fallback count:', { activeCreators, totalCollabs: collabs.length });
+      }
     }
 
     // Generate subscription message if coming from Stripe
@@ -121,6 +157,21 @@ export default async function FinancesPage({ searchParams }: PageProps) {
       subscriptionMessage = undefined; // No message for cancelled
     }
 
+    // Get billing summary (BP1.md model)
+    let billingSummary;
+    try {
+      billingSummary = await getSaasBillingSummary();
+    } catch (error) {
+      console.error('Error fetching billing summary:', error);
+      // Return default values if there's an error
+      billingSummary = {
+        currentDebt: 0,
+        totalLeads: 0,
+        totalInvoiced: 0,
+        invoices: [],
+      };
+    }
+
     return (
       <FinancesPageClient
         isCreator={false}
@@ -132,7 +183,13 @@ export default async function FinancesPage({ searchParams }: PageProps) {
           activeCreators,
           maxCreators: SAAS_TIERS[displayTier].maxCreators,
           allTiers: SAAS_TIERS,
-          commissionConfig: COMMISSION_CONFIG,
+          currentDebt: billingSummary.currentDebt,
+          totalLeads: billingSummary.totalLeads,
+          totalInvoiced: billingSummary.totalInvoiced,
+          invoices: billingSummary.invoices,
+          cardOnFile: saasCompany.card_on_file || false,
+          cardLast4: saasCompany.card_last4 || null,
+          cardBrand: saasCompany.card_brand || null,
         }}
         subscriptionMessage={subscriptionMessage}
       />
