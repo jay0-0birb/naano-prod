@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import { headers, cookies } from 'next/headers';
 import { randomUUID } from 'crypto';
+import { getGeoLocationFast } from '@/lib/geo-location';
 
 /**
  * ADVANCED TRACKING LINK REDIRECT ENDPOINT
@@ -104,9 +105,17 @@ export async function GET(
     const eventType = isClick && trackingLink.track_clicks ? 'click' : 
                      trackingLink.track_impressions ? 'impression' : null;
 
-    // 5. Log the event and create lead if it's a click (BP1 model: every click = lead)
+    // 5. Get geolocation for clicks (async, don't block redirect)
+    let geoData = { country: null, city: null };
+    if (eventType === 'click' && ipAddress !== 'unknown') {
+      // Get geo data with 1 second timeout (non-blocking)
+      geoData = await getGeoLocationFast(ipAddress, 1000);
+    }
+
+    // 6. Log the event and get event ID for 3-second rule tracking
+    let eventId: string | null = null;
     if (eventType) {
-      const { error: eventError } = await supabase
+      const insertResult = await supabase
         .from('link_events')
         .insert({
           tracked_link_id: trackingLink.id,
@@ -115,13 +124,20 @@ export async function GET(
           user_agent: userAgent,
           referrer: referrer,
           session_id: sessionId,
+          country: geoData.country,
+          city: geoData.city,
+          time_on_site: null, // Will be updated when 3-second rule is confirmed
         })
         .select('id')
         .single();
+      
+      if (insertResult.data) {
+        eventId = insertResult.data.id;
+      } else if (insertResult.error) {
+        console.error(`Error logging ${eventType}:`, insertResult.error);
+      }
 
-      if (eventError) {
-        console.error(`Error logging ${eventType}:`, eventError);
-      } else if (eventType === 'click') {
+      if (eventType === 'click') {
         // Automatically create a lead for this click (BP1 model)
         console.log('[LEAD CREATION] Starting lead creation for click...');
         
@@ -222,6 +238,9 @@ export async function GET(
     // Add session ID for server-side tracking (works even in private browsing!)
     // SaaS can capture this and send it back via webhook
     destinationUrl.searchParams.set('naano_session', sessionId);
+    
+    // Note: 3-second rule tracking is now automatic via tracking pixel
+    // No need to pass eventId to SaaS - it's handled automatically
 
     // 7. Set cookie and redirect
     // Use HTML page approach to ensure cookie is set before redirect
@@ -237,11 +256,54 @@ export async function GET(
             <script>
               // Set the attribution cookie
               document.cookie = "${COOKIE_NAME}=${sessionId}; path=/; max-age=${COOKIE_LIFETIME_DAYS * 24 * 60 * 60}; SameSite=Lax";
+              
+              ${eventId && eventType === 'click' ? `
+              // Automatic 3-second rule tracking
+              // Track time on redirect page, then confirm after redirect
+              var startTime = Date.now();
+              var eventId = "${eventId}";
+              
+              // Report 3-second rule after 3 seconds (if user is still here)
+              setTimeout(function() {
+                var timeOnSite = Math.floor((Date.now() - startTime) / 1000);
+                if (timeOnSite >= 3) {
+                  // User stayed on redirect page for 3+ seconds
+                  fetch('/api/track/3sec', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ eventId: eventId, timeOnSite: timeOnSite })
+                  }).catch(function() { /* Silent fail */ });
+                }
+              }, 3000);
+              
+              // Also track when user leaves (beforeunload)
+              window.addEventListener('beforeunload', function() {
+                var timeOnSite = Math.floor((Date.now() - startTime) / 1000);
+                if (timeOnSite >= 3) {
+                  // Use sendBeacon for reliable tracking on page unload
+                  var blob = new Blob([JSON.stringify({ 
+                    eventId: eventId, 
+                    timeOnSite: timeOnSite 
+                  })], { type: 'application/json' });
+                  navigator.sendBeacon('/api/track/3sec', blob);
+                }
+              });
+              ` : ''}
+              
               // Redirect after a tiny delay to ensure cookie is set
               setTimeout(function() {
                 window.location.href = "${destinationUrl.toString().replace(/"/g, '\\"')}";
               }, 50);
             </script>
+            
+            ${eventId && eventType === 'click' ? `
+            <!-- Automatic 3-second rule tracking pixel -->
+            <!-- This invisible pixel loads after 3 seconds to confirm user engagement -->
+            <img src="/api/track/3sec-pixel?eventId=${eventId}" 
+                 style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;" 
+                 onload="this.onload=null;fetch('/api/track/3sec',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({eventId:'${eventId}',timeOnSite:3})}).catch(function(){})"
+                 alt="" />
+            ` : ''}
             <style>
               body {
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

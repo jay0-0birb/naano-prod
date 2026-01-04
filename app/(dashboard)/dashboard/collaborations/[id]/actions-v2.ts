@@ -288,3 +288,62 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
   }
 }
 
+/**
+ * Get analytics data for a collaboration
+ * Returns KPIs: impressions, total clicks, qualified clicks, leads, savings
+ */
+export async function getCollaborationAnalytics(collaborationId: string) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'Non authentifié' }
+  }
+
+  // Verify access - only SaaS can view analytics
+  const { data: collaboration } = await supabase
+    .from('collaborations')
+    .select(`
+      id,
+      applications:application_id (
+        saas_companies:saas_id (
+          profile_id,
+          subscription_tier
+        )
+      )
+    `)
+    .eq('id', collaborationId)
+    .single()
+
+  if (!collaboration) {
+    return { error: 'Collaboration non trouvée' }
+  }
+
+  const saasProfileId = (collaboration.applications as any)?.saas_companies?.profile_id
+  if (saasProfileId !== user.id) {
+    return { error: 'Non autorisé - Analytics réservés aux SaaS' }
+  }
+
+  // Get analytics using the database function
+  const { data: analytics, error } = await supabase.rpc('get_collaboration_analytics', {
+    collab_id: collaborationId
+  }).single()
+
+  if (error) {
+    console.error('Error fetching analytics:', error)
+    return { error: 'Erreur lors de la récupération des analytics' }
+  }
+
+  return {
+    success: true,
+    analytics: {
+      totalImpressions: analytics?.total_impressions || 0,
+      totalClicks: analytics?.total_clicks || 0,
+      qualifiedClicks: analytics?.qualified_clicks || 0,
+      leadsCount: analytics?.leads_count || 0,
+      totalLeadCost: Number(analytics?.total_lead_cost || 0),
+      savingsVsLinkedIn: Number(analytics?.savings_vs_linkedin || 0),
+    }
+  }
+}
+
