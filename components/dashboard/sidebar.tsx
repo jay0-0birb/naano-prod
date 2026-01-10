@@ -15,6 +15,7 @@ import {
   AlertCircle,
   GraduationCap,
   Wallet,
+  BarChart3,
 } from "lucide-react";
 import { forceLogout } from "@/lib/auth-utils";
 import UnreadBadge from "./unread-badge";
@@ -123,6 +124,17 @@ export default function DashboardSidebar({
           <Handshake className="w-5 h-5" />
           <span className="text-sm">Collaborations</span>
         </Link>
+
+        {/* SaaS-only: Global Analytics & Leads */}
+        {!isCreator && (
+          <Link
+            href="/dashboard/analytics"
+            className={linkClass("/dashboard/analytics")}
+          >
+            <BarChart3 className="w-5 h-5" />
+            <span className="text-sm">Analytics & Leads</span>
+          </Link>
+        )}
 
         <Link
           href="/dashboard/messages"
