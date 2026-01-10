@@ -57,7 +57,8 @@ export default function CollaborationTabs({
       label: 'Lead Feed',
       icon: Users,
       // Lead Feed only for SaaS with Growth or Scale tier
-      available: isSaaS && (subscriptionTier === 'growth' || subscriptionTier === 'scale'),
+      // Temporarily available for all SaaS for testing
+      available: isSaaS && (subscriptionTier === 'growth' || subscriptionTier === 'scale' || subscriptionTier === 'starter'),
     },
   ].filter(tab => tab.available)
 

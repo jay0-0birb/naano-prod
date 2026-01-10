@@ -181,6 +181,8 @@ export async function POST(request: NextRequest) {
     };
     
     const intentResult = calculateIntentScore(intentSignals);
+    console.log(`[INTENT] Calculated intent score: ${intentResult.sessionIntentScore} for eventId: ${eventId}`);
+    console.log(`[INTENT] Signals: repeat=${isRepeatVisit}, workingHours=${intentSignals.isWorkingHours}, referrer=${clickEvent.referrer?.substring(0, 30)}`);
     
     // Store intent score
     const { data: intentScore, error: intentError } = await supabase
@@ -204,8 +206,10 @@ export async function POST(request: NextRequest) {
       .select('id')
       .single();
     
-    if (intentError) {
-      console.error('Error storing intent score:', intentError);
+    if (intentScore && !intentError) {
+      console.log(`[INTENT] ✅ Intent score stored: ${intentScore.id}`);
+    } else if (intentError) {
+      console.error('[INTENT] ❌ Error storing intent score:', intentError);
     }
 
     return NextResponse.json({ 

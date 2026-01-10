@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import { getCollaborationLeads } from "./actions-v2";
 import { maskIPAddress, formatConfidence, formatDaysAgo } from "@/lib/utils";
-import { HelpCircle, Filter, ArrowUpDown, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
+import { HelpCircle, Filter, ArrowUpDown, CheckCircle2, AlertTriangle, XCircle, Download } from "lucide-react";
 
 interface Lead {
   id: string;
   occurredAt: string;
   session: {
+    sessionId: string;
     ipAddress: string;
     country: string | null;
     city: string | null;
@@ -82,7 +83,8 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
       );
       
       if (result.error) {
-        setError(result.error);
+        setError(result.error + (result.details ? `: ${result.details}` : ''));
+        console.error("Lead fetch error:", result);
       } else if (result.success) {
         setLeads(result.leads || []);
       }
@@ -106,6 +108,144 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
     // Decay: -0.1% per day, max -30%, min 30%
     const decay = Math.min(daysOld * 0.001, 0.30);
     return Math.max(lead.company.confidenceScore - decay, 0.30);
+  };
+
+  // Download CSV with all fields
+  const handleDownloadCSV = () => {
+    if (leads.length === 0) {
+      alert("Aucune donnée à exporter");
+      return;
+    }
+
+    // Define CSV headers with all useful fields
+    const headers = [
+      // Basic info
+      "Date",
+      "Heure",
+      "Créateur",
+      // Layer 1: Session Intelligence
+      "IP (masquée)",
+      "Pays",
+      "Ville",
+      "Type d'appareil",
+      "OS",
+      "Navigateur",
+      "Type de réseau",
+      "Temps sur site (s)",
+      "Référent",
+      "Session ID",
+      // Layer 2: Company Inference
+      "Nom entreprise",
+      "Domaine entreprise",
+      "Industrie",
+      "Taille entreprise",
+      "Localisation entreprise",
+      "Score de confiance",
+      "Confiance effective",
+      "État d'attribution",
+      "Raisons de confiance",
+      "ASN Organisation",
+      "Ambigu",
+      "Date d'enrichissement",
+      "Date de confirmation",
+      // Layer 3: Intent Scoring
+      "Score intention session",
+      "Score intention entreprise (moyen)",
+      "Score intention entreprise (max)",
+      "Tendance intention",
+      "Visite répétée",
+      "Nombre de visites",
+      "Heures de travail",
+      "Poids de récence",
+      "Jours depuis session",
+      "A vu tarifs",
+      "A vu sécurité",
+      "A vu intégrations",
+      "Total sessions entreprise",
+      "Visites répétées entreprise",
+      "Dernière haute intention",
+    ];
+
+    // Convert leads to CSV rows
+    const rows = leads.map((lead) => {
+      const date = new Date(lead.occurredAt);
+      const effectiveConfidence = getEffectiveConfidence(lead);
+      const companyIntent = lead.company?.aggregatedIntent;
+      
+      return [
+        // Basic info
+        date.toLocaleDateString("fr-FR"),
+        date.toLocaleTimeString("fr-FR"),
+        lead.creatorName,
+        // Layer 1
+        maskIPAddress(lead.session.ipAddress),
+        lead.session.country || "",
+        lead.session.city || "",
+        lead.session.deviceType || "",
+        lead.session.os || "",
+        lead.session.browser || "",
+        lead.session.networkType || "",
+        lead.session.timeOnSite?.toString() || "",
+        lead.session.referrer || "",
+        lead.session.sessionId || "",
+        // Layer 2
+        lead.company?.name || "",
+        lead.company?.domain || "",
+        lead.company?.industry || "",
+        lead.company?.size || "",
+        lead.company?.location || "",
+        lead.company ? (lead.company.confidenceScore * 100).toFixed(1) + "%" : "",
+        lead.company ? (effectiveConfidence * 100).toFixed(1) + "%" : "",
+        lead.company?.attributionState || "",
+        lead.company?.confidenceReasons.join("; ") || "",
+        lead.company?.asnOrganization || "",
+        lead.company?.isAmbiguous ? "Oui" : "Non",
+        lead.company?.createdAt ? new Date(lead.company.createdAt).toLocaleString("fr-FR") : "",
+        lead.company?.confirmedAt ? new Date(lead.company.confirmedAt).toLocaleString("fr-FR") : "",
+        // Layer 3
+        lead.intent?.score.toString() || "",
+        companyIntent ? Math.round(companyIntent.avg_intent_score).toString() : "",
+        companyIntent ? companyIntent.max_intent_score.toString() : "",
+        companyIntent?.intent_trend || "",
+        lead.intent?.isRepeatVisit ? "Oui" : "Non",
+        lead.intent?.visitCount.toString() || "",
+        lead.intent?.signals?.isWorkingHours ? "Oui" : "Non",
+        lead.intent?.recencyWeight ? (lead.intent.recencyWeight * 100).toFixed(0) + "%" : "",
+        lead.intent?.daysSinceSession?.toString() || "",
+        lead.intent?.viewedPricing ? "Oui" : "Non",
+        lead.intent?.viewedSecurity ? "Oui" : "Non",
+        lead.intent?.viewedIntegrations ? "Oui" : "Non",
+        companyIntent?.total_sessions.toString() || "",
+        companyIntent?.repeat_visits.toString() || "",
+        companyIntent?.last_high_intent_at ? new Date(companyIntent.last_high_intent_at).toLocaleString("fr-FR") : "",
+      ];
+    });
+
+    // Create CSV content
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) =>
+        row.map((cell) => {
+          // Escape commas and quotes in cell values
+          const cellStr = String(cell || "");
+          if (cellStr.includes(",") || cellStr.includes('"') || cellStr.includes("\n")) {
+            return `"${cellStr.replace(/"/g, '""')}"`;
+          }
+          return cellStr;
+        }).join(",")
+      ),
+    ].join("\n");
+
+    // Create blob and download
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" }); // BOM for Excel
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `leads-${collaborationId}-${new Date().toISOString().split("T")[0]}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   if (loading) {
@@ -153,13 +293,22 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
               </span>
             </p>
           </div>
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
-          >
-            <Filter className="w-4 h-4" />
-            Filtres
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleDownloadCSV}
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              Télécharger CSV
+            </button>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center gap-2 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+            >
+              <Filter className="w-4 h-4" />
+              Filtres
+            </button>
+          </div>
         </div>
 
         {/* Filters panel */}

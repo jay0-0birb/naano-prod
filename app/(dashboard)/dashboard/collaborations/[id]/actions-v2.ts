@@ -67,8 +67,8 @@ export async function submitPost(
 
   // Create the proof
   const { error } = await supabase.from("publication_proofs").insert({
-    collaboration_id: collaborationId,
-    linkedin_post_url: linkedinPostUrl,
+      collaboration_id: collaborationId,
+      linkedin_post_url: linkedinPostUrl,
   });
 
   if (error) {
@@ -84,7 +84,7 @@ export async function submitPost(
 
 export async function validatePost(proofId: string) {
   const supabase = await createClient();
-
+  
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -147,7 +147,7 @@ export async function validatePost(proofId: string) {
  */
 export async function getOrCreateTrackingLink(collaborationId: string) {
   const supabase = await createClient();
-
+  
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -179,8 +179,8 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
       revenue?: number;
     } | null;
 
-    return {
-      success: true,
+    return { 
+      success: true, 
       link: existingLink,
       impressions: metricsData?.impressions || 0,
       clicks: metricsData?.clicks || 0,
@@ -273,7 +273,7 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
     // Generate 6-character random hash
     const randomPart = Math.random().toString(36).substring(2, 8).toLowerCase();
     hash = `${creatorSlug}-${saasSlug}-${randomPart}`;
-
+    
     // Check if hash already exists
     const { data: existing } = await supabase
       .from("tracked_links")
@@ -311,8 +311,8 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
     return { error: error.message };
   }
 
-  return {
-    success: true,
+  return { 
+    success: true, 
     link: newLink,
     impressions: 0,
     clicks: 0,
@@ -473,6 +473,7 @@ export async function getCollaborationLeads(
     .select(
       `
       id,
+      session_id,
       occurred_at,
       ip_address,
       user_agent,
@@ -484,7 +485,7 @@ export async function getCollaborationLeads(
       os,
       browser,
       network_type,
-      company_inferences!inner (
+      company_inferences (
         id,
         inferred_company_name,
         inferred_company_domain,
@@ -494,7 +495,6 @@ export async function getCollaborationLeads(
         confidence_score,
         confidence_reasons,
         attribution_state,
-        network_type,
         asn_organization,
         is_ambiguous,
         created_at,
@@ -515,8 +515,8 @@ export async function getCollaborationLeads(
     `
     )
     .eq("tracked_link_id", trackedLink.id)
-    .eq("event_type", "click")
-    .not("company_inferences.id", "is", null); // Only show clicks with company inference
+    .eq("event_type", "click");
+    // Note: We filter out clicks without company inference in the mapping step below
 
   // Apply filters
   if (filterConfirmed) {
@@ -546,7 +546,11 @@ export async function getCollaborationLeads(
 
   if (error) {
     console.error("Error fetching leads:", error);
-    return { error: "Erreur lors de la récupération des leads" };
+    console.error("Error details:", JSON.stringify(error, null, 2));
+    return { 
+      error: "Erreur lors de la récupération des leads",
+      details: error.message 
+    };
   }
 
   // Get creator name for each lead
@@ -602,8 +606,14 @@ export async function getCollaborationLeads(
     }
   }
 
-  // Format leads data
-  const leads = (clickEvents || []).map((event: any) => {
+  // Format leads data - only include clicks with company inference (confidence >= 0.3)
+  const leads = (clickEvents || [])
+    .filter((event: any) => {
+      const companyInference = event.company_inferences?.[0] || event.company_inferences;
+      // Only show clicks with company inference (confidence >= 0.3 requirement)
+      return companyInference && companyInference.inferred_company_name;
+    })
+    .map((event: any) => {
     const companyInference =
       event.company_inferences?.[0] || event.company_inferences;
     const intentScore = event.intent_scores?.[0] || event.intent_scores;
@@ -613,6 +623,7 @@ export async function getCollaborationLeads(
       occurredAt: event.occurred_at,
       // Layer 1: Session Intelligence
       session: {
+        sessionId: event.session_id,
         ipAddress: event.ip_address,
         country: event.country,
         city: event.city,
