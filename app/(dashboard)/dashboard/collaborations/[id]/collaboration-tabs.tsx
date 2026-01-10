@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { FileText, BarChart3 } from 'lucide-react'
+import { FileText, BarChart3, Users } from 'lucide-react'
 import AnalyticsTab from './analytics-tab'
 import PostsTab from './posts-tab'
+import { LeadFeedTab } from './lead-feed-tab'
 
 interface Post {
   id: string
@@ -21,7 +22,7 @@ interface CollaborationTabsProps {
   subscriptionTier: string | null
   posts: Post[]
   collaborationStatus: string
-  initialTab?: 'posts' | 'analytics'
+  initialTab?: 'posts' | 'analytics' | 'leads'
 }
 
 export default function CollaborationTabs({
@@ -33,7 +34,7 @@ export default function CollaborationTabs({
   collaborationStatus,
   initialTab = 'posts',
 }: CollaborationTabsProps) {
-  const [selectedTab, setSelectedTab] = useState<'posts' | 'analytics'>(initialTab)
+  const [selectedTab, setSelectedTab] = useState<'posts' | 'analytics' | 'leads'>(initialTab)
 
   // Determine which tabs to show
   const tabs = [
@@ -50,6 +51,13 @@ export default function CollaborationTabs({
       // Analytics only for SaaS with paying tier (starter, growth, or scale)
       // Part 1 (KPIs) is available to all paying tiers
       available: isSaaS && subscriptionTier !== null,
+    },
+    {
+      id: 'leads' as const,
+      label: 'Lead Feed',
+      icon: Users,
+      // Lead Feed only for SaaS with Growth or Scale tier
+      available: isSaaS && (subscriptionTier === 'growth' || subscriptionTier === 'scale'),
     },
   ].filter(tab => tab.available)
 
@@ -89,6 +97,9 @@ export default function CollaborationTabs({
         )}
         {selectedTab === 'analytics' && isSaaS && (
           <AnalyticsTab collaborationId={collaborationId} />
+        )}
+        {selectedTab === 'leads' && isSaaS && (
+          <LeadFeedTab collaborationId={collaborationId} />
         )}
       </div>
     </div>

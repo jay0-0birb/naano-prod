@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { headers, cookies } from 'next/headers';
 import { randomUUID } from 'crypto';
 import { getGeoLocationFast } from '@/lib/geo-location';
+import { getClientIP } from '@/lib/get-client-ip';
 
 /**
  * ADVANCED TRACKING LINK REDIRECT ENDPOINT
@@ -86,8 +87,7 @@ export async function GET(
 
     // 2. Extract metadata from the request
     const headersList = await headers();
-    const ipAddress = headersList.get('x-forwarded-for')?.split(',')[0]?.trim() || 
-                     headersList.get('x-real-ip') || 
+    const ipAddress = getClientIP(headersList); 
                      'unknown';
     const userAgent = headersList.get('user-agent') || 'unknown';
     const referrer = headersList.get('referer') || 'direct';
@@ -107,7 +107,7 @@ export async function GET(
 
     // 5. Get geolocation for clicks (async, don't block redirect)
     let geoData = { country: null, city: null };
-    if (eventType === 'click' && ipAddress !== 'unknown') {
+    if (eventType === 'click' && ipAddress !== 'unknown' && ipAddress !== 'local') {
       // Get geo data with 1 second timeout (non-blocking)
       geoData = await getGeoLocationFast(ipAddress, 1000);
     }
@@ -130,9 +130,29 @@ export async function GET(
         })
         .select('id')
         .single();
-      
+
       if (insertResult.data) {
         eventId = insertResult.data.id;
+        
+        // Trigger async enrichment and intent scoring (non-blocking)
+        if (eventType === 'click') {
+          // Call enrichment API asynchronously (don't wait)
+          const baseUrl = new URL(request.url).origin;
+          console.log(`[CLICK] Triggering enrichment for eventId: ${eventId}`);
+          fetch(`${baseUrl}/api/track/enrich`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ eventId }),
+          })
+            .then(res => {
+              if (!res.ok) {
+                console.error(`[CLICK] Enrichment API returned ${res.status}`);
+              } else {
+                console.log(`[CLICK] ✅ Enrichment API called successfully`);
+              }
+            })
+            .catch(err => console.error('[CLICK] ❌ Enrichment error (non-critical):', err));
+        }
       } else if (insertResult.error) {
         console.error(`Error logging ${eventType}:`, insertResult.error);
       }
@@ -259,24 +279,27 @@ export async function GET(
               
               ${eventId && eventType === 'click' ? `
               // Automatic 3-second rule tracking
-              // Track time on redirect page, then confirm after redirect
-              var startTime = Date.now();
+              // Track time on redirect page, then redirect after 3 seconds
               var eventId = "${eventId}";
+              var startTime = Date.now();
+              var redirectUrl = "${destinationUrl.toString().replace(/"/g, '\\"')}";
               
-              // Report 3-second rule after 3 seconds (if user is still here)
+              // Report 3-second rule and redirect after 3 seconds
               setTimeout(function() {
                 var timeOnSite = Math.floor((Date.now() - startTime) / 1000);
                 if (timeOnSite >= 3) {
-                  // User stayed on redirect page for 3+ seconds
+                  // User stayed for 3+ seconds - confirm engagement
                   fetch('/api/track/3sec', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ eventId: eventId, timeOnSite: timeOnSite })
                   }).catch(function() { /* Silent fail */ });
                 }
+                // Redirect after tracking
+                window.location.href = redirectUrl;
               }, 3000);
               
-              // Also track when user leaves (beforeunload)
+              // Also track on page unload (if user leaves before 3 seconds)
               window.addEventListener('beforeunload', function() {
                 var timeOnSite = Math.floor((Date.now() - startTime) / 1000);
                 if (timeOnSite >= 3) {
@@ -288,22 +311,14 @@ export async function GET(
                   navigator.sendBeacon('/api/track/3sec', blob);
                 }
               });
-              ` : ''}
-              
+              ` : `
               // Redirect after a tiny delay to ensure cookie is set
               setTimeout(function() {
                 window.location.href = "${destinationUrl.toString().replace(/"/g, '\\"')}";
               }, 50);
+              `}
             </script>
             
-            ${eventId && eventType === 'click' ? `
-            <!-- Automatic 3-second rule tracking pixel -->
-            <!-- This invisible pixel loads after 3 seconds to confirm user engagement -->
-            <img src="/api/track/3sec-pixel?eventId=${eventId}" 
-                 style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;" 
-                 onload="this.onload=null;fetch('/api/track/3sec',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({eventId:'${eventId}',timeOnSite:3})}).catch(function(){})"
-                 alt="" />
-            ` : ''}
             <style>
               body {
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

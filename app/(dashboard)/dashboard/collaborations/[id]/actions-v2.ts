@@ -395,3 +395,277 @@ export async function getCollaborationAnalytics(collaborationId: string) {
     },
   };
 }
+
+/**
+ * Get leads with three-layer attribution data for a collaboration
+ * Returns leads with Layer 1 (session), Layer 2 (company), Layer 3 (intent)
+ *
+ * @param sortBy - 'date' | 'confidence' | 'intent' | 'company_intent'
+ * @param filterConfirmed - Only show confirmed companies
+ * @param filterHighConfidence - Only show confidence >= 0.7
+ */
+export async function getCollaborationLeads(
+  collaborationId: string,
+  sortBy: "date" | "confidence" | "intent" | "company_intent" = "date",
+  filterConfirmed: boolean = false,
+  filterHighConfidence: boolean = false
+) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "Non authentifié" };
+  }
+
+  // Verify access - only SaaS can view leads (Growth/Scale tiers)
+  const { data: collaboration } = await supabase
+    .from("collaborations")
+    .select(
+      `
+      id,
+      applications:application_id (
+        saas_companies:saas_id (
+          profile_id,
+          subscription_tier
+        )
+      )
+    `
+    )
+    .eq("id", collaborationId)
+    .single();
+
+  if (!collaboration) {
+    return { error: "Collaboration non trouvée" };
+  }
+
+  const saasProfileId = (collaboration.applications as any)?.saas_companies
+    ?.profile_id;
+  const subscriptionTier = (collaboration.applications as any)?.saas_companies
+    ?.subscription_tier;
+
+  if (saasProfileId !== user.id) {
+    return { error: "Non autorisé - Lead Feed réservé aux SaaS" };
+  }
+
+  // Check tier access (Growth/Scale only for Lead Feed)
+  if (subscriptionTier !== "growth" && subscriptionTier !== "scale") {
+    return {
+      error: "Lead Feed disponible uniquement pour les plans Growth et Scale",
+    };
+  }
+
+  // Get tracked link for this collaboration
+  const { data: trackedLink } = await supabase
+    .from("tracked_links")
+    .select("id")
+    .eq("collaboration_id", collaborationId)
+    .single();
+
+  if (!trackedLink) {
+    return { success: true, leads: [] };
+  }
+
+  // Build base query
+  let query = supabase
+    .from("link_events")
+    .select(
+      `
+      id,
+      occurred_at,
+      ip_address,
+      user_agent,
+      referrer,
+      country,
+      city,
+      time_on_site,
+      device_type,
+      os,
+      browser,
+      network_type,
+      company_inferences!inner (
+        id,
+        inferred_company_name,
+        inferred_company_domain,
+        inferred_industry,
+        inferred_company_size,
+        inferred_location,
+        confidence_score,
+        confidence_reasons,
+        attribution_state,
+        network_type,
+        asn_organization,
+        is_ambiguous,
+        created_at,
+        confirmed_at
+      ),
+      intent_scores (
+        id,
+        session_intent_score,
+        is_repeat_visit,
+        visit_count,
+        viewed_pricing,
+        viewed_security,
+        viewed_integrations,
+        intent_signals,
+        recency_weight,
+        days_since_session
+      )
+    `
+    )
+    .eq("tracked_link_id", trackedLink.id)
+    .eq("event_type", "click")
+    .not("company_inferences.id", "is", null); // Only show clicks with company inference
+
+  // Apply filters
+  if (filterConfirmed) {
+    query = query.eq("company_inferences.attribution_state", "confirmed");
+  }
+
+  if (filterHighConfidence) {
+    query = query.gte("company_inferences.confidence_score", 0.7);
+  }
+
+  // Apply sorting
+  if (sortBy === "confidence") {
+    query = query.order("company_inferences.confidence_score", {
+      ascending: false,
+      foreignTable: "company_inferences",
+    });
+  } else if (sortBy === "intent") {
+    query = query.order("session_intent_score", {
+      ascending: false,
+      foreignTable: "intent_scores",
+    });
+  } else {
+    query = query.order("occurred_at", { ascending: false });
+  }
+
+  const { data: clickEvents, error } = await query.limit(100);
+
+  if (error) {
+    console.error("Error fetching leads:", error);
+    return { error: "Erreur lors de la récupération des leads" };
+  }
+
+  // Get creator name for each lead
+  const { data: collaborationData } = await supabase
+    .from("collaborations")
+    .select(
+      `
+      id,
+      applications:application_id (
+        creator_profiles:creator_id (
+          profiles:profile_id (
+            full_name
+          )
+        )
+      )
+    `
+    )
+    .eq("id", collaborationId)
+    .single();
+
+  const creatorName =
+    (collaborationData?.applications as any)?.creator_profiles?.profiles
+      ?.full_name || "Unknown";
+
+  // Get company-level aggregated intent for each unique company (Issue 3.2)
+  const companyAggregates = new Map<string, any>();
+
+  if (clickEvents && clickEvents.length > 0) {
+    const uniqueCompanies = new Set(
+      clickEvents
+        .map((e: any) => {
+          const ci = e.company_inferences?.[0] || e.company_inferences;
+          return ci?.inferred_company_name;
+        })
+        .filter(Boolean)
+    );
+
+    for (const companyName of uniqueCompanies) {
+      try {
+        const { data: aggregate } = await supabase
+          .rpc("get_company_aggregated_intent", {
+            company_name: companyName,
+            tracked_link_id: trackedLink.id,
+          })
+          .single();
+
+        if (aggregate) {
+          companyAggregates.set(companyName, aggregate);
+        }
+      } catch (err) {
+        console.error(`Error fetching aggregate for ${companyName}:`, err);
+      }
+    }
+  }
+
+  // Format leads data
+  const leads = (clickEvents || []).map((event: any) => {
+    const companyInference =
+      event.company_inferences?.[0] || event.company_inferences;
+    const intentScore = event.intent_scores?.[0] || event.intent_scores;
+
+    return {
+      id: event.id,
+      occurredAt: event.occurred_at,
+      // Layer 1: Session Intelligence
+      session: {
+        ipAddress: event.ip_address,
+        country: event.country,
+        city: event.city,
+        deviceType: event.device_type,
+        os: event.os,
+        browser: event.browser,
+        referrer: event.referrer,
+        timeOnSite: event.time_on_site,
+        networkType: event.network_type,
+      },
+      // Layer 2: Company Inference
+      company: companyInference
+        ? {
+            name: companyInference.inferred_company_name,
+            domain: companyInference.inferred_company_domain,
+            industry: companyInference.inferred_industry,
+            size: companyInference.inferred_company_size,
+            location: companyInference.inferred_location,
+            confidenceScore: companyInference.confidence_score,
+            effectiveConfidenceScore: null, // Will be calculated client-side or via RPC
+            confidenceReasons: companyInference.confidence_reasons || [],
+            attributionState: companyInference.attribution_state,
+            asnOrganization: companyInference.asn_organization,
+            isAmbiguous: companyInference.is_ambiguous || false,
+            createdAt: companyInference.created_at,
+            confirmedAt: companyInference.confirmed_at,
+            // Company-level aggregated intent (Issue 3.2)
+            aggregatedIntent:
+              companyAggregates.get(companyInference.inferred_company_name) ||
+              null,
+          }
+        : null,
+      // Layer 3: Intent Score
+      intent: intentScore
+        ? {
+            score: intentScore.session_intent_score,
+            isRepeatVisit: intentScore.is_repeat_visit,
+            visitCount: intentScore.visit_count,
+            viewedPricing: intentScore.viewed_pricing,
+            viewedSecurity: intentScore.viewed_security,
+            viewedIntegrations: intentScore.viewed_integrations,
+            signals: intentScore.intent_signals,
+            recencyWeight: intentScore.recency_weight || 1.0,
+            daysSinceSession: intentScore.days_since_session,
+          }
+        : null,
+      // Creator source
+      creatorName,
+    };
+  });
+
+  return {
+    success: true,
+    leads,
+  };
+}

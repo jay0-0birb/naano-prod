@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { getClientIP } from '@/lib/get-client-ip';
 
 /**
  * CONVERSION TRACKING API
@@ -173,7 +174,7 @@ export async function POST(request: NextRequest) {
         revenue_amount: grossRevenue, // Gross revenue (what customer paid)
         net_revenue_amount: netRevenue, // Net revenue (after Stripe fees)
         stripe_fee_amount: stripeFee, // Stripe fees deducted
-        ip_address: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown',
+        ip_address: getClientIP(request.headers),
         user_agent: request.headers.get('user-agent') || 'unknown',
         referrer: trackingMethod,
       })

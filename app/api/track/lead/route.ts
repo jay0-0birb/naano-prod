@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { getClientIP } from '@/lib/get-client-ip';
 
 /**
  * LEAD TRACKING API (BP1 Model)
@@ -172,7 +173,7 @@ export async function POST(request: NextRequest) {
         tracked_link_id: trackedLinkId,
         event_type: 'lead',
         session_id: trackingSessionId,
-        ip_address: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown',
+        ip_address: getClientIP(request.headers),
         user_agent: request.headers.get('user-agent') || 'unknown',
         referrer: trackingMethod,
       })
