@@ -19,7 +19,7 @@ export async function POST() {
   })
   
   // Redirect to login
-  return NextResponse.redirect(new URL('/login', process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'))
+  return NextResponse.redirect(new URL('/login', process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002'))
 }
 
 export async function GET() {

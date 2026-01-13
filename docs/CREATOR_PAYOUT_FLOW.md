@@ -236,3 +236,4 @@ Money in creator's bank account (2-7 days)
 - ✅ Stripe Connect required
 - ✅ Creator manages their own bank withdrawals
 
+

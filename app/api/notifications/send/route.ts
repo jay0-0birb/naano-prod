@@ -8,7 +8,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002';
 
 // This endpoint is called by Supabase webhooks or internal triggers
 export async function POST(request: Request) {

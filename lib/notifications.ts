@@ -1,6 +1,6 @@
 // Helper functions to trigger email notifications
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002';
 
 async function triggerNotification(type: string, data: any) {
   try {

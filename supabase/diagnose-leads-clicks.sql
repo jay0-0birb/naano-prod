@@ -48,3 +48,4 @@ LEFT JOIN leads l ON l.tracked_link_id = tl.id
 GROUP BY c.id
 ORDER BY clicks DESC;
 
+

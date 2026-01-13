@@ -1,7 +1,17 @@
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
 /**
  * UTILITY FUNCTIONS
  * Various helper functions for the attribution system
  */
+
+/**
+ * Merge Tailwind CSS classes with proper conflict resolution
+ */
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 /**
  * Mask IP address for privacy (Issue 6.1)

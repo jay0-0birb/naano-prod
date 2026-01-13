@@ -78,3 +78,4 @@ BEGIN
   RAISE NOTICE 'Backfill complete! Created % leads total.', v_count;
 END $$;
 
+

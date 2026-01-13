@@ -11,7 +11,7 @@ export async function signup(formData: FormData) {
   const role = formData.get('role') as 'saas' | 'influencer'
   
   const headersList = await headers()
-  const origin = headersList.get('origin') || 'http://localhost:3000'
+  const origin = headersList.get('origin') || 'http://localhost:3002'
 
   const supabase = await createClient()
 

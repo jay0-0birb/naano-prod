@@ -124,3 +124,4 @@ LEFT JOIN leads l ON l.tracked_link_id = tl.id AND l.status = 'validated'
 GROUP BY c.id
 ORDER BY clicks DESC;
 
+
