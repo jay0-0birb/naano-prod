@@ -69,7 +69,7 @@ export const CREATOR_TIERS = {
       'Paiements via Stripe',
     ],
   },
-} as const;
+};
 
 export type CreatorTier = keyof typeof CREATOR_TIERS;
 
