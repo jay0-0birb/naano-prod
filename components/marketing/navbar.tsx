@@ -98,7 +98,6 @@ export const Navbar = () => {
             <Link
               href="/register"
               className="h-full px-3 text-xs font-semibold bg-[#0F172A] text-white rounded-full hover:bg-[#1E293B] transition-all duration-150 flex items-center justify-center"
-              style={{ height: buttonHeight, paddingLeft: buttonPadding, paddingRight: buttonPadding }}
             >
               Get started
             </Link>

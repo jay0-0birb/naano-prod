@@ -100,6 +100,9 @@ export async function POST(request: Request) {
     }
 
     try {
+      if (!stripe) {
+        throw new Error('Stripe is not configured');
+      }
       // Create Stripe transfer (Naano → Creator)
       const transfer = await stripe.transfers.create({
         amount: amountInCents,

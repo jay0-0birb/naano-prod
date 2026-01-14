@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Send, Loader2 } from 'lucide-react';
-import { sendMessage, getMessages } from '@/app/(dashboard)/dashboard/messages/actions';
+import { sendMessage, getMessages, markAsRead } from '@/app/(dashboard)/dashboard/messages/actions';
 import { createClient } from '@/lib/supabase/client';
 
 interface Message {

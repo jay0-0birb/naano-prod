@@ -79,6 +79,10 @@ export async function POST(request: Request) {
 }
 
 async function billSingleSaaS(saasId: string) {
+  if (!stripe) {
+    throw new Error('Stripe is not configured');
+  }
+
   // Get SaaS details
   const { data: saas, error: saasError } = await supabaseAdmin
     .from('saas_companies')

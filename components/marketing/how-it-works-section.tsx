@@ -178,10 +178,10 @@ const SocialPostsMockup = () => {
               <MessageCircle className="w-3 h-3 mr-1" />
               {counts[i]?.comments || 0}
             </div>
-            {counts[i]?.shares > 0 && (
+            {((counts[i]?.shares ?? 0) > 0) && (
               <div className="flex items-center">
                 <Repeat2 className="w-3 h-3 mr-1" />
-                {counts[i].shares}
+                {counts[i]?.shares ?? 0}
               </div>
             )}
           </div>

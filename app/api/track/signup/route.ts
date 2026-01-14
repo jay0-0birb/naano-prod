@@ -137,7 +137,9 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      leadId = newLead.id;
+      // Type assertion: RPC function returns lead with id
+      const lead = newLead as { id: string };
+      leadId = lead.id;
     }
 
     // Get company inference ID

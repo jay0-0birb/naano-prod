@@ -106,11 +106,10 @@ export async function GET(
                      trackingLink.track_impressions ? 'impression' : null;
 
     // 5. Get geolocation for clicks (async, don't block redirect)
-    let geoData = { country: null, city: null };
-    if (eventType === 'click' && ipAddress !== 'unknown' && ipAddress !== 'local') {
-      // Get geo data with 1 second timeout (non-blocking)
-      geoData = await getGeoLocationFast(ipAddress, 1000);
-    }
+    const geoData =
+      eventType === 'click' && ipAddress !== 'unknown' && ipAddress !== 'local'
+        ? await getGeoLocationFast(ipAddress, 1000)
+        : { country: null as string | null, city: null as string | null };
 
     // 6. Log the event and get event ID for 3-second rule tracking
     let eventId: string | null = null;
@@ -246,8 +245,8 @@ export async function GET(
     destinationUrl.searchParams.set('utm_source', 'naano');
     destinationUrl.searchParams.set('utm_medium', 'ambassador');
     
-    // Add creator ID for attribution
-    const creatorId = trackingLink.collaborations?.applications?.creator_id;
+    // Add creator ID for attribution (handle nested array shape safely)
+    const creatorId = (trackingLink as any).collaborations?.[0]?.applications?.creator_id;
     if (creatorId) {
       destinationUrl.searchParams.set('utm_content', creatorId);
     }

@@ -82,8 +82,9 @@ export async function GET(
     destinationUrl.searchParams.set('utm_source', 'konex');
     destinationUrl.searchParams.set('utm_medium', 'ambassador');
     
-    // Add creator info if available
-    const creatorName = trackingLink.collaborations?.applications?.creator_profiles?.profiles?.full_name;
+    // Add creator info if available (handle nested array shape safely)
+    const creatorName =
+      (trackingLink as any).collaborations?.[0]?.applications?.creator_profiles?.[0]?.profiles?.[0]?.full_name;
     if (creatorName) {
       destinationUrl.searchParams.set('utm_content', creatorName.toLowerCase().replace(/\s+/g, '-'));
     }
