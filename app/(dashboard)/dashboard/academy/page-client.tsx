@@ -5,11 +5,13 @@ import CollapsibleSection from "@/components/academy/collapsible-section";
 
 export default function AcademyPageClient() {
   return (
-    <div className="max-w-4xl mx-auto pb-16">
+    <div className="max-w-4xl mx-auto pb-16 academy-page">
       {/* Header */}
       <div className="mb-12">
-        <h1 className="text-4xl font-bold text-white mb-2">Naano Onboarding</h1>
-        <p className="text-slate-400">
+        <h1 className="text-4xl font-bold text-[#111827] mb-2">
+          Naano Onboarding
+        </h1>
+        <p className="text-[#64748B] text-sm">
           La stratégie complète pour générer un reach massif sur LinkedIn et
           Instagram
         </p>
@@ -19,13 +21,13 @@ export default function AcademyPageClient() {
       <CollapsibleSection title="LinkedIn" defaultOpen={true}>
         {/* Welcome */}
         <div className="space-y-3 mb-6">
-          <h2 className="text-2xl font-semibold text-white flex items-center gap-2">
+          <h2 className="text-2xl font-semibold text-[#111827] flex items-center gap-2">
             👋 Welcome
           </h2>
-          <p className="text-slate-300 text-sm">
+          <p className="text-[#4B5563] text-sm">
             This is exactly the strategy we use to generate massive reach...
           </p>
-          <p className="text-slate-300 text-sm">
+          <p className="text-[#4B5563] text-sm">
             <strong>Your Mission:</strong> Share these insights with your
             audience through your content, but keep the <em>actual recipe</em>{" "}
             for yourself. 🤫
@@ -42,13 +44,13 @@ export default function AcademyPageClient() {
 
             {/* 1. Mobile-First Reality */}
             <div className="space-y-3 mb-6">
-              <h4 className="text-base font-semibold text-white">
+              <h4 className="text-base font-semibold text-[#111827]">
                 1. The "Mobile-First" Reality
               </h4>
-              <p className="text-slate-300 text-sm font-semibold">
+              <p className="text-[#4B5563] text-sm font-semibold">
                 If your post doesn't look good on a phone, it doesn't exist.
               </p>
-              <ul className="space-y-1.5 text-slate-300 text-sm ml-6 list-disc">
+              <ul className="space-y-1.5 text-[#4B5563] text-sm ml-6 list-disc">
                 <li>
                   <strong>72% of users are on mobile.</strong> Only 28% use a
                   desktop.
@@ -67,10 +69,10 @@ export default function AcademyPageClient() {
 
             {/* 2. Viral Scoreboard */}
             <div className="space-y-3 mb-6">
-              <h4 className="text-base font-semibold text-white">
+              <h4 className="text-base font-semibold text-[#111827]">
                 2. The Viral Scoreboard (How to Score Points) 💯
               </h4>
-              <p className="text-slate-300 text-sm">
+              <p className="text-[#4B5563] text-sm">
                 Not all interactions are created equal. The algorithm assigns a
                 "weight" to every action. Knowing this explains exactly why our
                 "Comment to get resource" strategy works.
@@ -163,29 +165,29 @@ export default function AcademyPageClient() {
                 </table>
               </div>
 
-              <div className="bg-blue-500/10 border-l-2 border-blue-500/50 rounded p-4 space-y-2 my-4">
-                <p className="text-white font-semibold text-sm">
+              <div className="bg-blue-50 border-l-2 border-[#3B82F6] rounded-xl p-4 space-y-2 my-4">
+                <p className="text-[#111827] font-semibold text-sm">
                   💡 The Strategy:
                 </p>
-                <p className="text-slate-300 text-sm">
+                <p className="text-[#4B5563] text-sm">
                   When you offer real value in exchange for a concrete
                   interaction (like a comment), LinkedIn rewards you with
                   massive reach.
                 </p>
-                <p className="text-white font-semibold text-sm mt-3">
+                <p className="text-[#111827] font-semibold text-sm mt-3">
                   This is why the classic tactic works so well:
                 </p>
-                <p className="text-slate-300 text-sm font-mono bg-white/5 rounded px-2 py-1 inline-block">
+                <p className="text-[#111827] text-sm font-mono bg-gray-100 rounded px-2 py-1 inline-block">
                   "Comment 'WEB' and I'll send you the free resource."
                 </p>
-                <p className="text-slate-300 text-sm mt-2">
+                <p className="text-[#4B5563] text-sm mt-2">
                   This trick blends high engagement (comments) + lead capture
                   (DMs/Connections) in one smooth movement.
                 </p>
-                <p className="text-red-400 font-semibold text-sm mt-3">
+                <p className="text-rose-600 font-semibold text-sm mt-3">
                   Pro Tip:
                 </p>
-                <p className="text-slate-300 text-sm">
+                <p className="text-[#4B5563] text-sm">
                   Repost your own post 6 to 8 hours after publishing. Data shows
                   this boosts visibility by an average of 30%.
                 </p>

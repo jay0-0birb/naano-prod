@@ -36,15 +36,15 @@ export default function CollapsibleSection({
     <div>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full flex items-center gap-2 text-left py-2 hover:bg-white/5 rounded px-1 transition-colors group ${indentClass}`}
+        className={`w-full flex items-center gap-2 text-left py-2 hover:bg-gray-50 rounded px-1 transition-colors group ${indentClass}`}
       >
         <ChevronRight 
-          className={`w-4 h-4 text-slate-400 transition-transform flex-shrink-0 ${
+          className={`w-4 h-4 text-[#94A3B8] transition-transform flex-shrink-0 ${
             isOpen ? 'rotate-90' : ''
           }`} 
         />
         {icon && <span className="text-lg">{icon}</span>}
-        <span className="font-semibold text-white">{title}</span>
+        <span className="font-semibold text-[#111827] text-sm">{title}</span>
       </button>
       {isOpen && (
         <div className={`ml-6 mt-2 space-y-4 ${indentClass}`}>

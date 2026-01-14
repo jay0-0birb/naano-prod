@@ -125,6 +125,89 @@ export default function GlobalLeadFeedTab() {
     return Math.max(lead.company.confidenceScore - decay, 0.30);
   };
 
+  // Filter and sort leads - MUST be called before any early returns
+  const filteredAndSortedLeads = useMemo(() => {
+    let filtered = [...leads];
+
+    // Apply search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((lead) => {
+        const companyName = lead.company?.name?.toLowerCase() || "";
+        const domain = lead.company?.domain?.toLowerCase() || "";
+        const creator = lead.creatorName.toLowerCase();
+        const country = lead.session.country?.toLowerCase() || "";
+        const city = lead.session.city?.toLowerCase() || "";
+        const industry = lead.company?.industry?.toLowerCase() || "";
+
+        return (
+          companyName.includes(query) ||
+          domain.includes(query) ||
+          creator.includes(query) ||
+          country.includes(query) ||
+          city.includes(query) ||
+          industry.includes(query)
+        );
+      });
+    }
+
+    // Apply column filters
+    Object.entries(columnFilters).forEach(([column, value]) => {
+      if (!value) return;
+
+      const filterValue = value.toLowerCase();
+      filtered = filtered.filter((lead) => {
+        switch (column) {
+          case "company":
+            return lead.company?.name?.toLowerCase().includes(filterValue);
+          case "country":
+            return lead.session.country?.toLowerCase().includes(filterValue);
+          case "industry":
+            return lead.company?.industry?.toLowerCase().includes(filterValue);
+          case "creator":
+            return lead.creatorName.toLowerCase().includes(filterValue);
+          default:
+            return true;
+        }
+      });
+    });
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let aValue: any;
+      let bValue: any;
+
+      switch (sortBy) {
+        case "date":
+          aValue = new Date(a.occurredAt).getTime();
+          bValue = new Date(b.occurredAt).getTime();
+          break;
+        case "confidence":
+          aValue = getEffectiveConfidence(a);
+          bValue = getEffectiveConfidence(b);
+          break;
+        case "intent":
+          aValue = a.intent?.score || 0;
+          bValue = b.intent?.score || 0;
+          break;
+        case "company_intent":
+          aValue = a.company?.aggregatedIntent?.avg_intent_score || 0;
+          bValue = b.company?.aggregatedIntent?.avg_intent_score || 0;
+          break;
+        default:
+          return 0;
+      }
+
+      if (sortDirection === "asc") {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+
+    return filtered;
+  }, [leads, searchQuery, columnFilters, sortBy, sortDirection]);
+
   // Download CSV with all fields
   const handleDownloadCSV = () => {
     if (leads.length === 0) {
@@ -291,89 +374,6 @@ export default function GlobalLeadFeedTab() {
       </div>
     );
   }
-
-  // Filter and sort leads
-  const filteredAndSortedLeads = useMemo(() => {
-    let filtered = [...leads];
-
-    // Apply search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter((lead) => {
-        const companyName = lead.company?.name?.toLowerCase() || "";
-        const domain = lead.company?.domain?.toLowerCase() || "";
-        const creator = lead.creatorName.toLowerCase();
-        const country = lead.session.country?.toLowerCase() || "";
-        const city = lead.session.city?.toLowerCase() || "";
-        const industry = lead.company?.industry?.toLowerCase() || "";
-
-        return (
-          companyName.includes(query) ||
-          domain.includes(query) ||
-          creator.includes(query) ||
-          country.includes(query) ||
-          city.includes(query) ||
-          industry.includes(query)
-        );
-      });
-    }
-
-    // Apply column filters
-    Object.entries(columnFilters).forEach(([column, value]) => {
-      if (!value) return;
-
-      const filterValue = value.toLowerCase();
-      filtered = filtered.filter((lead) => {
-        switch (column) {
-          case "company":
-            return lead.company?.name?.toLowerCase().includes(filterValue);
-          case "country":
-            return lead.session.country?.toLowerCase().includes(filterValue);
-          case "industry":
-            return lead.company?.industry?.toLowerCase().includes(filterValue);
-          case "creator":
-            return lead.creatorName.toLowerCase().includes(filterValue);
-          default:
-            return true;
-        }
-      });
-    });
-
-    // Apply sorting
-    filtered.sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
-
-      switch (sortBy) {
-        case "date":
-          aValue = new Date(a.occurredAt).getTime();
-          bValue = new Date(b.occurredAt).getTime();
-          break;
-        case "confidence":
-          aValue = getEffectiveConfidence(a);
-          bValue = getEffectiveConfidence(b);
-          break;
-        case "intent":
-          aValue = a.intent?.score || 0;
-          bValue = b.intent?.score || 0;
-          break;
-        case "company_intent":
-          aValue = a.company?.aggregatedIntent?.avg_intent_score || 0;
-          bValue = b.company?.aggregatedIntent?.avg_intent_score || 0;
-          break;
-        default:
-          return 0;
-      }
-
-      if (sortDirection === "asc") {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
-    });
-
-    return filtered;
-  }, [leads, searchQuery, columnFilters, sortBy, sortDirection]);
 
   const handleSort = (column: typeof sortBy) => {
     if (sortBy === column) {

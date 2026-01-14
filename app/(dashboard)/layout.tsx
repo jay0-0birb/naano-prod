@@ -37,11 +37,8 @@ export default async function DashboardLayout({
     cardOnFile = saasCompany?.card_on_file || false;
   }
 
-  // Check if we're on the onboarding page
-  // We need to allow access to onboarding even if profile is incomplete
-  
   return (
-    <div className="flex min-h-screen bg-[#020408] text-slate-300">
+    <div className="flex min-h-screen bg-gray-50 text-[#111827] font-[var(--font-jakarta)]">
       <SessionValidator userId={user.id} />
       <CardValidator 
         cardOnFile={cardOnFile}
@@ -55,7 +52,7 @@ export default async function DashboardLayout({
       />
       <main className="flex-1 ml-64">
         <DashboardHeader 
-          userName={profile?.full_name || user.email || 'Utilisateur'}
+          userName={profile?.full_name || user.email || 'User'}
           avatarUrl={profile?.avatar_url}
         />
         <div className="p-8">

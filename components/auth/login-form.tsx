@@ -28,32 +28,32 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2">
+        <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm flex items-center gap-2">
           <AlertCircle className="w-4 h-4 shrink-0" />
-          {error === 'Invalid login credentials' ? 'Email ou mot de passe incorrect' : error}
+          {error === 'Invalid login credentials' ? 'Invalid email or password' : error}
         </div>
       )}
 
       <div className="space-y-4">
         <div>
-          <label className="block text-xs font-medium text-slate-400 mb-1.5 ml-1">Email</label>
+          <label className="block text-xs font-medium text-[#475569] mb-1.5 ml-1">Email</label>
           <input 
             name="email" 
             type="email" 
             required 
             placeholder="john@company.com"
-            className="w-full bg-[#020408] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-slate-400 mb-1.5 ml-1">Mot de passe</label>
+          <label className="block text-xs font-medium text-[#475569] mb-1.5 ml-1">Password</label>
           <input 
             name="password" 
             type="password" 
             required 
             placeholder="••••••••"
-            className="w-full bg-[#020408] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
           />
         </div>
       </div>
@@ -61,18 +61,17 @@ export default function LoginForm() {
       <button 
         type="submit" 
         disabled={isLoading}
-        className="w-full h-11 mt-2 bg-white text-slate-950 rounded-xl text-sm font-medium hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="w-full h-11 mt-2 bg-[#0F172A] text-white rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         {isLoading ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
-            Connexion...
+            Signing in...
           </>
         ) : (
-          "Se connecter"
+          "Sign in"
         )}
       </button>
     </form>
   );
 }
-

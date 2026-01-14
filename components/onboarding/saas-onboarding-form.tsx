@@ -6,17 +6,17 @@ import { Loader2, AlertCircle, Upload, CheckCircle2, Building2 } from 'lucide-re
 import { useRouter } from 'next/navigation';
 
 const INDUSTRIES = [
-  'SaaS / Logiciel',
+  'SaaS / Software',
   'Fintech',
   'E-commerce',
   'Marketing',
-  'Ressources Humaines',
-  'Productivité',
-  'Cybersécurité',
-  'IA / Machine Learning',
+  'Human Resources',
+  'Productivity',
+  'Cybersecurity',
+  'AI / Machine Learning',
   'EdTech',
   'HealthTech',
-  'Autre',
+  'Other',
 ];
 
 export default function SaasOnboardingForm() {
@@ -68,7 +68,7 @@ export default function SaasOnboardingForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-3">
+        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm flex items-center gap-3">
           <AlertCircle className="w-5 h-5 shrink-0" />
           {error}
         </div>
@@ -77,56 +77,56 @@ export default function SaasOnboardingForm() {
       <div className="space-y-5">
         {/* Company Name */}
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">
-            Nom de l'entreprise *
+          <label className="block text-sm font-medium text-[#475569] mb-2">
+            Company Name *
           </label>
           <input
             name="companyName"
             type="text"
             required
             placeholder="Acme Inc."
-            className="w-full bg-[#0A0C10] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
           />
         </div>
 
         {/* Description */}
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">
-            Description du produit *
+          <label className="block text-sm font-medium text-[#475569] mb-2">
+            Product Description *
           </label>
           <textarea
             name="description"
             required
             rows={4}
-            placeholder="Décrivez votre produit/service et ce que vous recherchez chez les créateurs..."
-            className="w-full bg-[#0A0C10] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all resize-none"
+            placeholder="Describe your product/service and what you're looking for in creators..."
+            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all resize-none"
           />
         </div>
 
         {/* Website */}
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">
-            Site web
+          <label className="block text-sm font-medium text-[#475569] mb-2">
+            Website
           </label>
           <input
             name="website"
             type="url"
             placeholder="https://www.example.com"
-            className="w-full bg-[#0A0C10] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
           />
         </div>
 
         {/* Industry */}
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">
-            Industrie *
+          <label className="block text-sm font-medium text-[#475569] mb-2">
+            Industry *
           </label>
           <select
             name="industry"
             required
-            className="w-full bg-[#0A0C10] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
           >
-            <option value="">Sélectionnez une industrie</option>
+            <option value="">Select an industry</option>
             {INDUSTRIES.map((industry) => (
               <option key={industry} value={industry}>
                 {industry}
@@ -137,8 +137,8 @@ export default function SaasOnboardingForm() {
 
         {/* Commission Rate */}
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">
-            Taux de commission proposé (%) *
+          <label className="block text-sm font-medium text-[#475569] mb-2">
+            Commission Rate (%) *
           </label>
           <div className="relative">
             <input
@@ -149,31 +149,31 @@ export default function SaasOnboardingForm() {
               max="100"
               step="0.5"
               placeholder="15"
-              className="w-full bg-[#0A0C10] border border-white/10 rounded-xl px-4 py-3 pr-12 text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 pr-12 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
             />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500">%</span>
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#64748B]">%</span>
           </div>
-          <p className="text-xs text-slate-500 mt-1.5">
-            Commission versée aux créateurs sur les ventes générées
+          <p className="text-xs text-[#64748B] mt-1.5">
+            Commission paid to creators on generated sales
           </p>
         </div>
 
         {/* Conditions */}
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">
-            Conditions de collaboration
+          <label className="block text-sm font-medium text-[#475569] mb-2">
+            Collaboration Terms
           </label>
           <textarea
             name="conditions"
             rows={3}
-            placeholder="Durée minimale, exclusivité, attentes spécifiques..."
-            className="w-full bg-[#0A0C10] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all resize-none"
+            placeholder="Minimum duration, exclusivity, specific expectations..."
+            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all resize-none"
           />
         </div>
 
         {/* Media Pack Upload */}
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">
+          <label className="block text-sm font-medium text-[#475569] mb-2">
             Media Pack (logos, guidelines)
           </label>
           <div className="relative">
@@ -188,24 +188,24 @@ export default function SaasOnboardingForm() {
               htmlFor="media-pack-upload"
               className={`flex items-center justify-center gap-3 w-full py-4 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
                 mediaPackUrl
-                  ? 'border-green-500/50 bg-green-500/5'
-                  : 'border-white/10 hover:border-white/20 bg-[#0A0C10]'
+                  ? 'border-green-200 bg-green-50'
+                  : 'border-gray-200 hover:border-gray-300 bg-gray-50'
               }`}
             >
               {isUploading ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin text-blue-400" />
-                  <span className="text-slate-400">Upload en cours...</span>
+                  <Loader2 className="w-5 h-5 animate-spin text-[#3B82F6]" />
+                  <span className="text-[#64748B]">Uploading...</span>
                 </>
               ) : mediaPackUrl ? (
                 <>
-                  <CheckCircle2 className="w-5 h-5 text-green-400" />
-                  <span className="text-green-400">Fichier uploadé</span>
+                  <CheckCircle2 className="w-5 h-5 text-green-600" />
+                  <span className="text-green-700 font-medium">File uploaded</span>
                 </>
               ) : (
                 <>
-                  <Upload className="w-5 h-5 text-slate-500" />
-                  <span className="text-slate-400">Cliquez pour uploader (PDF, ZIP, images)</span>
+                  <Upload className="w-5 h-5 text-[#64748B]" />
+                  <span className="text-[#64748B]">Click to upload (PDF, ZIP, images)</span>
                 </>
               )}
             </label>
@@ -216,21 +216,20 @@ export default function SaasOnboardingForm() {
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full h-12 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="w-full h-12 bg-[#0F172A] hover:bg-[#1E293B] text-white rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         {isLoading ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />
-            Enregistrement...
+            Saving...
           </>
         ) : (
           <>
             <Building2 className="w-5 h-5" />
-            Créer mon profil entreprise
+            Create Company Profile
           </>
         )}
       </button>
     </form>
   );
 }
-

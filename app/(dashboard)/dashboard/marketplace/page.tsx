@@ -64,9 +64,9 @@ export default async function MarketplacePage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-            <h2 className="text-2xl font-normal text-white mb-1">Marketplace SaaS</h2>
-          <p className="text-slate-400 text-sm">
-            Découvrez les entreprises SaaS et postulez pour des collaborations
+            <h2 className="text-2xl font-semibold text-[#111827] mb-1">SaaS Marketplace</h2>
+          <p className="text-[#64748B] text-sm">
+            Discover SaaS companies and apply for collaborations
           </p>
         </div>
       </div>
@@ -74,16 +74,16 @@ export default async function MarketplacePage() {
       {/* Search & Filters */}
       <div className="flex gap-4 mb-8">
         <div className="flex-1 relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#94A3B8]" />
           <input
             type="text"
-            placeholder="Rechercher une entreprise..."
-            className="w-full bg-[#0A0C10] border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+            placeholder="Search for a company..."
+            className="w-full bg-white border border-gray-200 rounded-xl pl-12 pr-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
           />
         </div>
-        <button className="flex items-center gap-2 px-4 py-3 bg-[#0A0C10] border border-white/10 rounded-xl text-slate-400 hover:text-white hover:border-white/20 transition-all">
+        <button className="flex items-center gap-2 px-4 py-3 bg-white border border-gray-200 rounded-xl text-[#64748B] hover:text-[#111827] hover:border-gray-300 transition-all">
           <Filter className="w-5 h-5" />
-          <span className="text-sm">Filtres</span>
+          <span className="text-sm">Filters</span>
         </button>
       </div>
 
@@ -100,13 +100,13 @@ export default async function MarketplacePage() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-16 bg-[#0A0C10] border border-white/10 rounded-2xl">
-          <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-            <Building2 className="w-8 h-8 text-slate-500" />
+        <div className="text-center py-16 bg-white border border-gray-200 rounded-2xl shadow-sm">
+          <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-4">
+            <Building2 className="w-8 h-8 text-[#94A3B8]" />
           </div>
-          <h3 className="text-lg font-medium text-white mb-2">Aucune entreprise disponible</h3>
-          <p className="text-slate-400 text-sm max-w-md mx-auto">
-            Il n'y a pas encore d'entreprises SaaS inscrites. Revenez bientôt !
+          <h3 className="text-lg font-semibold text-[#111827] mb-2">No companies available</h3>
+          <p className="text-[#64748B] text-sm max-w-md mx-auto">
+            There are no SaaS companies registered yet. Check back soon!
           </p>
         </div>
       )}
@@ -153,9 +153,9 @@ export default async function MarketplacePage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="text-2xl font-normal text-white mb-1">Marketplace Créateurs</h2>
-            <p className="text-slate-400 text-sm">
-              Découvrez des créateurs et invitez-les à collaborer avec vous
+            <h2 className="text-2xl font-semibold text-[#111827] mb-1">Creator Marketplace</h2>
+            <p className="text-[#64748B] text-sm">
+              Discover creators and invite them to collaborate with you
             </p>
           </div>
         </div>
@@ -163,16 +163,16 @@ export default async function MarketplacePage() {
         {/* Search & Filters */}
         <div className="flex gap-4 mb-8">
           <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#94A3B8]" />
             <input
               type="text"
-              placeholder="Rechercher un créateur..."
-              className="w-full bg-[#0A0C10] border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+              placeholder="Search for a creator..."
+              className="w-full bg-white border border-gray-200 rounded-xl pl-12 pr-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
             />
           </div>
-          <button className="flex items-center gap-2 px-4 py-3 bg-[#0A0C10] border border-white/10 rounded-xl text-slate-400 hover:text-white hover:border-white/20 transition-all">
+          <button className="flex items-center gap-2 px-4 py-3 bg-white border border-gray-200 rounded-xl text-[#64748B] hover:text-[#111827] hover:border-gray-300 transition-all">
             <Filter className="w-5 h-5" />
-            <span className="text-sm">Filtres</span>
+            <span className="text-sm">Filters</span>
           </button>
         </div>
 
@@ -189,13 +189,13 @@ export default async function MarketplacePage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 bg-[#0A0C10] border border-white/10 rounded-2xl">
-            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-              <UsersIcon className="w-8 h-8 text-slate-500" />
+          <div className="text-center py-16 bg-white border border-gray-200 rounded-2xl shadow-sm">
+            <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-4">
+              <UsersIcon className="w-8 h-8 text-[#94A3B8]" />
             </div>
-            <h3 className="text-lg font-medium text-white mb-2">Aucun créateur disponible</h3>
-            <p className="text-slate-400 text-sm max-w-md mx-auto">
-              Il n'y a pas encore de créateurs inscrits. Revenez bientôt !
+            <h3 className="text-lg font-semibold text-[#111827] mb-2">No creators available</h3>
+            <p className="text-[#64748B] text-sm max-w-md mx-auto">
+              There are no creators registered yet. Check back soon!
             </p>
           </div>
         )}

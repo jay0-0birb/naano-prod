@@ -5,25 +5,25 @@ import { Handshake, MessageSquare, Building2, Users, ExternalLink, CheckCircle2,
 
 const STATUS_CONFIG = {
   active: {
-    label: 'En cours',
+    label: 'Active',
     icon: Clock,
-    color: 'text-blue-400',
-    bg: 'bg-blue-500/10',
-    border: 'border-blue-500/20',
+    color: 'text-blue-600',
+    bg: 'bg-blue-50',
+    border: 'border-blue-200',
   },
   completed: {
-    label: 'Terminée',
+    label: 'Completed',
     icon: CheckCircle2,
-    color: 'text-green-400',
-    bg: 'bg-green-500/10',
-    border: 'border-green-500/20',
+    color: 'text-green-600',
+    bg: 'bg-green-50',
+    border: 'border-green-200',
   },
   cancelled: {
-    label: 'Annulée',
+    label: 'Cancelled',
     icon: Clock,
-    color: 'text-slate-400',
-    bg: 'bg-slate-500/10',
-    border: 'border-slate-500/20',
+    color: 'text-gray-500',
+    bg: 'bg-gray-50',
+    border: 'border-gray-200',
   },
 };
 
@@ -125,7 +125,7 @@ export default async function CollaborationsPage() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
+    return new Date(dateString).toLocaleDateString('en-US', {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
@@ -136,11 +136,11 @@ export default async function CollaborationsPage() {
     <div>
       {/* Header */}
       <div className="mb-8">
-        <h2 className="text-2xl font-normal text-white mb-1">Collaborations</h2>
-        <p className="text-slate-400 text-sm">
+        <h2 className="text-2xl font-semibold text-[#111827] mb-1">Collaborations</h2>
+        <p className="text-[#64748B] text-sm">
           {isCreator 
-            ? 'Gérez vos partenariats avec les entreprises SaaS'
-            : 'Gérez vos partenariats avec les créateurs'}
+            ? 'Manage your partnerships with SaaS companies'
+            : 'Manage your partnerships with creators'}
         </p>
       </div>
 
@@ -158,7 +158,7 @@ export default async function CollaborationsPage() {
             return (
               <div 
                 key={collab.id}
-                className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all"
+                className="bg-white border border-gray-200 rounded-2xl p-6 hover:border-gray-300 hover:shadow-md transition-all shadow-sm"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-4">
@@ -168,11 +168,11 @@ export default async function CollaborationsPage() {
                         <img 
                           src={partner.logo_url} 
                           alt={partner.company_name}
-                          className="w-14 h-14 rounded-xl object-cover"
+                          className="w-14 h-14 rounded-xl object-cover border border-gray-200"
                         />
                       ) : (
-                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center">
-                          <Building2 className="w-7 h-7 text-blue-400" />
+                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-200 flex items-center justify-center">
+                          <Building2 className="w-7 h-7 text-[#3B82F6]" />
                         </div>
                       )
                     ) : (
@@ -180,18 +180,18 @@ export default async function CollaborationsPage() {
                         <img 
                           src={partnerProfile.avatar_url} 
                           alt={partnerProfile.full_name}
-                          className="w-14 h-14 rounded-xl object-cover"
+                          className="w-14 h-14 rounded-xl object-cover border border-gray-200"
                         />
                       ) : (
-                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-white/10 flex items-center justify-center">
-                          <Users className="w-7 h-7 text-purple-400" />
+                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border border-gray-200 flex items-center justify-center">
+                          <Users className="w-7 h-7 text-[#8B5CF6]" />
                         </div>
                       )
                     )}
 
                     <div>
                       <div className="flex items-center gap-3">
-                        <h3 className="font-medium text-white text-lg">
+                        <h3 className="font-semibold text-[#111827] text-lg">
                           {isCreator ? partner?.company_name : partnerProfile?.full_name}
                         </h3>
                         {isCreator && partner?.website && (
@@ -199,7 +199,7 @@ export default async function CollaborationsPage() {
                             href={partner.website}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-slate-500 hover:text-white transition-colors"
+                            className="text-[#94A3B8] hover:text-[#111827] transition-colors"
                           >
                             <ExternalLink className="w-4 h-4" />
                           </a>
@@ -208,13 +208,13 @@ export default async function CollaborationsPage() {
                       <div className="flex items-center gap-3 mt-1">
                         {isCreator ? (
                           <>
-                            <span className="text-xs text-slate-500">{partner?.industry}</span>
+                            <span className="text-xs text-[#64748B]">{partner?.industry}</span>
                             {partner?.commission_rate && (
-                              <span className="text-xs text-green-400">{partner.commission_rate}% commission</span>
+                              <span className="text-xs text-green-600 font-medium">{partner.commission_rate}% commission</span>
                             )}
                           </>
                         ) : (
-                          <span className="text-xs text-slate-500">
+                          <span className="text-xs text-[#64748B]">
                             {partner?.followers_count?.toLocaleString()} followers
                           </span>
                         )}
@@ -230,23 +230,23 @@ export default async function CollaborationsPage() {
                 </div>
 
                 {/* Footer */}
-                <div className="mt-4 flex items-center justify-between pt-4 border-t border-white/5">
-                  <span className="text-xs text-slate-500">
-                    Collaboration démarrée le {formatDate(collab.started_at)}
+                <div className="mt-4 flex items-center justify-between pt-4 border-t border-gray-200">
+                  <span className="text-xs text-[#64748B]">
+                    Collaboration started on {formatDate(collab.started_at)}
                   </span>
                   
                   <div className="flex gap-3">
                     <Link 
                       href={`/dashboard/collaborations/${collab.id}`}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm transition-colors"
+                      className="flex items-center gap-2 px-3 py-1.5 bg-[#0F172A] hover:bg-[#1E293B] text-white rounded-lg text-sm font-medium transition-colors"
                     >
                       <FileText className="w-4 h-4" />
-                      Voir les posts
+                      View posts
                     </Link>
                     {conversation && (
                       <Link 
                         href={`/dashboard/messages?conversation=${conversation.id}`}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg text-sm transition-colors"
+                        className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 text-[#64748B] hover:text-[#111827] rounded-lg text-sm font-medium transition-colors border border-gray-200"
                       >
                         <MessageSquare className="w-4 h-4" />
                         Messages
@@ -259,25 +259,24 @@ export default async function CollaborationsPage() {
           })}
         </div>
       ) : (
-        <div className="text-center py-16 bg-[#0A0C10] border border-white/10 rounded-2xl">
-          <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-            <Handshake className="w-8 h-8 text-slate-500" />
+        <div className="text-center py-16 bg-white border border-gray-200 rounded-2xl shadow-sm">
+          <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-4">
+            <Handshake className="w-8 h-8 text-[#94A3B8]" />
           </div>
-          <h3 className="text-lg font-medium text-white mb-2">Aucune collaboration</h3>
-          <p className="text-slate-400 text-sm max-w-md mx-auto mb-6">
+          <h3 className="text-lg font-semibold text-[#111827] mb-2">No collaborations</h3>
+          <p className="text-[#64748B] text-sm max-w-md mx-auto mb-6">
             {isCreator 
-              ? 'Vous n\'avez pas encore de collaboration active. Postulez auprès d\'entreprises SaaS !'
-              : 'Vous n\'avez pas encore de collaboration active. Acceptez des candidatures de créateurs !'}
+              ? 'You don\'t have any active collaborations yet. Apply to SaaS companies!'
+              : 'You don\'t have any active collaborations yet. Accept creator applications!'}
           </p>
           <Link 
             href={isCreator ? '/dashboard/marketplace' : '/dashboard/candidates'}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#0F172A] hover:bg-[#1E293B] text-white rounded-lg text-sm font-medium transition-colors"
           >
-            {isCreator ? 'Explorer la Marketplace' : 'Voir les candidatures'}
+            {isCreator ? 'Explore Marketplace' : 'View Applications'}
           </Link>
         </div>
       )}
     </div>
   );
 }
-

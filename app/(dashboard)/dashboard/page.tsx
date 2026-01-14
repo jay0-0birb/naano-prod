@@ -75,83 +75,83 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-normal text-white mb-2">
-        Bonjour, {profile?.full_name?.split(' ')[0] || 'Utilisateur'} 👋
+      <h2 className="text-2xl font-semibold text-[#111827] mb-2">
+        Welcome back, {profile?.full_name?.split(' ')[0] || 'User'} 👋
       </h2>
-      <p className="text-slate-400 mb-8">
+      <p className="text-[#64748B] mb-8">
         {isCreator 
-          ? 'Découvrez les opportunités SaaS et développez vos partenariats.'
-          : 'Gérez vos candidatures et collaborations avec les créateurs.'}
+          ? 'Discover SaaS opportunities and grow your partnerships.'
+          : 'Manage applications and collaborations with creators.'}
       </p>
       
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
-          <div className="text-slate-400 text-sm mb-1">
-            {isCreator ? 'Candidatures en attente' : 'Candidatures reçues'}
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+          <div className="text-[#64748B] text-sm mb-1">
+            {isCreator ? 'Pending Applications' : 'Applications Received'}
           </div>
-          <div className="text-3xl font-semibold text-white">{stats.pending}</div>
+          <div className="text-3xl font-bold text-[#111827]">{stats.pending}</div>
         </div>
-        <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
-          <div className="text-slate-400 text-sm mb-1">Collaborations actives</div>
-          <div className="text-3xl font-semibold text-white">{stats.collaborations}</div>
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+          <div className="text-[#64748B] text-sm mb-1">Active Collaborations</div>
+          <div className="text-3xl font-bold text-[#111827]">{stats.collaborations}</div>
         </div>
       </div>
 
       {/* Quick Actions */}
-      <h3 className="text-lg font-medium text-white mb-4">Actions rapides</h3>
+      <h3 className="text-lg font-semibold text-[#111827] mb-4">Quick Actions</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {isCreator ? (
           <>
             <Link 
               href="/dashboard/marketplace"
-              className="group p-6 rounded-2xl border border-white/10 bg-[#0A0C10] hover:border-blue-500/30 hover:bg-blue-500/5 transition-all"
+              className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#3B82F6] hover:bg-blue-50/50 transition-all shadow-sm"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                    <ShoppingBag className="w-6 h-6 text-blue-400" />
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+                    <ShoppingBag className="w-6 h-6 text-[#3B82F6]" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-white">Explorer la Marketplace</h4>
-                    <p className="text-sm text-slate-400">Découvrez les entreprises SaaS</p>
+                    <h4 className="font-semibold text-[#111827]">Explore Marketplace</h4>
+                    <p className="text-sm text-[#64748B]">Discover SaaS companies</p>
                   </div>
                 </div>
-                <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
+                <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#3B82F6] group-hover:translate-x-1 transition-all" />
               </div>
             </Link>
             <Link 
               href="/dashboard/applications"
-              className="group p-6 rounded-2xl border border-white/10 bg-[#0A0C10] hover:border-purple-500/30 hover:bg-purple-500/5 transition-all"
+              className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#8B5CF6] hover:bg-purple-50/50 transition-all shadow-sm"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                    <FileText className="w-6 h-6 text-purple-400" />
+                  <div className="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center">
+                    <FileText className="w-6 h-6 text-[#8B5CF6]" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-white">Mes candidatures</h4>
-                    <p className="text-sm text-slate-400">Suivez vos candidatures</p>
+                    <h4 className="font-semibold text-[#111827]">My Applications</h4>
+                    <p className="text-sm text-[#64748B]">Track your applications</p>
                   </div>
                 </div>
-                <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-purple-400 group-hover:translate-x-1 transition-all" />
+                <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#8B5CF6] group-hover:translate-x-1 transition-all" />
               </div>
             </Link>
             <Link 
               href="/dashboard/finances"
-              className="group p-6 rounded-2xl border border-white/10 bg-[#0A0C10] hover:border-green-500/30 hover:bg-green-500/5 transition-all"
+              className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#10B981] hover:bg-green-50/50 transition-all shadow-sm"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center">
-                    <Wallet className="w-6 h-6 text-green-400" />
+                  <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
+                    <Wallet className="w-6 h-6 text-[#10B981]" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-white">Mes finances</h4>
-                    <p className="text-sm text-slate-400">Commissions et paiements</p>
+                    <h4 className="font-semibold text-[#111827]">My Finances</h4>
+                    <p className="text-sm text-[#64748B]">Commissions and payments</p>
                   </div>
                 </div>
-                <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-green-400 group-hover:translate-x-1 transition-all" />
+                <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#10B981] group-hover:translate-x-1 transition-all" />
               </div>
             </Link>
           </>
@@ -159,53 +159,53 @@ export default async function DashboardPage() {
           <>
             <Link 
               href="/dashboard/candidates"
-              className="group p-6 rounded-2xl border border-white/10 bg-[#0A0C10] hover:border-blue-500/30 hover:bg-blue-500/5 transition-all"
+              className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#3B82F6] hover:bg-blue-50/50 transition-all shadow-sm"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                    <Users className="w-6 h-6 text-blue-400" />
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+                    <Users className="w-6 h-6 text-[#3B82F6]" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-white">Voir les candidatures</h4>
-                    <p className="text-sm text-slate-400">{stats.pending} en attente</p>
+                    <h4 className="font-semibold text-[#111827]">View Applications</h4>
+                    <p className="text-sm text-[#64748B]">{stats.pending} pending</p>
                   </div>
                 </div>
-                <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
+                <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#3B82F6] group-hover:translate-x-1 transition-all" />
               </div>
             </Link>
             <Link 
               href="/dashboard/collaborations"
-              className="group p-6 rounded-2xl border border-white/10 bg-[#0A0C10] hover:border-green-500/30 hover:bg-green-500/5 transition-all"
+              className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#10B981] hover:bg-green-50/50 transition-all shadow-sm"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center">
-                    <Handshake className="w-6 h-6 text-green-400" />
+                  <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
+                    <Handshake className="w-6 h-6 text-[#10B981]" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-white">Collaborations</h4>
-                    <p className="text-sm text-slate-400">Gérez vos partenariats</p>
+                    <h4 className="font-semibold text-[#111827]">Collaborations</h4>
+                    <p className="text-sm text-[#64748B]">Manage partnerships</p>
                   </div>
                 </div>
-                <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-green-400 group-hover:translate-x-1 transition-all" />
+                <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#10B981] group-hover:translate-x-1 transition-all" />
               </div>
             </Link>
             <Link 
               href="/dashboard/finances"
-              className="group p-6 rounded-2xl border border-white/10 bg-[#0A0C10] hover:border-amber-500/30 hover:bg-amber-500/5 transition-all"
+              className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#F59E0B] hover:bg-amber-50/50 transition-all shadow-sm"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                    <Wallet className="w-6 h-6 text-amber-400" />
+                  <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center">
+                    <Wallet className="w-6 h-6 text-[#F59E0B]" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-white">Finances & Plans</h4>
-                    <p className="text-sm text-slate-400">Gérez votre abonnement</p>
+                    <h4 className="font-semibold text-[#111827]">Finances & Plans</h4>
+                    <p className="text-sm text-[#64748B]">Manage subscription</p>
                   </div>
                 </div>
-                <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-amber-400 group-hover:translate-x-1 transition-all" />
+                <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#F59E0B] group-hover:translate-x-1 transition-all" />
               </div>
             </Link>
           </>

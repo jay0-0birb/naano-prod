@@ -140,14 +140,14 @@ export default function ConversationList({
   };
 
   return (
-    <div className="h-full bg-[#0A0C10] border border-white/10 rounded-2xl overflow-hidden">
-      <div className="p-4 border-b border-white/10">
-        <h3 className="font-medium text-white">Conversations</h3>
+    <div className="h-full bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+      <div className="p-4 border-b border-gray-200">
+        <h3 className="font-semibold text-[#111827] text-sm">Conversations</h3>
       </div>
 
       <div className="overflow-y-auto h-[calc(100%-60px)]">
         {conversations.length > 0 ? (
-          <div className="divide-y divide-white/5">
+          <div className="divide-y divide-gray-100">
             {conversations.map((conversation) => {
               const partner = getPartner(conversation);
               const isActive = conversation.id === activeConversationId;
@@ -157,8 +157,8 @@ export default function ConversationList({
                 <Link
                   key={conversation.id}
                   href={`/dashboard/messages?conversation=${conversation.id}`}
-                  className={`flex items-center gap-3 p-4 hover:bg-white/5 transition-colors ${
-                    isActive ? 'bg-white/5' : ''
+                  className={`flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors ${
+                    isActive ? 'bg-gray-50' : ''
                   }`}
                 >
                   {/* Avatar */}
@@ -171,22 +171,30 @@ export default function ConversationList({
                   ) : (
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                       partner?.type === 'saas' 
-                        ? 'bg-blue-500/10 border border-blue-500/20' 
-                        : 'bg-purple-500/10 border border-purple-500/20'
+                        ? 'bg-blue-50 border border-blue-200' 
+                        : 'bg-purple-50 border border-purple-200'
                     }`}>
                       {partner?.type === 'saas' ? (
-                        <Building2 className="w-5 h-5 text-blue-400" />
+                        <Building2 className="w-5 h-5 text-[#3B82F6]" />
                       ) : (
-                        <Users className="w-5 h-5 text-purple-400" />
+                        <Users className="w-5 h-5 text-purple-500" />
                       )}
                     </div>
                   )}
 
                   <div className="flex-1 min-w-0">
-                    <h4 className={`text-sm truncate ${hasUnread ? 'font-semibold text-white' : 'font-medium text-white'}`}>
+                    <h4 className={`text-sm truncate ${
+                      hasUnread
+                        ? 'font-semibold text-[#111827]'
+                        : 'font-medium text-[#111827]'
+                    }`}>
                       {partner?.name}
                     </h4>
-                    <p className={`text-xs truncate ${hasUnread ? 'text-blue-400' : 'text-slate-500'}`}>
+                    <p
+                      className={`text-xs truncate ${
+                        hasUnread ? 'text-[#3B82F6]' : 'text-[#64748B]'
+                      }`}
+                    >
                       {hasUnread ? 'Nouveau message' : 'Collaboration active'}
                     </p>
                   </div>
@@ -196,7 +204,7 @@ export default function ConversationList({
           </div>
         ) : (
           <div className="flex items-center justify-center h-full p-4">
-            <p className="text-sm text-slate-500 text-center">
+            <p className="text-sm text-[#64748B] text-center">
               Aucune conversation.<br />
               Les conversations sont créées automatiquement lors de l'acceptation d'une candidature.
             </p>

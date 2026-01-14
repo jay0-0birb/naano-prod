@@ -67,18 +67,20 @@ export default async function CandidatesPage() {
     <div>
       {/* Header */}
       <div className="mb-8">
-        <h2 className="text-2xl font-normal text-white mb-1">Candidatures reçues</h2>
-        <p className="text-slate-400 text-sm">
+        <h2 className="text-2xl font-semibold text-[#111827] mb-1">
+          Candidatures reçues
+        </h2>
+        <p className="text-[#64748B] text-sm">
           Gérez les candidatures des créateurs souhaitant collaborer avec vous
         </p>
       </div>
 
       {/* Pending Applications */}
       <div className="mb-8">
-        <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-[#111827] mb-4 flex items-center gap-2">
           En attente
           {pendingApplications.length > 0 && (
-            <span className="text-xs bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full">
+            <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
               {pendingApplications.length}
             </span>
           )}
@@ -94,11 +96,13 @@ export default async function CandidatesPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12 bg-[#0A0C10] border border-white/10 rounded-2xl">
-            <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-3">
-              <Users className="w-6 h-6 text-slate-500" />
+          <div className="text-center py-12 bg-white border border-gray-200 rounded-2xl shadow-sm">
+            <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-3">
+              <Users className="w-6 h-6 text-[#94A3B8]" />
             </div>
-            <p className="text-slate-400 text-sm">Aucune candidature en attente</p>
+            <p className="text-sm text-[#64748B]">
+              Aucune candidature en attente
+            </p>
           </div>
         )}
       </div>
@@ -106,8 +110,10 @@ export default async function CandidatesPage() {
       {/* Processed Applications */}
       {processedApplications.length > 0 && (
         <div>
-          <h3 className="text-lg font-medium text-white mb-4">Historique</h3>
-          <div className="space-y-4 opacity-60">
+          <h3 className="text-lg font-semibold text-[#111827] mb-4">
+            Historique
+          </h3>
+          <div className="space-y-4 opacity-80">
             {processedApplications.map((application) => (
               <CandidateCard
                 key={application.id}

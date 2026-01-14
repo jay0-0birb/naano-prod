@@ -164,16 +164,16 @@ export default function ChatView({ conversationId, currentUser, partnerName, par
   });
 
   return (
-    <div className="h-full flex flex-col bg-[#0A0C10] border border-white/10 rounded-2xl overflow-hidden">
+    <div className="h-full flex flex-col bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
-            <Loader2 className="w-6 h-6 animate-spin text-slate-500" />
+            <Loader2 className="w-6 h-6 animate-spin text-[#94A3B8]" />
           </div>
         ) : messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <p className="text-slate-500 text-sm">
+            <p className="text-[#64748B] text-sm">
               Aucun message. Commencez la conversation !
             </p>
           </div>
@@ -182,9 +182,9 @@ export default function ChatView({ conversationId, currentUser, partnerName, par
             <div key={groupIndex}>
               {/* Date Separator */}
               <div className="flex items-center gap-4 my-4">
-                <div className="flex-1 h-px bg-white/10"></div>
-                <span className="text-xs text-slate-500">{group.date}</span>
-                <div className="flex-1 h-px bg-white/10"></div>
+                <div className="flex-1 h-px bg-gray-200"></div>
+                <span className="text-xs text-[#94A3B8]">{group.date}</span>
+                <div className="flex-1 h-px bg-gray-200"></div>
               </div>
 
               {/* Messages */}
@@ -211,12 +211,16 @@ export default function ChatView({ conversationId, currentUser, partnerName, par
                           className="w-8 h-8 rounded-full object-cover shrink-0"
                         />
                       ) : (
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                          isOwn ? 'bg-blue-500/20' : 'bg-purple-500/20'
-                        }`}>
-                          <span className={`text-xs font-medium ${
-                            isOwn ? 'text-blue-400' : 'text-purple-400'
-                          }`}>
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                            isOwn ? 'bg-blue-50' : 'bg-purple-50'
+                          }`}
+                        >
+                          <span
+                            className={`text-xs font-medium ${
+                              isOwn ? 'text-[#1D4ED8]' : 'text-purple-600'
+                            }`}
+                          >
                             {initials}
                           </span>
                         </div>
@@ -226,12 +230,12 @@ export default function ChatView({ conversationId, currentUser, partnerName, par
                       <div className={`max-w-[70%] ${isOwn ? 'items-end' : 'items-start'}`}>
                         <div className={`px-4 py-2.5 rounded-2xl ${
                           isOwn 
-                            ? 'bg-blue-600 text-white rounded-tr-sm' 
-                            : 'bg-white/5 text-slate-200 rounded-tl-sm'
+                            ? 'bg-[#111827] text-white rounded-tr-sm' 
+                            : 'bg-gray-100 text-[#111827] rounded-tl-sm'
                         }`}>
                           <p className="text-sm">{message.content}</p>
                         </div>
-                        <span className={`text-xs text-slate-500 mt-1 block ${
+                        <span className={`text-xs text-[#94A3B8] mt-1 block ${
                           isOwn ? 'text-right' : 'text-left'
                         }`}>
                           {formatTime(message.created_at)}
@@ -248,19 +252,19 @@ export default function ChatView({ conversationId, currentUser, partnerName, par
       </div>
 
       {/* Input Area */}
-      <form onSubmit={handleSend} className="p-4 border-t border-white/10">
+      <form onSubmit={handleSend} className="p-4 border-t border-gray-200 bg-gray-50">
         <div className="flex gap-3">
           <input
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Écrivez votre message..."
-            className="flex-1 bg-[#020408] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+            className="flex-1 bg-white border border-gray-300 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/40 transition-all"
           />
           <button
             type="submit"
             disabled={!newMessage.trim() || isSending}
-            className="px-4 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-3 bg-[#111827] hover:bg-[#020617] text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSending ? (
               <Loader2 className="w-5 h-5 animate-spin" />

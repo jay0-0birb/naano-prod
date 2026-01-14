@@ -46,12 +46,12 @@ export default function AnalyticsTab({ collaborationId }: AnalyticsTabProps) {
 
   if (loading) {
     return (
-      <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
+      <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
         <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-white/5 rounded w-48"></div>
+          <div className="h-6 bg-gray-100 rounded w-48"></div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-24 bg-white/5 rounded-xl"></div>
+              <div key={i} className="h-24 bg-gray-100 rounded-xl"></div>
             ))}
           </div>
         </div>
@@ -62,15 +62,15 @@ export default function AnalyticsTab({ collaborationId }: AnalyticsTabProps) {
   if (error) {
     return (
       <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
-        <p className="text-sm text-red-400">⚠️ {error}</p>
+        <p className="text-sm text-red-700">⚠️ {error}</p>
       </div>
     )
   }
 
   if (!analytics) {
     return (
-      <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6 text-center">
-        <p className="text-slate-400 text-sm">Aucune donnée disponible</p>
+      <div className="bg-white border border-gray-200 rounded-2xl p-6 text-center">
+        <p className="text-[#64748B] text-sm">Aucune donnée disponible</p>
       </div>
     )
   }
@@ -93,50 +93,44 @@ export default function AnalyticsTab({ collaborationId }: AnalyticsTabProps) {
       label: 'Total Impressions',
       value: formatNumber(analytics.totalImpressions),
       icon: BarChart3,
-      color: 'text-blue-400',
-      bgColor: 'bg-blue-500/10',
-      borderColor: 'border-blue-500/20',
+      color: 'text-[#1D4ED8]',
+      bgColor: 'bg-blue-50',
     },
     {
       label: 'Total Clicks (Brut)',
       value: formatNumber(analytics.totalClicks),
       icon: MousePointerClick,
-      color: 'text-purple-400',
-      bgColor: 'bg-purple-500/10',
-      borderColor: 'border-purple-500/20',
+      color: 'text-[#1D4ED8]',
+      bgColor: 'bg-blue-50',
     },
     {
       label: 'Qualified Clicks (Billable)',
       value: formatNumber(analytics.qualifiedClicks),
       icon: Target,
-      color: 'text-green-400',
-      bgColor: 'bg-green-500/10',
-      borderColor: 'border-green-500/20',
+      color: 'text-[#1D4ED8]',
+      bgColor: 'bg-blue-50',
       description: 'Filtrés: bots, doublons IP, règle des 3 secondes',
     },
     {
       label: 'Conversions / Leads',
       value: formatNumber(analytics.leadsCount),
       icon: Users,
-      color: 'text-amber-400',
-      bgColor: 'bg-amber-500/10',
-      borderColor: 'border-amber-500/20',
+      color: 'text-[#1D4ED8]',
+      bgColor: 'bg-blue-50',
     },
     {
       label: 'Coût Total Naano',
       value: formatCurrency(analytics.totalLeadCost),
       icon: TrendingDown,
-      color: 'text-slate-400',
-      bgColor: 'bg-slate-500/10',
-      borderColor: 'border-slate-500/20',
+      color: 'text-[#1D4ED8]',
+      bgColor: 'bg-blue-50',
     },
     {
       label: 'Économies vs LinkedIn Ads',
       value: formatCurrency(analytics.savingsVsLinkedIn),
       icon: TrendingUp,
-      color: analytics.savingsVsLinkedIn >= 0 ? 'text-green-400' : 'text-red-400',
-      bgColor: analytics.savingsVsLinkedIn >= 0 ? 'bg-green-500/10' : 'bg-red-500/10',
-      borderColor: analytics.savingsVsLinkedIn >= 0 ? 'border-green-500/20' : 'border-red-500/20',
+      color: 'text-[#1D4ED8]',
+      bgColor: 'bg-blue-50',
       description: `(Qualified Clicks × 8€) - Coût Naano`,
     },
   ]
@@ -145,9 +139,11 @@ export default function AnalyticsTab({ collaborationId }: AnalyticsTabProps) {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-lg font-medium text-white mb-2">Analytics de Performance</h2>
-        <p className="text-sm text-slate-400">
-          Métriques clés pour mesurer l'impact de votre collaboration
+        <h2 className="text-lg font-semibold text-[#111827] mb-2">
+          Analytics de performance
+        </h2>
+        <p className="text-sm text-[#64748B]">
+          Métriques clés pour mesurer l&apos;impact de votre collaboration
         </p>
       </div>
 
@@ -158,18 +154,22 @@ export default function AnalyticsTab({ collaborationId }: AnalyticsTabProps) {
           return (
             <div
               key={index}
-              className={`${kpi.bgColor} ${kpi.borderColor} border rounded-xl p-4`}
+              className={`${kpi.bgColor} rounded-xl p-4 shadow-sm`}
             >
               <div className="flex items-start justify-between mb-2">
-                <div className={`${kpi.color} p-2 rounded-lg bg-white/5`}>
+                <div className={`${kpi.color} p-2 rounded-lg bg-white`}>
                   <Icon className="w-5 h-5" />
                 </div>
               </div>
               <div className="mt-2">
-                <p className="text-2xl font-semibold text-white mb-1">{kpi.value}</p>
-                <p className="text-xs text-slate-400 mb-1">{kpi.label}</p>
+                <p className="text-2xl font-semibold text-[#111827] mb-1">
+                  {kpi.value}
+                </p>
+                <p className="text-xs text-[#6B7280] mb-1">{kpi.label}</p>
                 {kpi.description && (
-                  <p className="text-xs text-slate-500 mt-1">{kpi.description}</p>
+                  <p className="text-xs text-[#9CA3AF] mt-1">
+                    {kpi.description}
+                  </p>
                 )}
               </div>
             </div>
@@ -178,10 +178,12 @@ export default function AnalyticsTab({ collaborationId }: AnalyticsTabProps) {
       </div>
 
       {/* Info Note */}
-      <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
-        <p className="text-sm text-blue-400">
-          <strong>Note:</strong> Les Qualified Clicks sont filtrés automatiquement pour exclure les bots, les doublons IP, et les clics de moins de 3 secondes. 
-          Les données géographiques sont collectées automatiquement pour l'analyse (non utilisées pour le filtrage).
+      <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
+        <p className="text-sm text-[#1D4ED8]">
+          <strong>Note :</strong> Les Qualified Clicks sont filtrés automatiquement
+          pour exclure les bots, les doublons IP, et les clics de moins de 3 secondes.
+          Les données géographiques sont collectées automatiquement pour l&apos;analyse
+          (non utilisées pour le filtrage).
         </p>
       </div>
     </div>

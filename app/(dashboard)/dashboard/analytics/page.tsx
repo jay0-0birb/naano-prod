@@ -26,12 +26,12 @@ export default async function GlobalAnalyticsPage() {
   return (
     <div className="max-w-7xl">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-white mb-2">
-          Analytics & Leads Globaux
+        <h1 className="text-2xl font-semibold text-[#111827] mb-2">
+          Analytics &amp; Leads globaux
         </h1>
-        <p className="text-slate-400">
-          Vue d'ensemble de toutes vos collaborations - Analytics et Lead Feed
-          agrégés
+        <p className="text-[#64748B] text-sm">
+          Vue d&apos;ensemble de toutes vos collaborations — Analytics et Lead
+          Feed agrégés.
         </p>
       </div>
 

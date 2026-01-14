@@ -78,112 +78,102 @@ export default function GlobalAnalyticsTab() {
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Total Impressions */}
-        <div className="bg-[#0A0C10] border border-white/10 rounded-xl p-6">
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <div className="text-sm text-slate-400">Total Impressions</div>
-            <TrendingUp className="w-5 h-5 text-blue-400" />
+            <div className="text-sm text-[#64748B]">Total impressions</div>
+            <TrendingUp className="w-5 h-5 text-[#3B82F6]" />
           </div>
-          <div className="text-3xl font-bold text-white">
+          <div className="text-3xl font-bold text-[#111827]">
             {analytics.totalImpressions.toLocaleString()}
           </div>
-          <div className="text-xs text-slate-500 mt-2">
+          <div className="text-xs text-[#94A3B8] mt-2">
             Volume de visibilité brut généré
           </div>
         </div>
 
         {/* Total Clicks */}
-        <div className="bg-[#0A0C10] border border-white/10 rounded-xl p-6">
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <div className="text-sm text-slate-400">Total Clicks (Brut)</div>
-            <MousePointerClick className="w-5 h-5 text-green-400" />
+            <div className="text-sm text-[#64748B]">Total clics (brut)</div>
+            <MousePointerClick className="w-5 h-5 text-emerald-500" />
           </div>
-          <div className="text-3xl font-bold text-white">
+          <div className="text-3xl font-bold text-[#111827]">
             {analytics.totalClicks.toLocaleString()}
           </div>
-          <div className="text-xs text-slate-500 mt-2">
+          <div className="text-xs text-[#94A3B8] mt-2">
             Tous les clics enregistrés
           </div>
         </div>
 
         {/* Qualified Clicks */}
-        <div className="bg-[#0A0C10] border border-white/10 rounded-xl p-6">
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <div className="text-sm text-slate-400">
-              Qualified Clicks (Billable)
+            <div className="text-sm text-[#64748B]">
+              Qualified clicks (billable)
             </div>
-            <CheckCircle className="w-5 h-5 text-amber-400" />
+            <CheckCircle className="w-5 h-5 text-amber-500" />
           </div>
-          <div className="text-3xl font-bold text-white">
+          <div className="text-3xl font-bold text-[#111827]">
             {analytics.qualifiedClicks.toLocaleString()}
           </div>
-          <div className="text-xs text-slate-500 mt-2">
+          <div className="text-xs text-[#94A3B8] mt-2">
             Règle 3s + Anti-bot + IP + Geo
           </div>
         </div>
 
         {/* Conversions/Leads */}
-        <div className="bg-[#0A0C10] border border-white/10 rounded-xl p-6">
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <div className="text-sm text-slate-400">Conversions / Leads</div>
-            <Users className="w-5 h-5 text-purple-400" />
+            <div className="text-sm text-[#64748B]">Conversions / leads</div>
+            <Users className="w-5 h-5 text-purple-500" />
           </div>
-          <div className="text-3xl font-bold text-white">
+          <div className="text-3xl font-bold text-[#111827]">
             {analytics.leadsCount.toLocaleString()}
           </div>
-          <div className="text-xs text-slate-500 mt-2">
+          <div className="text-xs text-[#94A3B8] mt-2">
             Sign-ups ou démos enregistrés
           </div>
         </div>
 
         {/* Total Naano Cost */}
-        <div className="bg-[#0A0C10] border border-white/10 rounded-xl p-6">
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <div className="text-sm text-slate-400">Coût Total Naano</div>
-            <DollarSign className="w-5 h-5 text-red-400" />
+            <div className="text-sm text-[#64748B]">Coût total Naano</div>
+            <DollarSign className="w-5 h-5 text-rose-500" />
           </div>
-          <div className="text-3xl font-bold text-white">
+          <div className="text-3xl font-bold text-[#111827]">
             {formatCurrency(analytics.totalLeadCost)}
           </div>
-          <div className="text-xs text-slate-500 mt-2">
+          <div className="text-xs text-[#94A3B8] mt-2">
             Coût total des leads générés
           </div>
         </div>
 
         {/* Savings vs LinkedIn Ads */}
-        <div className="bg-[#0A0C10] border border-white/10 rounded-xl p-6">
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <div className="text-sm text-slate-400">
+            <div className="text-sm text-[#64748B]">
               Économies vs LinkedIn Ads
             </div>
             {savingsIsPositive ? (
-              <ArrowUpRight className="w-5 h-5 text-green-400" />
+              <ArrowUpRight className="w-5 h-5 text-emerald-500" />
             ) : (
-              <ArrowDownRight className="w-5 h-5 text-red-400" />
+              <ArrowDownRight className="w-5 h-5 text-rose-500" />
             )}
           </div>
           <div
             className={`text-3xl font-bold ${
-              savingsIsPositive ? "text-green-400" : "text-red-400"
+              savingsIsPositive ? "text-emerald-600" : "text-rose-600"
             }`}
           >
             {savingsIsPositive ? "+" : ""}
             {formatCurrency(analytics.savingsVsLinkedIn)}
           </div>
-          <div className="text-xs text-slate-500 mt-2">
+          <div className="text-xs text-[#94A3B8] mt-2">
             (Qualified Clicks × 8€) - Coût Naano
           </div>
         </div>
       </div>
-
-      <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
-        <p className="text-sm text-blue-300">
-          <strong>Note:</strong> Les Qualified Clicks suivent la règle des 3
-          secondes, le filtrage anti-bot & IP, et le géo-targeting. Les
-          économies sont calculées en comparant le coût LinkedIn Ads (8€ par
-          clic qualifié) avec votre coût Naano réel.
-        </p>
-      </div>
     </div>
   );
 }
-

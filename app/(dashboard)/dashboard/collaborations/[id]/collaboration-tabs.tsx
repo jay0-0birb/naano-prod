@@ -75,8 +75,8 @@ export default function CollaborationTabs({
               onClick={() => setSelectedTab(tab.id)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
                 selectedTab === tab.id
-                  ? 'bg-white/10 text-white'
-                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+                  ? 'bg-white text-[#111827] shadow-sm'
+                  : 'text-[#64748B] hover:text-[#111827] hover:bg-gray-50'
               }`}
             >
               <Icon className="w-4 h-4" />

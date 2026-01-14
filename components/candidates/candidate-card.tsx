@@ -67,25 +67,27 @@ export default function CandidateCard({ application, readonly = false }: Candida
     .slice(0, 2) || '??';
 
   return (
-    <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all">
+    <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-all">
       <div className="flex items-start gap-4">
         {/* Avatar */}
         {profile.avatar_url ? (
-          <img 
-            src={profile.avatar_url} 
+          <img
+            src={profile.avatar_url}
             alt={profile.full_name || 'Créateur'}
-            className="w-14 h-14 rounded-xl object-cover"
+            className="w-14 h-14 rounded-xl object-cover border border-gray-200"
           />
         ) : (
-          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-white/10 flex items-center justify-center">
-            <span className="text-lg font-medium text-purple-400">{initials}</span>
+          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border border-gray-200 flex items-center justify-center">
+            <span className="text-lg font-medium text-purple-600">
+              {initials}
+            </span>
           </div>
         )}
 
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-1">
-            <h3 className="font-medium text-white text-lg truncate">
+            <h3 className="font-semibold text-[#111827] text-lg truncate">
               {profile.full_name || 'Créateur'}
             </h3>
             {creator.linkedin_url && (
@@ -93,7 +95,7 @@ export default function CandidateCard({ application, readonly = false }: Candida
                 href={creator.linkedin_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-400 hover:text-blue-300 transition-colors"
+                className="text-[#3B82F6] hover:text-[#1D4ED8] transition-colors"
               >
                 <Linkedin className="w-4 h-4" />
               </a>
@@ -102,12 +104,12 @@ export default function CandidateCard({ application, readonly = false }: Candida
 
           {/* Stats */}
           <div className="flex items-center gap-4 text-sm">
-            <div className="flex items-center gap-1.5 text-slate-400">
+            <div className="flex items-center gap-1.5 text-[#64748B]">
               <Users className="w-4 h-4" />
               <span>{creator.followers_count.toLocaleString()} followers</span>
             </div>
             {creator.engagement_rate && (
-              <div className="flex items-center gap-1.5 text-slate-400">
+              <div className="flex items-center gap-1.5 text-[#64748B]">
                 <TrendingUp className="w-4 h-4" />
                 <span>{creator.engagement_rate}% engagement</span>
               </div>
@@ -120,7 +122,7 @@ export default function CandidateCard({ application, readonly = false }: Candida
               {creator.expertise_sectors.slice(0, 3).map((sector) => (
                 <span 
                   key={sector}
-                  className="text-xs px-2 py-0.5 bg-white/5 text-slate-400 rounded-full"
+                  className="text-xs px-2 py-0.5 bg-gray-100 text-[#4B5563] rounded-full"
                 >
                   {sector}
                 </span>
@@ -136,11 +138,17 @@ export default function CandidateCard({ application, readonly = false }: Candida
 
         {/* Date & Status */}
         <div className="text-right shrink-0">
-          <span className="text-xs text-slate-500">{formatDate(application.created_at)}</span>
+          <span className="text-xs text-[#9CA3AF]">
+            {formatDate(application.created_at)}
+          </span>
           {status !== 'pending' && (
-            <div className={`mt-2 flex items-center gap-1.5 text-sm ${
-              status === 'accepted' ? 'text-green-400' : 'text-red-400'
-            }`}>
+            <div
+              className={`mt-2 inline-flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-full ${
+                status === 'accepted'
+                  ? 'bg-emerald-50 text-emerald-700'
+                  : 'bg-rose-50 text-rose-700'
+              }`}
+            >
               {status === 'accepted' ? (
                 <>
                   <CheckCircle2 className="w-4 h-4" />
@@ -159,16 +167,18 @@ export default function CandidateCard({ application, readonly = false }: Candida
 
       {/* Bio */}
       {creator.bio && (
-        <div className="mt-4 p-3 bg-white/[0.02] rounded-lg border border-white/5">
-          <p className="text-sm text-slate-400 line-clamp-2">{creator.bio}</p>
+        <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+          <p className="text-sm text-[#4B5563] line-clamp-2">{creator.bio}</p>
         </div>
       )}
 
       {/* Application Message */}
       {application.message && (
-        <div className="mt-3 p-3 bg-purple-500/5 rounded-lg border border-purple-500/10">
-          <p className="text-xs text-slate-500 mb-1">Message de candidature :</p>
-          <p className="text-sm text-slate-300">{application.message}</p>
+        <div className="mt-3 p-3 bg-purple-50 rounded-lg">
+          <p className="text-xs text-[#6B7280] mb-1">
+            Message de candidature :
+          </p>
+          <p className="text-sm text-[#111827]">{application.message}</p>
         </div>
       )}
 
@@ -178,7 +188,7 @@ export default function CandidateCard({ application, readonly = false }: Candida
           <button
             onClick={() => handleAction('rejected')}
             disabled={isLoading !== null}
-            className="flex-1 py-2.5 bg-white/5 hover:bg-red-500/10 text-slate-400 hover:text-red-400 border border-white/10 hover:border-red-500/20 rounded-xl text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="flex-1 py-2.5 bg-white hover:bg-rose-50 text-[#111827] hover:text-rose-700 border border-gray-200 hover:border-rose-200 rounded-xl text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isLoading === 'reject' ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -192,7 +202,7 @@ export default function CandidateCard({ application, readonly = false }: Candida
           <button
             onClick={() => handleAction('accepted')}
             disabled={isLoading !== null}
-            className="flex-1 py-2.5 bg-green-600 hover:bg-green-500 text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="flex-1 py-2.5 bg-[#111827] hover:bg-[#020617] text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isLoading === 'accept' ? (
               <Loader2 className="w-4 h-4 animate-spin" />

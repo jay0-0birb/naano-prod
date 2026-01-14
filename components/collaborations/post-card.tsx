@@ -65,26 +65,30 @@ export default function PostCard({ post, canValidate }: PostCardProps) {
   const embedId = getEmbedId(post.linkedin_post_url);
 
   return (
-    <div className={`bg-[#0A0C10] border rounded-2xl overflow-hidden ${
-      validated ? 'border-green-500/20' : 'border-white/10'
-    }`}>
+    <div
+      className={`bg-white border rounded-2xl overflow-hidden shadow-sm ${
+        validated ? 'border-emerald-200' : 'border-gray-200'
+      }`}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-white/5">
+      <div className="flex items-center justify-between p-4 border-b border-gray-100">
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-            validated ? 'bg-green-500/10' : 'bg-[#0A66C2]/10'
-          }`}>
+          <div
+            className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+              validated ? 'bg-emerald-50' : 'bg-[#0A66C2]/10'
+            }`}
+          >
             {validated ? (
-              <CheckCircle2 className="w-5 h-5 text-green-400" />
+              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
             ) : (
               <Linkedin className="w-5 h-5 text-[#0A66C2]" />
             )}
           </div>
           <div>
-            <div className="text-sm font-medium text-white">
+            <div className="text-sm font-semibold text-[#111827]">
               {validated ? 'Post validé' : 'Post en attente'}
             </div>
-            <div className="text-xs text-slate-500">
+            <div className="text-xs text-[#64748B]">
               Soumis le {formatDate(post.submitted_at)}
             </div>
           </div>
@@ -95,7 +99,7 @@ export default function PostCard({ post, canValidate }: PostCardProps) {
             href={post.linkedin_post_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg text-sm transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 text-[#111827] rounded-lg text-sm transition-colors"
           >
             <ExternalLink className="w-4 h-4" />
             Ouvrir
@@ -105,7 +109,7 @@ export default function PostCard({ post, canValidate }: PostCardProps) {
             <button
               onClick={handleValidate}
               disabled={isValidating}
-              className="flex items-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm transition-colors disabled:opacity-50"
             >
               {isValidating ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -131,9 +135,9 @@ export default function PostCard({ post, canValidate }: PostCardProps) {
             className="rounded-lg bg-white"
           />
         ) : (
-          <div className="aspect-video bg-gradient-to-br from-[#0A66C2]/10 to-blue-500/5 rounded-lg flex flex-col items-center justify-center border border-white/5">
+          <div className="aspect-video bg-gradient-to-br from-[#0A66C2]/5 to-blue-500/5 rounded-lg flex flex-col items-center justify-center border border-gray-100">
             <Linkedin className="w-12 h-12 text-[#0A66C2] mb-3" />
-            <p className="text-slate-400 text-sm text-center">
+            <p className="text-[#64748B] text-sm text-center">
               Cliquez sur "Ouvrir" pour voir le post sur LinkedIn
             </p>
             <a
@@ -152,7 +156,7 @@ export default function PostCard({ post, canValidate }: PostCardProps) {
       {/* Validated Footer */}
       {validated && post.validated_at && (
         <div className="px-4 pb-4">
-          <div className="flex items-center gap-2 text-xs text-green-400 bg-green-500/10 rounded-lg px-3 py-2">
+          <div className="flex items-center gap-2 text-xs text-emerald-700 bg-emerald-50 rounded-lg px-3 py-2">
             <CheckCircle2 className="w-4 h-4" />
             Validé le {formatDate(post.validated_at)}
           </div>

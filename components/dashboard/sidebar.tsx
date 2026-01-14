@@ -7,7 +7,6 @@ import {
   MessageSquare,
   Settings,
   LogOut,
-  Hexagon,
   ShoppingBag,
   FileText,
   Users,
@@ -35,25 +34,25 @@ export default function DashboardSidebar({
   const isCreator = role === "influencer";
 
   const handleSignOut = async () => {
-    // Force logout with complete session clearing
     await forceLogout();
   };
 
   const isActive = (path: string) => pathname === path;
 
   const linkClass = (path: string) =>
-    `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+    `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm ${
       isActive(path)
-        ? "bg-white/5 text-white"
-        : "hover:bg-white/5 hover:text-white"
+        ? "bg-[#111827] text-white font-medium"
+        : "text-[#64748B] hover:bg-gray-50 hover:text-[#111827]"
     }`;
 
   return (
-    <aside className="w-64 border-r border-white/10 bg-[#0A0C10] flex flex-col fixed h-full">
-      <div className="h-16 flex items-center px-6 border-b border-white/5">
+    <aside className="w-64 border-r border-gray-200 bg-white flex flex-col fixed h-full font-[var(--font-jakarta)]">
+      <div className="h-16 flex items-center px-6 border-b border-gray-200">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <Hexagon className="w-6 h-6 text-blue-500 fill-blue-500/10 stroke-[1.5]" />
-          <span className="font-medium text-white tracking-tight">Konex</span>
+          <span className="text-xl font-bold tracking-tight text-[#0F172A]">
+            Naano
+          </span>
         </Link>
       </div>
 
@@ -61,21 +60,23 @@ export default function DashboardSidebar({
       {!onboardingCompleted && (
         <Link
           href="/dashboard/onboarding"
-          className="mx-4 mt-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg flex items-center gap-2 hover:bg-amber-500/20 transition-colors"
+          className="mx-4 mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-2 hover:bg-amber-100 transition-colors"
         >
-          <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
-          <span className="text-xs text-amber-400">Complétez votre profil</span>
+          <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+          <span className="text-xs text-amber-700 font-medium">
+            Complete your profile
+          </span>
         </Link>
       )}
 
-      <nav className="flex-1 p-4 space-y-1">
-        <div className="px-2 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+        <div className="px-2 py-2 text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">
           Menu
         </div>
 
         <Link href="/dashboard" className={linkClass("/dashboard")}>
           <LayoutDashboard className="w-5 h-5" />
-          <span className="text-sm">Vue d'ensemble</span>
+          <span>Overview</span>
         </Link>
 
         {/* Creator-specific menu */}
@@ -86,14 +87,14 @@ export default function DashboardSidebar({
               className={linkClass("/dashboard/marketplace")}
             >
               <ShoppingBag className="w-5 h-5" />
-              <span className="text-sm">Marketplace</span>
+              <span>Marketplace</span>
             </Link>
             <Link
               href="/dashboard/applications"
               className={linkClass("/dashboard/applications")}
             >
               <FileText className="w-5 h-5" />
-              <span className="text-sm">Mes candidatures</span>
+              <span>My Applications</span>
             </Link>
           </>
         ) : (
@@ -104,14 +105,14 @@ export default function DashboardSidebar({
               className={linkClass("/dashboard/marketplace")}
             >
               <ShoppingBag className="w-5 h-5" />
-              <span className="text-sm">Créateurs</span>
+              <span>Creators</span>
             </Link>
             <Link
               href="/dashboard/candidates"
               className={linkClass("/dashboard/candidates")}
             >
               <Users className="w-5 h-5" />
-              <span className="text-sm">Candidatures</span>
+              <span>Applications</span>
             </Link>
           </>
         )}
@@ -122,7 +123,7 @@ export default function DashboardSidebar({
           className={linkClass("/dashboard/collaborations")}
         >
           <Handshake className="w-5 h-5" />
-          <span className="text-sm">Collaborations</span>
+          <span>Collaborations</span>
         </Link>
 
         {/* SaaS-only: Global Analytics & Leads */}
@@ -132,7 +133,7 @@ export default function DashboardSidebar({
             className={linkClass("/dashboard/analytics")}
           >
             <BarChart3 className="w-5 h-5" />
-            <span className="text-sm">Analytics & Leads</span>
+            <span>Analytics & Leads</span>
           </Link>
         )}
 
@@ -142,7 +143,7 @@ export default function DashboardSidebar({
         >
           <div className="flex items-center gap-3">
             <MessageSquare className="w-5 h-5" />
-            <span className="text-sm">Messages</span>
+            <span>Messages</span>
           </div>
           <UnreadBadge userId={userId} />
         </Link>
@@ -152,7 +153,7 @@ export default function DashboardSidebar({
           className={linkClass("/dashboard/finances")}
         >
           <Wallet className="w-5 h-5" />
-          <span className="text-sm">Finances</span>
+          <span>Finances</span>
         </Link>
 
         <Link
@@ -160,24 +161,24 @@ export default function DashboardSidebar({
           className={linkClass("/dashboard/academy")}
         >
           <GraduationCap className="w-5 h-5" />
-          <span className="text-sm">Academy</span>
+          <span>Academy</span>
         </Link>
       </nav>
 
-      <div className="p-4 border-t border-white/5">
+      <div className="p-4 border-t border-gray-200">
         <Link
           href="/dashboard/settings"
           className={linkClass("/dashboard/settings")}
         >
           <Settings className="w-5 h-5" />
-          <span className="text-sm">Paramètres</span>
+          <span>Settings</span>
         </Link>
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors mt-1"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors mt-1 text-sm"
         >
           <LogOut className="w-5 h-5" />
-          <span className="text-sm">Déconnexion</span>
+          <span>Sign out</span>
         </button>
       </div>
     </aside>

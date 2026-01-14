@@ -123,14 +123,16 @@ export default async function MessagesPage({ searchParams }: PageProps) {
             partnerAvatar={partnerInfo.avatar}
           />
         ) : (
-          <div className="h-full flex items-center justify-center bg-[#0A0C10] border border-white/10 rounded-2xl">
+          <div className="h-full flex items-center justify-center bg-white border border-gray-200 rounded-2xl shadow-sm">
             <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-                <MessageSquare className="w-8 h-8 text-slate-500" />
+              <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-4">
+                <MessageSquare className="w-8 h-8 text-[#94A3B8]" />
               </div>
-              <h3 className="text-lg font-medium text-white mb-2">Sélectionnez une conversation</h3>
-              <p className="text-slate-400 text-sm max-w-xs">
-                Choisissez une conversation dans la liste pour commencer à discuter
+              <h3 className="text-lg font-semibold text-[#111827] mb-2">
+                Sélectionnez une conversation
+              </h3>
+              <p className="text-[#64748B] text-sm max-w-xs mx-auto">
+                Choisissez une conversation dans la liste pour commencer à discuter.
               </p>
             </div>
           </div>

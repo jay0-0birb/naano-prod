@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import Image from 'next/image';
 
 interface HeaderProps {
   userName: string;
@@ -8,14 +9,17 @@ interface HeaderProps {
 }
 
 const PAGE_TITLES: Record<string, string> = {
-  '/dashboard': 'Vue d\'ensemble',
-  '/dashboard/onboarding': 'Compléter mon profil',
+  '/dashboard': 'Overview',
+  '/dashboard/onboarding': 'Complete your profile',
   '/dashboard/marketplace': 'Marketplace',
-  '/dashboard/applications': 'Mes candidatures',
-  '/dashboard/candidates': 'Candidatures reçues',
+  '/dashboard/applications': 'My Applications',
+  '/dashboard/candidates': 'Applications Received',
   '/dashboard/collaborations': 'Collaborations',
   '/dashboard/messages': 'Messages',
-  '/dashboard/settings': 'Paramètres',
+  '/dashboard/settings': 'Settings',
+  '/dashboard/finances': 'Finances',
+  '/dashboard/academy': 'Academy',
+  '/dashboard/analytics': 'Analytics & Leads',
 };
 
 export default function DashboardHeader({ userName, avatarUrl }: HeaderProps) {
@@ -31,18 +35,20 @@ export default function DashboardHeader({ userName, avatarUrl }: HeaderProps) {
     .slice(0, 2);
 
   return (
-    <header className="h-16 border-b border-white/10 bg-[#020408]/80 backdrop-blur-xl sticky top-0 z-10 flex items-center justify-between px-8">
-      <h1 className="text-lg font-medium text-white">{title}</h1>
+    <header className="h-16 border-b border-gray-200 bg-white sticky top-0 z-10 flex items-center justify-between px-8 font-[var(--font-jakarta)]">
+      <h1 className="text-lg font-semibold text-[#111827]">{title}</h1>
       <div className="flex items-center gap-4">
-        <span className="text-sm text-slate-400">{userName}</span>
+        <span className="text-sm text-[#64748B]">{userName}</span>
         {avatarUrl ? (
-          <img 
-            src={avatarUrl} 
+          <Image
+            src={avatarUrl}
             alt={userName}
-            className="w-8 h-8 rounded-full border border-white/20"
+            width={32}
+            height={32}
+            className="w-8 h-8 rounded-full border border-gray-200"
           />
         ) : (
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 border border-white/20 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#3B82F6] to-[#8B5CF6] border border-gray-200 flex items-center justify-center">
             <span className="text-xs font-medium text-white">{initials}</span>
           </div>
         )}
@@ -50,4 +56,3 @@ export default function DashboardHeader({ userName, avatarUrl }: HeaderProps) {
     </header>
   );
 }
-

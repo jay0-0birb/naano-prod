@@ -89,9 +89,9 @@ export default async function ApplicationsPage() {
     <div>
       {/* Header */}
       <div className="mb-8">
-        <h2 className="text-2xl font-normal text-white mb-1">Mes candidatures</h2>
-        <p className="text-slate-400 text-sm">
-          Suivez l'état de vos candidatures auprès des entreprises SaaS
+        <h2 className="text-2xl font-semibold text-[#111827] mb-1">Mes candidatures</h2>
+        <p className="text-[#64748B] text-sm">
+          Suivez l&apos;état de vos candidatures auprès des entreprises SaaS
         </p>
       </div>
 
@@ -99,75 +99,90 @@ export default async function ApplicationsPage() {
       {applications && applications.length > 0 ? (
         <div className="space-y-4">
           {applications.map((application) => {
-            const status = STATUS_CONFIG[application.status as keyof typeof STATUS_CONFIG];
+            const status =
+              STATUS_CONFIG[application.status as keyof typeof STATUS_CONFIG];
             const StatusIcon = status.icon;
             const company = application.saas_companies;
 
             return (
-              <div 
+              <div
                 key={application.id}
-                className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all"
+                className="bg-white border border-gray-200 rounded-2xl p-6 hover:border-gray-300 hover:shadow-md transition-all shadow-sm"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-4">
                     {company?.logo_url ? (
-                      <img 
-                        src={company.logo_url} 
+                      <img
+                        src={company.logo_url}
                         alt={company.company_name}
-                        className="w-14 h-14 rounded-xl object-cover"
+                        className="w-14 h-14 rounded-xl object-cover border border-gray-200"
                       />
                     ) : (
-                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center">
-                        <Building2 className="w-7 h-7 text-blue-400" />
+                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-200 flex items-center justify-center">
+                        <Building2 className="w-7 h-7 text-[#3B82F6]" />
                       </div>
                     )}
                     <div>
                       <div className="flex items-center gap-3">
-                        <h3 className="font-medium text-white text-lg">{company?.company_name}</h3>
+                        <h3 className="font-semibold text-[#111827] text-lg">
+                          {company?.company_name}
+                        </h3>
                         {company?.website && (
-                          <a 
+                          <a
                             href={company.website}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-slate-500 hover:text-white transition-colors"
+                            className="text-[#94A3B8] hover:text-[#111827] transition-colors"
                           >
                             <ExternalLink className="w-4 h-4" />
                           </a>
                         )}
                       </div>
                       <div className="flex items-center gap-3 mt-1">
-                        <span className="text-xs text-slate-500">{company?.industry}</span>
+                        <span className="text-xs text-[#64748B]">
+                          {company?.industry}
+                        </span>
                         {company?.commission_rate && (
-                          <span className="text-xs text-green-400">{company.commission_rate}% commission</span>
+                          <span className="text-xs text-green-600 font-medium">
+                            {company.commission_rate}% commission
+                          </span>
                         )}
                       </div>
                     </div>
                   </div>
 
                   {/* Status Badge */}
-                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg ${status.bg} ${status.border} border`}>
+                  <div
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg ${status.bg} ${status.border} border`}
+                  >
                     <StatusIcon className={`w-4 h-4 ${status.color}`} />
-                    <span className={`text-sm font-medium ${status.color}`}>{status.label}</span>
+                    <span
+                      className={`text-sm font-medium ${status.color}`}
+                    >
+                      {status.label}
+                    </span>
                   </div>
                 </div>
 
                 {/* Message Preview */}
                 {application.message && (
-                  <div className="mt-4 p-3 bg-white/[0.02] rounded-lg border border-white/5">
-                    <p className="text-sm text-slate-400 line-clamp-2">{application.message}</p>
+                  <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <p className="text-sm text-[#64748B] line-clamp-2">
+                      {application.message}
+                    </p>
                   </div>
                 )}
 
                 {/* Footer */}
-                <div className="mt-4 flex items-center justify-between">
-                  <span className="text-xs text-slate-500">
+                <div className="mt-4 flex items-center justify-between pt-4 border-t border-gray-100">
+                  <span className="text-xs text-[#94A3B8]">
                     Candidature envoyée le {formatDate(application.created_at)}
                   </span>
-                  
-                  {application.status === 'accepted' && (
-                    <Link 
+
+                  {application.status === "accepted" && (
+                    <Link
                       href="/dashboard/collaborations"
-                      className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                      className="text-sm text-[#3B82F6] hover:text-[#1D4ED8] transition-colors"
                     >
                       Voir la collaboration →
                     </Link>
@@ -178,17 +193,19 @@ export default async function ApplicationsPage() {
           })}
         </div>
       ) : (
-        <div className="text-center py-16 bg-[#0A0C10] border border-white/10 rounded-2xl">
-          <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-            <Building2 className="w-8 h-8 text-slate-500" />
+        <div className="text-center py-16 bg-white border border-gray-200 rounded-2xl shadow-sm">
+          <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-4">
+            <Building2 className="w-8 h-8 text-[#94A3B8]" />
           </div>
-          <h3 className="text-lg font-medium text-white mb-2">Aucune candidature</h3>
-          <p className="text-slate-400 text-sm max-w-md mx-auto mb-6">
-            Vous n'avez pas encore postulé auprès d'entreprises SaaS.
+          <h3 className="text-lg font-semibold text-[#111827] mb-2">
+            Aucune candidature
+          </h3>
+          <p className="text-[#64748B] text-sm max-w-md mx-auto mb-6">
+            Vous n&apos;avez pas encore postulé auprès d&apos;entreprises SaaS.
           </p>
-          <Link 
+          <Link
             href="/dashboard/marketplace"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#111827] hover:bg-[#020617] text-white rounded-lg text-sm font-medium transition-colors"
           >
             Explorer la Marketplace
           </Link>
