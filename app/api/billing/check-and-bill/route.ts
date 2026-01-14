@@ -26,7 +26,8 @@ export async function POST(request: Request) {
 
     // If specific SaaS provided, bill only that one
     if (saas_id) {
-      return await billSingleSaaS(saas_id);
+      const result = await billSingleSaaS(saas_id);
+      return NextResponse.json(result);
     }
 
     // Otherwise, check all SaaS that should be billed
