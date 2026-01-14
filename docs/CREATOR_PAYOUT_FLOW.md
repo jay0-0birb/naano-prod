@@ -237,3 +237,4 @@ Money in creator's bank account (2-7 days)
 - ✅ Creator manages their own bank withdrawals
 
 
+
