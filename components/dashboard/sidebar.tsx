@@ -156,13 +156,16 @@ export default function DashboardSidebar({
           <span>Finances</span>
         </Link>
 
-        <Link
-          href="/dashboard/academy"
-          className={linkClass("/dashboard/academy")}
-        >
-          <GraduationCap className="w-5 h-5" />
-          <span>Academy</span>
-        </Link>
+        {/* Creator-only: Academy */}
+        {isCreator && (
+          <Link
+            href="/dashboard/academy"
+            className={linkClass("/dashboard/academy")}
+          >
+            <GraduationCap className="w-5 h-5" />
+            <span>Academy</span>
+          </Link>
+        )}
       </nav>
 
       <div className="p-4 border-t border-gray-200">

@@ -18,5 +18,10 @@ export default async function AcademyPage() {
     redirect('/dashboard/onboarding');
   }
 
+  // Academy is only for creators/influencers
+  if (profile?.role !== 'influencer') {
+    redirect('/dashboard');
+  }
+
   return <AcademyPageClient />;
 }
