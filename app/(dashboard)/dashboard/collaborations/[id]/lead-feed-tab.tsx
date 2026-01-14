@@ -288,8 +288,13 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
             <p className="text-sm text-gray-600">
               Visiteurs enrichis avec intelligence d'entreprise et scoring d'intention.
               <span className="ml-2 inline-flex items-center gap-1 text-xs text-gray-500">
-                <HelpCircle className="w-3 h-3" />
-                Les données sont probabilistes avant signup, confirmées après.
+                <span
+                  className="inline-flex items-center"
+                  title="Les données sont probabilistes avant signup, confirmées après."
+                >
+                  <HelpCircle className="w-3 h-3" />
+                </span>
+                <span>Les données sont probabilistes avant signup, confirmées après.</span>
               </span>
             </p>
           </div>
@@ -446,7 +451,12 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                       </div>
                       <div className="text-xs text-gray-500">
                         Intention entreprise
-                        <HelpCircle className="w-3 h-3 inline ml-1" title="Score d'intention agrégé au niveau entreprise (plus fiable que session individuelle)" />
+                        <span
+                          className="inline-flex items-center ml-1"
+                          title="Score d'intention agrégé au niveau entreprise (plus fiable que session individuelle)"
+                        >
+                          <HelpCircle className="w-3 h-3" />
+                        </span>
                       </div>
                       <div className="text-xs text-gray-400 mt-1">
                         {companyIntent.total_sessions} session{companyIntent.total_sessions > 1 ? 's' : ''}
@@ -459,7 +469,12 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                       </div>
                       <div className="text-xs text-gray-500">
                         Intention session
-                        <HelpCircle className="w-3 h-3 inline ml-1" title="Score d'intention basé sur l'engagement, la qualité du référent, et les signaux comportementaux. Plus élevé = plus susceptible de convertir." />
+                        <span
+                          className="inline-flex items-center ml-1"
+                          title="Score d'intention basé sur l'engagement, la qualité du référent, et les signaux comportementaux. Plus élevé = plus susceptible de convertir."
+                        >
+                          <HelpCircle className="w-3 h-3" />
+                        </span>
                       </div>
                     </div>
                   ) : null}
