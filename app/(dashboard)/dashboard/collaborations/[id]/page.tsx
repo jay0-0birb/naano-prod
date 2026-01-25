@@ -11,6 +11,7 @@ import {
 import TrackingLinkCardV2 from "@/components/collaborations/tracking-link-card-v2";
 import { getOrCreateTrackingLink } from "./actions-v2";
 import CollaborationTabs from "./collaboration-tabs";
+import BudgetWidget from "@/components/collaborations/budget-widget";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -76,6 +77,8 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
           commission_rate,
           description,
           subscription_tier,
+          wallet_credits,
+          credit_renewal_date,
           profiles:profile_id (
             id,
             full_name
@@ -260,6 +263,17 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
         </div>
       </div>
 
+      {/* Budget Widget (visible to creators) */}
+      {isCreator && collaboration.status === "active" && app?.saas_companies && (
+        <div className="mb-6">
+          <BudgetWidget
+            walletCredits={app.saas_companies.wallet_credits || 0}
+            renewalDate={app.saas_companies.credit_renewal_date || null}
+            saasCompanyName={app.saas_companies.company_name}
+          />
+        </div>
+      )}
+
       {/* Tracking Link Section */}
       {trackingLink && collaboration.status === "active" && (
         <div className="mb-6">
@@ -292,6 +306,7 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
         posts={posts}
         collaborationStatus={collaboration.status}
         initialTab="posts"
+        saasWalletCredits={isCreator ? (app?.saas_companies?.wallet_credits || 0) : undefined}
       />
     </div>
   );

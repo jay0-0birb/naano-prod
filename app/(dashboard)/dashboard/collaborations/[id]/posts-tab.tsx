@@ -16,13 +16,15 @@ interface PostsTabProps {
     validated_at: string | null
   }>
   collaborationStatus: string
+  saasWalletCredits?: number // For blocking post submission when credits = 0
 }
 
 export default function PostsTab({ 
   collaborationId, 
   isCreator, 
   posts,
-  collaborationStatus 
+  collaborationStatus,
+  saasWalletCredits
 }: PostsTabProps) {
   const pendingPosts = posts.filter((p) => !p.validated)
   const validatedPosts = posts.filter((p) => p.validated)
@@ -36,7 +38,18 @@ export default function PostsTab({
             <Plus className="w-5 h-5" />
             Soumettre un post LinkedIn
           </h2>
-          <SubmitPostForm collaborationId={collaborationId} />
+          {saasWalletCredits !== undefined && saasWalletCredits <= 0 ? (
+            <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
+              <p className="text-sm text-red-700 font-medium mb-2">
+                ⚠️ Budget épuisé
+              </p>
+              <p className="text-xs text-red-600">
+                Le budget du SaaS est épuisé. Les posts ne peuvent pas être soumis jusqu'à ce que le budget soit renouvelé.
+              </p>
+            </div>
+          ) : (
+            <SubmitPostForm collaborationId={collaborationId} />
+          )}
         </div>
       )}
 

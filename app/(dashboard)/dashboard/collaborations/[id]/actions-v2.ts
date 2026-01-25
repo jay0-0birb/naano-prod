@@ -65,6 +65,30 @@ export async function submitPost(
     return { error: "Ce post a déjà été soumis" };
   }
 
+  // CREDIT SYSTEM: Check if SaaS has credits available
+  const { data: saasCompany } = await supabase
+    .from("collaborations")
+    .select(`
+      applications:application_id (
+        saas_companies:saas_id (
+          id,
+          wallet_credits,
+          company_name
+        )
+      )
+    `)
+    .eq("id", collaborationId)
+    .single();
+
+  const saas = (saasCompany?.applications as any)?.saas_companies;
+  const walletCredits = saas?.wallet_credits || 0;
+
+  if (walletCredits <= 0) {
+    return { 
+      error: `Budget épuisé. ${saas?.company_name || "Le SaaS"} n'a plus de crédits disponibles. Les posts ne peuvent pas être soumis jusqu'à ce que le budget soit renouvelé.` 
+    };
+  }
+
   // Create the proof
   const { error } = await supabase.from("publication_proofs").insert({
       collaboration_id: collaborationId,

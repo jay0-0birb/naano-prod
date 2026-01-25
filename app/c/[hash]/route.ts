@@ -211,19 +211,38 @@ export async function GET(
           if (!creatorId || !saasId) {
             console.error('[LEAD CREATION] ❌ Missing creator_id or saas_id:', { creatorId, saasId });
           } else {
-            // Create lead using database function (BP1 model: every click = lead)
-            // The database function handles deduplication internally
-            const { data: leadId, error: leadError } = await supabase.rpc('create_lead', {
-              p_tracked_link_id: trackingLink.id,
-              p_creator_id: creatorId,
-              p_saas_id: saasId,
-            });
+            // CREDIT SYSTEM: Check if SaaS has credits before creating lead
+            const { data: saas } = await supabase
+              .from('saas_companies')
+              .select('wallet_credits')
+              .eq('id', saasId)
+              .single();
 
-            if (leadError) {
-              console.error('[LEAD CREATION] ❌ Error creating lead:', leadError);
-              console.error('[LEAD CREATION] Error details:', JSON.stringify(leadError, null, 2));
+            const walletCredits = saas?.wallet_credits || 0;
+
+            if (walletCredits <= 0) {
+              console.log('[LEAD CREATION] ⚠️ Blocked - insufficient credits:', { saasId, credits: walletCredits });
+              // Still redirect user, but don't create lead or pay creator
             } else {
-              console.log('[LEAD CREATION] ✅ Lead created successfully! Lead ID:', leadId);
+              // Create lead using new credit-based function
+              // This deducts 1 credit and pays creator (€0.90 or €1.10)
+              const { data: leadId, error: leadError } = await supabase.rpc('create_lead_with_credits', {
+                p_tracked_link_id: trackingLink.id,
+                p_creator_id: creatorId,
+                p_saas_id: saasId,
+              });
+
+              if (leadError) {
+                console.error('[LEAD CREATION] ❌ Error creating lead:', leadError);
+                console.error('[LEAD CREATION] Error details:', JSON.stringify(leadError, null, 2));
+                
+                // If credits insufficient, log but continue (user still gets redirected)
+                if (leadError.message?.includes('Insufficient credits')) {
+                  console.log('[LEAD CREATION] ⚠️ Blocked - insufficient credits');
+                }
+              } else {
+                console.log('[LEAD CREATION] ✅ Lead created successfully! Lead ID:', leadId);
+              }
             }
           }
         }

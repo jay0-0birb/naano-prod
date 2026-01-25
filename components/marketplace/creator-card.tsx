@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Users, TrendingUp, Briefcase, Mail, CheckCircle2, Loader2 } from 'lucide-react';
+import { Users, TrendingUp, Briefcase, Mail, CheckCircle2, Loader2, Crown } from 'lucide-react';
 import { inviteCreator } from '@/app/(dashboard)/dashboard/marketplace/actions';
 
 interface CreatorCardProps {
@@ -12,6 +12,7 @@ interface CreatorCardProps {
     followers_count: number;
     engagement_rate: number | null;
     expertise_sectors: string[] | null;
+    is_pro?: boolean; // Pro status
     profiles: {
       id: string;
       full_name: string | null;
@@ -62,9 +63,17 @@ export default function CreatorCard({ creator, hasInvited, saasCompanyId }: Crea
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-[#111827] text-lg mb-1 truncate">
-              {creator.profiles.full_name || 'Creator'}
-            </h3>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="font-semibold text-[#111827] text-lg truncate">
+                {creator.profiles.full_name || 'Creator'}
+              </h3>
+              {creator.is_pro && (
+                <span className="px-2 py-0.5 bg-gradient-to-r from-purple-500 to-blue-500 text-white text-xs font-semibold rounded-full flex items-center gap-1">
+                  <Crown className="w-3 h-3" />
+                  Pro
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-2 text-[#64748B] text-sm">
               <Users className="w-4 h-4" />
               <span>{creator.followers_count.toLocaleString()} followers</span>

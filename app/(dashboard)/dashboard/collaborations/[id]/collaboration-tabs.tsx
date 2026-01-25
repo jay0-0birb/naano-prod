@@ -23,6 +23,7 @@ interface CollaborationTabsProps {
   posts: Post[]
   collaborationStatus: string
   initialTab?: 'posts' | 'analytics' | 'leads'
+  saasWalletCredits?: number // For blocking post submission when credits = 0
 }
 
 export default function CollaborationTabs({
@@ -33,6 +34,7 @@ export default function CollaborationTabs({
   posts,
   collaborationStatus,
   initialTab = 'posts',
+  saasWalletCredits,
 }: CollaborationTabsProps) {
   const [selectedTab, setSelectedTab] = useState<'posts' | 'analytics' | 'leads'>(initialTab)
 
@@ -94,6 +96,7 @@ export default function CollaborationTabs({
             isCreator={isCreator}
             posts={posts}
             collaborationStatus={collaborationStatus}
+            saasWalletCredits={saasWalletCredits}
           />
         )}
         {selectedTab === 'analytics' && isSaaS && (

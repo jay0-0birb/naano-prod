@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Loader2, Link as LinkIcon, Send, AlertCircle } from 'lucide-react';
-import { submitPost } from '@/app/(dashboard)/dashboard/collaborations/[id]/actions';
+import { submitPost } from '@/app/(dashboard)/dashboard/collaborations/[id]/actions-v2';
 import LinkedInPreview from './linkedin-preview';
 
 interface SubmitPostFormProps {

@@ -11,7 +11,6 @@ import { PricingSection } from "@/components/marketing/pricing-section";
 import { FAQSection } from "@/components/marketing/faq-section";
 import { FooterSection } from "@/components/marketing/footer-section";
 import { AnimationIntro } from "@/components/marketing/animation-intro";
-import LiquidEther from "@/components/LiquidEther";
 
 export default function LandingPage() {
   const [showIntro, setShowIntro] = useState(true);
@@ -69,23 +68,6 @@ export default function LandingPage() {
           'var(--font-jakarta), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
       }}
     >
-      {/* Liquid Ether Background */}
-      <div className="fixed inset-0 z-0 w-full h-full pointer-events-none">
-        <LiquidEther
-          mouseForce={20}
-          cursorSize={100}
-          isViscous
-          viscous={30}
-          colors={["#00fdff","#0433ff","#00fdff"]}
-          autoDemo
-          autoSpeed={0.5}
-          autoIntensity={2.2}
-          isBounce={false}
-          resolution={0.5}
-          style={{ width: '100%', height: '100%' }}
-        />
-      </div>
-
       {/* Navbar - always visible, no animation */}
       <Navbar />
 

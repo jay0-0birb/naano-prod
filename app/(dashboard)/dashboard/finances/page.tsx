@@ -29,10 +29,10 @@ export default async function FinancesPage({ searchParams }: PageProps) {
   const isCreator = profile?.role === 'influencer';
 
   if (isCreator) {
-    // Get creator data
+    // Get creator data (including Pro status)
     const { data: creatorProfile } = await supabase
       .from('creator_profiles')
-      .select('id, subscription_tier, stripe_account_id, stripe_onboarding_completed')
+      .select('id, subscription_tier, stripe_account_id, stripe_onboarding_completed, is_pro, pro_status_source, pro_expiration_date, stripe_subscription_id_pro')
       .eq('profile_id', user.id)
       .single();
 
@@ -79,15 +79,20 @@ export default async function FinancesPage({ searchParams }: PageProps) {
           availableBalance: walletSummary.availableBalance, // Ready for payout
           totalEarned: walletSummary.totalEarned,
           payoutHistory: payoutHistory.payouts,
+          // Pro status
+          isPro: creatorProfile.is_pro || false,
+          proStatusSource: creatorProfile.pro_status_source || null,
+          proExpirationDate: creatorProfile.pro_expiration_date || null,
+          hasProSubscription: !!creatorProfile.stripe_subscription_id_pro,
         }}
         stripeMessage={stripeMessage}
       />
     );
   } else {
-    // Get SaaS data (including card info)
+    // Get SaaS data (including card info and credit data)
     const { data: saasCompany } = await supabase
       .from('saas_companies')
-      .select('id, company_name, subscription_tier, subscription_status, stripe_subscription_id, card_on_file, card_last4, card_brand')
+      .select('id, company_name, subscription_tier, subscription_status, stripe_subscription_id, card_on_file, card_last4, card_brand, wallet_credits, monthly_credit_subscription, credit_renewal_date, stripe_subscription_id_credits')
       .eq('profile_id', user.id)
       .single();
 
@@ -190,6 +195,11 @@ export default async function FinancesPage({ searchParams }: PageProps) {
           cardOnFile: saasCompany.card_on_file || false,
           cardLast4: saasCompany.card_last4 || null,
           cardBrand: saasCompany.card_brand || null,
+          // Credit system data
+          walletCredits: saasCompany.wallet_credits || 0,
+          monthlyCreditSubscription: saasCompany.monthly_credit_subscription || null,
+          creditRenewalDate: saasCompany.credit_renewal_date || null,
+          hasCreditSubscription: !!saasCompany.stripe_subscription_id_credits,
         }}
         subscriptionMessage={subscriptionMessage}
       />

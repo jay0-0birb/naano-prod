@@ -48,11 +48,121 @@ export async function POST(request: Request) {
       if (event.account) {
         await handleConnectedAccountPayment(event.account, session, "checkout");
       } else {
-        // Check if this is a subscription checkout
+        // Check if this is a credit subscription checkout
         if (
           session.mode === "subscription" &&
           session.subscription &&
-          session.metadata?.saas_id
+          session.metadata?.type === "credit_subscription"
+        ) {
+          const saasId = session.metadata.saas_id;
+          const creditVolume = parseInt(session.metadata.credit_volume || "0");
+          const unitPrice = parseFloat(session.metadata.unit_price || "0");
+          const subscriptionId = session.subscription as string;
+
+          if (saasId && creditVolume > 0) {
+            // Get subscription to get the actual invoice
+            const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+            
+            // Calculate correct price vs what Stripe charged
+            const correctTotalPrice = parseFloat(session.metadata.total_price || "0");
+            const correctTotalCents = Math.round(correctTotalPrice * 100);
+            
+            // Get the latest invoice to see what was actually charged
+            const latestInvoice = await stripe.invoices.retrieve(subscription.latest_invoice as string);
+            const amountCharged = latestInvoice.amount_paid; // in cents
+            
+            // If there's a difference, create an invoice item to adjust
+            if (amountCharged !== correctTotalCents && correctTotalCents > 0) {
+              const difference = correctTotalCents - amountCharged;
+              
+              if (difference !== 0) {
+                // Create invoice item to adjust the price
+                await stripe.invoiceItems.create({
+                  customer: subscription.customer as string,
+                  subscription: subscriptionId,
+                  amount: difference, // Positive = credit, Negative = additional charge
+                  currency: 'eur',
+                  description: `Volume pricing adjustment for ${creditVolume} credits`,
+                });
+                
+                // Finalize the invoice with the adjustment
+                await stripe.invoices.finalizeInvoice(latestInvoice.id);
+                
+                console.log(
+                  `Price adjustment applied: Charged ${amountCharged/100}€, Correct ${correctTotalPrice}€, Adjustment ${difference/100}€`
+                );
+              }
+            }
+            
+            // Add credits to SaaS wallet (initial purchase)
+            const { error: creditError } = await supabaseAdmin.rpc('add_saas_credits', {
+              p_saas_id: saasId,
+              p_credits_to_add: creditVolume,
+              p_stripe_subscription_id: subscriptionId,
+            });
+
+            if (creditError) {
+              console.error('Error adding credits:', creditError);
+            }
+
+            // Update SaaS company with subscription info
+            const renewalDate = new Date();
+            renewalDate.setMonth(renewalDate.getMonth() + 1);
+
+            await supabaseAdmin
+              .from("saas_companies")
+              .update({
+                stripe_subscription_id_credits: subscriptionId,
+                monthly_credit_subscription: creditVolume,
+                credit_renewal_date: renewalDate.toISOString().split('T')[0],
+              })
+              .eq("id", saasId);
+
+            console.log(
+              `Credit subscription created for SaaS ${saasId}: ${creditVolume} credits`
+            );
+          }
+        }
+        // Check if this is a Creator Pro subscription checkout
+        else if (
+          session.mode === "subscription" &&
+          session.subscription &&
+          session.metadata?.type === "creator_pro"
+        ) {
+          const creatorId = session.metadata.creator_id;
+          const plan = session.metadata.plan;
+          const subscriptionId = session.subscription as string;
+
+          if (creatorId) {
+            // Calculate expiration date
+            const expirationDate = new Date();
+            if (plan === 'monthly') {
+              expirationDate.setMonth(expirationDate.getMonth() + 1);
+            } else {
+              expirationDate.setFullYear(expirationDate.getFullYear() + 1);
+            }
+
+            await supabaseAdmin
+              .from("creator_profiles")
+              .update({
+                is_pro: true,
+                pro_status_source: 'PAYMENT',
+                pro_expiration_date: expirationDate.toISOString(),
+                stripe_subscription_id_pro: subscriptionId,
+              })
+              .eq("id", creatorId);
+
+            console.log(
+              `Creator Pro subscription activated for creator ${creatorId}: ${plan}`
+            );
+          }
+        }
+        // Check if this is a SaaS tier subscription checkout (old system)
+        else if (
+          session.mode === "subscription" &&
+          session.subscription &&
+          session.metadata?.saas_id &&
+          session.metadata?.tier
         ) {
           const saasId = session.metadata.saas_id;
           const tier = session.metadata.tier;
@@ -206,66 +316,218 @@ export async function POST(request: Request) {
     case "customer.subscription.created":
     case "customer.subscription.updated": {
       const subscription = event.data.object as any;
-      const saasId = subscription.metadata?.saas_id;
-      const tier = subscription.metadata?.tier;
-      const oldSubscriptionId = subscription.metadata?.old_subscription_id;
+      
+      // Handle credit subscription updates
+      if (subscription.metadata?.type === "credit_subscription") {
+        const saasId = subscription.metadata.saas_id;
+        const creditVolume = parseInt(subscription.metadata.credit_volume || "0");
 
-      if (saasId && tier) {
-        // If this is an upgrade/downgrade, cancel the old subscription
-        if (
-          oldSubscriptionId &&
-          event.type === "customer.subscription.created"
-        ) {
-          try {
-            await stripe.subscriptions.cancel(oldSubscriptionId);
-            console.log(
-              `Cancelled old subscription ${oldSubscriptionId} for SaaS ${saasId}`
-            );
-          } catch (err) {
-            console.error(
-              `Error cancelling old subscription ${oldSubscriptionId}:`,
-              err
-            );
-            // Continue anyway - new subscription is created
-          }
+        if (saasId && creditVolume > 0) {
+          await supabaseAdmin
+            .from("saas_companies")
+            .update({
+              stripe_subscription_id_credits: subscription.id,
+              monthly_credit_subscription: creditVolume,
+              credit_renewal_date: new Date(subscription.current_period_end * 1000).toISOString().split('T')[0],
+            })
+            .eq("id", saasId);
+
+          console.log(`Credit subscription ${event.type} for SaaS ${saasId}`);
         }
+      }
+      // Handle Creator Pro subscription updates
+      else if (subscription.metadata?.type === "creator_pro") {
+        const creatorId = subscription.metadata.creator_id;
+        const plan = subscription.metadata.plan;
 
-        await supabaseAdmin
-          .from("saas_companies")
-          .update({
-            subscription_tier: tier,
-            stripe_subscription_id: subscription.id,
-            subscription_status:
-              subscription.status === "active"
-                ? "active"
-                : subscription.status === "past_due"
-                ? "past_due"
-                : "active",
-          })
-          .eq("id", saasId);
+        if (creatorId) {
+          const expirationDate = new Date(subscription.current_period_end * 1000);
 
-        console.log(`Subscription ${event.type} for SaaS ${saasId}: ${tier}`);
+          await supabaseAdmin
+            .from("creator_profiles")
+            .update({
+              is_pro: subscription.status === "active",
+              stripe_subscription_id_pro: subscription.id,
+              pro_expiration_date: expirationDate.toISOString(),
+            })
+            .eq("id", creatorId);
+
+          console.log(`Creator Pro subscription ${event.type} for creator ${creatorId}`);
+        }
+      }
+      // Handle old SaaS tier subscriptions
+      else {
+        const saasId = subscription.metadata?.saas_id;
+        const tier = subscription.metadata?.tier;
+        const oldSubscriptionId = subscription.metadata?.old_subscription_id;
+
+        if (saasId && tier) {
+          // If this is an upgrade/downgrade, cancel the old subscription
+          if (
+            oldSubscriptionId &&
+            event.type === "customer.subscription.created"
+          ) {
+            try {
+              await stripe.subscriptions.cancel(oldSubscriptionId);
+              console.log(
+                `Cancelled old subscription ${oldSubscriptionId} for SaaS ${saasId}`
+              );
+            } catch (err) {
+              console.error(
+                `Error cancelling old subscription ${oldSubscriptionId}:`,
+                err
+              );
+              // Continue anyway - new subscription is created
+            }
+          }
+
+          await supabaseAdmin
+            .from("saas_companies")
+            .update({
+              subscription_tier: tier,
+              stripe_subscription_id: subscription.id,
+              subscription_status:
+                subscription.status === "active"
+                  ? "active"
+                  : subscription.status === "past_due"
+                  ? "past_due"
+                  : "active",
+            })
+            .eq("id", saasId);
+
+          console.log(`Subscription ${event.type} for SaaS ${saasId}: ${tier}`);
+        }
       }
       break;
     }
 
     case "customer.subscription.deleted": {
       const subscription = event.data.object as any;
-      const saasId = subscription.metadata?.saas_id;
+      
+      // Handle credit subscription cancellation
+      if (subscription.metadata?.type === "credit_subscription") {
+        const saasId = subscription.metadata.saas_id;
 
-      if (saasId) {
-        await supabaseAdmin
-          .from("saas_companies")
-          .update({
-            subscription_tier: "starter",
-            stripe_subscription_id: null,
-            subscription_status: "active",
-          })
-          .eq("id", saasId);
+        if (saasId) {
+          // Credits remain until renewal date (as per decision)
+          // Just remove subscription ID, keep credits
+          await supabaseAdmin
+            .from("saas_companies")
+            .update({
+              stripe_subscription_id_credits: null,
+              // Don't clear monthly_credit_subscription or credit_renewal_date
+              // Credits remain until renewal date
+            })
+            .eq("id", saasId);
 
-        console.log(
-          `Subscription cancelled for SaaS ${saasId}, reverted to starter`
-        );
+          console.log(
+            `Credit subscription cancelled for SaaS ${saasId} (credits remain until renewal)`
+          );
+        }
+      }
+      // Handle Creator Pro cancellation
+      else if (subscription.metadata?.type === "creator_pro") {
+        const creatorId = subscription.metadata.creator_id;
+
+        if (creatorId) {
+          // Keep Pro until end of billing period (as per decision)
+          // Set expiration to end of current period
+          const expirationDate = new Date(subscription.current_period_end * 1000);
+
+          await supabaseAdmin
+            .from("creator_profiles")
+            .update({
+              stripe_subscription_id_pro: null,
+              pro_expiration_date: expirationDate.toISOString(),
+              // Keep is_pro = true until expiration
+            })
+            .eq("id", creatorId);
+
+          console.log(
+            `Creator Pro subscription cancelled for creator ${creatorId} (Pro until ${expirationDate})`
+          );
+        }
+      }
+      // Handle old SaaS tier subscription cancellation
+      else {
+        const saasId = subscription.metadata?.saas_id;
+
+        if (saasId) {
+          await supabaseAdmin
+            .from("saas_companies")
+            .update({
+              subscription_tier: "starter",
+              stripe_subscription_id: null,
+              subscription_status: "active",
+            })
+            .eq("id", saasId);
+
+          console.log(
+            `Subscription cancelled for SaaS ${saasId}, reverted to starter`
+          );
+        }
+      }
+      break;
+    }
+
+    case "invoice.paid": {
+      const invoice = event.data.object as any;
+      const subscriptionId = invoice.subscription;
+
+      if (subscriptionId) {
+        // Get subscription to check type
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        
+        // Handle credit subscription renewal
+        if (subscription.metadata?.type === "credit_subscription") {
+          const saasId = subscription.metadata.saas_id;
+          const creditVolume = parseInt(subscription.metadata.credit_volume || "0");
+
+          if (saasId && creditVolume > 0) {
+            // Add credits with roll-over (current balance + new credits)
+            const { error: creditError } = await supabaseAdmin.rpc('add_saas_credits', {
+              p_saas_id: saasId,
+              p_credits_to_add: creditVolume,
+              p_stripe_subscription_id: subscriptionId,
+            });
+
+            if (creditError) {
+              console.error('Error adding credits on renewal:', creditError);
+            } else {
+              // Update renewal date
+              const renewalDate = new Date(subscription.current_period_end * 1000);
+              await supabaseAdmin
+                .from("saas_companies")
+                .update({
+                  credit_renewal_date: renewalDate.toISOString().split('T')[0],
+                })
+                .eq("id", saasId);
+
+              console.log(
+                `Credit subscription renewed for SaaS ${saasId}: +${creditVolume} credits (with roll-over)`
+              );
+            }
+          }
+        }
+        // Handle Creator Pro renewal
+        else if (subscription.metadata?.type === "creator_pro") {
+          const creatorId = subscription.metadata.creator_id;
+          const plan = subscription.metadata.plan;
+
+          if (creatorId) {
+            const expirationDate = new Date(subscription.current_period_end * 1000);
+
+            await supabaseAdmin
+              .from("creator_profiles")
+              .update({
+                is_pro: true,
+                pro_expiration_date: expirationDate.toISOString(),
+              })
+              .eq("id", creatorId);
+
+            console.log(`Creator Pro renewed for creator ${creatorId}: ${plan}`);
+          }
+        }
       }
       break;
     }
@@ -275,12 +537,26 @@ export async function POST(request: Request) {
       const subscriptionId = invoice.subscription;
 
       if (subscriptionId) {
-        await supabaseAdmin
-          .from("saas_companies")
-          .update({ subscription_status: "past_due" })
-          .eq("stripe_subscription_id", subscriptionId);
+        // Get subscription to check type
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        
+        if (subscription.metadata?.type === "credit_subscription") {
+          const saasId = subscription.metadata.saas_id;
+          // Log failure but don't remove credits (they remain until renewal date)
+          console.log(`Credit subscription payment failed for SaaS ${saasId}`);
+        } else if (subscription.metadata?.type === "creator_pro") {
+          const creatorId = subscription.metadata.creator_id;
+          // Pro expires at end of period, not immediately
+          console.log(`Creator Pro payment failed for creator ${creatorId}`);
+        } else {
+          // Old SaaS tier subscription
+          await supabaseAdmin
+            .from("saas_companies")
+            .update({ subscription_status: "past_due" })
+            .eq("stripe_subscription_id", subscriptionId);
 
-        console.log(`Payment failed for subscription ${subscriptionId}`);
+          console.log(`Payment failed for subscription ${subscriptionId}`);
+        }
       }
       break;
     }

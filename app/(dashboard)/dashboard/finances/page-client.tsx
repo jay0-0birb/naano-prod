@@ -22,6 +22,9 @@ import Link from "next/link";
 import { SAAS_TIERS, SaasTier } from "@/lib/subscription-config";
 import { refreshStripeStatus } from "@/lib/stripe-status";
 import { verifySubscriptionStatus } from "@/lib/subscription-status";
+import CreditBalanceWidget from "@/components/dashboard/credit-balance-widget";
+import CreditSubscriptionSlider from "@/components/dashboard/credit-subscription-slider";
+import ProUpgradeBanner from "@/components/dashboard/pro-upgrade-banner";
 
 interface CreatorData {
   tier: string;
@@ -40,6 +43,11 @@ interface CreatorData {
   availableBalance: number; // BP1.md: Ready for payout
   totalEarned: number; // Lifetime total
   payoutHistory: any[];
+  // Pro status
+  isPro: boolean;
+  proStatusSource: string | null;
+  proExpirationDate: string | null;
+  hasProSubscription: boolean;
 }
 
 interface SaasData {
@@ -57,6 +65,11 @@ interface SaasData {
   cardOnFile: boolean; // Card registration status
   cardLast4: string | null; // Last 4 digits of card
   cardBrand: string | null; // Card brand (visa, mastercard, etc.)
+  // Credit system data
+  walletCredits: number;
+  monthlyCreditSubscription: number | null;
+  creditRenewalDate: string | null;
+  hasCreditSubscription: boolean;
 }
 
 interface FinancesPageClientProps {
@@ -279,6 +292,33 @@ export default function FinancesPageClient({
       setError("Une erreur est survenue");
     } finally {
       setStripeLoading(false);
+    }
+  };
+
+  // Handle credit subscription
+  const handleCreditSubscription = async (creditVolume: number) => {
+    setError(null);
+    try {
+      const response = await fetch("/api/stripe/credit-subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ creditVolume }),
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        setError(data.error);
+        return;
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else if (data.success) {
+        router.refresh();
+      }
+    } catch (err) {
+      setError("Une erreur est survenue lors de la création de l'abonnement");
     }
   };
 
@@ -536,6 +576,16 @@ export default function FinancesPageClient({
           )}
         </div>
 
+        {/* Pro Upgrade Banner */}
+        <div className="mb-6">
+          <ProUpgradeBanner
+            isPro={creatorData.isPro}
+            proStatusSource={creatorData.proStatusSource}
+            proExpirationDate={creatorData.proExpirationDate}
+            hasProSubscription={creatorData.hasProSubscription}
+          />
+        </div>
+
         {/* Wallet Overview - Simplified */}
         <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-6 shadow-sm">
           <h3 className="font-semibold text-[#111827] mb-4 flex items-center gap-2">
@@ -598,7 +648,7 @@ export default function FinancesPageClient({
                   </p>
                   <p className="text-xs text-[#64748B] mt-0.5">
                     Share your tracked link. Each validated lead earns you
-                    1.20€.
+                    {creatorData.isPro ? " 1,10€" : " 0,90€"}.
                   </p>
                 </div>
               </div>
@@ -891,6 +941,19 @@ export default function FinancesPageClient({
 
         {selectedTab === "plan" && (
           <div className="space-y-6">
+            {/* Credit System Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <CreditBalanceWidget
+                walletCredits={saasData.walletCredits}
+                monthlySubscription={saasData.monthlyCreditSubscription}
+                renewalDate={saasData.creditRenewalDate}
+              />
+              <CreditSubscriptionSlider
+                currentSubscription={saasData.monthlyCreditSubscription}
+                onSubscribe={handleCreditSubscription}
+              />
+            </div>
+
             {/* Current Plan Card */}
             <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">

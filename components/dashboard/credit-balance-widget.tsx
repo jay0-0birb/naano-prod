@@ -1,0 +1,113 @@
+"use client";
+
+import { AlertCircle, CheckCircle2, Clock } from "lucide-react";
+
+interface CreditBalanceWidgetProps {
+  walletCredits: number;
+  monthlySubscription: number | null;
+  renewalDate: string | null;
+}
+
+export default function CreditBalanceWidget({
+  walletCredits,
+  monthlySubscription,
+  renewalDate,
+}: CreditBalanceWidgetProps) {
+  const getHealthStatus = (credits: number): {
+    status: "safe" | "risky" | "low" | "empty";
+    color: string;
+    icon: React.ReactNode;
+    label: string;
+  } => {
+    if (credits > 200) {
+      return {
+        status: "safe",
+        color: "text-green-600 bg-green-50 border-green-200",
+        icon: <CheckCircle2 className="w-5 h-5 text-green-600" />,
+        label: "Safe",
+      };
+    }
+    if (credits > 50) {
+      return {
+        status: "risky",
+        color: "text-orange-600 bg-orange-50 border-orange-200",
+        icon: <AlertCircle className="w-5 h-5 text-orange-600" />,
+        label: "Risky",
+      };
+    }
+    if (credits > 0) {
+      return {
+        status: "low",
+        color: "text-red-600 bg-red-50 border-red-200",
+        icon: <AlertCircle className="w-5 h-5 text-red-600" />,
+        label: "Low",
+      };
+    }
+    return {
+      status: "empty",
+      color: "text-red-700 bg-red-100 border-red-300",
+      icon: <AlertCircle className="w-5 h-5 text-red-700" />,
+      label: "Empty",
+    };
+  };
+
+  const health = getHealthStatus(walletCredits);
+
+  const getDaysUntilRenewal = (dateString: string | null): number | null => {
+    if (!dateString) return null;
+    const renewal = new Date(dateString);
+    const now = new Date();
+    const diffTime = renewal.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 0;
+  };
+
+  const daysUntilRenewal = renewalDate ? getDaysUntilRenewal(renewalDate) : null;
+
+  return (
+    <div className="bg-white rounded-2xl p-6 border border-slate-200">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-slate-900">
+          Solde de Crédits
+        </h3>
+        <div className={`px-3 py-1 rounded-full border ${health.color} flex items-center gap-2`}>
+          {health.icon}
+          <span className="text-sm font-medium">{health.label}</span>
+        </div>
+      </div>
+
+      <div className="mb-4">
+        <div className="text-4xl font-bold text-slate-900 mb-1">
+          {walletCredits.toLocaleString()}
+        </div>
+        <div className="text-sm text-slate-600">crédits disponibles</div>
+      </div>
+
+      {monthlySubscription && (
+        <div className="mb-4 pb-4 border-b border-slate-200">
+          <div className="text-sm text-slate-600 mb-1">Abonnement mensuel</div>
+          <div className="text-lg font-semibold text-slate-900">
+            {monthlySubscription.toLocaleString()} crédits/mois
+          </div>
+        </div>
+      )}
+
+      {renewalDate && daysUntilRenewal !== null && (
+        <div className="flex items-center gap-2 text-sm text-slate-600">
+          <Clock className="w-4 h-4" />
+          <span>
+            Renouvellement dans {daysUntilRenewal} jour{daysUntilRenewal !== 1 ? "s" : ""}
+          </span>
+        </div>
+      )}
+
+      {walletCredits === 0 && (
+        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-red-700">
+            ⚠️ Aucun crédit disponible. Les clics qualifiés seront bloqués jusqu'à ce que vous ajoutiez des crédits.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}

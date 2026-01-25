@@ -36,6 +36,8 @@ export default async function MarketplacePage() {
       .from('saas_companies')
       .select(`
         *,
+        wallet_credits,
+        credit_renewal_date,
         profiles:profile_id (
           id,
           full_name,
@@ -124,6 +126,7 @@ export default async function MarketplacePage() {
         .from('creator_profiles')
         .select(`
           *,
+          is_pro,
           profiles:profile_id (
             id,
             full_name,
@@ -131,6 +134,7 @@ export default async function MarketplacePage() {
             email
           )
         `)
+        .order('is_pro', { ascending: false }) // Pro creators first
         .order('created_at', { ascending: false })
     ]);
 

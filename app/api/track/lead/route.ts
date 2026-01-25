@@ -180,14 +180,44 @@ export async function POST(request: NextRequest) {
       .select('id')
       .single();
 
-    // Create lead using database function (BP1 model)
+    // Check if SaaS has credits available (CREDIT SYSTEM)
+    const { data: saasCompany } = await supabase
+      .from('saas_companies')
+      .select('wallet_credits')
+      .eq('id', saasId)
+      .single();
+
+    const currentCredits = saasCompany?.wallet_credits || 0;
+
+    // HARD CAP: If credits = 0, block lead creation but still return success (user gets redirected)
+    if (currentCredits <= 0) {
+      console.log('Lead blocked - insufficient credits:', {
+        method: trackingMethod,
+        session_id: trackingSessionId,
+        saas_id: saasId,
+        credits: currentCredits,
+      });
+
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Insufficient credits. Lead not created.',
+          blocked: true,
+          reason: 'insufficient_credits',
+          credits_remaining: 0,
+        },
+        { status: 200 } // Still 200 - user gets redirected, but no payment
+      );
+    }
+
+    // Create lead using new credit-based function
     // This function:
-    // - Gets SaaS's current plan
-    // - Calculates lead_value (€2.50 / €2.00 / €1.60)
-    // - Sets creator_earnings to €1.20 (fixed)
+    // - Checks if SaaS has credits > 0
+    // - Gets creator payout amount (€0.90 Standard or €1.10 Pro)
+    // - Deducts 1 credit
+    // - Creates lead with payout amount
     // - Updates creator wallet (pending)
-    // - Updates SaaS debt
-    const { data: leadId, error: leadError } = await supabase.rpc('create_lead', {
+    const { data: leadId, error: leadError } = await supabase.rpc('create_lead_with_credits', {
       p_tracked_link_id: trackedLinkId,
       p_creator_id: creatorId,
       p_saas_id: saasId,
@@ -195,6 +225,21 @@ export async function POST(request: NextRequest) {
 
     if (leadError) {
       console.error('Error creating lead:', leadError);
+      
+      // If error is about insufficient credits, return specific message
+      if (leadError.message?.includes('Insufficient credits')) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: 'Insufficient credits. Lead not created.',
+            blocked: true,
+            reason: 'insufficient_credits',
+            credits_remaining: currentCredits,
+          },
+          { status: 200 }
+        );
+      }
+
       return NextResponse.json(
         { error: 'Failed to create lead', details: leadError.message },
         { status: 500 }
@@ -204,22 +249,24 @@ export async function POST(request: NextRequest) {
     // Get created lead details
     const { data: lead } = await supabase
       .from('leads')
-      .select('id, saas_plan, lead_value, creator_earnings, naano_margin_brut, status')
+      .select('id, creator_payout_amount, credits_deducted, status')
       .eq('id', leadId)
       .single();
 
-    // Check if SaaS should be billed (threshold reached)
-    const { data: shouldBill } = await supabase.rpc('should_bill_saas', {
-      p_saas_id: saasId,
-    });
+    // Get updated credit balance
+    const { data: updatedSaas } = await supabase
+      .from('saas_companies')
+      .select('wallet_credits')
+      .eq('id', saasId)
+      .single();
 
-    console.log('Lead created:', {
+    console.log('Lead created with credits:', {
       method: trackingMethod,
       session_id: trackingSessionId,
       lead_id: leadId,
-      saas_plan: lead?.saas_plan,
-      lead_value: lead?.lead_value,
-      should_bill: shouldBill,
+      creator_payout: lead?.creator_payout_amount,
+      credits_deducted: lead?.credits_deducted,
+      credits_remaining: updatedSaas?.wallet_credits,
     });
 
     return NextResponse.json(
@@ -228,12 +275,11 @@ export async function POST(request: NextRequest) {
         message: 'Lead created successfully',
         lead: {
           id: leadId,
-          saas_plan: lead?.saas_plan,
-          lead_value: lead?.lead_value,
-          creator_earnings: lead?.creator_earnings,
-          naano_margin_brut: lead?.naano_margin_brut,
+          creator_payout_amount: lead?.creator_payout_amount,
+          credits_deducted: lead?.credits_deducted,
+          status: lead?.status,
         },
-        should_bill: shouldBill,
+        credits_remaining: updatedSaas?.wallet_credits || 0,
         method: trackingMethod
       },
       { status: 200 }

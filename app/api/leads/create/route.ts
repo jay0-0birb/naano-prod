@@ -12,7 +12,7 @@ const supabaseAdmin =
 
 /**
  * Create a lead (called when lead is validated)
- * This follows BP1.md: Lead-based pricing model
+ * CREDIT SYSTEM: Uses credit-based model (PlanP)
  */
 export async function POST(request: Request) {
   if (!supabaseAdmin) {
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
 
     const { data: saas } = await supabaseAdmin
       .from('saas_companies')
-      .select('id, subscription_tier')
+      .select('id, wallet_credits')
       .eq('id', saas_id)
       .single();
 
@@ -68,15 +68,28 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create lead using database function
+    // CREDIT SYSTEM: Check if SaaS has credits
+    const walletCredits = (saas as any).wallet_credits || 0;
+    if (walletCredits <= 0) {
+      return NextResponse.json(
+        { 
+          error: 'Insufficient credits',
+          message: 'SaaS has no credits available. Lead cannot be created.',
+          credits_remaining: 0
+        },
+        { status: 400 }
+      );
+    }
+
+    // Create lead using new credit-based function
     // This function:
-    // 1. Gets SaaS's current plan
-    // 2. Calculates lead_value based on plan (€2.50 / €2.00 / €1.60)
-    // 3. Sets creator_earnings to €1.20 (fixed)
-    // 4. Updates creator wallet (pending)
-    // 5. Updates SaaS debt
+    // 1. Checks if SaaS has credits > 0
+    // 2. Gets creator payout amount (€0.90 Standard or €1.10 Pro)
+    // 3. Deducts 1 credit
+    // 4. Creates lead with payout amount
+    // 5. Updates creator wallet (pending)
     const { data: leadId, error: leadError } = await supabaseAdmin.rpc(
-      'create_lead',
+      'create_lead_with_credits',
       {
         p_tracked_link_id: tracked_link_id,
         p_creator_id: creator_id,
@@ -86,6 +99,19 @@ export async function POST(request: Request) {
 
     if (leadError) {
       console.error('Error creating lead:', leadError);
+      
+      // Check if error is about insufficient credits
+      if (leadError.message?.includes('Insufficient credits')) {
+        return NextResponse.json(
+          { 
+            error: 'Insufficient credits',
+            message: leadError.message,
+            credits_remaining: walletCredits
+          },
+          { status: 400 }
+        );
+      }
+
       return NextResponse.json(
         { error: 'Failed to create lead', details: leadError.message },
         { status: 500 }
@@ -95,26 +121,26 @@ export async function POST(request: Request) {
     // Get created lead details
     const { data: lead } = await supabaseAdmin
       .from('leads')
-      .select('id, saas_plan, lead_value, creator_earnings, naano_margin_brut, status, created_at')
+      .select('id, creator_payout_amount, credits_deducted, status, created_at')
       .eq('id', leadId)
       .single();
 
-    // Check if SaaS should be billed (threshold reached)
-    const { data: shouldBill } = await supabaseAdmin.rpc('should_bill_saas', {
-      p_saas_id: saas_id,
-    });
+    // Get updated credit balance
+    const { data: updatedSaas } = await supabaseAdmin
+      .from('saas_companies')
+      .select('wallet_credits')
+      .eq('id', saas_id)
+      .single();
 
     return NextResponse.json({
       success: true,
       lead: {
         id: leadId,
-        saas_plan: lead?.saas_plan,
-        lead_value: lead?.lead_value,
-        creator_earnings: lead?.creator_earnings,
-        naano_margin_brut: lead?.naano_margin_brut,
+        creator_payout_amount: lead?.creator_payout_amount,
+        credits_deducted: lead?.credits_deducted,
         status: lead?.status,
       },
-      should_bill: shouldBill,
+      credits_remaining: updatedSaas?.wallet_credits || 0,
       message: 'Lead created successfully',
     });
   } catch (error: any) {

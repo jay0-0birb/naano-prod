@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Building2, Globe, Percent, ExternalLink, Send } from 'lucide-react';
 import type { SaasCompanyWithProfile } from '@/types/database';
 import ApplyModal from './apply-modal';
+import BudgetWidget from '@/components/collaborations/budget-widget';
 
 interface SaasCardProps {
   company: SaasCompanyWithProfile;
@@ -55,6 +56,17 @@ export default function SaasCard({ company, hasApplied, creatorProfileId }: Saas
         <p className="text-[#64748B] text-sm mb-4 line-clamp-3">
           {company.description || 'No description available.'}
         </p>
+
+        {/* Budget Widget (for creators) */}
+        {(company.wallet_credits !== undefined || company.credit_renewal_date) && (
+          <div className="mb-4">
+            <BudgetWidget
+              walletCredits={company.wallet_credits || 0}
+              renewalDate={company.credit_renewal_date || null}
+              saasCompanyName={company.company_name}
+            />
+          </div>
+        )}
 
         {/* Commission Badge */}
         {company.commission_rate && (

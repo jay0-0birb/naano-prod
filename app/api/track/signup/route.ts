@@ -111,35 +111,55 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Get SaaS plan for pricing
+      // CREDIT SYSTEM: Check if SaaS has credits
       const { data: saas } = await supabase
         .from('saas_companies')
-        .select('subscription_tier')
+        .select('wallet_credits')
         .eq('id', saasId)
         .single();
 
-      const plan = saas?.subscription_tier || 'starter';
-      const leadValue = plan === 'starter' ? 2.50 : plan === 'growth' ? 2.00 : 1.60;
+      const walletCredits = saas?.wallet_credits || 0;
+      
+      // Hard cap: Block if no credits
+      if (walletCredits <= 0) {
+        // Still return success (user gets redirected), but don't create lead
+        console.log('Lead blocked - insufficient credits:', { saasId, credits: walletCredits });
+        return NextResponse.json({
+          success: false,
+          message: 'Insufficient credits. Lead not created.',
+          blocked: true,
+          reason: 'insufficient_credits',
+        });
+      }
 
-      // Create lead using RPC function
-      const { data: newLead, error: leadError } = await supabase
-        .rpc('create_lead_for_collaboration', {
+      // Create lead using new credit-based function
+      const { data: newLeadId, error: leadError } = await supabase
+        .rpc('create_lead_with_credits', {
           p_tracked_link_id: clickEvent.tracked_link_id,
           p_creator_id: creatorId,
           p_saas_id: saasId
-        })
-        .single();
+        });
 
-      if (leadError || !newLead) {
+      if (leadError) {
+        console.error('Error creating lead:', leadError);
+        
+        // If error is about insufficient credits, return specific message
+        if (leadError.message?.includes('Insufficient credits')) {
+          return NextResponse.json({
+            success: false,
+            message: 'Insufficient credits. Lead not created.',
+            blocked: true,
+            reason: 'insufficient_credits',
+          });
+        }
+
         return NextResponse.json(
-          { error: 'Failed to create lead', details: leadError?.message },
+          { error: 'Failed to create lead', details: leadError.message },
           { status: 500 }
         );
       }
 
-      // Type assertion: RPC function returns lead with id
-      const lead = newLead as { id: string };
-      leadId = lead.id;
+      leadId = newLeadId as string;
     }
 
     // Get company inference ID
