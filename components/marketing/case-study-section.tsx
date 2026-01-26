@@ -1,39 +1,44 @@
-'use client'
+"use client";
 
-import { motion, useInView } from 'framer-motion'
-import { useRef } from 'react'
-import { Zap, BarChart3, Target } from 'lucide-react'
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
+import { Zap, BarChart3, Target } from "lucide-react";
 
 const features = [
   {
     icon: Zap,
-    title: 'Viral-Ready Hooks',
-    description: 'Our creators know how to stop the scroll with proven frameworks.',
+    title: "Viral-Ready Hooks",
+    description:
+      "Our creators know how to stop the scroll with proven frameworks.",
   },
   {
     icon: BarChart3,
-    title: 'Authentic Storytelling',
-    description: 'Real experiences, real results. No generic ad copy.',
+    title: "Authentic Storytelling",
+    description: "Real experiences, real results. No generic ad copy.",
   },
   {
     icon: Target,
-    title: 'Massive Reach',
-    description: '100K+ impressions from accounts with just 2K followers.',
+    title: "Massive Reach",
+    description: "100K+ impressions from accounts with just 2K followers.",
   },
-]
+];
 
 export const CaseStudySection = () => {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.2 })
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
 
   return (
-    <section className="py-16 md:py-24 bg-white relative overflow-hidden" ref={ref}>
+    <section
+      className="py-16 md:py-24 bg-white relative overflow-hidden"
+      ref={ref}
+    >
       {/* Subtle background pattern */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: 'radial-gradient(circle, rgba(15, 23, 42, 0.025) 1px, transparent 1px)',
-          backgroundSize: '32px 32px',
+          backgroundImage:
+            "radial-gradient(circle, rgba(15, 23, 42, 0.025) 1px, transparent 1px)",
+          backgroundSize: "32px 32px",
         }}
       />
 
@@ -46,18 +51,31 @@ export const CaseStudySection = () => {
             transition={{ duration: 0.6 }}
             className="flex-1 max-w-[500px]"
           >
+            {/* Badge */}
+            <span className="inline-block bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-semibold mb-4 border border-blue-100 w-fit">
+              FEATURES
+            </span>
             {/* Heading */}
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-[#0F172A] tracking-[-0.03em] leading-[1.15] mb-5">
-              The Naano Framework:
+            <h2
+              className="text-[32px] md:text-[44px] font-bold text-[#0F172A] tracking-[-0.03em] leading-[1.1] mb-5"
+              style={{ fontFamily: "Satoshi, sans-serif" }}
+            >
+              The naano Framework:
               <br />
-              <span className="text-[#3B82F6]">Consistency meets Virality.</span>
+              <span className="text-[#3B82F6]">
+                Consistency meets Virality.
+              </span>
             </h2>
 
             {/* Subheadline */}
-            <p className="text-base md:text-lg text-[#64748B] leading-relaxed font-normal mb-10">
-              We don't just match you with creators.{' '}
-              <span className="font-semibold text-[#0F172A]">
-                We train them to write posts that convert specifically for SaaS.
+            <p
+              className="text-lg text-[#64748B] leading-relaxed font-normal mb-10"
+              style={{ fontFamily: "Satoshi, sans-serif" }}
+            >
+              We don't just match you with creators.{" "}
+              <span className="font-semibold text-[#64748B]">
+                We train them to write posts that convert specifically for
+                brands.
               </span>
             </p>
 
@@ -88,37 +106,6 @@ export const CaseStudySection = () => {
                 </motion.div>
               ))}
             </div>
-
-            {/* Stats callout */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              className="mt-10 p-5 bg-[#F8FAFC] rounded-xl border border-[#E5E7EB]"
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-2 h-2 bg-[#10B981] rounded-full" />
-                <p className="text-xs text-[#64748B] font-medium tracking-[0.03em]">
-                  REAL RESULTS IN 3 WEEKS
-                </p>
-              </div>
-              <div className="flex gap-4 items-center justify-between flex-wrap">
-                <div className="flex flex-col gap-0">
-                  <p className="text-2xl font-bold text-[#0F172A] tracking-[-0.02em]">1K</p>
-                  <p className="text-[11px] text-[#64748B]">followers</p>
-                </div>
-                <p className="text-xl text-[#CBD5E1]">→</p>
-                <div className="flex flex-col gap-0">
-                  <p className="text-2xl font-bold text-[#10B981] tracking-[-0.02em]">3.5K</p>
-                  <p className="text-[11px] text-[#64748B]">followers</p>
-                </div>
-                <div className="hidden sm:block w-px h-10 bg-[#E5E7EB]" />
-                <div className="flex flex-col gap-0">
-                  <p className="text-2xl font-bold text-[#3B82F6] tracking-[-0.02em]">200K+</p>
-                  <p className="text-[11px] text-[#64748B]">views</p>
-                </div>
-              </div>
-            </motion.div>
           </motion.div>
 
           {/* RIGHT SIDE - Placeholder for phone mockup */}
@@ -141,7 +128,5 @@ export const CaseStudySection = () => {
         </div>
       </div>
     </section>
-  )
-}
-
-
+  );
+};

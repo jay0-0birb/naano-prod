@@ -5,10 +5,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { ParticleFace } from "./particle-face";
 
-export const HeroSection = () => {
+interface HeroSectionProps {
+  onContentShow: (show: boolean) => void;
+  showContent: boolean;
+}
+
+export const HeroSection = ({
+  onContentShow,
+  showContent,
+}: HeroSectionProps) => {
   const words = ["Scale", "Boost", "Grow"];
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -18,7 +25,7 @@ export const HeroSection = () => {
   }, []);
 
   const handleFaceComplete = () => {
-    setShowContent(true);
+    onContentShow(true);
   };
 
   return (
@@ -30,7 +37,7 @@ export const HeroSection = () => {
       <div
         className={`max-w-7xl mx-auto relative z-[2] pt-28 md:pt-36 pb-16 md:pb-24 px-4 ${showContent ? "opacity-100" : "opacity-0"}`}
       >
-        {/* Text Content */}
+        {/* Text Content - Aligned along pink line */}
         <div className="text-left max-w-[600px] ml-0 md:ml-8 lg:ml-16 mb-20 md:mb-28">
           {/* Main Heading */}
           <motion.div
@@ -40,7 +47,10 @@ export const HeroSection = () => {
             }
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <h1 className="text-[40px] md:text-[56px] lg:text-[68px] font-semibold leading-[1.05] tracking-[-0.03em] text-[#111827] mb-6">
+            <h1
+              className="text-[32px] md:text-[44px] lg:text-[56px] font-bold leading-[1.1] tracking-[-0.03em] text-[#111827] mb-6"
+              style={{ fontFamily: "Satoshi, sans-serif" }}
+            >
               <AnimatePresence mode="wait">
                 <motion.span
                   key={words[currentWordIndex]}
@@ -75,7 +85,10 @@ export const HeroSection = () => {
             transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
             className="mb-10"
           >
-            <p className="text-[17px] md:text-[19px] font-normal text-[#4B5563] leading-[1.7] max-w-[560px] mx-auto">
+            <p
+              className="text-lg font-normal text-[#4B5563] leading-relaxed max-w-[600px]"
+              style={{ fontFamily: "Satoshi, sans-serif" }}
+            >
               Access a curated network of vetted nano-influencers (1-50k). The
               first performance-based B2B marketplace.
             </p>
@@ -89,18 +102,22 @@ export const HeroSection = () => {
             }
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
           >
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4">
+              {/* Get started button - Position A (dark) */}
               <Link
                 href="/register"
-                className="h-14 px-10 bg-[#111827] text-white rounded-full font-medium text-[15px] hover:bg-[#1F2937] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_0_rgba(17,24,39,0.25)] transition-all duration-200 flex items-center justify-center"
+                className="h-14 px-10 bg-[#111827] text-white rounded-full font-bold text-[15px] hover:bg-[#1F2937] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_0_rgba(17,24,39,0.25)] transition-all duration-200 flex items-center justify-center"
+                style={{ fontFamily: "Satoshi, sans-serif" }}
               >
-                Scale my Revenue
+                Get started
               </Link>
+              {/* Sign in button - Position B (white) */}
               <Link
-                href="/register"
-                className="h-14 px-10 bg-white text-[#111827] rounded-full border border-[#E5E7EB] font-medium text-[15px] hover:border-[#111827] hover:bg-[#F9FAFB] transition-all duration-200 flex items-center justify-center"
+                href="/login"
+                className="h-14 px-10 bg-white text-[#111827] rounded-full border border-[#E5E7EB] font-bold text-[15px] hover:border-[#111827] hover:bg-[#F9FAFB] transition-all duration-200 flex items-center justify-center"
+                style={{ fontFamily: "Satoshi, sans-serif" }}
               >
-                Monetize my Audience
+                Sign in
               </Link>
             </div>
           </motion.div>
@@ -111,8 +128,12 @@ export const HeroSection = () => {
           initial={{ opacity: 0, x: -30 }}
           animate={showContent ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+          className="mt-20 md:mt-48"
         >
-          <p className="text-xs font-medium tracking-[0.1em] text-[#9CA3AF] uppercase text-center mb-10">
+          <p
+            className="text-xs font-bold tracking-[0.1em] text-[#9CA3AF] uppercase text-center mb-10"
+            style={{ fontFamily: "Satoshi, sans-serif" }}
+          >
             Trusted by growth teams at
           </p>
 
@@ -121,7 +142,8 @@ export const HeroSection = () => {
               (brand) => (
                 <p
                   key={brand}
-                  className="text-xl md:text-2xl font-semibold text-[#CBD5E1] hover:text-[#64748B] transition-colors duration-300 cursor-default"
+                  className="text-xl md:text-2xl font-bold text-[#CBD5E1] hover:text-[#64748B] transition-colors duration-300 cursor-default"
+                  style={{ fontFamily: "Satoshi, sans-serif" }}
                 >
                   {brand}
                 </p>

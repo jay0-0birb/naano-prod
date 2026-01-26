@@ -1,111 +1,121 @@
-'use client'
+"use client";
 
-import { useScroll, useTransform, motion } from 'framer-motion'
-import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
 
-export const Navbar = () => {
-  const { scrollY } = useScroll()
-  const [mounted, setMounted] = useState(false)
+const scrollToSection = (id: string) => {
+  const element = document.getElementById(id);
+  if (element) {
+    element.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+};
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  // Progressive transformations based on scroll (0 to 300px)
-  const maxWidth = useTransform(scrollY, [0, 300], ['900px', '580px'])
-  const height = useTransform(scrollY, [0, 300], ['44px', '40px'])
-  const paddingX = useTransform(scrollY, [0, 300], ['24px', '16px'])
-  const paddingTop = useTransform(scrollY, [0, 300], ['16px', '10px'])
-  const borderRadius = useTransform(scrollY, [0, 300], ['12px', '100px'])
-  const fontSize = useTransform(scrollY, [0, 300], ['13px', '12px'])
-  const logoSize = useTransform(scrollY, [0, 300], ['15px', '14px'])
-  const buttonHeight = useTransform(scrollY, [0, 300], ['32px', '28px'])
-  const buttonPadding = useTransform(scrollY, [0, 300], ['14px', '12px'])
-  const opacity = useTransform(scrollY, [0, 200], [0.75, 0.95])
-  const shadow = useTransform(
-    scrollY,
-    [0, 300],
-    ['0 2px 8px -2px rgba(15, 23, 42, 0.06)', '0 4px 20px -4px rgba(15, 23, 42, 0.15)']
-  )
-
-  if (!mounted) return null
-
-  return (
-    <motion.nav
-      className="fixed top-0 left-0 right-0 z-[1000] px-4 md:px-6"
-      style={{ paddingTop }}
-    >
-      <motion.div
-        className="mx-auto flex items-center justify-between"
-        style={{
-          maxWidth,
-          height,
-          paddingLeft: paddingX,
-          paddingRight: paddingX,
-          borderRadius,
-          boxShadow: shadow,
-          backdropFilter: 'saturate(180%) blur(20px)',
-          WebkitBackdropFilter: 'saturate(180%) blur(20px)',
-          border: '1px solid rgba(15, 23, 42, 0.06)',
-        }}
-      >
-        {/* Background with animated opacity */}
-        <motion.div
-          className="absolute inset-0 bg-white -z-10"
-          style={{
-            opacity,
-            borderRadius,
-          }}
-        />
-
-        {/* Logo */}
-        <motion.div style={{ fontSize: logoSize }}>
-          <Link href="/" className="font-bold text-[#0F172A] tracking-tight">
-            Naano
-          </Link>
-        </motion.div>
-
-        {/* Center Links */}
-        <div className="hidden md:flex items-center gap-0 absolute left-1/2 -translate-x-1/2">
-          {[
-            { label: 'Features', href: '#features' },
-            { label: 'Pricing', href: '#pricing' },
-            { label: 'About', href: '/about' },
-          ].map((item) => (
-            <motion.div key={item.label} style={{ fontSize }}>
-              <Link
-                href={item.href}
-                className="font-medium text-[#64748B] px-3 py-1 rounded-full hover:text-[#0F172A] transition-colors duration-150"
-              >
-                {item.label}
-              </Link>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Right CTA */}
-        <div className="flex items-center gap-2">
-          <motion.div style={{ fontSize }}>
-            <Link
-              href="/login"
-              className="hidden sm:flex font-medium text-[#64748B] px-2 hover:text-[#0F172A] transition-colors duration-150"
-            >
-              Sign in
-            </Link>
-          </motion.div>
-          <motion.div style={{ height: buttonHeight }}>
-            <Link
-              href="/register"
-              className="h-full px-3 text-xs font-semibold bg-[#0F172A] text-white rounded-full hover:bg-[#1E293B] transition-all duration-150 flex items-center justify-center"
-            >
-              Get started
-            </Link>
-          </motion.div>
-        </div>
-      </motion.div>
-    </motion.nav>
-  )
+interface NavbarProps {
+  showContent: boolean;
 }
 
+export const Navbar = ({ showContent }: NavbarProps) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const navItems = [
+    { label: "Features", action: () => scrollToSection("how-it-works") },
+    { label: "Pricing", action: () => scrollToSection("pricing") },
+    { label: "FAQs", action: () => scrollToSection("faq") },
+    { label: "About", href: "/about" },
+  ];
+
+  return (
+    <nav
+      className={`fixed top-0 left-0 right-0 z-[1000] px-4 md:px-6 pt-4 md:pt-6 transition-opacity duration-300 ${
+        showContent ? "opacity-100" : "opacity-0"
+      }`}
+    >
+      <div className="flex items-center justify-end mr-6 md:mr-10 relative">
+        {/* Menu Items - Slide in from right */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 50 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="flex items-center gap-6 md:gap-8 mr-12 absolute right-0"
+            >
+              {navItems.map((item, index) => {
+                const baseClasses =
+                  "font-semibold text-base md:text-[17px] underline text-[#4B5563] hover:text-[#3B82F6] transition-colors";
+                const style = { fontFamily: "Satoshi, sans-serif" };
+
+                if (item.href) {
+                  return (
+                    <motion.div
+                      key={item.label}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{
+                        duration: 0.3,
+                        delay: index * 0.05,
+                        ease: "easeOut",
+                      }}
+                    >
+                      <Link
+                        href={item.href}
+                        onClick={() => setIsMenuOpen(false)}
+                        className={baseClasses}
+                        style={style}
+                      >
+                        {item.label}
+                      </Link>
+                    </motion.div>
+                  );
+                }
+
+                return (
+                  <motion.div
+                    key={item.label}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{
+                      duration: 0.3,
+                      delay: index * 0.05,
+                      ease: "easeOut",
+                    }}
+                  >
+                    <button
+                      onClick={() => {
+                        item.action?.();
+                        setIsMenuOpen(false);
+                      }}
+                      className={baseClasses}
+                      style={style}
+                    >
+                      {item.label}
+                    </button>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Menu Toggle Button - Fixed position */}
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={showContent ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors relative z-10"
+          style={{ fontFamily: "Satoshi, sans-serif" }}
+        >
+          {isMenuOpen ? (
+            <X className="w-5 h-5 text-[#4B5563]" />
+          ) : (
+            <Menu className="w-5 h-5 text-[#4B5563]" />
+          )}
+        </motion.button>
+      </div>
+    </nav>
+  );
+};
