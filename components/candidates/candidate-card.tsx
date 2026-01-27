@@ -1,8 +1,15 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Linkedin, Users, TrendingUp, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
-import { updateApplicationStatus } from '@/app/(dashboard)/dashboard/candidates/actions';
+import { useState } from "react";
+import {
+  Linkedin,
+  Users,
+  TrendingUp,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+} from "lucide-react";
+import { updateApplicationStatus } from "@/app/(dashboard)/dashboard/candidates/actions";
 
 interface CreatorProfile {
   id: string;
@@ -23,7 +30,7 @@ interface CreatorProfile {
 interface Application {
   id: string;
   message: string | null;
-  status: 'pending' | 'accepted' | 'rejected';
+  status: "pending" | "accepted" | "rejected";
   created_at: string;
   creator_profiles: CreatorProfile;
 }
@@ -33,38 +40,42 @@ interface CandidateCardProps {
   readonly?: boolean;
 }
 
-export default function CandidateCard({ application, readonly = false }: CandidateCardProps) {
-  const [isLoading, setIsLoading] = useState<'accept' | 'reject' | null>(null);
+export default function CandidateCard({
+  application,
+  readonly = false,
+}: CandidateCardProps) {
+  const [isLoading, setIsLoading] = useState<"accept" | "reject" | null>(null);
   const [status, setStatus] = useState(application.status);
 
   const creator = application.creator_profiles;
   const profile = creator.profiles;
 
-  const handleAction = async (action: 'accepted' | 'rejected') => {
-    setIsLoading(action === 'accepted' ? 'accept' : 'reject');
-    
+  const handleAction = async (action: "accepted" | "rejected") => {
+    setIsLoading(action === "accepted" ? "accept" : "reject");
+
     const result = await updateApplicationStatus(application.id, action);
-    
+
     if (result.success) {
       setStatus(action);
     }
-    
+
     setIsLoading(null);
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'short',
+    return new Date(dateString).toLocaleDateString("fr-FR", {
+      day: "numeric",
+      month: "short",
     });
   };
 
-  const initials = profile.full_name
-    ?.split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2) || '??';
+  const initials =
+    profile.full_name
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "??";
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-all">
@@ -73,12 +84,12 @@ export default function CandidateCard({ application, readonly = false }: Candida
         {profile.avatar_url ? (
           <img
             src={profile.avatar_url}
-            alt={profile.full_name || 'Créateur'}
+            alt={profile.full_name || "Créateur"}
             className="w-14 h-14 rounded-xl object-cover border border-gray-200"
           />
         ) : (
-          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border border-gray-200 flex items-center justify-center">
-            <span className="text-lg font-medium text-purple-600">
+          <div className="w-14 h-14 rounded-xl bg-blue-50 border border-gray-200 flex items-center justify-center">
+            <span className="text-lg font-medium text-blue-600">
               {initials}
             </span>
           </div>
@@ -88,10 +99,10 @@ export default function CandidateCard({ application, readonly = false }: Candida
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-1">
             <h3 className="font-semibold text-[#111827] text-lg truncate">
-              {profile.full_name || 'Créateur'}
+              {profile.full_name || "Créateur"}
             </h3>
             {creator.linkedin_url && (
-              <a 
+              <a
                 href={creator.linkedin_url}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -117,23 +128,24 @@ export default function CandidateCard({ application, readonly = false }: Candida
           </div>
 
           {/* Expertise */}
-          {creator.expertise_sectors && creator.expertise_sectors.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-2">
-              {creator.expertise_sectors.slice(0, 3).map((sector) => (
-                <span 
-                  key={sector}
-                  className="text-xs px-2 py-0.5 bg-gray-100 text-[#4B5563] rounded-full"
-                >
-                  {sector}
-                </span>
-              ))}
-              {creator.expertise_sectors.length > 3 && (
-                <span className="text-xs text-slate-500">
-                  +{creator.expertise_sectors.length - 3}
-                </span>
-              )}
-            </div>
-          )}
+          {creator.expertise_sectors &&
+            creator.expertise_sectors.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {creator.expertise_sectors.slice(0, 3).map((sector) => (
+                  <span
+                    key={sector}
+                    className="text-xs px-2 py-0.5 bg-gray-100 text-[#4B5563] rounded-full"
+                  >
+                    {sector}
+                  </span>
+                ))}
+                {creator.expertise_sectors.length > 3 && (
+                  <span className="text-xs text-slate-500">
+                    +{creator.expertise_sectors.length - 3}
+                  </span>
+                )}
+              </div>
+            )}
         </div>
 
         {/* Date & Status */}
@@ -141,15 +153,15 @@ export default function CandidateCard({ application, readonly = false }: Candida
           <span className="text-xs text-[#9CA3AF]">
             {formatDate(application.created_at)}
           </span>
-          {status !== 'pending' && (
+          {status !== "pending" && (
             <div
               className={`mt-2 inline-flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-full ${
-                status === 'accepted'
-                  ? 'bg-emerald-50 text-emerald-700'
-                  : 'bg-rose-50 text-rose-700'
+                status === "accepted"
+                  ? "bg-emerald-50 text-emerald-700"
+                  : "bg-rose-50 text-rose-700"
               }`}
             >
-              {status === 'accepted' ? (
+              {status === "accepted" ? (
                 <>
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Acceptée</span>
@@ -183,14 +195,14 @@ export default function CandidateCard({ application, readonly = false }: Candida
       )}
 
       {/* Actions */}
-      {status === 'pending' && !readonly && (
+      {status === "pending" && !readonly && (
         <div className="mt-4 flex gap-3">
           <button
-            onClick={() => handleAction('rejected')}
+            onClick={() => handleAction("rejected")}
             disabled={isLoading !== null}
             className="flex-1 py-2.5 bg-white hover:bg-rose-50 text-[#111827] hover:text-rose-700 border border-gray-200 hover:border-rose-200 rounded-xl text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {isLoading === 'reject' ? (
+            {isLoading === "reject" ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <>
@@ -200,11 +212,11 @@ export default function CandidateCard({ application, readonly = false }: Candida
             )}
           </button>
           <button
-            onClick={() => handleAction('accepted')}
+            onClick={() => handleAction("accepted")}
             disabled={isLoading !== null}
             className="flex-1 py-2.5 bg-[#0F172A] hover:bg-[#020617] text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {isLoading === 'accept' ? (
+            {isLoading === "accept" ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <>
@@ -218,4 +230,3 @@ export default function CandidateCard({ application, readonly = false }: Candida
     </div>
   );
 }
-

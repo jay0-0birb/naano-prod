@@ -1,23 +1,23 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { completeCreatorOnboarding } from '@/app/(dashboard)/actions';
-import { Loader2, AlertCircle, Linkedin, Users } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useState } from "react";
+import { completeCreatorOnboarding } from "@/app/(dashboard)/actions";
+import { Loader2, AlertCircle, Linkedin, Users } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const EXPERTISE_SECTORS = [
-  'Tech / SaaS',
-  'Digital Marketing',
-  'Finance / Fintech',
-  'Entrepreneurship',
-  'Productivity',
-  'Leadership',
-  'Sales',
-  'Human Resources',
-  'Data / Analytics',
-  'Design / UX',
-  'AI / Innovation',
-  'Other',
+  "Tech / SaaS",
+  "Digital Marketing",
+  "Finance / Fintech",
+  "Entrepreneurship",
+  "Productivity",
+  "Leadership",
+  "Sales",
+  "Human Resources",
+  "Data / Analytics",
+  "Design / UX",
+  "AI / Innovation",
+  "Other",
 ];
 
 export default function CreatorOnboardingForm() {
@@ -30,7 +30,7 @@ export default function CreatorOnboardingForm() {
     setSelectedSectors((prev) =>
       prev.includes(sector)
         ? prev.filter((s) => s !== sector)
-        : [...prev, sector]
+        : [...prev, sector],
     );
   }
 
@@ -40,7 +40,7 @@ export default function CreatorOnboardingForm() {
     setError(null);
 
     const formData = new FormData(event.currentTarget);
-    formData.append('expertiseSectors', selectedSectors.join(','));
+    formData.append("expertiseSectors", selectedSectors.join(","));
 
     const result = await completeCreatorOnboarding(formData);
 
@@ -48,7 +48,7 @@ export default function CreatorOnboardingForm() {
       setError(result.error);
       setIsLoading(false);
     } else {
-      router.push('/dashboard');
+      router.push("/dashboard");
       router.refresh();
     }
   }
@@ -126,7 +126,9 @@ export default function CreatorOnboardingForm() {
                 placeholder="3.5"
                 className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 pr-12 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
               />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#64748B]">%</span>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#64748B]">
+                %
+              </span>
             </div>
           </div>
         </div>
@@ -144,8 +146,8 @@ export default function CreatorOnboardingForm() {
                 onClick={() => toggleSector(sector)}
                 className={`px-3 py-1.5 rounded-full text-sm transition-all ${
                   selectedSectors.includes(sector)
-                    ? 'bg-[#0F172A] text-white'
-                    : 'bg-gray-50 text-[#64748B] hover:bg-gray-100 hover:text-[#111827] border border-gray-200'
+                    ? "bg-[#0F172A] text-white"
+                    : "bg-gray-50 text-[#64748B] hover:bg-gray-100 hover:text-[#111827] border border-gray-200"
                 }`}
               >
                 {sector}
@@ -167,7 +169,9 @@ export default function CreatorOnboardingForm() {
               placeholder="150"
               className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 pr-12 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
             />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#64748B]">€</span>
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#64748B]">
+              €
+            </span>
           </div>
           <p className="text-xs text-[#64748B] mt-1.5">
             Average price you charge for a sponsored LinkedIn post

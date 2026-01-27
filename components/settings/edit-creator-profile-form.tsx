@@ -41,14 +41,14 @@ export default function EditCreatorProfileForm({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedSectors, setSelectedSectors] = useState<string[]>(
-    creatorProfile.expertise_sectors || []
+    creatorProfile.expertise_sectors || [],
   );
 
   function toggleSector(sector: string) {
     setSelectedSectors((prev) =>
       prev.includes(sector)
         ? prev.filter((s) => s !== sector)
-        : [...prev, sector]
+        : [...prev, sector],
     );
   }
 

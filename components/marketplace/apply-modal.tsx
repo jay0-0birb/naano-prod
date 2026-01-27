@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { X, Loader2, Send, Building2 } from 'lucide-react';
-import { applyToSaas } from '@/app/(dashboard)/dashboard/marketplace/actions';
-import type { SaasCompanyWithProfile } from '@/types/database';
+import { useState } from "react";
+import { X, Loader2, Send, Building2 } from "lucide-react";
+import { applyToSaas } from "@/app/(dashboard)/dashboard/marketplace/actions";
+import type { SaasCompanyWithProfile } from "@/types/database";
 
 interface ApplyModalProps {
   company: SaasCompanyWithProfile;
@@ -12,10 +12,15 @@ interface ApplyModalProps {
   onSuccess: () => void;
 }
 
-export default function ApplyModal({ company, creatorProfileId, onClose, onSuccess }: ApplyModalProps) {
+export default function ApplyModal({
+  company,
+  creatorProfileId,
+  onClose,
+  onSuccess,
+}: ApplyModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -39,33 +44,35 @@ export default function ApplyModal({ company, creatorProfileId, onClose, onSucce
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      
+
       {/* Modal */}
       <div className="relative w-full max-w-lg bg-[#0A0C10] border border-white/10 rounded-2xl shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/10">
           <div className="flex items-center gap-3">
             {company.logo_url ? (
-              <img 
-                src={company.logo_url} 
+              <img
+                src={company.logo_url}
                 alt={company.company_name}
                 className="w-10 h-10 rounded-lg object-cover"
               />
             ) : (
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg bg-blue-500/20 border border-white/10 flex items-center justify-center">
                 <Building2 className="w-5 h-5 text-blue-400" />
               </div>
             )}
             <div>
-              <h3 className="font-medium text-white">Postuler chez {company.company_name}</h3>
+              <h3 className="font-medium text-white">
+                Postuler chez {company.company_name}
+              </h3>
               <p className="text-xs text-slate-500">{company.industry}</p>
             </div>
           </div>
-          <button 
+          <button
             onClick={onClose}
             className="text-slate-500 hover:text-white transition-colors"
           >
@@ -128,4 +135,3 @@ export default function ApplyModal({ company, creatorProfileId, onClose, onSucce
     </div>
   );
 }
-

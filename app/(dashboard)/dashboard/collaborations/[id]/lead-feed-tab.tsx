@@ -3,7 +3,15 @@
 import { useEffect, useState } from "react";
 import { getCollaborationLeads } from "./actions-v2";
 import { maskIPAddress, formatConfidence, formatDaysAgo } from "@/lib/utils";
-import { HelpCircle, Filter, ArrowUpDown, CheckCircle2, AlertTriangle, XCircle, Download } from "lucide-react";
+import {
+  HelpCircle,
+  Filter,
+  ArrowUpDown,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  Download,
+} from "lucide-react";
 
 interface Lead {
   id: string;
@@ -65,7 +73,9 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<'date' | 'confidence' | 'intent' | 'company_intent'>('company_intent');
+  const [sortBy, setSortBy] = useState<
+    "date" | "confidence" | "intent" | "company_intent"
+  >("company_intent");
   const [filterConfirmed, setFilterConfirmed] = useState(false);
   const [filterHighConfidence, setFilterHighConfidence] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -74,21 +84,21 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
     async function fetchLeads() {
       setLoading(true);
       setError(null);
-      
+
       const result = await getCollaborationLeads(
         collaborationId,
         sortBy,
         filterConfirmed,
-        filterHighConfidence
+        filterHighConfidence,
       );
-      
+
       if (result.error) {
-        setError(result.error + (result.details ? `: ${result.details}` : ''));
+        setError(result.error + (result.details ? `: ${result.details}` : ""));
         console.error("Lead fetch error:", result);
       } else if (result.success) {
         setLeads(result.leads || []);
       }
-      
+
       setLoading(false);
     }
 
@@ -98,16 +108,18 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
   // Calculate effective confidence with decay (Issue 1.1)
   const getEffectiveConfidence = (lead: Lead): number => {
     if (!lead.company) return 0;
-    if (lead.company.attributionState === 'confirmed') {
+    if (lead.company.attributionState === "confirmed") {
       return 1.0; // No decay for confirmed
     }
-    
+
     const createdAt = new Date(lead.company.createdAt);
-    const daysOld = Math.floor((Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
-    
+    const daysOld = Math.floor(
+      (Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24),
+    );
+
     // Decay: -0.1% per day, max -30%, min 30%
-    const decay = Math.min(daysOld * 0.001, 0.30);
-    return Math.max(lead.company.confidenceScore - decay, 0.30);
+    const decay = Math.min(daysOld * 0.001, 0.3);
+    return Math.max(lead.company.confidenceScore - decay, 0.3);
   };
 
   // Download CSV with all fields
@@ -171,7 +183,7 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
       const date = new Date(lead.occurredAt);
       const effectiveConfidence = getEffectiveConfidence(lead);
       const companyIntent = lead.company?.aggregatedIntent;
-      
+
       return [
         // Basic info
         date.toLocaleDateString("fr-FR"),
@@ -194,30 +206,42 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
         lead.company?.industry || "",
         lead.company?.size || "",
         lead.company?.location || "",
-        lead.company ? (lead.company.confidenceScore * 100).toFixed(1) + "%" : "",
+        lead.company
+          ? (lead.company.confidenceScore * 100).toFixed(1) + "%"
+          : "",
         lead.company ? (effectiveConfidence * 100).toFixed(1) + "%" : "",
         lead.company?.attributionState || "",
         lead.company?.confidenceReasons.join("; ") || "",
         lead.company?.asnOrganization || "",
         lead.company?.isAmbiguous ? "Oui" : "Non",
-        lead.company?.createdAt ? new Date(lead.company.createdAt).toLocaleString("fr-FR") : "",
-        lead.company?.confirmedAt ? new Date(lead.company.confirmedAt).toLocaleString("fr-FR") : "",
+        lead.company?.createdAt
+          ? new Date(lead.company.createdAt).toLocaleString("fr-FR")
+          : "",
+        lead.company?.confirmedAt
+          ? new Date(lead.company.confirmedAt).toLocaleString("fr-FR")
+          : "",
         // Layer 3
         lead.intent?.score.toString() || "",
-        companyIntent ? Math.round(companyIntent.avg_intent_score).toString() : "",
+        companyIntent
+          ? Math.round(companyIntent.avg_intent_score).toString()
+          : "",
         companyIntent ? companyIntent.max_intent_score.toString() : "",
         companyIntent?.intent_trend || "",
         lead.intent?.isRepeatVisit ? "Oui" : "Non",
         lead.intent?.visitCount.toString() || "",
         lead.intent?.signals?.isWorkingHours ? "Oui" : "Non",
-        lead.intent?.recencyWeight ? (lead.intent.recencyWeight * 100).toFixed(0) + "%" : "",
+        lead.intent?.recencyWeight
+          ? (lead.intent.recencyWeight * 100).toFixed(0) + "%"
+          : "",
         lead.intent?.daysSinceSession?.toString() || "",
         lead.intent?.viewedPricing ? "Oui" : "Non",
         lead.intent?.viewedSecurity ? "Oui" : "Non",
         lead.intent?.viewedIntegrations ? "Oui" : "Non",
         companyIntent?.total_sessions.toString() || "",
         companyIntent?.repeat_visits.toString() || "",
-        companyIntent?.last_high_intent_at ? new Date(companyIntent.last_high_intent_at).toLocaleString("fr-FR") : "",
+        companyIntent?.last_high_intent_at
+          ? new Date(companyIntent.last_high_intent_at).toLocaleString("fr-FR")
+          : "",
       ];
     });
 
@@ -225,23 +249,34 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
     const csvContent = [
       headers.join(","),
       ...rows.map((row) =>
-        row.map((cell) => {
-          // Escape commas and quotes in cell values
-          const cellStr = String(cell || "");
-          if (cellStr.includes(",") || cellStr.includes('"') || cellStr.includes("\n")) {
-            return `"${cellStr.replace(/"/g, '""')}"`;
-          }
-          return cellStr;
-        }).join(",")
+        row
+          .map((cell) => {
+            // Escape commas and quotes in cell values
+            const cellStr = String(cell || "");
+            if (
+              cellStr.includes(",") ||
+              cellStr.includes('"') ||
+              cellStr.includes("\n")
+            ) {
+              return `"${cellStr.replace(/"/g, '""')}"`;
+            }
+            return cellStr;
+          })
+          .join(","),
       ),
     ].join("\n");
 
     // Create blob and download
-    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" }); // BOM for Excel
+    const blob = new Blob(["\uFEFF" + csvContent], {
+      type: "text/csv;charset=utf-8;",
+    }); // BOM for Excel
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
     link.setAttribute("href", url);
-    link.setAttribute("download", `leads-${collaborationId}-${new Date().toISOString().split("T")[0]}.csv`);
+    link.setAttribute(
+      "download",
+      `leads-${collaborationId}-${new Date().toISOString().split("T")[0]}.csv`,
+    );
     link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
@@ -269,7 +304,8 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
       <div className="p-8 text-center text-gray-500">
         <p>Aucun lead enrichi pour le moment.</p>
         <p className="text-sm mt-2">
-          Les leads apparaîtront ici une fois qu'ils auront été enrichis avec des données d'entreprise (confiance ≥30%).
+          Les leads apparaîtront ici une fois qu'ils auront été enrichis avec
+          des données d'entreprise (confiance ≥30%).
         </p>
         <p className="text-xs mt-1 text-gray-400">
           Seuls les clics avec identification d'entreprise sont affichés ici.
@@ -286,7 +322,8 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
           <div>
             <h2 className="text-xl font-semibold mb-2">Lead Feed</h2>
             <p className="text-sm text-gray-600">
-              Visiteurs enrichis avec intelligence d'entreprise et scoring d'intention.
+              Visiteurs enrichis avec intelligence d'entreprise et scoring
+              d'intention.
               <span className="ml-2 inline-flex items-center gap-1 text-xs text-gray-500">
                 <span
                   className="inline-flex items-center"
@@ -294,7 +331,9 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                 >
                   <HelpCircle className="w-3 h-3" />
                 </span>
-                <span>Les données sont probabilistes avant signup, confirmées après.</span>
+                <span>
+                  Les données sont probabilistes avant signup, confirmées après.
+                </span>
               </span>
             </p>
           </div>
@@ -329,7 +368,9 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                   onChange={(e) => setSortBy(e.target.value as any)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                 >
-                  <option value="company_intent">Intention entreprise (recommandé)</option>
+                  <option value="company_intent">
+                    Intention entreprise (recommandé)
+                  </option>
                   <option value="intent">Intention session</option>
                   <option value="confidence">Confiance</option>
                   <option value="date">Date</option>
@@ -365,8 +406,11 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
         {leads.map((lead) => {
           const effectiveConfidence = getEffectiveConfidence(lead);
           const companyIntent = lead.company?.aggregatedIntent;
-          const daysOld = lead.company 
-            ? Math.floor((Date.now() - new Date(lead.company.createdAt).getTime()) / (1000 * 60 * 60 * 24))
+          const daysOld = lead.company
+            ? Math.floor(
+                (Date.now() - new Date(lead.company.createdAt).getTime()) /
+                  (1000 * 60 * 60 * 24),
+              )
             : null;
 
           return (
@@ -431,7 +475,8 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                       )}
                       {daysOld !== null && daysOld > 0 && (
                         <p className="text-xs text-gray-500 mt-1">
-                          Identifié il y a {formatDaysAgo(daysOld)} • Confiance effective: {formatConfidence(effectiveConfidence)}
+                          Identifié il y a {formatDaysAgo(daysOld)} • Confiance
+                          effective: {formatConfidence(effectiveConfidence)}
                         </p>
                       )}
                     </div>
@@ -441,7 +486,7 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                     </h3>
                   )}
                 </div>
-                
+
                 {/* Intent scores - Company-level prominently displayed (Issue 3.2) */}
                 <div className="text-right">
                   {companyIntent ? (
@@ -459,7 +504,8 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                         </span>
                       </div>
                       <div className="text-xs text-gray-400 mt-1">
-                        {companyIntent.total_sessions} session{companyIntent.total_sessions > 1 ? 's' : ''}
+                        {companyIntent.total_sessions} session
+                        {companyIntent.total_sessions > 1 ? "s" : ""}
                       </div>
                     </div>
                   ) : lead.intent ? (
@@ -488,7 +534,9 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                     {lead.company.industry && (
                       <div>
                         <span className="text-gray-500">Industrie:</span>{" "}
-                        <span className="font-medium">{lead.company.industry}</span>
+                        <span className="font-medium">
+                          {lead.company.industry}
+                        </span>
                       </div>
                     )}
                     {lead.company.size && (
@@ -500,7 +548,9 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                     {lead.company.location && (
                       <div>
                         <span className="text-gray-500">Localisation:</span>{" "}
-                        <span className="font-medium">{lead.company.location}</span>
+                        <span className="font-medium">
+                          {lead.company.location}
+                        </span>
                       </div>
                     )}
                     <div>
@@ -509,16 +559,20 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                         {formatConfidence(effectiveConfidence)}
                         {effectiveConfidence < lead.company.confidenceScore && (
                           <span className="text-xs text-orange-600 ml-1">
-                            (décroissance: {formatConfidence(lead.company.confidenceScore)} → {formatConfidence(effectiveConfidence)})
+                            (décroissance:{" "}
+                            {formatConfidence(lead.company.confidenceScore)} →{" "}
+                            {formatConfidence(effectiveConfidence)})
                           </span>
                         )}
                       </span>
                     </div>
                   </div>
-                  
+
                   {lead.company.confidenceReasons.length > 0 && (
                     <div className="mt-3 pt-3 border-t border-gray-200">
-                      <div className="text-xs text-gray-500 mb-1">Raisons de la confiance:</div>
+                      <div className="text-xs text-gray-500 mb-1">
+                        Raisons de la confiance:
+                      </div>
                       <div className="flex flex-wrap gap-2">
                         {lead.company.confidenceReasons.map((reason, idx) => (
                           <span
@@ -632,7 +686,8 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                     )}
                     {lead.intent.recencyWeight < 1.0 && (
                       <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded">
-                        Poids recence: {Math.round(lead.intent.recencyWeight * 100)}%
+                        Poids recence:{" "}
+                        {Math.round(lead.intent.recencyWeight * 100)}%
                       </span>
                     )}
                   </div>
@@ -648,27 +703,39 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                     <div>
                       <span className="text-gray-500">Score moyen:</span>{" "}
-                      <span className="font-medium">{Math.round(companyIntent.avg_intent_score)}</span>
+                      <span className="font-medium">
+                        {Math.round(companyIntent.avg_intent_score)}
+                      </span>
                     </div>
                     <div>
                       <span className="text-gray-500">Score max:</span>{" "}
-                      <span className="font-medium">{companyIntent.max_intent_score}</span>
+                      <span className="font-medium">
+                        {companyIntent.max_intent_score}
+                      </span>
                     </div>
                     <div>
                       <span className="text-gray-500">Tendance:</span>{" "}
-                      <span className={`font-medium ${
-                        companyIntent.intent_trend === 'increasing' ? 'text-green-600' :
-                        companyIntent.intent_trend === 'decreasing' ? 'text-red-600' :
-                        'text-gray-600'
-                      }`}>
-                        {companyIntent.intent_trend === 'increasing' ? '↑ Croissante' :
-                         companyIntent.intent_trend === 'decreasing' ? '↓ Décroissante' :
-                         '→ Stable'}
+                      <span
+                        className={`font-medium ${
+                          companyIntent.intent_trend === "increasing"
+                            ? "text-green-600"
+                            : companyIntent.intent_trend === "decreasing"
+                              ? "text-red-600"
+                              : "text-gray-600"
+                        }`}
+                      >
+                        {companyIntent.intent_trend === "increasing"
+                          ? "↑ Croissante"
+                          : companyIntent.intent_trend === "decreasing"
+                            ? "↓ Décroissante"
+                            : "→ Stable"}
                       </span>
                     </div>
                     <div>
                       <span className="text-gray-500">Visites répétées:</span>{" "}
-                      <span className="font-medium">{companyIntent.repeat_visits}</span>
+                      <span className="font-medium">
+                        {companyIntent.repeat_visits}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -677,7 +744,8 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
               {/* Footer: Metadata */}
               <div className="flex items-center justify-between text-xs text-gray-500 pt-4 border-t border-gray-200">
                 <div>
-                  <span>Créateur:</span> <span className="font-medium">{lead.creatorName}</span>
+                  <span>Créateur:</span>{" "}
+                  <span className="font-medium">{lead.creatorName}</span>
                 </div>
                 <div>
                   {new Date(lead.occurredAt).toLocaleString("fr-FR", {

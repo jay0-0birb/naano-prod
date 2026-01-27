@@ -1,9 +1,13 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { Send, Loader2 } from 'lucide-react';
-import { sendMessage, getMessages, markAsRead } from '@/app/(dashboard)/dashboard/messages/actions';
-import { createClient } from '@/lib/supabase/client';
+import { useState, useEffect, useRef } from "react";
+import { Send, Loader2 } from "lucide-react";
+import {
+  sendMessage,
+  getMessages,
+  markAsRead,
+} from "@/app/(dashboard)/dashboard/messages/actions";
+import { createClient } from "@/lib/supabase/client";
 
 interface Message {
   id: string;
@@ -28,9 +32,14 @@ interface ChatViewProps {
   partnerAvatar?: string | null;
 }
 
-export default function ChatView({ conversationId, currentUser, partnerName, partnerAvatar }: ChatViewProps) {
+export default function ChatView({
+  conversationId,
+  currentUser,
+  partnerName,
+  partnerAvatar,
+}: ChatViewProps) {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState('');
+  const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -40,44 +49,48 @@ export default function ChatView({ conversationId, currentUser, partnerName, par
 
     // Set up real-time subscription for new messages
     const supabase = createClient();
-    
+
     const channel = supabase
       .channel(`messages:${conversationId}`)
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
           filter: `conversation_id=eq.${conversationId}`,
         },
         async (payload) => {
           const newMsg = payload.new as any;
-          
+
           // Don't add if it's our own message (we already added it optimistically)
           if (newMsg.sender_id === currentUser.id) return;
-          
+
           // Fetch the sender's profile
           const { data: profile } = await supabase
-            .from('profiles')
-            .select('id, full_name, avatar_url')
-            .eq('id', newMsg.sender_id)
+            .from("profiles")
+            .select("id, full_name, avatar_url")
+            .eq("id", newMsg.sender_id)
             .single();
-          
+
           const messageWithProfile: Message = {
             ...newMsg,
-            profiles: profile || { id: newMsg.sender_id, full_name: partnerName, avatar_url: partnerAvatar }
+            profiles: profile || {
+              id: newMsg.sender_id,
+              full_name: partnerName,
+              avatar_url: partnerAvatar,
+            },
           };
-          
+
           setMessages((prev) => {
             // Check if message already exists
-            if (prev.some(m => m.id === newMsg.id)) return prev;
+            if (prev.some((m) => m.id === newMsg.id)) return prev;
             return [...prev, messageWithProfile];
           });
-          
+
           // Mark as read since we're viewing the conversation
           markAsRead(conversationId);
-        }
+        },
       )
       .subscribe();
 
@@ -100,7 +113,7 @@ export default function ChatView({ conversationId, currentUser, partnerName, par
   };
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   const handleSend = async (e: React.FormEvent) => {
@@ -109,26 +122,29 @@ export default function ChatView({ conversationId, currentUser, partnerName, par
 
     setIsSending(true);
     const result = await sendMessage(conversationId, newMessage.trim());
-    
+
     if (result.success && result.message) {
-      setMessages(prev => [...prev, {
-        ...result.message,
-        profiles: {
-          id: currentUser.id,
-          full_name: currentUser.full_name,
-          avatar_url: currentUser.avatar_url,
-        }
-      } as Message]);
-      setNewMessage('');
+      setMessages((prev) => [
+        ...prev,
+        {
+          ...result.message,
+          profiles: {
+            id: currentUser.id,
+            full_name: currentUser.full_name,
+            avatar_url: currentUser.avatar_url,
+          },
+        } as Message,
+      ]);
+      setNewMessage("");
     }
-    
+
     setIsSending(false);
   };
 
   const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString('fr-FR', {
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(dateString).toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -141,18 +157,18 @@ export default function ChatView({ conversationId, currentUser, partnerName, par
     if (date.toDateString() === today.toDateString()) {
       return "Aujourd'hui";
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return 'Hier';
+      return "Hier";
     }
-    return date.toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'long',
+    return date.toLocaleDateString("fr-FR", {
+      day: "numeric",
+      month: "long",
     });
   };
 
   // Group messages by date
   const groupedMessages: { date: string; messages: Message[] }[] = [];
-  let currentDate = '';
-  
+  let currentDate = "";
+
   messages.forEach((message) => {
     const messageDate = formatDate(message.created_at);
     if (messageDate !== currentDate) {
@@ -191,34 +207,35 @@ export default function ChatView({ conversationId, currentUser, partnerName, par
               <div className="space-y-4">
                 {group.messages.map((message) => {
                   const isOwn = message.sender_id === currentUser.id;
-                  const initials = message.profiles.full_name
-                    ?.split(' ')
-                    .map((n) => n[0])
-                    .join('')
-                    .toUpperCase()
-                    .slice(0, 2) || '??';
+                  const initials =
+                    message.profiles.full_name
+                      ?.split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase()
+                      .slice(0, 2) || "??";
 
                   return (
-                    <div 
+                    <div
                       key={message.id}
-                      className={`flex gap-3 ${isOwn ? 'flex-row-reverse' : ''}`}
+                      className={`flex gap-3 ${isOwn ? "flex-row-reverse" : ""}`}
                     >
                       {/* Avatar */}
                       {message.profiles.avatar_url ? (
-                        <img 
-                          src={message.profiles.avatar_url} 
-                          alt={message.profiles.full_name || ''}
+                        <img
+                          src={message.profiles.avatar_url}
+                          alt={message.profiles.full_name || ""}
                           className="w-8 h-8 rounded-full object-cover shrink-0"
                         />
                       ) : (
                         <div
                           className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                            isOwn ? 'bg-blue-50' : 'bg-purple-50'
+                            isOwn ? "bg-blue-50" : "bg-blue-50"
                           }`}
                         >
                           <span
                             className={`text-xs font-medium ${
-                              isOwn ? 'text-[#1D4ED8]' : 'text-purple-600'
+                              isOwn ? "text-[#1D4ED8]" : "text-blue-600"
                             }`}
                           >
                             {initials}
@@ -227,17 +244,23 @@ export default function ChatView({ conversationId, currentUser, partnerName, par
                       )}
 
                       {/* Message Bubble */}
-                      <div className={`max-w-[70%] ${isOwn ? 'items-end' : 'items-start'}`}>
-                        <div className={`px-4 py-2.5 rounded-2xl ${
-                          isOwn 
-                            ? 'bg-[#0F172A] text-white rounded-tr-sm' 
-                            : 'bg-gray-100 text-[#111827] rounded-tl-sm'
-                        }`}>
+                      <div
+                        className={`max-w-[70%] ${isOwn ? "items-end" : "items-start"}`}
+                      >
+                        <div
+                          className={`px-4 py-2.5 rounded-2xl ${
+                            isOwn
+                              ? "bg-[#0F172A] text-white rounded-tr-sm"
+                              : "bg-gray-100 text-[#111827] rounded-tl-sm"
+                          }`}
+                        >
                           <p className="text-sm">{message.content}</p>
                         </div>
-                        <span className={`text-xs text-[#94A3B8] mt-1 block ${
-                          isOwn ? 'text-right' : 'text-left'
-                        }`}>
+                        <span
+                          className={`text-xs text-[#94A3B8] mt-1 block ${
+                            isOwn ? "text-right" : "text-left"
+                          }`}
+                        >
                           {formatTime(message.created_at)}
                         </span>
                       </div>
@@ -252,7 +275,10 @@ export default function ChatView({ conversationId, currentUser, partnerName, par
       </div>
 
       {/* Input Area */}
-      <form onSubmit={handleSend} className="p-4 border-t border-gray-200 bg-gray-50">
+      <form
+        onSubmit={handleSend}
+        className="p-4 border-t border-gray-200 bg-gray-50"
+      >
         <div className="flex gap-3">
           <input
             type="text"
@@ -277,4 +303,3 @@ export default function ChatView({ conversationId, currentUser, partnerName, par
     </div>
   );
 }
-

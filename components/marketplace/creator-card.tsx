@@ -1,8 +1,16 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Users, TrendingUp, Briefcase, Mail, CheckCircle2, Loader2, Crown } from 'lucide-react';
-import { inviteCreator } from '@/app/(dashboard)/dashboard/marketplace/actions';
+import { useState } from "react";
+import {
+  Users,
+  TrendingUp,
+  Briefcase,
+  Mail,
+  CheckCircle2,
+  Loader2,
+  Crown,
+} from "lucide-react";
+import { inviteCreator } from "@/app/(dashboard)/dashboard/marketplace/actions";
 
 interface CreatorCardProps {
   creator: {
@@ -24,24 +32,32 @@ interface CreatorCardProps {
   saasCompanyId: string | null;
 }
 
-export default function CreatorCard({ creator, hasInvited, saasCompanyId }: CreatorCardProps) {
+export default function CreatorCard({
+  creator,
+  hasInvited,
+  saasCompanyId,
+}: CreatorCardProps) {
   const [isInviting, setIsInviting] = useState(false);
   const [invited, setInvited] = useState(hasInvited);
   const [showInviteModal, setShowInviteModal] = useState(false);
-  const [inviteMessage, setInviteMessage] = useState('');
+  const [inviteMessage, setInviteMessage] = useState("");
 
   const handleInvite = async () => {
     if (!saasCompanyId || !inviteMessage.trim()) return;
 
     setIsInviting(true);
-    const result = await inviteCreator(saasCompanyId, creator.id, inviteMessage);
-    
+    const result = await inviteCreator(
+      saasCompanyId,
+      creator.id,
+      inviteMessage,
+    );
+
     if (result.success) {
       setInvited(true);
       setShowInviteModal(false);
-      setInviteMessage('');
+      setInviteMessage("");
     } else {
-      alert(result.error || 'Error sending invitation');
+      alert(result.error || "Error sending invitation");
     }
     setIsInviting(false);
   };
@@ -51,24 +67,24 @@ export default function CreatorCard({ creator, hasInvited, saasCompanyId }: Crea
       <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:border-gray-300 hover:shadow-md transition-all shadow-sm">
         {/* Avatar & Name */}
         <div className="flex items-start gap-4 mb-4">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-semibold text-lg shrink-0">
-            {creator.profiles.avatar_url ? (
-              <img 
-                src={creator.profiles.avatar_url} 
-                alt={creator.profiles.full_name || 'Creator'} 
-                className="w-full h-full rounded-full object-cover"
-              />
-            ) : (
-              creator.profiles.full_name?.charAt(0).toUpperCase() || 'C'
-            )}
-          </div>
+          {creator.profiles.avatar_url ? (
+            <img
+              src={creator.profiles.avatar_url}
+              alt={creator.profiles.full_name || "Creator"}
+              className="w-14 h-14 rounded-full object-cover shrink-0"
+            />
+          ) : (
+            <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-semibold text-lg shrink-0">
+              {creator.profiles.full_name?.charAt(0).toUpperCase() || "C"}
+            </div>
+          )}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-semibold text-[#111827] text-lg truncate">
-                {creator.profiles.full_name || 'Creator'}
+                {creator.profiles.full_name || "Creator"}
               </h3>
               {creator.is_pro && (
-                <span className="px-2 py-0.5 bg-gradient-to-r from-purple-500 to-blue-500 text-white text-xs font-semibold rounded-full flex items-center gap-1">
+                <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs font-semibold rounded-full flex items-center gap-1 border border-blue-200">
                   <Crown className="w-3 h-3" />
                   Pro
                 </span>
@@ -96,7 +112,7 @@ export default function CreatorCard({ creator, hasInvited, saasCompanyId }: Crea
               <span>Engagement</span>
             </div>
             <div className="text-[#111827] font-semibold">
-              {creator.engagement_rate ? `${creator.engagement_rate}%` : 'N/A'}
+              {creator.engagement_rate ? `${creator.engagement_rate}%` : "N/A"}
             </div>
           </div>
           <div className="bg-gray-50 rounded-lg p-3">
@@ -139,7 +155,7 @@ export default function CreatorCard({ creator, hasInvited, saasCompanyId }: Crea
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-[#64748B] hover:text-[#111827] hover:border-gray-300 transition-all text-sm"
             >
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
               </svg>
               <span>Profile</span>
             </a>
@@ -173,7 +189,8 @@ export default function CreatorCard({ creator, hasInvited, saasCompanyId }: Crea
               Invite {creator.profiles.full_name}
             </h3>
             <p className="text-[#64748B] text-sm mb-6">
-              Send a personalized message to invite this creator to collaborate with you.
+              Send a personalized message to invite this creator to collaborate
+              with you.
             </p>
 
             <div className="mb-6">
@@ -193,7 +210,7 @@ export default function CreatorCard({ creator, hasInvited, saasCompanyId }: Crea
               <button
                 onClick={() => {
                   setShowInviteModal(false);
-                  setInviteMessage('');
+                  setInviteMessage("");
                 }}
                 disabled={isInviting}
                 className="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-[#64748B] hover:text-[#111827] hover:border-gray-300 transition-all disabled:opacity-50"

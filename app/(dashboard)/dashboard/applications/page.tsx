@@ -1,76 +1,79 @@
-import { createClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 import {
   Clock,
   CheckCircle2,
   XCircle,
   Building2,
   ExternalLink,
-} from 'lucide-react';
-import Link from 'next/link';
-import ApplicationActions from '@/components/applications/application-actions';
+} from "lucide-react";
+import Link from "next/link";
+import ApplicationActions from "@/components/applications/application-actions";
 
 const STATUS_CONFIG = {
   pending: {
-    label: 'En attente',
+    label: "En attente",
     icon: Clock,
-    color: 'text-amber-400',
-    bg: 'bg-amber-500/10',
-    border: 'border-amber-500/20',
+    color: "text-amber-400",
+    bg: "bg-amber-500/10",
+    border: "border-amber-500/20",
   },
   accepted: {
-    label: 'Acceptée',
+    label: "Acceptée",
     icon: CheckCircle2,
-    color: 'text-green-400',
-    bg: 'bg-green-500/10',
-    border: 'border-green-500/20',
+    color: "text-green-400",
+    bg: "bg-green-500/10",
+    border: "border-green-500/20",
   },
   rejected: {
-    label: 'Refusée',
+    label: "Refusée",
     icon: XCircle,
-    color: 'text-red-400',
-    bg: 'bg-red-500/10',
-    border: 'border-red-500/20',
+    color: "text-red-400",
+    bg: "bg-red-500/10",
+    border: "border-red-500/20",
   },
 };
 
 export default async function ApplicationsPage() {
   const supabase = await createClient();
-  
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
 
   // Get user profile
   const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, onboarding_completed')
-    .eq('id', user.id)
+    .from("profiles")
+    .select("role, onboarding_completed")
+    .eq("id", user.id)
     .single();
 
   // Only creators should access this page
-  if (profile?.role !== 'influencer') {
-    redirect('/dashboard');
+  if (profile?.role !== "influencer") {
+    redirect("/dashboard");
   }
 
   if (!profile?.onboarding_completed) {
-    redirect('/dashboard/onboarding');
+    redirect("/dashboard/onboarding");
   }
 
   // Get creator profile
   const { data: creatorProfile } = await supabase
-    .from('creator_profiles')
-    .select('id')
-    .eq('profile_id', user.id)
+    .from("creator_profiles")
+    .select("id")
+    .eq("profile_id", user.id)
     .single();
 
   if (!creatorProfile) {
-    redirect('/dashboard/onboarding');
+    redirect("/dashboard/onboarding");
   }
 
   // Get applications with SaaS company details
   const { data: applications } = await supabase
-    .from('applications')
-    .select(`
+    .from("applications")
+    .select(
+      `
       *,
       saas_companies:saas_id (
         id,
@@ -80,15 +83,16 @@ export default async function ApplicationsPage() {
         website,
         commission_rate
       )
-    `)
-    .eq('creator_id', creatorProfile.id)
-    .order('created_at', { ascending: false });
+    `,
+    )
+    .eq("creator_id", creatorProfile.id)
+    .order("created_at", { ascending: false });
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
+    return new Date(dateString).toLocaleDateString("fr-FR", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
     });
   };
 
@@ -96,7 +100,9 @@ export default async function ApplicationsPage() {
     <div>
       {/* Header */}
       <div className="mb-8">
-        <h2 className="text-2xl font-semibold text-[#111827] mb-1">Mes candidatures</h2>
+        <h2 className="text-2xl font-semibold text-[#111827] mb-1">
+          Mes candidatures
+        </h2>
         <p className="text-[#64748B] text-sm">
           Suivez l&apos;état de vos candidatures auprès des entreprises SaaS
         </p>
@@ -125,7 +131,7 @@ export default async function ApplicationsPage() {
                         className="w-14 h-14 rounded-xl object-cover border border-gray-200"
                       />
                     ) : (
-                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-200 flex items-center justify-center">
+                      <div className="w-14 h-14 rounded-xl bg-blue-50 border border-gray-200 flex items-center justify-center">
                         <Building2 className="w-7 h-7 text-[#3B82F6]" />
                       </div>
                     )}
@@ -163,9 +169,7 @@ export default async function ApplicationsPage() {
                     className={`flex items-center gap-2 px-3 py-1.5 rounded-lg ${status.bg} ${status.border} border`}
                   >
                     <StatusIcon className={`w-4 h-4 ${status.color}`} />
-                    <span
-                      className={`text-sm font-medium ${status.color}`}
-                    >
+                    <span className={`text-sm font-medium ${status.color}`}>
                       {status.label}
                     </span>
                   </div>
@@ -187,13 +191,13 @@ export default async function ApplicationsPage() {
                   </span>
 
                   <div className="flex items-center gap-3">
-                    {application.status === 'pending' && (
+                    {application.status === "pending" && (
                       <ApplicationActions
                         applicationId={application.id}
                         initialStatus={application.status}
                       />
                     )}
-                    {application.status === 'accepted' && (
+                    {application.status === "accepted" && (
                       <Link
                         href="/dashboard/collaborations"
                         className="text-sm text-[#3B82F6] hover:text-[#1D4ED8] transition-colors"
@@ -229,4 +233,3 @@ export default async function ApplicationsPage() {
     </div>
   );
 }
-

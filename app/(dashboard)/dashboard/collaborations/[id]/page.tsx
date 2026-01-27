@@ -98,7 +98,7 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
         validated,
         validated_at
       )
-    `
+    `,
     )
     .eq("id", id)
     .single();
@@ -185,7 +185,7 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
                   className="w-16 h-16 rounded-xl object-cover border border-gray-200"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-200 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-xl bg-blue-50 border border-gray-200 flex items-center justify-center">
                   <Building2 className="w-8 h-8 text-[#3B82F6]" />
                 </div>
               )
@@ -196,8 +196,8 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
                 className="w-16 h-16 rounded-xl object-cover border border-gray-200"
               />
             ) : (
-              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border border-gray-200 flex items-center justify-center">
-                <Users className="w-8 h-8 text-purple-500" />
+              <div className="w-16 h-16 rounded-xl bg-blue-50 border border-gray-200 flex items-center justify-center">
+                <Users className="w-8 h-8 text-blue-500" />
               </div>
             )}
 
@@ -339,7 +339,9 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
         {/* Error message if tracking link couldn't be created */}
         {!trackingLink && trackingLinkResult.error && (
           <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
-            <p className="text-sm text-red-400">⚠️ {trackingLinkResult.error}</p>
+            <p className="text-sm text-red-400">
+              ⚠️ {trackingLinkResult.error}
+            </p>
           </div>
         )}
       </div>

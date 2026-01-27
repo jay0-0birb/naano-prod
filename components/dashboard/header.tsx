@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { usePathname } from 'next/navigation';
-import Image from 'next/image';
+import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 interface HeaderProps {
   userName: string;
@@ -9,28 +9,28 @@ interface HeaderProps {
 }
 
 const PAGE_TITLES: Record<string, string> = {
-  '/dashboard': 'Overview',
-  '/dashboard/onboarding': 'Complete your profile',
-  '/dashboard/marketplace': 'Marketplace',
-  '/dashboard/applications': 'My Applications',
-  '/dashboard/candidates': 'Applications Received',
-  '/dashboard/collaborations': 'Collaborations',
-  '/dashboard/messages': 'Messages',
-  '/dashboard/settings': 'Settings',
-  '/dashboard/finances': 'Finances',
-  '/dashboard/academy': 'Academy',
-  '/dashboard/analytics': 'Analytics & Leads',
+  "/dashboard": "Overview",
+  "/dashboard/onboarding": "Complete your profile",
+  "/dashboard/marketplace": "Marketplace",
+  "/dashboard/applications": "My Applications",
+  "/dashboard/candidates": "Applications Received",
+  "/dashboard/collaborations": "Collaborations",
+  "/dashboard/messages": "Messages",
+  "/dashboard/settings": "Settings",
+  "/dashboard/finances": "Finances",
+  "/dashboard/academy": "Academy",
+  "/dashboard/analytics": "Analytics & Leads",
 };
 
 export default function DashboardHeader({ userName, avatarUrl }: HeaderProps) {
   const pathname = usePathname();
-  const title = PAGE_TITLES[pathname] || 'Dashboard';
+  const title = PAGE_TITLES[pathname] || "Dashboard";
 
   // Get initials from name
   const initials = userName
-    .split(' ')
+    .split(" ")
     .map((n) => n[0])
-    .join('')
+    .join("")
     .toUpperCase()
     .slice(0, 2);
 
@@ -48,8 +48,8 @@ export default function DashboardHeader({ userName, avatarUrl }: HeaderProps) {
             className="w-8 h-8 rounded-full border border-gray-200"
           />
         ) : (
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#3B82F6] to-[#8B5CF6] border border-gray-200 flex items-center justify-center">
-            <span className="text-xs font-medium text-white">{initials}</span>
+          <div className="w-8 h-8 rounded-full bg-blue-50 border border-gray-200 flex items-center justify-center">
+            <span className="text-xs font-medium text-blue-600">{initials}</span>
           </div>
         )}
       </div>

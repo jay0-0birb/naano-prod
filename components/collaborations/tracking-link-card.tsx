@@ -1,7 +1,13 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Link as LinkIcon, Copy, Check, ExternalLink, TrendingUp } from 'lucide-react';
+import { useState, useEffect } from "react";
+import {
+  Link as LinkIcon,
+  Copy,
+  Check,
+  ExternalLink,
+  TrendingUp,
+} from "lucide-react";
 
 interface TrackingLinkCardProps {
   hash: string;
@@ -9,17 +15,23 @@ interface TrackingLinkCardProps {
   isCreator: boolean;
 }
 
-export default function TrackingLinkCard({ hash, clickCount, isCreator }: TrackingLinkCardProps) {
+export default function TrackingLinkCard({
+  hash,
+  clickCount,
+  isCreator,
+}: TrackingLinkCardProps) {
   const [copied, setCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
-  
+
   // Wait for client-side mount to avoid hydration mismatch
   useEffect(() => {
     setMounted(true);
   }, []);
-  
+
   // Build the full tracking URL (only show full URL after mount)
-  const trackingUrl = mounted ? `${window.location.origin}/t/${hash}` : `/t/${hash}`;
+  const trackingUrl = mounted
+    ? `${window.location.origin}/t/${hash}`
+    : `/t/${hash}`;
 
   const handleCopy = async () => {
     try {
@@ -27,7 +39,7 @@ export default function TrackingLinkCard({ hash, clickCount, isCreator }: Tracki
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy:', err);
+      console.error("Failed to copy:", err);
     }
   };
 
@@ -41,12 +53,12 @@ export default function TrackingLinkCard({ hash, clickCount, isCreator }: Tracki
           </div>
           <div>
             <h3 className="text-lg font-medium text-white">
-              {isCreator ? 'Ton Lien Tracké' : 'Lien Tracké du Créateur'}
+              {isCreator ? "Ton Lien Tracké" : "Lien Tracké du Créateur"}
             </h3>
             <p className="text-xs text-slate-400">
-              {isCreator 
-                ? 'Utilise ce lien dans tes posts, bio, et commentaires'
-                : 'Lien unique pour suivre le trafic généré'}
+              {isCreator
+                ? "Utilise ce lien dans tes posts, bio, et commentaires"
+                : "Lien unique pour suivre le trafic généré"}
             </p>
           </div>
         </div>
@@ -89,23 +101,42 @@ export default function TrackingLinkCard({ hash, clickCount, isCreator }: Tracki
       {/* Instructions for Creator */}
       {isCreator && (
         <div className="space-y-2">
-          <p className="text-sm text-slate-400 font-medium">💡 Comment l'utiliser :</p>
+          <p className="text-sm text-slate-400 font-medium">
+            💡 Comment l'utiliser :
+          </p>
           <ul className="space-y-1.5 text-xs text-slate-500">
             <li className="flex items-start gap-2">
               <span className="text-blue-400 mt-0.5">•</span>
-              <span>Ajoute-le en <strong className="text-slate-400">premier commentaire</strong> de tes posts LinkedIn</span>
+              <span>
+                Ajoute-le en{" "}
+                <strong className="text-slate-400">premier commentaire</strong>{" "}
+                de tes posts LinkedIn
+              </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-blue-400 mt-0.5">•</span>
-              <span>Mets-le dans ta <strong className="text-slate-400">bio LinkedIn</strong> (section "À propos")</span>
+              <span>
+                Mets-le dans ta{" "}
+                <strong className="text-slate-400">bio LinkedIn</strong>{" "}
+                (section "À propos")
+              </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-blue-400 mt-0.5">•</span>
-              <span>Partage-le en <strong className="text-slate-400">DM</strong> quand on te demande le produit</span>
+              <span>
+                Partage-le en <strong className="text-slate-400">DM</strong>{" "}
+                quand on te demande le produit
+              </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-blue-400 mt-0.5">•</span>
-              <span>Chaque clic est <strong className="text-slate-400">automatiquement tracké</strong> 📊</span>
+              <span>
+                Chaque clic est{" "}
+                <strong className="text-slate-400">
+                  automatiquement tracké
+                </strong>{" "}
+                📊
+              </span>
             </li>
           </ul>
         </div>
@@ -126,4 +157,3 @@ export default function TrackingLinkCard({ hash, clickCount, isCreator }: Tracki
     </div>
   );
 }
-
