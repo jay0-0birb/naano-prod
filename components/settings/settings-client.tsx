@@ -15,7 +15,6 @@ import {
 import StripeConnectButton from "@/components/settings/stripe-connect-button";
 import StripeConnectSaasButton from "@/components/settings/stripe-connect-saas-button";
 import CardRegistrationButton from "@/components/settings/card-registration-button";
-import RevenueTrackingSetup from "@/components/collaborations/revenue-tracking-setup";
 import EditProfileForm from "@/components/settings/edit-profile-form";
 import EditCreatorProfileForm from "@/components/settings/edit-creator-profile-form";
 import EditSaasProfileForm from "@/components/settings/edit-saas-profile-form";
@@ -230,20 +229,22 @@ export default function SettingsClient({
   };
 
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-5xl">
       {/* Header */}
       <div className="mb-8">
-        <h2 className="text-2xl font-normal text-white mb-1">Paramètres</h2>
-        <p className="text-slate-400 text-sm">
+        <h2 className="text-2xl font-semibold text-[#111827] mb-1">
+          Paramètres
+        </h2>
+        <p className="text-[#64748B] text-sm">
           Gérez votre compte et vos préférences
         </p>
       </div>
 
       {/* Stripe Status Messages */}
       {stripeStatus === "success" && (
-        <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center gap-3">
-          <CheckCircle2 className="w-5 h-5 text-green-400" />
-          <p className="text-green-400 text-sm">
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
+          <CheckCircle2 className="w-5 h-5 text-green-600" />
+          <p className="text-green-700 text-sm">
             {isCreator
               ? "Votre compte Stripe a été configuré avec succès !"
               : "Votre compte Stripe a été connecté avec succès ! Le CA sera automatiquement tracké."}
@@ -252,9 +253,9 @@ export default function SettingsClient({
       )}
 
       {stripeError && (
-        <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 text-red-400" />
-          <p className="text-red-400 text-sm">
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-red-600" />
+          <p className="text-red-700 text-sm">
             Erreur lors de la connexion Stripe : {stripeError}
           </p>
         </div>
@@ -262,22 +263,22 @@ export default function SettingsClient({
 
       <div className="space-y-6">
         {/* Profile Section */}
-        <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                <User className="w-5 h-5 text-blue-400" />
+              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                <User className="w-5 h-5 text-[#1D4ED8]" />
               </div>
               <div>
-                <h3 className="font-medium text-white">Profil</h3>
-                <p className="text-xs text-slate-500">
+                <h3 className="font-medium text-[#111827]">Profil</h3>
+                <p className="text-xs text-[#64748B]">
                   Informations personnelles
                 </p>
               </div>
             </div>
             <button
               onClick={() => setShowEditProfile(true)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-slate-300 hover:text-white transition-all text-sm"
+              className="flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-[#111827] transition-all"
             >
               <Edit2 className="w-4 h-4" />
               <span>Modifier</span>
@@ -285,23 +286,23 @@ export default function SettingsClient({
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between py-3 border-b border-white/5">
-              <span className="text-sm text-slate-400">Nom</span>
-              <span className="text-sm text-white">
+            <div className="flex items-center justify-between py-3 border-b border-gray-200">
+              <span className="text-sm text-[#6B7280]">Nom</span>
+              <span className="text-sm text-[#111827]">
                 {profile?.full_name || "-"}
               </span>
             </div>
-            <div className="flex items-center justify-between py-3 border-b border-white/5">
-              <span className="text-sm text-slate-400">Email</span>
-              <span className="text-sm text-white">{profile?.email}</span>
+            <div className="flex items-center justify-between py-3 border-b border-gray-200">
+              <span className="text-sm text-[#6B7280]">Email</span>
+              <span className="text-sm text-[#111827]">{profile?.email}</span>
             </div>
             <div className="flex items-center justify-between py-3">
-              <span className="text-sm text-slate-400">Rôle</span>
+              <span className="text-sm text-[#6B7280]">Rôle</span>
               <span
                 className={`text-sm px-2 py-0.5 rounded-full ${
                   isCreator
-                    ? "bg-purple-500/10 text-purple-400"
-                    : "bg-blue-500/10 text-blue-400"
+                    ? "bg-emerald-50 text-emerald-700"
+                    : "bg-blue-50 text-[#1D4ED8]"
                 }`}
               >
                 {isCreator ? "Créateur" : "Entreprise"}
@@ -312,22 +313,24 @@ export default function SettingsClient({
 
         {/* Creator Profile Section */}
         {isCreator && creatorProfile && (
-          <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                  <User className="w-5 h-5 text-purple-400" />
+                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                  <User className="w-5 h-5 text-[#1D4ED8]" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-white">Profil Créateur</h3>
-                  <p className="text-xs text-slate-500">
+                  <h3 className="font-medium text-[#111827]">
+                    Profil Créateur
+                  </h3>
+                  <p className="text-xs text-[#64748B]">
                     Informations professionnelles
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setShowEditCreatorProfile(true)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-slate-300 hover:text-white transition-all text-sm"
+                className="flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-[#111827] transition-all"
               >
                 <Edit2 className="w-4 h-4" />
                 <span>Modifier</span>
@@ -335,29 +338,31 @@ export default function SettingsClient({
             </div>
 
             <div className="space-y-4">
-              <div className="py-3 border-b border-white/5">
-                <span className="text-sm text-slate-400 block mb-1">Bio</span>
-                <span className="text-sm text-white">
+              <div className="py-3 border-b border-gray-200">
+                <span className="text-sm text-[#6B7280] block mb-1">Bio</span>
+                <span className="text-sm text-[#111827]">
                   {creatorProfile.bio || "-"}
                 </span>
               </div>
-              <div className="flex items-center justify-between py-3 border-b border-white/5">
-                <span className="text-sm text-slate-400">Followers</span>
-                <span className="text-sm text-white">
+              <div className="flex items-center justify-between py-3 border-b border-gray-200">
+                <span className="text-sm text-[#6B7280]">Followers</span>
+                <span className="text-sm text-[#111827]">
                   {creatorProfile.followers_count?.toLocaleString() || "0"}
                 </span>
               </div>
-              <div className="flex items-center justify-between py-3 border-b border-white/5">
-                <span className="text-sm text-slate-400">Engagement</span>
-                <span className="text-sm text-white">
+              <div className="flex items-center justify-between py-3 border-b border-gray-200">
+                <span className="text-sm text-[#6B7280]">Engagement</span>
+                <span className="text-sm text-[#111827]">
                   {creatorProfile.engagement_rate
                     ? `${creatorProfile.engagement_rate}%`
                     : "-"}
                 </span>
               </div>
               <div className="flex items-center justify-between py-3">
-                <span className="text-sm text-slate-400">Tarif indicatif</span>
-                <span className="text-sm text-white">
+                <span className="text-sm text-[#6B7280]">
+                  Tarif indicatif
+                </span>
+                <span className="text-sm text-[#111827]">
                   {creatorProfile.hourly_rate
                     ? `${creatorProfile.hourly_rate}€`
                     : "-"}
@@ -369,22 +374,24 @@ export default function SettingsClient({
 
         {/* SaaS Profile Section */}
         {!isCreator && saasCompany && (
-          <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                  <User className="w-5 h-5 text-blue-400" />
+                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                  <User className="w-5 h-5 text-[#1D4ED8]" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-white">Profil Entreprise</h3>
-                  <p className="text-xs text-slate-500">
+                  <h3 className="font-medium text-[#111827]">
+                    Profil Entreprise
+                  </h3>
+                  <p className="text-xs text-[#64748B]">
                     Informations de l'entreprise
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setShowEditSaasProfile(true)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-slate-300 hover:text-white transition-all text-sm"
+                className="flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-[#111827] transition-all"
               >
                 <Edit2 className="w-4 h-4" />
                 <span>Modifier</span>
@@ -392,40 +399,40 @@ export default function SettingsClient({
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center justify-between py-3 border-b border-white/5">
-                <span className="text-sm text-slate-400">Entreprise</span>
-                <span className="text-sm text-white">
+              <div className="flex items-center justify-between py-3 border-b border-gray-200">
+                <span className="text-sm text-[#6B7280]">Entreprise</span>
+                <span className="text-sm text-[#111827]">
                   {saasCompany.company_name || "-"}
                 </span>
               </div>
-              <div className="py-3 border-b border-white/5">
-                <span className="text-sm text-slate-400 block mb-1">
+              <div className="py-3 border-b border-gray-200">
+                <span className="text-sm text-[#6B7280] block mb-1">
                   Description
                 </span>
-                <span className="text-sm text-white">
+                <span className="text-sm text-[#111827]">
                   {saasCompany.description || "-"}
                 </span>
               </div>
-              <div className="flex items-center justify-between py-3 border-b border-white/5">
-                <span className="text-sm text-slate-400">Site web</span>
+              <div className="flex items-center justify-between py-3 border-b border-gray-200">
+                <span className="text-sm text-[#6B7280]">Site web</span>
                 <a
                   href={saasCompany.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-blue-400 hover:text-blue-300"
+                  className="text-sm text-[#1D4ED8] hover:text-[#1E40AF]"
                 >
                   {saasCompany.website || "-"}
                 </a>
               </div>
-              <div className="flex items-center justify-between py-3 border-b border-white/5">
-                <span className="text-sm text-slate-400">Secteur</span>
-                <span className="text-sm text-white">
+              <div className="flex items-center justify-between py-3 border-b border-gray-200">
+                <span className="text-sm text-[#6B7280]">Secteur</span>
+                <span className="text-sm text-[#111827]">
                   {saasCompany.industry || "-"}
                 </span>
               </div>
               <div className="flex items-center justify-between py-3">
-                <span className="text-sm text-slate-400">Commission</span>
-                <span className="text-sm text-white">
+                <span className="text-sm text-[#6B7280]">Commission</span>
+                <span className="text-sm text-[#111827]">
                   {saasCompany.commission_rate
                     ? `${saasCompany.commission_rate}%`
                     : "-"}
@@ -437,27 +444,27 @@ export default function SettingsClient({
 
         {/* SaaS Brands (multi-brand) */}
         {!isCreator && saasCompany && (
-          <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                  <CreditCard className="w-5 h-5 text-blue-400" />
+                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                  <CreditCard className="w-5 h-5 text-[#1D4ED8]" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-white">Marques & URLs</h3>
-                  <p className="text-xs text-slate-500">
+                  <h3 className="font-medium text-[#111827]">Marques & URLs</h3>
+                  <p className="text-xs text-[#64748B]">
                     Définissez plusieurs marques et pages de destination (Plan Scale)
                   </p>
                 </div>
               </div>
               {loadingBrands && (
-                <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
+                <Loader2 className="w-4 h-4 animate-spin text-[#9CA3AF]" />
               )}
             </div>
 
             <div className="space-y-4">
               {brandError && (
-                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+                <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs">
                   {brandError}
                 </div>
               )}
@@ -467,20 +474,20 @@ export default function SettingsClient({
                   {brands.map((b) => (
                     <div
                       key={b.id}
-                      className="flex items-center justify-between gap-3 p-3 bg-white/[0.02] border border-white/5 rounded-xl"
+                      className="flex items-center justify-between gap-3 p-3 bg-gray-50 border border-gray-200 rounded-xl"
                     >
                       <div>
-                        <p className="text-sm text-white font-medium">
+                        <p className="text-sm text-[#111827] font-medium">
                           {b.name}
                         </p>
-                        <p className="text-[11px] text-slate-400 break-all">
+                        <p className="text-[11px] text-[#6B7280] break-all">
                           {b.main_url}
                         </p>
                       </div>
                       <button
                         onClick={() => handleDeleteBrand(b.id)}
                         disabled={loadingBrands}
-                        className="text-[11px] px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 disabled:opacity-50"
+                        className="text-[11px] px-2 py-1 rounded-lg bg-white hover:bg-gray-50 text-[#111827] border border-gray-200 disabled:opacity-50"
                       >
                         Supprimer
                       </button>
@@ -488,18 +495,18 @@ export default function SettingsClient({
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-[#64748B]">
                   Aucune marque configurée pour le moment. Par défaut, le site web
                   de votre entreprise est utilisé:{" "}
-                  <span className="font-mono break-all">
+                  <span className="font-mono break-all text-[#111827]">
                     {saasCompany.website || "non défini"}
                   </span>
                 </p>
               )}
 
               {/* Add brand form - only meaningful for Scale */}
-              <div className="pt-4 border-t border-white/5 space-y-2">
-                <p className="text-[11px] text-slate-400 mb-1">
+              <div className="pt-4 border-t border-gray-200 space-y-2">
+                <p className="text-[11px] text-[#6B7280] mb-1">
                   Multi-marque est optimisé pour le plan{" "}
                   <span className="font-semibold">Scale</span>.
                 </p>
@@ -509,14 +516,14 @@ export default function SettingsClient({
                     placeholder="Nom de la marque"
                     value={newBrandName}
                     onChange={(e) => setNewBrandName(e.target.value)}
-                    className="bg-[#020408] border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50"
+                    className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/40"
                   />
                   <input
                     type="url"
                     placeholder="URL principale (https://...)"
                     value={newBrandUrl}
                     onChange={(e) => setNewBrandUrl(e.target.value)}
-                    className="bg-[#020408] border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50"
+                    className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/40"
                   />
                 </div>
                 <button
@@ -525,7 +532,7 @@ export default function SettingsClient({
                   disabled={
                     loadingBrands || !newBrandName || !newBrandUrl
                   }
-                  className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-medium disabled:opacity-50"
+                  className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 bg-[#111827] hover:bg-[#020617] text-white rounded-lg text-xs font-medium disabled:opacity-50"
                 >
                   {loadingBrands ? (
                     <>
@@ -543,31 +550,31 @@ export default function SettingsClient({
 
         {/* Stripe Connect Section (Creators only) */}
         {isCreator && (
-          <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
-                <CreditCard className="w-5 h-5 text-green-400" />
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+                <CreditCard className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
-                <h3 className="font-medium text-white">Paiements</h3>
-                <p className="text-xs text-slate-500">
+                <h3 className="font-medium text-[#111827]">Paiements</h3>
+                <p className="text-xs text-[#64748B]">
                   Configuration Stripe Connect
                 </p>
               </div>
             </div>
 
-            <div className="p-4 bg-white/[0.02] rounded-xl border border-white/5 mb-4">
+            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 mb-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-white mb-1">Compte Stripe</p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-sm text-[#111827] mb-1">Compte Stripe</p>
+                  <p className="text-xs text-[#64748B]">
                     {stripeConnected
                       ? "Votre compte est configuré pour recevoir des paiements"
                       : "Connectez votre compte pour recevoir des paiements"}
                   </p>
                 </div>
                 {stripeConnected ? (
-                  <div className="flex items-center gap-2 text-green-400">
+                  <div className="flex items-center gap-2 text-emerald-600">
                     <CheckCircle2 className="w-5 h-5" />
                     <span className="text-sm">Connecté</span>
                   </div>
@@ -577,7 +584,7 @@ export default function SettingsClient({
               </div>
             </div>
 
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-[#64748B]">
               Stripe Connect permet de recevoir les paiements des entreprises
               SaaS directement sur votre compte bancaire.
             </p>
@@ -586,32 +593,34 @@ export default function SettingsClient({
 
         {/* Card Registration Section (SaaS only) - BP1.md: Required for billing */}
         {!isCreator && saasCompany && (
-          <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                <CreditCard className="w-5 h-5 text-blue-400" />
+              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                <CreditCard className="w-5 h-5 text-[#1D4ED8]" />
               </div>
               <div>
-                <h3 className="font-medium text-white">
+                <h3 className="font-medium text-[#111827]">
                   Carte bancaire
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-[#64748B]">
                   Enregistrez une carte pour payer les leads générés
                 </p>
               </div>
             </div>
 
-            <div className="p-4 bg-white/[0.02] rounded-xl border border-white/5 mb-4">
+            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 mb-4">
               {saasCompany.card_on_file ? (
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-white mb-1">Carte enregistrée</p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-sm text-[#111827] mb-1">
+                      Carte enregistrée
+                    </p>
+                    <p className="text-xs text-[#64748B]">
                       {saasCompany.card_brand && saasCompany.card_brand.charAt(0).toUpperCase() + saasCompany.card_brand.slice(1)}
                       {saasCompany.card_last4 && ` •••• ${saasCompany.card_last4}`}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 text-green-400">
+                  <div className="flex items-center gap-2 text-emerald-600">
                     <CheckCircle2 className="w-5 h-5" />
                     <span className="text-sm">Enregistrée</span>
                   </div>
@@ -619,8 +628,10 @@ export default function SettingsClient({
               ) : (
                 <div className="space-y-4">
                   <div>
-                    <p className="text-sm text-white mb-1">Aucune carte enregistrée</p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-sm text-[#111827] mb-1">
+                      Aucune carte enregistrée
+                    </p>
+                    <p className="text-xs text-[#64748B]">
                       Vous devez enregistrer une carte pour utiliser Naano et payer les leads générés par vos créateurs.
                     </p>
                   </div>
@@ -629,92 +640,40 @@ export default function SettingsClient({
               )}
             </div>
 
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-[#64748B]">
               Cette carte sera utilisée pour payer automatiquement les leads lorsque vous atteignez 100€ de dette ou à la fin du mois.
             </p>
           </div>
         )}
 
-        {/* Revenue Tracking Section (SaaS only) - Optional */}
-        {!isCreator && saasCompany && (
-          <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
-                <CreditCard className="w-5 h-5 text-green-400" />
-              </div>
-              <div>
-                <h3 className="font-medium text-white">
-                  Suivi du Chiffre d'Affaires (Optionnel)
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Configurez le tracking des ventes générées par vos
-                  ambassadeurs
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              {/* Option 1: Stripe Connect (Easiest) */}
-              <div className="p-4 bg-gradient-to-br from-[#635BFF]/10 to-[#635BFF]/5 border border-[#635BFF]/20 rounded-xl">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm font-medium text-white">
-                    Option 1 : Stripe Connect
-                  </span>
-                  <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">
-                    Recommandé
-                  </span>
-                </div>
-                <p className="text-xs text-slate-400 mb-4">
-                  Connectez votre Stripe et le CA sera tracké automatiquement.
-                  Aucun code à ajouter !
-                </p>
-                <StripeConnectSaasButton
-                  isConnected={!!saasCompany.stripe_account_id}
-                  connectedAt={saasCompany.stripe_connected_at}
-                />
-              </div>
-
-              {/* Divider */}
-              <div className="flex items-center gap-4">
-                <div className="flex-1 h-px bg-white/10" />
-                <span className="text-xs text-slate-500">ou</span>
-                <div className="flex-1 h-px bg-white/10" />
-              </div>
-
-              {/* Option 2 & 3: Pixel & Webhook */}
-              <RevenueTrackingSetup />
-            </div>
-          </div>
-        )}
-
         {/* Notifications Section */}
-        <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                <Bell className="w-5 h-5 text-amber-400" />
+              <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
+                <Bell className="w-5 h-5 text-amber-500" />
               </div>
               <div>
-                <h3 className="font-medium text-white">
+                <h3 className="font-medium text-[#111827]">
                   Notifications par email
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-[#64748B]">
                   Recevez des emails pour ces événements
                 </p>
               </div>
             </div>
             {savingNotifs && (
-              <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
+              <Loader2 className="w-4 h-4 animate-spin text-[#9CA3AF]" />
             )}
           </div>
 
           <div className="space-y-4">
-            <label className="flex items-center justify-between py-3 border-b border-white/5 cursor-pointer group">
+            <label className="flex items-center justify-between py-3 border-b border-gray-200 cursor-pointer group">
               <div>
-                <span className="text-sm text-white block">
+                <span className="text-sm text-[#111827] block">
                   Nouvelles candidatures
                 </span>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-[#64748B]">
                   {isCreator
                     ? "Quand une entreprise vous contacte"
                     : "Quand un créateur postule"}
@@ -732,12 +691,12 @@ export default function SettingsClient({
                 className="w-5 h-5 accent-blue-500 cursor-pointer"
               />
             </label>
-            <label className="flex items-center justify-between py-3 border-b border-white/5 cursor-pointer group">
+            <label className="flex items-center justify-between py-3 border-b border-gray-200 cursor-pointer group">
               <div>
-                <span className="text-sm text-white block">
+                <span className="text-sm text-[#111827] block">
                   Nouveaux messages
                 </span>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-[#64748B]">
                   Quand vous recevez un message
                 </span>
               </div>
@@ -755,10 +714,10 @@ export default function SettingsClient({
             </label>
             <label className="flex items-center justify-between py-3 cursor-pointer group">
               <div>
-                <span className="text-sm text-white block">
+                <span className="text-sm text-[#111827] block">
                   Mises à jour de collaboration
                 </span>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-[#64748B]">
                   {isCreator
                     ? "Candidatures acceptées, posts validés..."
                     : "Nouveaux posts soumis, etc."}
@@ -780,20 +739,20 @@ export default function SettingsClient({
         </div>
 
         {/* Security Section */}
-        <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
-              <Shield className="w-5 h-5 text-red-400" />
+            <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
+              <Shield className="w-5 h-5 text-red-500" />
             </div>
             <div>
-              <h3 className="font-medium text-white">Sécurité</h3>
-              <p className="text-xs text-slate-500">
+              <h3 className="font-medium text-[#111827]">Sécurité</h3>
+              <p className="text-xs text-[#64748B]">
                 Mot de passe et connexion
               </p>
             </div>
           </div>
 
-          <button className="w-full py-2.5 bg-white/5 hover:bg-white/10 text-slate-300 rounded-xl text-sm font-medium transition-colors">
+          <button className="w-full py-2.5 bg-[#111827] hover:bg-[#020617] text-white rounded-xl text-sm font-medium transition-colors">
             Changer le mot de passe
           </button>
         </div>
