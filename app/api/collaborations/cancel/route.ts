@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     const { collaborationId, action, reason } = body as {
       collaborationId?: string;
       action?: CancelAction;
-      reason?: string;
+      reason?: string; // kept for future but unused in simplified flow
     };
 
     if (!collaborationId || !action) {
@@ -36,145 +36,61 @@ export async function POST(request: Request) {
       );
     }
 
-    // Load collaboration and roles
-    const { data: collab, error: collabError } = await supabase
-      .from('collaborations')
-      .select(
-        `
-        id,
-        status,
-        cancel_requested_by,
-        cancel_reason,
-        applications:application_id (
-          creator_profiles:creator_id (
-            profile_id
-          ),
-          saas_companies:saas_id (
-            profile_id
-          )
-        )
-      `,
-      )
-      .eq('id', collaborationId)
-      .single();
+    // Determine caller role (creator or SaaS) from their profile
+    const [{ data: creatorProfile }, { data: saasCompany }] = await Promise.all([
+      supabase
+        .from('creator_profiles')
+        .select('id')
+        .eq('profile_id', user.id)
+        .maybeSingle(),
+      supabase
+        .from('saas_companies')
+        .select('id')
+        .eq('profile_id', user.id)
+        .maybeSingle(),
+    ]);
 
-    if (collabError || !collab) {
-      return NextResponse.json(
-        { error: 'Collaboration introuvable' },
-        { status: 404 },
-      );
-    }
-
-    const creatorProfileId = (collab.applications as any)?.creator_profiles
-      ?.profile_id;
-    const saasProfileId = (collab.applications as any)?.saas_companies
-      ?.profile_id;
-
-    const isCreator = user.id === creatorProfileId;
-    const isSaas = user.id === saasProfileId;
+    const isCreator = !!creatorProfile;
+    const isSaas = !!saasCompany;
 
     if (!isCreator && !isSaas) {
       return NextResponse.json(
-        { error: 'Non autorisé' },
+        { error: 'Profil créateur/SaaS introuvable' },
         { status: 403 },
       );
     }
 
-    // REQUEST: one side asks to cancel
-    if (action === 'request') {
-      if (collab.status !== 'active') {
-        return NextResponse.json(
-          { error: "Seules les collaborations actives peuvent être arrêtées" },
-          { status: 400 },
-        );
-      }
+    // Simplified behavior: any allowed user (creator or SaaS on this account)
+    // can immediately stop the collaboration. No two-step flow.
+    const { data, error } = await supabase
+      .from('collaborations')
+      .update({
+        status: 'cancelled',
+        completed_at: new Date().toISOString(),
+      })
+      .eq('id', collaborationId)
+      .eq('status', 'active')
+      .select('id')
+      .maybeSingle();
 
-      const requestedBy = isCreator ? 'creator' : 'saas';
-
-      const { error: updateError } = await supabase
-        .from('collaborations')
-        .update({
-          cancel_requested_by: requestedBy,
-          cancel_reason: reason || null,
-        })
-        .eq('id', collaborationId);
-
-      if (updateError) {
-        return NextResponse.json(
-          { error: updateError.message },
-          { status: 500 },
-        );
-      }
-
-      return NextResponse.json({ success: true });
+    if (error) {
+      console.error('[cancel-collaboration] update error', error);
+      const message =
+        error.code === '42501'
+          ? "Non autorisé à modifier cette collaboration"
+          : error.message;
+      const status = error.code === '42501' ? 403 : 500;
+      return NextResponse.json({ error: message }, { status });
     }
 
-    // CONFIRM: other side confirms cancellation
-    if (action === 'confirm') {
-      const requestedBy = collab.cancel_requested_by as 'creator' | 'saas' | null;
-
-      if (!requestedBy) {
-        return NextResponse.json(
-          { error: "Aucune demande d'arrêt en cours" },
-          { status: 400 },
-        );
-      }
-
-      const requesterIsCreator = requestedBy === 'creator';
-      const requesterIsSaas = requestedBy === 'saas';
-
-      // Only the OTHER side can confirm
-      if (
-        (requesterIsCreator && !isSaas) ||
-        (requesterIsSaas && !isCreator)
-      ) {
-        return NextResponse.json(
-          { error: "Seule l'autre partie peut confirmer l'arrêt" },
-          { status: 403 },
-        );
-      }
-
-      const { error: updateError } = await supabase
-        .from('collaborations')
-        .update({
-          status: 'cancelled',
-          completed_at: new Date().toISOString(),
-          cancel_requested_by: null,
-          cancel_reason: null,
-        })
-        .eq('id', collaborationId);
-
-      if (updateError) {
-        return NextResponse.json(
-          { error: updateError.message },
-          { status: 500 },
-        );
-      }
-
-      return NextResponse.json({ success: true });
+    if (!data) {
+      return NextResponse.json(
+        { error: 'Collaboration introuvable ou déjà arrêtée' },
+        { status: 404 },
+      );
     }
 
-    // REJECT: clear cancellation request, keep collab active
-    if (action === 'reject') {
-      const { error: updateError } = await supabase
-        .from('collaborations')
-        .update({
-          cancel_requested_by: null,
-          cancel_reason: null,
-        })
-        .eq('id', collaborationId);
-
-      if (updateError) {
-        return NextResponse.json(
-          { error: updateError.message },
-          { status: 500 },
-        );
-      }
-
-      return NextResponse.json({ success: true });
-    }
-
-    return NextResponse.json({ error: 'Action non gérée' }, { status: 400 });
+    return NextResponse.json({ success: true });
   } catch (err: any) {
     console.error('[cancel-collaboration] error:', err);
     return NextResponse.json(

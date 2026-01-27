@@ -280,64 +280,69 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
         </div>
       </div>
 
-      {/* Collaboration actions (cancel / request) */}
-      <CollaborationActions
-        collaborationId={collaboration.id}
-        status={collaboration.status}
-        isCreator={isCreator}
-        cancelRequestedBy={
-          (collaboration as any)?.cancel_requested_by as
-            | "creator"
-            | "saas"
-            | null
-        }
-        cancelReason={(collaboration as any)?.cancel_reason || null}
-      />
-
-      {/* Brand selector (SaaS only) */}
-      {!isCreator && (
-        <BrandSelector
+      {/* Collaboration tools & metrics */}
+      <div className="mt-8 mb-10 space-y-6">
+        {/* Collaboration actions (cancel / request) */}
+        <CollaborationActions
           collaborationId={collaboration.id}
-          brands={brands}
-          currentBrandId={currentBrandId}
-          defaultUrl={defaultUrl}
-          isScale={isScale}
+          status={collaboration.status}
+          isCreator={isCreator}
+          cancelRequestedBy={
+            (collaboration as any)?.cancel_requested_by as
+              | "creator"
+              | "saas"
+              | null
+          }
+          cancelReason={(collaboration as any)?.cancel_reason || null}
         />
-      )}
 
-      {/* Budget Widget (visible to creators) */}
-      {isCreator && collaboration.status === "active" && app?.saas_companies && (
-        <div className="mb-6">
-          <BudgetWidget
-            walletCredits={app.saas_companies.wallet_credits || 0}
-            renewalDate={app.saas_companies.credit_renewal_date || null}
-            saasCompanyName={app.saas_companies.company_name}
+        {/* Brand selector (SaaS only) */}
+        {!isCreator && (
+          <BrandSelector
+            collaborationId={collaboration.id}
+            brands={brands}
+            currentBrandId={currentBrandId}
+            defaultUrl={defaultUrl}
+            isScale={isScale}
           />
-        </div>
-      )}
+        )}
 
-      {/* Tracking Link Section */}
-      {trackingLink && collaboration.status === "active" && (
-        <div className="mb-6">
-          <TrackingLinkCardV2
-            hash={trackingLink.hash}
-            impressions={impressions}
-            clicks={clicks}
-            revenue={revenue}
-            isCreator={isCreator}
-            trackImpressions={trackingLink.track_impressions ?? true}
-            trackClicks={trackingLink.track_clicks ?? true}
-            trackRevenue={trackingLink.track_revenue ?? true}
-          />
-        </div>
-      )}
+        {/* Budget Widget (visible to creators) */}
+        {isCreator &&
+          collaboration.status === "active" &&
+          app?.saas_companies && (
+            <div>
+              <BudgetWidget
+                walletCredits={app.saas_companies.wallet_credits || 0}
+                renewalDate={app.saas_companies.credit_renewal_date || null}
+                saasCompanyName={app.saas_companies.company_name}
+              />
+            </div>
+          )}
 
-      {/* Error message if tracking link couldn't be created */}
-      {!trackingLink && trackingLinkResult.error && (
-        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6">
-          <p className="text-sm text-red-400">⚠️ {trackingLinkResult.error}</p>
-        </div>
-      )}
+        {/* Tracking Link Section */}
+        {trackingLink && collaboration.status === "active" && (
+          <div>
+            <TrackingLinkCardV2
+              hash={trackingLink.hash}
+              impressions={impressions}
+              clicks={clicks}
+              revenue={revenue}
+              isCreator={isCreator}
+              trackImpressions={trackingLink.track_impressions ?? true}
+              trackClicks={trackingLink.track_clicks ?? true}
+              trackRevenue={trackingLink.track_revenue ?? true}
+            />
+          </div>
+        )}
+
+        {/* Error message if tracking link couldn't be created */}
+        {!trackingLink && trackingLinkResult.error && (
+          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+            <p className="text-sm text-red-400">⚠️ {trackingLinkResult.error}</p>
+          </div>
+        )}
+      </div>
 
       {/* Tabs Content */}
       <CollaborationTabs
@@ -348,7 +353,9 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
         posts={posts}
         collaborationStatus={collaboration.status}
         initialTab="posts"
-        saasWalletCredits={isCreator ? (app?.saas_companies?.wallet_credits || 0) : undefined}
+        saasWalletCredits={
+          isCreator ? app?.saas_companies?.wallet_credits || 0 : undefined
+        }
       />
     </div>
   );

@@ -1,7 +1,14 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { Clock, CheckCircle2, XCircle, Building2, ExternalLink } from 'lucide-react';
+import {
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Building2,
+  ExternalLink,
+} from 'lucide-react';
 import Link from 'next/link';
+import ApplicationActions from '@/components/applications/application-actions';
 
 const STATUS_CONFIG = {
   pending: {
@@ -174,19 +181,27 @@ export default async function ApplicationsPage() {
                 )}
 
                 {/* Footer */}
-                <div className="mt-4 flex items-center justify-between pt-4 border-t border-gray-100">
+                <div className="mt-4 flex items-center justify-between gap-4 pt-4 border-t border-gray-100">
                   <span className="text-xs text-[#94A3B8]">
                     Candidature envoyée le {formatDate(application.created_at)}
                   </span>
 
-                  {application.status === "accepted" && (
-                    <Link
-                      href="/dashboard/collaborations"
-                      className="text-sm text-[#3B82F6] hover:text-[#1D4ED8] transition-colors"
-                    >
-                      Voir la collaboration →
-                    </Link>
-                  )}
+                  <div className="flex items-center gap-3">
+                    {application.status === 'pending' && (
+                      <ApplicationActions
+                        applicationId={application.id}
+                        initialStatus={application.status}
+                      />
+                    )}
+                    {application.status === 'accepted' && (
+                      <Link
+                        href="/dashboard/collaborations"
+                        className="text-sm text-[#3B82F6] hover:text-[#1D4ED8] transition-colors"
+                      >
+                        Voir la collaboration →
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </div>
             );
