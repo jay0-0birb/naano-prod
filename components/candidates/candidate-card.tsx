@@ -202,7 +202,7 @@ export default function CandidateCard({ application, readonly = false }: Candida
           <button
             onClick={() => handleAction('accepted')}
             disabled={isLoading !== null}
-            className="flex-1 py-2.5 bg-[#111827] hover:bg-[#020617] text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="flex-1 py-2.5 bg-[#0F172A] hover:bg-[#020617] text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isLoading === 'accept' ? (
               <Loader2 className="w-4 h-4 animate-spin" />

@@ -242,7 +242,7 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
             {conversation && (
               <Link
                 href={`/dashboard/messages?conversation=${conversation.id}`}
-                className="flex items-center gap-2 px-3 py-1.5 bg-[#111827] hover:bg-[#020617] text-white rounded-lg text-sm transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 bg-[#0F172A] hover:bg-[#020617] text-white rounded-lg text-sm transition-colors"
               >
                 <MessageSquare className="w-4 h-4" />
                 Messages

@@ -106,7 +106,7 @@ export const HeroSection = ({
               {/* Get started button - Position A (dark) */}
               <Link
                 href="/register"
-                className="h-14 px-10 bg-[#111827] text-white rounded-full font-bold text-[15px] hover:bg-[#1F2937] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_0_rgba(17,24,39,0.25)] transition-all duration-200 flex items-center justify-center"
+                className="h-14 px-10 bg-[#0F172A] text-white rounded-full font-bold text-[15px] hover:bg-[#1E293B] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_0_rgba(17,24,39,0.25)] transition-all duration-200 flex items-center justify-center"
                 style={{ fontFamily: "Satoshi, sans-serif" }}
               >
                 Get started

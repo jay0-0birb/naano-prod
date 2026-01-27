@@ -542,7 +542,7 @@ export default function FinancesPageClient({
                 <button
                   onClick={handleStripeConnect}
                   disabled={stripeLoading}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#111827] hover:bg-[#020617] text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
+                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#0F172A] hover:bg-[#020617] text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
                 >
                   {stripeLoading ? (
                     <>
@@ -706,7 +706,7 @@ export default function FinancesPageClient({
                 <button
                   onClick={handleRequestPayout}
                   disabled={payoutLoading}
-                  className="w-full py-3 bg-[#111827] hover:bg-[#020617] text-white rounded-xl font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-[#0F172A] hover:bg-[#020617] text-white rounded-xl font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {payoutLoading ? (
                     <>
@@ -989,7 +989,7 @@ export default function FinancesPageClient({
                     <button
                       onClick={handleManageSubscription}
                       disabled={stripeLoading}
-                      className="px-4 py-2 bg-[#111827] hover:bg-[#020617] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                      className="px-4 py-2 bg-[#0F172A] hover:bg-[#020617] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
                     >
                       {stripeLoading ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -1154,7 +1154,7 @@ export default function FinancesPageClient({
                           className={`w-full py-2.5 rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 ${
                             tierKey === "scale"
                               ? "bg-amber-500 hover:bg-amber-400 text-black"
-                              : "bg-[#111827] hover:bg-[#020617] text-white"
+                              : "bg-[#0F172A] hover:bg-[#020617] text-white"
                           }`}
                         >
                           {isLoading ? (
@@ -1242,7 +1242,7 @@ export default function FinancesPageClient({
                           alert("Erreur: " + error.message);
                         }
                       }}
-                      className="w-full px-4 py-2 bg-[#111827] hover:bg-[#020617] text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                      className="w-full px-4 py-2 bg-[#0F172A] hover:bg-[#020617] text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
                     >
                       <CreditCard className="w-4 h-4" />
                       Payer maintenant

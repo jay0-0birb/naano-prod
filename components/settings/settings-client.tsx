@@ -580,7 +580,7 @@ export default function SettingsClient({
                   disabled={
                     loadingBrands || !newBrandName || !newBrandUrl
                   }
-                  className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 bg-[#111827] hover:bg-[#020617] text-white rounded-lg text-xs font-medium disabled:opacity-50"
+                  className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 bg-[#0F172A] hover:bg-[#020617] text-white rounded-lg text-xs font-medium disabled:opacity-50"
                 >
                   {loadingBrands ? (
                     <>
@@ -822,7 +822,7 @@ export default function SettingsClient({
             </div>
           </div>
 
-          <button className="w-full py-2.5 bg-[#111827] hover:bg-[#020617] text-white rounded-xl text-sm font-medium transition-colors">
+          <button className="w-full py-2.5 bg-[#0F172A] hover:bg-[#020617] text-white rounded-xl text-sm font-medium transition-colors">
             Changer le mot de passe
           </button>
         </div>

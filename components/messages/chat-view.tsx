@@ -230,7 +230,7 @@ export default function ChatView({ conversationId, currentUser, partnerName, par
                       <div className={`max-w-[70%] ${isOwn ? 'items-end' : 'items-start'}`}>
                         <div className={`px-4 py-2.5 rounded-2xl ${
                           isOwn 
-                            ? 'bg-[#111827] text-white rounded-tr-sm' 
+                            ? 'bg-[#0F172A] text-white rounded-tr-sm' 
                             : 'bg-gray-100 text-[#111827] rounded-tl-sm'
                         }`}>
                           <p className="text-sm">{message.content}</p>
@@ -264,7 +264,7 @@ export default function ChatView({ conversationId, currentUser, partnerName, par
           <button
             type="submit"
             disabled={!newMessage.trim() || isSending}
-            className="px-4 py-3 bg-[#111827] hover:bg-[#020617] text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-3 bg-[#0F172A] hover:bg-[#020617] text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSending ? (
               <Loader2 className="w-5 h-5 animate-spin" />

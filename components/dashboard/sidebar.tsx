@@ -42,7 +42,7 @@ export default function DashboardSidebar({
   const linkClass = (path: string) =>
     `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm ${
       isActive(path)
-        ? "bg-[#111827] text-white font-medium"
+        ? "bg-[#0F172A] text-white font-medium"
         : "text-[#64748B] hover:bg-gray-50 hover:text-[#111827]"
     }`;
 

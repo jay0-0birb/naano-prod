@@ -74,7 +74,7 @@ export default function CardValidator({
           </p>
           <button
             onClick={() => router.push('/dashboard/settings?card_required=true')}
-        className="w-full bg-[#111827] hover:bg-[#020617] text-white font-medium py-3 px-6 rounded-xl transition-colors"
+        className="w-full bg-[#0F172A] hover:bg-[#020617] text-white font-medium py-3 px-6 rounded-xl transition-colors"
           >
             Ajouter une carte
           </button>

@@ -131,7 +131,7 @@ export default function TrackingLinkCardV2({
               </div>
               <button
                 onClick={handleCopy}
-                className="flex items-center gap-2 px-4 py-2 bg-[#111827] hover:bg-[#020617] text-white rounded-lg text-sm font-medium transition-colors whitespace-nowrap"
+                className="flex items-center gap-2 px-4 py-2 bg-[#0F172A] hover:bg-[#020617] text-white rounded-lg text-sm font-medium transition-colors whitespace-nowrap"
               >
                 {copied ? (
                   <>

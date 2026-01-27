@@ -28,7 +28,7 @@ export const FooterSection = () => {
               />
               <Link
                 href="/register"
-                className="h-[52px] px-8 bg-[#111827] text-white rounded-full text-[15px] font-semibold flex-shrink-0 hover:bg-[#1F2937] hover:-translate-y-[1px] hover:shadow-lg transition-all duration-200 flex items-center justify-center"
+                className="h-[52px] px-8 bg-[#0F172A] text-white rounded-full text-[15px] font-semibold flex-shrink-0 hover:bg-[#1E293B] hover:-translate-y-[1px] hover:shadow-lg transition-all duration-200 flex items-center justify-center"
               >
                 Get Started
               </Link>
