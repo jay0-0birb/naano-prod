@@ -126,17 +126,6 @@ export default function DashboardSidebar({
           <span>Collaborations</span>
         </Link>
 
-        {/* SaaS-only: Global Analytics & Leads */}
-        {!isCreator && (
-          <Link
-            href="/dashboard/analytics"
-            className={linkClass("/dashboard/analytics")}
-          >
-            <BarChart3 className="w-5 h-5" />
-            <span>Analytics & Leads</span>
-          </Link>
-        )}
-
         <Link
           href="/dashboard/messages"
           className={`${linkClass("/dashboard/messages")} justify-between`}
@@ -155,6 +144,17 @@ export default function DashboardSidebar({
           <Wallet className="w-5 h-5" />
           <span>Finances</span>
         </Link>
+
+        {/* SaaS-only: Global Analytics & Leads */}
+        {!isCreator && (
+          <Link
+            href="/dashboard/analytics"
+            className={linkClass("/dashboard/analytics")}
+          >
+            <BarChart3 className="w-5 h-5" />
+            <span>Analytics & Leads</span>
+          </Link>
+        )}
 
         {/* Creator-only: Academy */}
         {isCreator && (
