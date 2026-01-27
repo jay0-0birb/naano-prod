@@ -179,40 +179,7 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
     return { error: "Non authentifié" };
   }
 
-  // Check if tracking link already exists
-  const { data: existingLink } = await supabase
-    .from("tracked_links")
-    .select(
-      "id, hash, destination_url, track_impressions, track_clicks, track_revenue"
-    )
-    .eq("collaboration_id", collaborationId)
-    .single();
-
-  if (existingLink) {
-    // Get metrics
-    const { data: metrics } = await supabase
-      .rpc("get_collaboration_metrics", {
-        collab_id: collaborationId,
-      })
-      .single();
-
-    // Type assertion for RPC return type
-    const metricsData = metrics as {
-      impressions?: number;
-      clicks?: number;
-      revenue?: number;
-    } | null;
-
-    return { 
-      success: true, 
-      link: existingLink,
-      impressions: metricsData?.impressions || 0,
-      clicks: metricsData?.clicks || 0,
-      revenue: metricsData?.revenue || 0,
-    };
-  }
-
-  // Get collaboration details to create tracking link
+  // Get collaboration details (used to determine destination URL and validate access)
   const { data: collaboration } = await supabase
     .from("collaborations")
     .select(
@@ -230,12 +197,13 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
         ),
         saas_companies:saas_id (
           id,
+          profile_id,
           company_name,
           website,
           subscription_tier
         )
       ),
-      saas_brands:brand_id (
+      saas_brands (
         id,
         name,
         main_url
@@ -264,6 +232,8 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
   // Get creator and SaaS IDs
   const creatorId = (collaboration.applications as any)?.creator_id;
   const saasId = (collaboration.applications as any)?.saas_id;
+  const saasProfileId = (collaboration.applications as any)?.saas_companies
+    ?.profile_id;
 
   if (!creatorId || !saasId) {
     return { error: "Données de collaboration invalides" };
@@ -283,6 +253,107 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
   const saasName =
     (collaboration.applications as any)?.saas_companies?.company_name || "saas";
 
+  // Check if a tracking link already exists for this collaboration
+  const { data: existingLink } = await supabase
+    .from("tracked_links")
+    .select(
+      "id, hash, destination_url, track_impressions, track_clicks, track_revenue"
+    )
+    .eq("collaboration_id", collaborationId)
+    .single();
+
+  const isSaasOwner = saasProfileId === user.id;
+
+  if (existingLink) {
+    let finalLink = existingLink;
+
+    // If the brand / website changed AND the current user is the SaaS owner,
+    // we want a NEW tracked link (new hash) so creators get a different URL
+    // per promoted product. Creators loading the page should *not* reset
+    // the destination back to the default if they can't see the brand.
+    if (isSaasOwner && existingLink.destination_url !== destinationUrl) {
+      // Create URL-friendly slugs (lowercase, no spaces, no special chars)
+      const creatorSlug = creatorName
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "") // Remove accents
+        .replace(/[^a-z0-9]+/g, "-") // Replace non-alphanumeric with dashes
+        .replace(/^-|-$/g, "") // Remove leading/trailing dashes
+        .substring(0, 20); // Max 20 chars
+
+      const saasSlug = saasName
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "")
+        .substring(0, 20);
+
+      let hash = "";
+      let isUnique = false;
+      let attempts = 0;
+      const maxAttempts = 10;
+
+      while (!isUnique && attempts < maxAttempts) {
+        const randomPart = Math.random().toString(36).substring(2, 8).toLowerCase();
+        hash = `${creatorSlug}-${saasSlug}-${randomPart}`;
+
+        const { data: existing } = await supabase
+          .from("tracked_links")
+          .select("id")
+          .eq("hash", hash)
+          .single();
+
+        if (!existing) {
+          isUnique = true;
+        }
+        attempts++;
+      }
+
+      if (!isUnique) {
+        return { error: "Impossible de générer un lien unique" };
+      }
+
+      const { data: updated, error: updateError } = await supabase
+        .from("tracked_links")
+        .update({
+          destination_url: destinationUrl,
+          hash,
+        })
+        .eq("id", existingLink.id)
+        .select(
+          "id, hash, destination_url, track_impressions, track_clicks, track_revenue"
+        )
+        .single();
+
+      if (!updateError && updated) {
+        finalLink = updated;
+      }
+    }
+
+    // Get metrics for this collaboration
+    const { data: metrics } = await supabase
+      .rpc("get_collaboration_metrics", {
+        collab_id: collaborationId,
+      })
+      .single();
+
+    const metricsData = metrics as {
+      impressions?: number;
+      clicks?: number;
+      revenue?: number;
+    } | null;
+
+    return {
+      success: true,
+      link: finalLink,
+      impressions: metricsData?.impressions || 0,
+      clicks: metricsData?.clicks || 0,
+      revenue: metricsData?.revenue || 0,
+    };
+  }
+
+  // No link yet: create a new one with a unique hash
   // Create URL-friendly slugs (lowercase, no spaces, no special chars)
   const creatorSlug = creatorName
     .toLowerCase()
