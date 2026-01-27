@@ -66,10 +66,10 @@ export default function ProUpgradeBanner({
   // If Pro (paid)
   if (isPro && proStatusSource === "PAYMENT" && hasProSubscription) {
     return (
-      <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-2xl p-6">
+      <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-purple-100 rounded-lg">
-            <Crown className="w-6 h-6 text-purple-600" />
+          <div className="p-2 bg-blue-50 rounded-lg">
+            <Crown className="w-6 h-6 text-[#1D4ED8]" />
           </div>
           <div>
             <h3 className="text-lg font-semibold text-slate-900">
@@ -91,10 +91,10 @@ export default function ProUpgradeBanner({
   // If Pro (promo/free)
   if (isPro && proStatusSource === "PROMO") {
     return (
-      <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-2xl p-6">
+      <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-purple-100 rounded-lg">
-            <Sparkles className="w-6 h-6 text-purple-600" />
+          <div className="p-2 bg-blue-50 rounded-lg">
+            <Sparkles className="w-6 h-6 text-[#1D4ED8]" />
           </div>
           <div>
             <h3 className="text-lg font-semibold text-slate-900">
@@ -115,11 +115,11 @@ export default function ProUpgradeBanner({
 
   // If Standard - show upgrade CTA
   return (
-    <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-2xl p-6">
+    <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-purple-100 rounded-lg">
-            <Crown className="w-6 h-6 text-purple-600" />
+          <div className="p-2 bg-blue-50 rounded-lg">
+            <Crown className="w-6 h-6 text-[#1D4ED8]" />
           </div>
           <div>
             <h3 className="text-lg font-semibold text-slate-900">
@@ -149,8 +149,8 @@ export default function ProUpgradeBanner({
           onClick={() => setSelectedPlan("monthly")}
           className={`flex-1 px-4 py-2 rounded-lg border transition-colors ${
             selectedPlan === "monthly"
-              ? "bg-purple-600 text-white border-purple-600"
-              : "bg-white text-slate-700 border-slate-300"
+              ? "bg-[#111827] text-white border-[#111827]"
+              : "bg-white text-[#111827] border-gray-200 hover:bg-gray-50"
           }`}
         >
           <div className="text-sm font-semibold">Mensuel</div>
@@ -160,8 +160,8 @@ export default function ProUpgradeBanner({
           onClick={() => setSelectedPlan("annual")}
           className={`flex-1 px-4 py-2 rounded-lg border transition-colors ${
             selectedPlan === "annual"
-              ? "bg-purple-600 text-white border-purple-600"
-              : "bg-white text-slate-700 border-slate-300"
+              ? "bg-[#111827] text-white border-[#111827]"
+              : "bg-white text-[#111827] border-gray-200 hover:bg-gray-50"
           }`}
         >
           <div className="text-sm font-semibold">Annuel</div>
@@ -172,7 +172,7 @@ export default function ProUpgradeBanner({
       <button
         onClick={() => handleUpgrade(selectedPlan)}
         disabled={loading}
-        className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors"
+        className="w-full bg-[#111827] hover:bg-[#020617] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors"
       >
         {loading ? (
           <>
