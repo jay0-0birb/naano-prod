@@ -24,8 +24,16 @@ const plusJakarta = Plus_Jakarta_Sans({
 // Satoshi is loaded via CSS @import in globals.css
 
 export const metadata: Metadata = {
-  title: "Konex - Marketplace Micro-Influence B2B",
+  title: "naano",
   description: "Passez à l'échelle avec les nano-influenceurs B2B.",
+  icons: {
+    icon: [
+      { url: "/logo.svg?v=2", type: "image/svg+xml" },
+      // Fallbacks for different browsers
+      { url: "/logo.svg?v=2", rel: "shortcut icon", type: "image/svg+xml" },
+    ],
+    apple: "/logo.svg?v=2",
+  },
 };
 
 export default function RootLayout({
@@ -36,11 +44,21 @@ export default function RootLayout({
   return (
     <html lang="fr" className={plusJakarta.variable}>
       <head>
-        <link href="https://api.fontshare.com/v2/css?f[]=satoshi@700&display=swap" rel="stylesheet" />
+        <link
+          href="https://api.fontshare.com/v2/css?f[]=satoshi@700&display=swap"
+          rel="stylesheet"
+        />
+        <link
+          rel="icon"
+          href="/logo.svg?v=2"
+          type="image/svg+xml"
+        />
       </head>
       <body
         className={`${inter.variable} ${didot.variable} ${plusJakarta.variable} antialiased bg-[#020408] text-slate-300 font-sans selection:bg-blue-500/30 selection:text-blue-200`}
-        style={{ '--font-satoshi': 'Satoshi, sans-serif' } as React.CSSProperties}
+        style={
+          { "--font-satoshi": "Satoshi, sans-serif" } as React.CSSProperties
+        }
       >
         <div className="bg-noise"></div>
         {children}

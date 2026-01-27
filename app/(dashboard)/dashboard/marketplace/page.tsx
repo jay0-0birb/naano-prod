@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { Search, Filter, Building2, Users as UsersIcon } from 'lucide-react';
 import SaasCard from '@/components/marketplace/saas-card';
 import CreatorCard from '@/components/marketplace/creator-card';
+import { SAAS_TIERS, SaasTier } from '@/lib/subscription-config';
 
 export default async function MarketplacePage() {
   const supabase = await createClient();
@@ -38,6 +39,7 @@ export default async function MarketplacePage() {
         *,
         wallet_credits,
         credit_renewal_date,
+        subscription_tier,
         profiles:profile_id (
           id,
           full_name,
@@ -48,7 +50,41 @@ export default async function MarketplacePage() {
   ]);
 
   const creatorProfile = creatorProfileResult.data;
-  const companies = companiesResult.data;
+  const companies = companiesResult.data || [];
+
+  // Compute active creators per SaaS to know if they're at capacity
+  let activeCreatorsBySaas: Record<string, number> = {};
+  if (companies.length > 0) {
+    const saasIds = companies.map((c: any) => c.id);
+
+    const { data: collabs } = await supabase
+      .from('collaborations')
+      .select(
+        `
+        application_id,
+        status,
+        applications!inner(
+          creator_id,
+          saas_id
+        )
+      `
+      )
+      .in('applications.saas_id', saasIds)
+      .eq('status', 'active');
+
+    if (collabs) {
+      const map: Record<string, Set<string>> = {};
+      for (const row of collabs as any[]) {
+        const app = row.applications;
+        if (!app?.saas_id || !app?.creator_id) continue;
+        if (!map[app.saas_id]) map[app.saas_id] = new Set();
+        map[app.saas_id].add(app.creator_id);
+      }
+      activeCreatorsBySaas = Object.fromEntries(
+        Object.entries(map).map(([saasId, set]) => [saasId, (set as Set<string>).size]),
+      );
+    }
+  }
 
   // Get applications if creator profile exists
   let appliedSaasIds: string[] = [];
@@ -92,14 +128,26 @@ export default async function MarketplacePage() {
       {/* Companies Grid */}
       {companies && companies.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {companies.map((company) => (
-            <SaasCard
-              key={company.id}
-              company={company as any}
-              hasApplied={appliedSaasIds.includes(company.id)}
-              creatorProfileId={creatorProfile?.id || null}
-            />
-          ))}
+          {companies.map((company: any) => {
+            const tier = (company.subscription_tier || 'starter') as SaasTier;
+            const tierConfig = SAAS_TIERS[tier];
+            const activeCreators = activeCreatorsBySaas[company.id] || 0;
+            const maxCreators = tierConfig.maxCreators;
+            const isFull =
+              maxCreators !== Infinity && activeCreators >= maxCreators;
+
+            return (
+              <SaasCard
+                key={company.id}
+                company={company as any}
+                hasApplied={appliedSaasIds.includes(company.id)}
+                creatorProfileId={creatorProfile?.id || null}
+                activeCreators={activeCreators}
+                maxCreators={maxCreators}
+                isFull={isFull}
+              />
+            );
+          })}
         </div>
       ) : (
         <div className="text-center py-16 bg-white border border-gray-200 rounded-2xl shadow-sm">

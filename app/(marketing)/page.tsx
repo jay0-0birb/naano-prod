@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/marketing/navbar";
 import { HeroSection } from "@/components/marketing/hero-section";
 import { DemoSection } from "@/components/marketing/demo-section";
@@ -10,9 +10,24 @@ import { CreatorShowcaseSection } from "@/components/marketing/creator-showcase-
 import { PricingSection } from "@/components/marketing/pricing-section";
 import { FAQSection } from "@/components/marketing/faq-section";
 import { FooterSection } from "@/components/marketing/footer-section";
+import { ChevronUp } from "lucide-react";
 
 export default function LandingPage() {
   const [showContent, setShowContent] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <main
@@ -30,6 +45,16 @@ export default function LandingPage() {
       <PricingSection />
       <FAQSection />
       <FooterSection />
+
+      {showScrollTop && (
+        <button
+          type="button"
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-[900] w-10 h-10 flex items-center justify-center rounded-lg bg-white/90 shadow-md hover:bg-gray-100 transition-colors"
+        >
+          <ChevronUp className="w-5 h-5 text-[#4B5563]" />
+        </button>
+      )}
     </main>
   );
 }

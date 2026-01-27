@@ -21,6 +21,7 @@ import EditCreatorProfileForm from "@/components/settings/edit-creator-profile-f
 import EditSaasProfileForm from "@/components/settings/edit-saas-profile-form";
 import { createClient } from "@/lib/supabase/client";
 import { refreshStripeStatus } from "@/lib/stripe-status";
+import { createClient as createSupabaseClient } from "@/lib/supabase/client";
 
 interface NotificationPreferences {
   email_new_applications: boolean;
@@ -61,6 +62,15 @@ export default function SettingsClient({
       initialNotificationPrefs?.email_collaboration_updates ?? true,
   });
   const [savingNotifs, setSavingNotifs] = useState(false);
+
+  // SaaS brands (multi-brand for Scale)
+  const [brands, setBrands] = useState<
+    { id: string; name: string; main_url: string }[]
+  >([]);
+  const [loadingBrands, setLoadingBrands] = useState(false);
+  const [brandError, setBrandError] = useState<string | null>(null);
+  const [newBrandName, setNewBrandName] = useState("");
+  const [newBrandUrl, setNewBrandUrl] = useState("");
 
   const isCreator = profile?.role === "influencer";
 
@@ -139,6 +149,85 @@ export default function SettingsClient({
       }
     }
   }, [stripeStatus, isCreator, stripeConnected, saasCompany, router]);
+
+  // Load brands for SaaS (server-side props didn't include them)
+  useEffect(() => {
+    const fetchBrands = async () => {
+      if (isCreator || !saasCompany?.id) return;
+      setLoadingBrands(true);
+      setBrandError(null);
+      try {
+        const supabase = createSupabaseClient();
+        const { data, error } = await supabase
+          .from("saas_brands")
+          .select("id, name, main_url")
+          .eq("saas_id", saasCompany.id)
+          .order("created_at", { ascending: true });
+        if (error) {
+          setBrandError(error.message);
+        } else {
+          setBrands((data || []) as any);
+        }
+      } catch (err: any) {
+        setBrandError(err.message || "Erreur lors du chargement des marques");
+      } finally {
+        setLoadingBrands(false);
+      }
+    };
+
+    fetchBrands();
+  }, [isCreator, saasCompany]);
+
+  const handleAddBrand = async () => {
+    if (!saasCompany?.id || !newBrandName || !newBrandUrl) return;
+    setLoadingBrands(true);
+    setBrandError(null);
+    try {
+      const supabase = createSupabaseClient();
+      const { data, error } = await supabase
+        .from("saas_brands")
+        .insert({
+          saas_id: saasCompany.id,
+          name: newBrandName,
+          main_url: newBrandUrl,
+        })
+        .select("id, name, main_url")
+        .single();
+      if (error) {
+        setBrandError(error.message);
+      } else if (data) {
+        setBrands((prev) => [...prev, data as any]);
+        setNewBrandName("");
+        setNewBrandUrl("");
+      }
+    } catch (err: any) {
+      setBrandError(err.message || "Erreur lors de la création de la marque");
+    } finally {
+      setLoadingBrands(false);
+    }
+  };
+
+  const handleDeleteBrand = async (id: string) => {
+    if (!window.confirm("Supprimer cette marque ?")) return;
+    setLoadingBrands(true);
+    setBrandError(null);
+    try {
+      const supabase = createSupabaseClient();
+      const { error } = await supabase
+        .from("saas_brands")
+        .delete()
+        .eq("id", id);
+      if (error) {
+        setBrandError(error.message);
+      } else {
+        setBrands((prev) => prev.filter((b) => b.id !== id));
+      }
+    } catch (err: any) {
+      setBrandError(err.message || "Erreur lors de la suppression de la marque");
+    } finally {
+      setLoadingBrands(false);
+    }
+  };
 
   return (
     <div className="max-w-3xl">
@@ -341,6 +430,112 @@ export default function SettingsClient({
                     ? `${saasCompany.commission_rate}%`
                     : "-"}
                 </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* SaaS Brands (multi-brand) */}
+        {!isCreator && saasCompany && (
+          <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                  <CreditCard className="w-5 h-5 text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-white">Marques & URLs</h3>
+                  <p className="text-xs text-slate-500">
+                    Définissez plusieurs marques et pages de destination (Plan Scale)
+                  </p>
+                </div>
+              </div>
+              {loadingBrands && (
+                <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
+              )}
+            </div>
+
+            <div className="space-y-4">
+              {brandError && (
+                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+                  {brandError}
+                </div>
+              )}
+
+              {brands.length > 0 ? (
+                <div className="space-y-2">
+                  {brands.map((b) => (
+                    <div
+                      key={b.id}
+                      className="flex items-center justify-between gap-3 p-3 bg-white/[0.02] border border-white/5 rounded-xl"
+                    >
+                      <div>
+                        <p className="text-sm text-white font-medium">
+                          {b.name}
+                        </p>
+                        <p className="text-[11px] text-slate-400 break-all">
+                          {b.main_url}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => handleDeleteBrand(b.id)}
+                        disabled={loadingBrands}
+                        className="text-[11px] px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 disabled:opacity-50"
+                      >
+                        Supprimer
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-slate-500">
+                  Aucune marque configurée pour le moment. Par défaut, le site web
+                  de votre entreprise est utilisé:{" "}
+                  <span className="font-mono break-all">
+                    {saasCompany.website || "non défini"}
+                  </span>
+                </p>
+              )}
+
+              {/* Add brand form - only meaningful for Scale */}
+              <div className="pt-4 border-t border-white/5 space-y-2">
+                <p className="text-[11px] text-slate-400 mb-1">
+                  Multi-marque est optimisé pour le plan{" "}
+                  <span className="font-semibold">Scale</span>.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <input
+                    type="text"
+                    placeholder="Nom de la marque"
+                    value={newBrandName}
+                    onChange={(e) => setNewBrandName(e.target.value)}
+                    className="bg-[#020408] border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50"
+                  />
+                  <input
+                    type="url"
+                    placeholder="URL principale (https://...)"
+                    value={newBrandUrl}
+                    onChange={(e) => setNewBrandUrl(e.target.value)}
+                    className="bg-[#020408] border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddBrand}
+                  disabled={
+                    loadingBrands || !newBrandName || !newBrandUrl
+                  }
+                  className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-medium disabled:opacity-50"
+                >
+                  {loadingBrands ? (
+                    <>
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      Enregistrement...
+                    </>
+                  ) : (
+                    'Ajouter une marque'
+                  )}
+                </button>
               </div>
             </div>
           </div>

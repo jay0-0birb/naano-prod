@@ -12,6 +12,8 @@ import TrackingLinkCardV2 from "@/components/collaborations/tracking-link-card-v
 import { getOrCreateTrackingLink } from "./actions-v2";
 import CollaborationTabs from "./collaboration-tabs";
 import BudgetWidget from "@/components/collaborations/budget-widget";
+import BrandSelector from "@/components/collaborations/brand-selector";
+import CollaborationActions from "@/components/collaborations/collaboration-actions";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -145,6 +147,21 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
     ? (trackingLinkResult.revenue as number)
     : 0;
 
+  // Multi-brand: fetch all brands for this SaaS (SaaS view only)
+  let brands: { id: string; name: string; main_url: string }[] = [];
+  if (!isCreator && app?.saas_companies?.id) {
+    const { data: brandRows } = await supabase
+      .from("saas_brands")
+      .select("id, name, main_url")
+      .eq("saas_id", app.saas_companies.id);
+    brands = (brandRows || []) as any;
+  }
+
+  const subscriptionTier = app?.saas_companies?.subscription_tier || "starter";
+  const isScale = subscriptionTier === "scale";
+  const currentBrandId = (collaboration as any)?.brand_id || null;
+  const defaultUrl = app?.saas_companies?.website || null;
+
   return (
     <div className="max-w-4xl">
       {/* Back Link */}
@@ -262,6 +279,31 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
           </div>
         </div>
       </div>
+
+      {/* Collaboration actions (cancel / request) */}
+      <CollaborationActions
+        collaborationId={collaboration.id}
+        status={collaboration.status}
+        isCreator={isCreator}
+        cancelRequestedBy={
+          (collaboration as any)?.cancel_requested_by as
+            | "creator"
+            | "saas"
+            | null
+        }
+        cancelReason={(collaboration as any)?.cancel_reason || null}
+      />
+
+      {/* Brand selector (SaaS only) */}
+      {!isCreator && (
+        <BrandSelector
+          collaborationId={collaboration.id}
+          brands={brands}
+          currentBrandId={currentBrandId}
+          defaultUrl={defaultUrl}
+          isScale={isScale}
+        />
+      )}
 
       {/* Budget Widget (visible to creators) */}
       {isCreator && collaboration.status === "active" && app?.saas_companies && (

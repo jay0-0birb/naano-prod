@@ -218,6 +218,7 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
     .select(
       `
       id,
+      brand_id,
       applications:application_id (
         creator_id,
         saas_id,
@@ -230,8 +231,14 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
         saas_companies:saas_id (
           id,
           company_name,
-          website
+          website,
+          subscription_tier
         )
+      ),
+      saas_brands:brand_id (
+        id,
+        name,
+        main_url
       )
     `
     )
@@ -242,10 +249,16 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
     return { error: "Collaboration non trouvée" };
   }
 
+  // Determine destination URL:
+  // - If collaboration has a brand with main_url, use it
+  // - Otherwise fall back to SaaS website
   const saasWebsite = (collaboration.applications as any)?.saas_companies
     ?.website;
-  if (!saasWebsite) {
-    return { error: "Le SaaS n'a pas de site web configuré" };
+  const brand = (collaboration as any)?.saas_brands;
+  const destinationUrl = brand?.main_url || saasWebsite;
+
+  if (!destinationUrl) {
+    return { error: "Le SaaS n'a pas de lien de destination configuré" };
   }
 
   // Get creator and SaaS IDs
@@ -276,8 +289,8 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "") // Remove accents
     .replace(/[^a-z0-9]+/g, "-") // Replace non-alphanumeric with dashes
-    .replace(/^-|-$/g, "") // Remove leading/trailing dashes
-    .substring(0, 20); // Max 20 chars
+      .replace(/^-|-$/g, "") // Remove leading/trailing dashes
+      .substring(0, 20); // Max 20 chars
 
   const saasSlug = saasName
     .toLowerCase()
@@ -285,7 +298,7 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "")
-    .substring(0, 20);
+      .substring(0, 20);
 
   // Generate unique hash with format: creator-name-saas-name-randomhash
   let hash = "";
@@ -317,15 +330,15 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
 
   // Create tracking link - ALWAYS track everything
   const { data: newLink, error } = await supabase
-    .from("tracked_links")
-    .insert({
-      collaboration_id: collaborationId,
-      hash: hash,
-      destination_url: saasWebsite,
-      track_impressions: true, // Always ON
-      track_clicks: true, // Always ON
-      track_revenue: true, // Always ON
-    })
+      .from("tracked_links")
+      .insert({
+        collaboration_id: collaborationId,
+        hash: hash,
+        destination_url: destinationUrl,
+        track_impressions: true, // Always ON
+        track_clicks: true, // Always ON
+        track_revenue: true, // Always ON
+      })
     .select(
       "id, hash, destination_url, track_impressions, track_clicks, track_revenue"
     )

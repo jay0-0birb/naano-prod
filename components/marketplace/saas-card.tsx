@@ -10,15 +10,36 @@ interface SaasCardProps {
   company: SaasCompanyWithProfile;
   hasApplied: boolean;
   creatorProfileId: string | null;
+  activeCreators?: number;
+  maxCreators?: number;
+  isFull?: boolean;
 }
 
-export default function SaasCard({ company, hasApplied, creatorProfileId }: SaasCardProps) {
+export default function SaasCard({
+  company,
+  hasApplied,
+  creatorProfileId,
+  activeCreators,
+  maxCreators,
+  isFull,
+}: SaasCardProps) {
   const [showModal, setShowModal] = useState(false);
   const [applied, setApplied] = useState(hasApplied);
 
+  const creatorsLabel =
+    typeof activeCreators === 'number' && typeof maxCreators === 'number'
+      ? `${activeCreators}/${maxCreators === Infinity ? '∞' : maxCreators}`
+      : null;
+
   return (
     <>
-      <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:border-gray-300 hover:shadow-md transition-all shadow-sm">
+      <div
+        className={`bg-white border border-gray-200 rounded-2xl p-6 transition-all shadow-sm ${
+          isFull
+            ? 'opacity-60 border-dashed cursor-not-allowed'
+            : 'hover:border-gray-300 hover:shadow-md'
+        }`}
+      >
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-4">
@@ -57,6 +78,14 @@ export default function SaasCard({ company, hasApplied, creatorProfileId }: Saas
           {company.description || 'No description available.'}
         </p>
 
+        {/* Creator capacity */}
+        {creatorsLabel && (
+          <div className="flex items-center justify-between text-xs text-[#64748B] mb-3">
+            <span>Active creators</span>
+            <span className="font-medium text-[#111827]">{creatorsLabel}</span>
+          </div>
+        )}
+
         {/* Budget Widget (for creators) */}
         {(company.wallet_credits !== undefined || company.credit_renewal_date) && (
           <div className="mb-4">
@@ -94,6 +123,13 @@ export default function SaasCard({ company, hasApplied, creatorProfileId }: Saas
               className="w-full py-2.5 bg-gray-50 text-[#94A3B8] rounded-xl text-sm font-medium cursor-not-allowed border border-gray-200"
             >
               Application sent
+            </button>
+          ) : isFull ? (
+            <button
+              disabled
+              className="w-full py-2.5 bg-gray-50 text-[#9CA3AF] rounded-xl text-xs font-medium cursor-not-allowed border border-gray-200"
+            >
+              Not taking more creators
             </button>
           ) : (
             <button 
