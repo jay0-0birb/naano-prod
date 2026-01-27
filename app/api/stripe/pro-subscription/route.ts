@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     // Get creator profile
     const { data: creatorProfile } = await supabase
       .from('creator_profiles')
-      .select('id, profile_id')
+      .select('id, profile_id, stripe_subscription_id_pro')
       .eq('profile_id', user.id)
       .single();
 

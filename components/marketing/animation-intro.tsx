@@ -15,51 +15,15 @@ export function AnimationIntro({ onComplete, isTransitioning }: AnimationIntroPr
 
   useEffect(() => {
     console.log('AnimationIntro mounted');
-    let app: any = null;
-
-    const loadSpline = async () => {
-      if (!canvasRef.current) {
-        console.error('Canvas ref not available');
-        return;
-      }
-
-      try {
-        console.log('Loading Spline runtime...');
-        // Dynamically import the Spline runtime
-        const { Application } = await import('@splinetool/runtime');
-        
-        console.log('Creating Spline application...');
-        app = new Application(canvasRef.current);
-        
-        console.log('Loading scene from /scene.splinecode...');
-        await app.load('/scene.splinecode');
-        
-        console.log('Spline scene loaded successfully!');
-        setLoading(false);
-
-        // Listen for mouse down events on the Spline scene (button clicks)
-        app.addEventListener('mouseDown', (e: any) => {
-          console.log('Spline scene clicked:', e);
-          // Check if a button was clicked (you can customize this based on your scene)
-          if (e.target && e.target.name) {
-            console.log('Clicked object:', e.target.name);
-            // Transition to landing page when any interactive element is clicked
-            onComplete();
-          }
-        });
-      } catch (error) {
-        console.error('Error loading Spline scene:', error);
-        setError(error instanceof Error ? error.message : 'Failed to load animation');
-        setLoading(false);
-      }
-    };
-
-    loadSpline();
+    
+    // Skip Spline loading - not used
+    // Just set loading to false after a short delay
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 500);
 
     return () => {
-      if (app) {
-        app.dispose();
-      }
+      clearTimeout(timer);
     };
   }, [onComplete]);
 

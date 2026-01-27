@@ -78,93 +78,6 @@ export function ParticleFace({
       
       console.log(`Sampled ${allPoints.length} pixels from rendered SVG`);
 
-        // Get the SVG viewBox and any transforms
-        const svg = svgDoc.querySelector("svg");
-        const viewBox = svg?.getAttribute("viewBox")?.split(" ") || [
-          "0",
-          "0",
-          "500",
-          "500",
-        ];
-        const svgWidth = parseFloat(viewBox[2]) || 500;
-        const svgHeight = parseFloat(viewBox[3]) || 500;
-
-        // Check for transform groups
-        const groups = svgDoc.querySelectorAll("g");
-        let groupTransform = "";
-        groups.forEach((g) => {
-          const transform = g.getAttribute("transform");
-          if (transform) {
-            groupTransform = transform;
-          }
-        });
-
-        // Extract points from each path
-        paths.forEach((path) => {
-          const pathData = path.getAttribute("d");
-          if (!pathData) return;
-
-          // Create a temporary SVG element to get path length and sample points
-          const tempSvg = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "svg",
-          );
-          tempSvg.setAttribute("viewBox", viewBox.join(" "));
-          tempSvg.setAttribute("width", "500");
-          tempSvg.setAttribute("height", "500");
-          tempSvg.style.position = "absolute";
-          tempSvg.style.visibility = "hidden";
-          tempSvg.style.top = "-9999px";
-          document.body.appendChild(tempSvg);
-
-          // Create group with transform if it exists
-          let tempGroup: SVGGElement | null = null;
-          if (groupTransform) {
-            tempGroup = document.createElementNS(
-              "http://www.w3.org/2000/svg",
-              "g",
-            );
-            tempGroup.setAttribute("transform", groupTransform);
-            tempSvg.appendChild(tempGroup);
-          }
-
-          const tempPath = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "path",
-          );
-          tempPath.setAttribute("d", pathData);
-
-          if (tempGroup) {
-            tempGroup.appendChild(tempPath);
-          } else {
-            tempSvg.appendChild(tempPath);
-          }
-
-          // Sample points along the path (getPointAtLength handles transforms automatically)
-          const pathLength = tempPath.getTotalLength();
-          // Sample VERY densely to capture exact shape - sample every 1 unit
-          const numPoints = Math.max(200, Math.floor(pathLength / 1));
-
-          for (let i = 0; i <= numPoints; i++) {
-            const point = tempPath.getPointAtLength(
-              (i / numPoints) * pathLength,
-            );
-            // Use the raw X,Y coordinates from getPointAtLength
-            // These are already in the rendered coordinate space (transform applied)
-            const normalizedX = point.x / svgWidth;
-            const normalizedY = point.y / svgHeight;
-            allPoints.push([normalizedX, normalizedY]);
-          }
-
-          console.log(
-            `Path ${paths.length > 1 ? Array.from(paths).indexOf(path) + 1 : ""}: Extracted ${numPoints + 1} points (length: ${Math.round(pathLength)})`,
-          );
-
-          document.body.removeChild(tempSvg);
-        });
-
-        console.log(`Extracted ${allPoints.length} points from SVG paths`);
-
         if (allPoints.length === 0) {
           console.error("No points extracted from SVG!");
           return;
@@ -228,10 +141,13 @@ export function ParticleFace({
         } else {
           console.error("No valid points extracted after normalization");
         }
-      })
-      .catch((error) => {
-        console.error("Error loading SVG:", error);
-      });
+    };
+
+    img.onerror = (error) => {
+      console.error("Error loading SVG:", error);
+    };
+
+    img.src = '/logo.svg';
   }, []);
 
   useEffect(() => {

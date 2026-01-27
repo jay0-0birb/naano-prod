@@ -125,6 +125,12 @@ export async function POST(request: Request) {
           quantity: creditVolume, // Use quantity to track volume
         },
       ],
+      // Enable Stripe Tax for automatic VAT/tax calculation
+      automatic_tax: {
+        enabled: true,
+      },
+      // Collect billing address for tax calculation
+      billing_address_collection: 'auto',
       subscription_data: {
         metadata: {
           credit_volume: creditVolume.toString(),

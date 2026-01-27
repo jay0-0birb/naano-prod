@@ -45,7 +45,7 @@ export async function POST() {
       .limit(1);
 
     const hasUnpaidInvoices =
-      (unpaidInvoices?.length || 0) > 0 &&
+      unpaidInvoices && unpaidInvoices.length > 0 &&
       Number(unpaidInvoices[0]?.amount_ht || 0) > 0;
 
     if (currentDebt > 0 || hasUnpaidInvoices) {

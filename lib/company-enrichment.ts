@@ -119,8 +119,8 @@ function parseIPinfoResponse(data: any): CompanyEnrichmentResult {
   let networkType: CompanyEnrichmentResult['networkType'] = 'unknown';
   let companyName: string | null = null;
   let companyDomain: string | null = null;
-  let industry: string | null = null;
-  let companySize: string | null = null;
+  const industry: string | null = null;
+  const companySize: string | null = null;
   
   // Extract ASN and organization
   const org = data.org || '';

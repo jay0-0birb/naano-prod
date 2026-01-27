@@ -82,7 +82,7 @@ export default function ProUpgradeBanner({
         </div>
         <div className="flex items-center gap-2 text-sm text-slate-700">
           <Check className="w-4 h-4 text-green-600" />
-          <span>Vous gagnez <strong>1,10€</strong> par clic qualifié (au lieu de 0,90€)</span>
+          <span>Vous gagnez <strong>1,10€</strong> par clic qualifié (au lieu de 0,90€) <span className="text-xs text-slate-500">(HT)</span></span>
         </div>
       </div>
     );
@@ -107,7 +107,7 @@ export default function ProUpgradeBanner({
         </div>
         <div className="flex items-center gap-2 text-sm text-slate-700">
           <Check className="w-4 h-4 text-green-600" />
-          <span>Vous gagnez <strong>1,10€</strong> par clic qualifié</span>
+          <span>Vous gagnez <strong>1,10€</strong> par clic qualifié <span className="text-xs text-slate-500">(HT)</span></span>
         </div>
       </div>
     );
@@ -135,7 +135,7 @@ export default function ProUpgradeBanner({
       <div className="mb-4 space-y-2">
         <div className="flex items-center gap-2 text-sm text-slate-700">
           <Check className="w-4 h-4 text-green-600" />
-          <span><strong>1,10€</strong> par clic (au lieu de 0,90€)</span>
+          <span><strong>1,10€</strong> par clic (au lieu de 0,90€) <span className="text-xs text-slate-500">(HT)</span></span>
         </div>
         <div className="flex items-center gap-2 text-sm text-slate-700">
           <Check className="w-4 h-4 text-green-600" />
@@ -154,7 +154,7 @@ export default function ProUpgradeBanner({
           }`}
         >
           <div className="text-sm font-semibold">Mensuel</div>
-          <div className="text-xs opacity-90">25€/mois</div>
+          <div className="text-xs opacity-90">25€/mois HT</div>
         </button>
         <button
           onClick={() => setSelectedPlan("annual")}
@@ -165,7 +165,7 @@ export default function ProUpgradeBanner({
           }`}
         >
           <div className="text-sm font-semibold">Annuel</div>
-          <div className="text-xs opacity-90">250€/an</div>
+          <div className="text-xs opacity-90">250€/an HT</div>
         </button>
       </div>
 

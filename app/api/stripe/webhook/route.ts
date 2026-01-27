@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@supabase/supabase-js";
+import type { Stripe } from "stripe";
 
 // Use service role for webhook (no user context)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -328,7 +329,7 @@ export async function POST(request: Request) {
             .update({
               stripe_subscription_id_credits: subscription.id,
               monthly_credit_subscription: creditVolume,
-              credit_renewal_date: new Date(subscription.current_period_end * 1000).toISOString().split('T')[0],
+              credit_renewal_date: new Date((subscription as any).current_period_end * 1000).toISOString().split('T')[0],
             })
             .eq("id", saasId);
 
@@ -341,7 +342,7 @@ export async function POST(request: Request) {
         const plan = subscription.metadata.plan;
 
         if (creatorId) {
-          const expirationDate = new Date(subscription.current_period_end * 1000);
+          const expirationDate = new Date((subscription as any).current_period_end * 1000);
 
           await supabaseAdmin
             .from("creator_profiles")
@@ -432,7 +433,7 @@ export async function POST(request: Request) {
         if (creatorId) {
           // Keep Pro until end of billing period (as per decision)
           // Set expiration to end of current period
-          const expirationDate = new Date(subscription.current_period_end * 1000);
+          const expirationDate = new Date((subscription as any).current_period_end * 1000);
 
           await supabaseAdmin
             .from("creator_profiles")
@@ -476,7 +477,7 @@ export async function POST(request: Request) {
 
       if (subscriptionId) {
         // Get subscription to check type
-        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId) as Stripe.Subscription;
         
         // Handle credit subscription renewal
         if (subscription.metadata?.type === "credit_subscription") {
@@ -495,7 +496,7 @@ export async function POST(request: Request) {
               console.error('Error adding credits on renewal:', creditError);
             } else {
               // Update renewal date
-              const renewalDate = new Date(subscription.current_period_end * 1000);
+              const renewalDate = new Date((subscription as any).current_period_end * 1000);
               await supabaseAdmin
                 .from("saas_companies")
                 .update({
@@ -515,7 +516,7 @@ export async function POST(request: Request) {
           const plan = subscription.metadata.plan;
 
           if (creatorId) {
-            const expirationDate = new Date(subscription.current_period_end * 1000);
+            const expirationDate = new Date((subscription as any).current_period_end * 1000);
 
             await supabaseAdmin
               .from("creator_profiles")

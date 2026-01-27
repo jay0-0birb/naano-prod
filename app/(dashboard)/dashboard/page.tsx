@@ -32,7 +32,7 @@ export default async function DashboardPage() {
   const isCreator = profile?.role === "influencer";
 
   // Fetch basic stats
-  let stats = { collaborations: 0, pending: 0 };
+  const stats = { collaborations: 0, pending: 0 };
 
   if (isCreator) {
     const { data: creatorProfile } = await supabase

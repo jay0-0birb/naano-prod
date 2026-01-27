@@ -23,7 +23,7 @@ export const SAAS_TIERS = {
     id: 'growth',
     name: 'Growth',
     price: 59,
-    priceLabel: '59€/mois',
+    priceLabel: '59€/mois HT',
     maxCreators: 10,
     platformFee: 3, // 3% of revenue
     features: [
@@ -38,7 +38,7 @@ export const SAAS_TIERS = {
     id: 'scale',
     name: 'Scale',
     price: 89,
-    priceLabel: '89€/mois',
+    priceLabel: '89€/mois HT',
     maxCreators: Infinity,
     platformFee: 1, // 1% of revenue
     features: [

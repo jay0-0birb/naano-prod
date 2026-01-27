@@ -141,12 +141,15 @@ export default function CreditSubscriptionSlider({
         <div className="border-t border-slate-200 pt-2 mt-2">
           <div className="flex justify-between items-center">
             <span className="text-base font-semibold text-slate-900">
-              Total mensuel
+              Total mensuel (HT)
             </span>
             <span className="text-xl font-bold text-blue-600">
               {totalPrice.toFixed(2)}€
             </span>
           </div>
+          <p className="text-xs text-slate-500 mt-1 text-right">
+            TVA calculée automatiquement à la commande
+          </p>
         </div>
       </div>
 

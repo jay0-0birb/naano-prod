@@ -648,7 +648,7 @@ export default function FinancesPageClient({
                   </p>
                   <p className="text-xs text-[#64748B] mt-0.5">
                     Share your tracked link. Each validated lead earns you
-                    {creatorData.isPro ? " 1,10€" : " 0,90€"}.
+                    {creatorData.isPro ? " 1,10€" : " 0,90€"} (HT).
                   </p>
                 </div>
               </div>
@@ -1026,6 +1026,7 @@ export default function FinancesPageClient({
                         : saasData.tier === "scale"
                           ? "1,60€"
                           : "N/A"}
+                    <span className="text-sm font-normal text-[#64748B] ml-1">HT</span>
                   </p>
                   <p className="text-xs text-[#64748B] mt-1">
                     Selon votre plan

@@ -131,7 +131,7 @@ export const PricingSection = () => {
                         ${plan.price}
                       </span>
                       <span className="text-sm text-[#94A3B8] ml-1">
-                        /month
+                        /month <span className="text-xs">HT</span>
                       </span>
                     </div>
 
