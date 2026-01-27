@@ -122,7 +122,8 @@ async function billSingleSaaS(saasId: string) {
   }
 
   // Charge SaaS via Stripe
-  const amountInCents = Math.round(invoice.amount_ht * 100);
+  // We charge the total TTC (amount including TVA when applicable).
+  const amountInCents = Math.round(invoice.amount_ttc * 100);
 
   try {
     // Get payment methods attached to this customer

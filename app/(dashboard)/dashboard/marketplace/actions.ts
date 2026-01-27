@@ -22,12 +22,20 @@ export async function applyToSaas({ creatorId, saasId, message }: ApplyToSaasPar
   // Verify that the creator profile belongs to the current user
   const { data: creatorProfile } = await supabase
     .from('creator_profiles')
-    .select('profile_id')
+    .select('profile_id, stripe_account_id, stripe_onboarding_completed')
     .eq('id', creatorId)
     .single()
 
   if (!creatorProfile || creatorProfile.profile_id !== user.id) {
     return { error: 'Non autorisé' }
+  }
+
+  // Require Stripe to be connected before applying
+  if (!creatorProfile.stripe_onboarding_completed || !creatorProfile.stripe_account_id) {
+    return {
+      error:
+        "Vous devez connecter votre compte Stripe dans les paramètres avant de pouvoir postuler à des collaborations.",
+    }
   }
 
   // Get SaaS company and its plan
@@ -146,12 +154,21 @@ export async function inviteCreator(saasId: string, creatorId: string, message: 
   // Verify that the SaaS company belongs to the current user
   const { data: saasCompany } = await supabase
     .from('saas_companies')
-    .select('id, profile_id, subscription_tier')
+    .select('id, profile_id, subscription_tier, card_on_file')
     .eq('id', saasId)
     .single()
 
   if (!saasCompany || saasCompany.profile_id !== user.id) {
     return { error: 'Non autorisé', success: false }
+  }
+
+  // Require a card on file before inviting creators
+  if (!saasCompany.card_on_file) {
+    return {
+      error:
+        "Vous devez enregistrer une carte bancaire dans vos paramètres avant d'inviter des créateurs.",
+      success: false,
+    }
   }
 
   const tier = (saasCompany.subscription_tier || 'starter') as SaasTier

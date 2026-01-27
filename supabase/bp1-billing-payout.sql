@@ -73,6 +73,9 @@ DECLARE
   v_tva_amount DECIMAL(10, 2);
   v_total_ttc DECIMAL(10, 2);
   v_lead RECORD;
+  -- SaaS VAT context
+  v_country TEXT;
+  v_tva_rate_tech DECIMAL(5, 2) := 0.00;
 BEGIN
   -- Get debt and pending leads
   SELECT current_debt INTO v_debt
@@ -109,8 +112,22 @@ BEGIN
   v_stripe_fees := public.calculate_stripe_fees(v_total_ht);
   v_naano_received := v_total_ht - v_stripe_fees;
   
-  -- Calculate TVA (20% on tech fee only)
-  v_tva_amount := ROUND((v_tech_total * 0.20)::numeric, 2);
+  -- Determine TVA rate for tech fee based on SaaS country
+  -- Simple rule:
+  -- - France (FR): 20% TVA on tech fee
+  -- - All other countries: 0% TVA (reverse charge / outside scope handled in accounting notes)
+  SELECT country INTO v_country
+  FROM public.saas_companies
+  WHERE id = p_saas_id;
+
+  IF v_country = 'FR' THEN
+    v_tva_rate_tech := 20.00;
+  ELSE
+    v_tva_rate_tech := 0.00;
+  END IF;
+
+  -- Calculate TVA on tech fee only
+  v_tva_amount := ROUND((v_tech_total * (v_tva_rate_tech / 100))::numeric, 2);
   v_total_ttc := v_total_ht + v_tva_amount;
   
   -- Generate invoice number
@@ -181,7 +198,7 @@ BEGIN
     'tech_fee',
     'Frais Tech Naano - ' || v_leads_count || ' leads',
     v_tech_total,
-    20.00,
+    v_tva_rate_tech,
     v_tva_amount,
     v_tech_total + v_tva_amount,
     v_leads_count,

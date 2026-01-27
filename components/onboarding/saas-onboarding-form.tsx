@@ -19,12 +19,36 @@ const INDUSTRIES = [
   'Other',
 ];
 
+const COUNTRIES = [
+  { code: 'FR', name: 'France' },
+  { code: 'DE', name: 'Germany' },
+  { code: 'ES', name: 'Spain' },
+  { code: 'IT', name: 'Italy' },
+  { code: 'BE', name: 'Belgium' },
+  { code: 'NL', name: 'Netherlands' },
+  { code: 'GB', name: 'United Kingdom' },
+  { code: 'US', name: 'United States' },
+  { code: 'CA', name: 'Canada' },
+  { code: 'CH', name: 'Switzerland' },
+  { code: 'AT', name: 'Austria' },
+  { code: 'PT', name: 'Portugal' },
+  { code: 'SE', name: 'Sweden' },
+  { code: 'DK', name: 'Denmark' },
+  { code: 'NO', name: 'Norway' },
+  { code: 'FI', name: 'Finland' },
+  { code: 'IE', name: 'Ireland' },
+  { code: 'PL', name: 'Poland' },
+  { code: 'CZ', name: 'Czech Republic' },
+  { code: 'OTHER', name: 'Other' },
+];
+
 export default function SaasOnboardingForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mediaPackUrl, setMediaPackUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isVatRegistered, setIsVatRegistered] = useState(false);
 
   async function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -169,6 +193,61 @@ export default function SaasOnboardingForm() {
             placeholder="Minimum duration, exclusivity, specific expectations..."
             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all resize-none"
           />
+        </div>
+
+        {/* Country */}
+        <div>
+          <label className="block text-sm font-medium text-[#475569] mb-2">
+            Country *
+          </label>
+          <select
+            name="country"
+            required
+            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
+          >
+            <option value="">Select your country</option>
+            {COUNTRIES.map((country) => (
+              <option key={country.code} value={country.code}>
+                {country.name}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-[#64748B] mt-1.5">
+            Used for billing and tax purposes
+          </p>
+        </div>
+
+        {/* VAT Registration */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              name="isVatRegistered"
+              id="isVatRegistered"
+              checked={isVatRegistered}
+              onChange={(e) => setIsVatRegistered(e.target.checked)}
+              className="w-4 h-4 text-[#3B82F6] border-gray-300 rounded focus:ring-[#3B82F6]"
+            />
+            <label htmlFor="isVatRegistered" className="text-sm text-[#475569]">
+              I am VAT registered (EU B2B)
+            </label>
+          </div>
+          {isVatRegistered && (
+            <div>
+            <label className="block text-sm font-medium text-[#475569] mb-2">
+              VAT Number
+            </label>
+            <input
+              name="vatNumber"
+              type="text"
+              placeholder="FR12345678901"
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
+            />
+              <p className="text-xs text-[#64748B] mt-1.5">
+                Your EU VAT number (optional but recommended for B2B)
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Media Pack Upload */}

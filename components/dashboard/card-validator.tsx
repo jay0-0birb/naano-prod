@@ -19,8 +19,8 @@ export default function CardValidator({
   isSaaS, 
   onboardingCompleted 
 }: CardValidatorProps) {
-  // TEMP: disable hard card gating while we debug SaaS navigation
-  const ENABLE_CARD_GUARD = false;
+  // Card guard is enabled: SaaS must have a card on file
+  const ENABLE_CARD_GUARD = true;
 
   const router = useRouter();
   const pathname = usePathname();
@@ -74,7 +74,7 @@ export default function CardValidator({
           </p>
           <button
             onClick={() => router.push('/dashboard/settings?card_required=true')}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-6 rounded-xl transition-colors"
+        className="w-full bg-[#111827] hover:bg-[#020617] text-white font-medium py-3 px-6 rounded-xl transition-colors"
           >
             Ajouter une carte
           </button>

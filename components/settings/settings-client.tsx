@@ -228,6 +228,54 @@ export default function SettingsClient({
     }
   };
 
+  const handleCreatorDisconnectStripe = async () => {
+    try {
+      const response = await fetch("/api/stripe/disconnect-creator", {
+        method: "POST",
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(
+          data.error ||
+            "Impossible de déconnecter Stripe. Merci de réessayer ou de contacter Naano.",
+        );
+        return;
+      }
+
+      router.refresh();
+    } catch (error: any) {
+      alert(
+        error?.message ||
+          "Impossible de déconnecter Stripe. Merci de réessayer ou de contacter Naano.",
+      );
+    }
+  };
+
+  const handleSaasRemoveCard = async () => {
+    try {
+      const response = await fetch("/api/stripe/remove-card", {
+        method: "POST",
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(
+          data.error ||
+            "Impossible de supprimer la carte. Merci de réessayer ou de contacter Naano.",
+        );
+        return;
+      }
+
+      router.refresh();
+    } catch (error: any) {
+      alert(
+        error?.message ||
+          "Impossible de supprimer la carte. Merci de réessayer ou de contacter Naano.",
+      );
+    }
+  };
+
   return (
     <div className="max-w-5xl">
       {/* Header */}
@@ -574,9 +622,18 @@ export default function SettingsClient({
                   </p>
                 </div>
                 {stripeConnected ? (
-                  <div className="flex items-center gap-2 text-emerald-600">
-                    <CheckCircle2 className="w-5 h-5" />
-                    <span className="text-sm">Connecté</span>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 text-emerald-600">
+                      <CheckCircle2 className="w-5 h-5" />
+                      <span className="text-sm">Connecté</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleCreatorDisconnectStripe}
+                      className="px-3 py-1.5 text-xs rounded-lg border border-gray-300 text-[#6B7280] hover:text-[#111827] hover:bg-gray-50"
+                    >
+                      Déconnecter
+                    </button>
                   </div>
                 ) : (
                   <StripeConnectButton />
@@ -610,19 +667,31 @@ export default function SettingsClient({
 
             <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 mb-4">
               {saasCompany.card_on_file ? (
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="text-sm text-[#111827] mb-1">
                       Carte enregistrée
                     </p>
                     <p className="text-xs text-[#64748B]">
-                      {saasCompany.card_brand && saasCompany.card_brand.charAt(0).toUpperCase() + saasCompany.card_brand.slice(1)}
-                      {saasCompany.card_last4 && ` •••• ${saasCompany.card_last4}`}
+                      {saasCompany.card_brand &&
+                        saasCompany.card_brand.charAt(0).toUpperCase() +
+                          saasCompany.card_brand.slice(1)}
+                      {saasCompany.card_last4 &&
+                        ` •••• ${saasCompany.card_last4}`}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 text-emerald-600">
-                    <CheckCircle2 className="w-5 h-5" />
-                    <span className="text-sm">Enregistrée</span>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 text-emerald-600">
+                      <CheckCircle2 className="w-5 h-5" />
+                      <span className="text-sm">Enregistrée</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleSaasRemoveCard}
+                      className="px-3 py-1.5 text-xs rounded-lg border border-gray-300 text-[#6B7280] hover:text-[#111827] hover:bg-gray-50"
+                    >
+                      Supprimer la carte
+                    </button>
                   </div>
                 </div>
               ) : (
@@ -632,7 +701,8 @@ export default function SettingsClient({
                       Aucune carte enregistrée
                     </p>
                     <p className="text-xs text-[#64748B]">
-                      Vous devez enregistrer une carte pour utiliser Naano et payer les leads générés par vos créateurs.
+                      Vous devez enregistrer une carte pour utiliser Naano et
+                      payer les leads générés par vos créateurs.
                     </p>
                   </div>
                   <CardRegistrationButton />

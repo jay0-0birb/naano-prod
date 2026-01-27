@@ -41,6 +41,10 @@ create table public.saas_companies (
   commission_rate decimal(5,2), -- Percentage (e.g., 15.00 for 15%)
   media_pack_url text, -- URL to uploaded media pack file
   conditions text, -- Terms and conditions for collaboration
+  -- Basic VAT/Billing info
+  country text, -- ISO country code, e.g. 'FR', 'DE', 'US'
+  vat_number text, -- Optional VAT number for EU B2B
+  is_vat_registered boolean default false,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
