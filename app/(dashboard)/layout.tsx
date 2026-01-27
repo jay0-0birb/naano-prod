@@ -38,7 +38,7 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50 text-[#111827] font-[var(--font-jakarta)]">
+    <div className="flex min-h-screen bg-gray-50 text-[#111827] dashboard-layout" style={{ fontFamily: 'Satoshi, sans-serif' }}>
       <SessionValidator userId={user.id} />
       <CardValidator 
         cardOnFile={cardOnFile}

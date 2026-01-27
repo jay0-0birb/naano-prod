@@ -30,7 +30,7 @@ export default async function OnboardingPage() {
   const isCreator = profile?.role === "influencer";
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-6 font-[var(--font-jakarta)]">
+    <div className="min-h-screen bg-white flex items-center justify-center p-6" style={{ fontFamily: 'Satoshi, sans-serif' }}>
       <div className="w-full max-w-xl">
         {/* Header */}
         <div className="text-center mb-8">

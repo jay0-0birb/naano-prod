@@ -165,7 +165,7 @@
   --radius-4xl: calc(var(--radius) + 16px)
 }
 
-/* All headings use Plus Jakarta Sans */
+/* All headings use Satoshi in dashboard, Plus Jakarta Sans elsewhere */
 h1,
 h2,
 h3,
@@ -180,15 +180,31 @@ h6 {
     sans-serif !important;
 }
 
-/* Dashboard pages use Plus Jakarta Sans - applied via className in layout */
+/* Dashboard pages use Satoshi - applied via style in layout */
 .dashboard-page,
 .dashboard-page * {
   font-family:
-    var(--font-jakarta),
+    Satoshi,
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
+}
+
+/* Apply Satoshi to all dashboard content - must override heading rule */
+.dashboard-layout,
+.dashboard-layout * {
+  font-family: Satoshi, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+
+/* Specifically override headings in dashboard */
+.dashboard-layout h1,
+.dashboard-layout h2,
+.dashboard-layout h3,
+.dashboard-layout h4,
+.dashboard-layout h5,
+.dashboard-layout h6 {
+  font-family: Satoshi, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
 }
 
 /* Base Styles */

@@ -45,7 +45,7 @@ export default function RootLayout({
     <html lang="fr" className={plusJakarta.variable}>
       <head>
         <link
-          href="https://api.fontshare.com/v2/css?f[]=satoshi@700&display=swap"
+          href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap"
           rel="stylesheet"
         />
         <link

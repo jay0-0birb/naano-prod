@@ -35,6 +35,7 @@ interface ConversationListProps {
   conversations: Conversation[];
   activeConversationId?: string;
   currentUserId: string;
+  currentUserRole?: 'saas' | 'influencer';
 }
 
 const LAST_VIEWED_PREFIX = "konex_conv_last_viewed_";
@@ -43,6 +44,7 @@ export default function ConversationList({
   conversations,
   activeConversationId,
   currentUserId,
+  currentUserRole,
 }: ConversationListProps) {
   const [unreadConversations, setUnreadConversations] = useState<Set<string>>(
     new Set(),
@@ -186,13 +188,15 @@ export default function ConversationList({
                       className={`w-10 h-10 rounded-full flex items-center justify-center ${
                         partner?.type === "saas"
                           ? "bg-blue-50 border border-blue-200"
+                          : currentUserRole === "saas"
+                          ? "bg-blue-50 border border-blue-200"
                           : "bg-purple-50 border border-purple-200"
                       }`}
                     >
                       {partner?.type === "saas" ? (
                         <Building2 className="w-5 h-5 text-[#3B82F6]" />
                       ) : (
-                        <Users className="w-5 h-5 text-purple-500" />
+                        <Users className={`w-5 h-5 ${currentUserRole === "saas" ? "text-blue-500" : "text-purple-500"}`} />
                       )}
                     </div>
                   )}

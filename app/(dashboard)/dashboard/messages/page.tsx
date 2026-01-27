@@ -106,6 +106,7 @@ export default async function MessagesPage({ searchParams }: PageProps) {
           conversations={conversations}
           activeConversationId={activeConversationId}
           currentUserId={user.id}
+          currentUserRole={profile?.role as 'saas' | 'influencer' | undefined}
         />
       </div>
 
