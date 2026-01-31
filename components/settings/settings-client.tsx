@@ -316,7 +316,7 @@ export default function SettingsClient({
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               {profile?.avatar_url ? (
-                <div className="w-10 h-10 rounded-xl overflow-hidden relative shrink-0">
+                <div className="w-10 h-10 rounded-full overflow-hidden relative shrink-0">
                   <Image
                     src={profile.avatar_url}
                     alt={profile?.full_name || "Avatar"}
@@ -326,7 +326,7 @@ export default function SettingsClient({
                   />
                 </div>
               ) : (
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
                   <User className="w-5 h-5 text-[#1D4ED8]" />
                 </div>
               )}
@@ -378,7 +378,7 @@ export default function SettingsClient({
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 {profile?.avatar_url ? (
-                  <div className="w-10 h-10 rounded-xl overflow-hidden relative shrink-0">
+                  <div className="w-10 h-10 rounded-full overflow-hidden relative shrink-0">
                     <Image
                       src={profile.avatar_url}
                       alt={profile?.full_name || "Avatar"}
@@ -388,7 +388,7 @@ export default function SettingsClient({
                     />
                   </div>
                 ) : (
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
                     <User className="w-5 h-5 text-[#1D4ED8]" />
                   </div>
                 )}
@@ -451,17 +451,17 @@ export default function SettingsClient({
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 {saasCompany.logo_url ? (
-                  <div className="w-10 h-10 rounded-xl overflow-hidden relative shrink-0 bg-white border border-gray-200">
+                  <div className="w-10 h-10 rounded-full overflow-hidden relative shrink-0 bg-white border border-gray-200">
                     <Image
                       src={saasCompany.logo_url}
                       alt={saasCompany.company_name || "Logo"}
                       fill
-                      className="object-contain p-1"
+                      className="object-cover"
                       sizes="40px"
                     />
                   </div>
                 ) : (
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
                     <User className="w-5 h-5 text-[#1D4ED8]" />
                   </div>
                 )}
@@ -532,7 +532,7 @@ export default function SettingsClient({
           <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
                   <CreditCard className="w-5 h-5 text-[#1D4ED8]" />
                 </div>
                 <div>
@@ -633,7 +633,7 @@ export default function SettingsClient({
         {isCreator && (
           <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center">
                 <CreditCard className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
@@ -685,7 +685,7 @@ export default function SettingsClient({
         {!isCreator && saasCompany && (
           <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
                 <CreditCard className="w-5 h-5 text-[#1D4ED8]" />
               </div>
               <div>
@@ -753,7 +753,7 @@ export default function SettingsClient({
         <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
                 <Bell className="w-5 h-5 text-amber-500" />
               </div>
               <div>
@@ -844,7 +844,7 @@ export default function SettingsClient({
         {/* Security Section */}
         <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
               <Shield className="w-5 h-5 text-red-500" />
             </div>
             <div>
@@ -865,6 +865,7 @@ export default function SettingsClient({
       {showEditProfile && (
         <EditProfileForm
           profile={profile}
+          websiteUrl={saasCompany?.website}
           onClose={() => setShowEditProfile(false)}
           onSuccess={handleSuccess}
         />

@@ -71,7 +71,7 @@ export default function CreatorCard({
             <img
               src={creator.profiles.avatar_url}
               alt={creator.profiles.full_name || "Creator"}
-              className="w-14 h-14 rounded-full object-cover shrink-0"
+              className="w-14 h-14 rounded-full object-contain shrink-0"
             />
           ) : (
             <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-semibold text-lg shrink-0">

@@ -225,7 +225,7 @@ export default function ChatView({
                         <img
                           src={message.profiles.avatar_url}
                           alt={message.profiles.full_name || ""}
-                          className="w-8 h-8 rounded-full object-cover shrink-0"
+                          className="w-8 h-8 rounded-full object-contain shrink-0"
                         />
                       ) : (
                         <div

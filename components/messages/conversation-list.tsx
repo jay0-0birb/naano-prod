@@ -181,7 +181,7 @@ export default function ConversationList({
                     <img
                       src={partner.avatar}
                       alt={partner.name}
-                      className="w-10 h-10 rounded-full object-cover"
+                      className="w-10 h-10 rounded-full object-contain"
                     />
                   ) : (
                     <div

@@ -85,10 +85,10 @@ export default function CandidateCard({
           <img
             src={profile.avatar_url}
             alt={profile.full_name || "Créateur"}
-            className="w-14 h-14 rounded-xl object-cover border border-gray-200"
+            className="w-14 h-14 rounded-full object-contain border border-gray-200"
           />
         ) : (
-          <div className="w-14 h-14 rounded-xl bg-blue-50 border border-gray-200 flex items-center justify-center">
+          <div className="w-14 h-14 rounded-full bg-blue-50 border border-gray-200 flex items-center justify-center">
             <span className="text-lg font-medium text-blue-600">
               {initials}
             </span>

@@ -44,14 +44,14 @@ export default function Avatar({
   if (src) {
     return (
       <div
-        className={`${sizeClasses.container} rounded-xl overflow-hidden relative ${className}`}
+        className={`${sizeClasses.container} rounded-full overflow-hidden relative ${className}`}
       >
         <Image
           src={src}
           alt={alt}
           width={sizePx}
           height={sizePx}
-          className="object-cover w-full h-full"
+          className="object-contain w-full h-full"
         />
       </div>
     );
@@ -64,7 +64,7 @@ export default function Avatar({
 
   return (
     <div
-      className={`${sizeClasses.container} rounded-xl ${bgGradient} border border-gray-200 flex items-center justify-center ${className}`}
+      className={`${sizeClasses.container} rounded-full ${bgGradient} border border-gray-200 flex items-center justify-center ${className}`}
     >
       {initials ? (
         <span className={`font-medium ${iconColor} ${sizeClasses.text}`}>

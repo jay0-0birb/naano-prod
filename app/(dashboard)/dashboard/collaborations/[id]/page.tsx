@@ -180,10 +180,10 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
                 <img
                   src={partner.logo_url}
                   alt={partner.company_name}
-                  className="w-16 h-16 rounded-xl object-cover border border-gray-200"
+                  className="w-16 h-16 rounded-full object-contain border border-gray-200"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-xl bg-blue-50 border border-gray-200 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full bg-blue-50 border border-gray-200 flex items-center justify-center">
                   <Building2 className="w-8 h-8 text-[#3B82F6]" />
                 </div>
               )
@@ -191,10 +191,10 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
               <img
                 src={partnerProfile.avatar_url}
                 alt={partnerProfile.full_name}
-                className="w-16 h-16 rounded-xl object-cover border border-gray-200"
+                className="w-16 h-16 rounded-full object-contain border border-gray-200"
               />
             ) : (
-              <div className="w-16 h-16 rounded-xl bg-blue-50 border border-gray-200 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-full bg-blue-50 border border-gray-200 flex items-center justify-center">
                 <Users className="w-8 h-8 text-blue-500" />
               </div>
             )}

@@ -35,7 +35,10 @@ export default function DashboardHeader({ userName, avatarUrl }: HeaderProps) {
     .slice(0, 2);
 
   return (
-    <header className="h-16 border-b border-gray-200 bg-white sticky top-0 z-10 flex items-center justify-between px-8" style={{ fontFamily: 'Satoshi, sans-serif' }}>
+    <header
+      className="h-16 border-b border-gray-200 bg-white sticky top-0 z-10 flex items-center justify-between px-8"
+      style={{ fontFamily: "Satoshi, sans-serif" }}
+    >
       <h1 className="text-lg font-semibold text-[#111827]">{title}</h1>
       <div className="flex items-center gap-4">
         <span className="text-sm text-[#64748B]">{userName}</span>
@@ -49,7 +52,9 @@ export default function DashboardHeader({ userName, avatarUrl }: HeaderProps) {
           />
         ) : (
           <div className="w-8 h-8 rounded-full bg-blue-50 border border-gray-200 flex items-center justify-center">
-            <span className="text-xs font-medium text-blue-600">{initials}</span>
+            <span className="text-xs font-medium text-blue-600">
+              {initials}
+            </span>
           </div>
         )}
       </div>

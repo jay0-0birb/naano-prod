@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import Image from 'next/image';
-import { updateProfile } from '@/app/(dashboard)/dashboard/settings/actions';
-import { Loader2, Save, X, Camera, User } from 'lucide-react';
+import { updateProfile, fetchAvatarFromWebsite } from '@/app/(dashboard)/dashboard/settings/actions';
+import { Loader2, Save, X, Camera, User, Sparkles, Trash2 } from 'lucide-react';
 
 interface EditProfileFormProps {
   profile: {
@@ -13,19 +12,42 @@ interface EditProfileFormProps {
     role: string;
     avatar_url?: string | null;
   };
+  websiteUrl?: string | null;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-export default function EditProfileForm({ profile, onClose, onSuccess }: EditProfileFormProps) {
+export default function EditProfileForm({ profile, websiteUrl, onClose, onSuccess }: EditProfileFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [fetchingAvatar, setFetchingAvatar] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [removeAvatar, setRemoveAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const websiteInputRef = useRef<HTMLInputElement>(null);
 
-  const displayUrl = previewUrl ?? profile.avatar_url ?? null;
+  const hasPhoto = !removeAvatar && (previewUrl ?? profile.avatar_url ?? null);
+  const displayUrl = removeAvatar ? null : (previewUrl ?? profile.avatar_url ?? null);
 
   const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+
+  const handleFetchAvatar = async () => {
+    const url = websiteInputRef.current?.value?.trim() || websiteUrl?.trim();
+    if (!url) {
+      setError('Indiquez l\'URL de votre site web.');
+      return;
+    }
+    setFetchingAvatar(true);
+    setError(null);
+    setRemoveAvatar(false);
+    const result = await fetchAvatarFromWebsite(url);
+    setFetchingAvatar(false);
+    if (result.error) {
+      setError(result.error);
+    } else if (result.avatarUrl) {
+      setPreviewUrl(result.avatarUrl);
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -35,7 +57,15 @@ export default function EditProfileForm({ profile, onClose, onSuccess }: EditPro
       return;
     }
     setError(null);
+    setRemoveAvatar(false);
     setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const handleRemoveAvatar = () => {
+    setRemoveAvatar(true);
+    setPreviewUrl(null);
+    setError(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -50,14 +80,15 @@ export default function EditProfileForm({ profile, onClose, onSuccess }: EditPro
 
     try {
       const formData = new FormData(event.currentTarget);
+      if (removeAvatar) formData.set('removeAvatar', 'true');
       const result = await updateProfile(formData);
 
-    if (result?.error) {
-      setError(result.error);
-      return;
-    }
-    onSuccess();
-  } catch (err) {
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+      onSuccess();
+    } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg.includes('1 MB') || msg.includes('body size')
         ? 'L\'image est trop volumineuse (max 2 Mo). Choisissez une image plus légère.'
@@ -86,53 +117,105 @@ export default function EditProfileForm({ profile, onClose, onSuccess }: EditPro
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Avatar upload */}
-          <div>
-            <label className="block text-sm font-medium text-[#374151] mb-2">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Photo de profil - simple structure */}
+          <div className="flex flex-col items-center">
+            <label className="block text-sm font-medium text-[#374151] mb-3 w-full text-center">
               Photo de profil
             </label>
-            <div className="flex items-center gap-4">
+            <label
+              htmlFor="avatar-upload"
+              className="cursor-pointer shrink-0"
+              style={{
+                width: 160,
+                height: 160,
+                borderRadius: '50%',
+                overflow: 'hidden',
+                display: 'block',
+                backgroundColor: '#f3f4f6',
+                border: '2px dashed #e5e7eb',
+              }}
+            >
+              {displayUrl ? (
+                <img
+                  src={displayUrl}
+                  alt="Photo de profil"
+                  referrerPolicy="no-referrer"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    display: 'block',
+                  }}
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center gap-1 text-[#9CA3AF]">
+                  <Camera className="w-12 h-12" />
+                  <span className="text-xs font-medium">Cliquer pour ajouter</span>
+                </div>
+              )}
+            </label>
+            <input
+              id="avatar-upload"
+              ref={fileInputRef}
+              type="file"
+              name="avatar"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+
+            {/* Actions */}
+            <div className="flex flex-wrap justify-center gap-2 mt-4">
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-100 border border-gray-200 flex items-center justify-center hover:border-gray-300 transition-colors group"
+                className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-[#374151] text-sm font-medium transition-colors"
               >
-                {displayUrl ? (
-                  <Image
-                    src={displayUrl}
-                    alt="Avatar"
-                    fill
-                    className="object-cover"
-                    sizes="80px"
-                  />
-                ) : (
-                  <User className="w-10 h-10 text-[#9CA3AF]" />
-                )}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                  <Camera className="w-6 h-6 text-white" />
-                </div>
+                {hasPhoto ? 'Changer' : 'Ajouter une photo'}
               </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                name="avatar"
-                accept="image/jpeg,image/png,image/webp,image/gif"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-              <div>
-                <p className="text-sm text-[#64748B]">
-                  JPG, PNG, WebP ou GIF. Max 2 Mo.
-                </p>
+              <button
+                type="button"
+                onClick={handleFetchAvatar}
+                disabled={fetchingAvatar}
+                className="px-4 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#1D4ED8] text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-1.5"
+              >
+                {fetchingAvatar ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Détection...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    Importer depuis le site
+                  </>
+                )}
+              </button>
+              {hasPhoto && (
                 <button
                   type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="mt-1 text-sm text-[#1D4ED8] hover:text-[#1E40AF]"
+                  onClick={handleRemoveAvatar}
+                  className="px-4 py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium transition-colors inline-flex items-center gap-1.5"
                 >
-                  {displayUrl ? 'Changer' : 'Ajouter une photo'}
+                  <Trash2 className="w-4 h-4" />
+                  Retirer
                 </button>
-              </div>
+              )}
+            </div>
+            <p className="text-xs text-[#64748B] mt-2 text-center">
+              JPG, PNG, WebP ou GIF. Max 2 Mo.
+            </p>
+
+            {/* Website URL for import */}
+            <div className="w-full mt-4">
+              <input
+                ref={websiteInputRef}
+                type="url"
+                placeholder="https://votre-site.com"
+                defaultValue={websiteUrl || ''}
+                className="w-full text-sm bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30"
+              />
             </div>
           </div>
 

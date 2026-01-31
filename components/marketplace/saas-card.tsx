@@ -47,10 +47,10 @@ export default function SaasCard({
               <img
                 src={company.logo_url}
                 alt={company.company_name}
-                className="w-14 h-14 rounded-xl object-cover"
+                className="w-14 h-14 rounded-full object-contain"
               />
             ) : (
-              <div className="w-14 h-14 rounded-xl bg-blue-50 border border-gray-200 flex items-center justify-center">
+              <div className="w-14 h-14 rounded-full bg-blue-50 border border-gray-200 flex items-center justify-center">
                 <Building2 className="w-7 h-7 text-[#3B82F6]" />
               </div>
             )}

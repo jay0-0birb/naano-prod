@@ -58,10 +58,10 @@ export default function ApplyModal({
               <img
                 src={company.logo_url}
                 alt={company.company_name}
-                className="w-10 h-10 rounded-lg object-cover"
+                className="w-10 h-10 rounded-full object-contain"
               />
             ) : (
-              <div className="w-10 h-10 rounded-lg bg-blue-500/20 border border-white/10 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-blue-500/20 border border-white/10 flex items-center justify-center">
                 <Building2 className="w-5 h-5 text-blue-400" />
               </div>
             )}
