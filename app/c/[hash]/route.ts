@@ -167,7 +167,7 @@ export async function GET(
       }
 
       if (eventType === "click") {
-        // Automatically create a lead for this click (BP1 model)
+        // Automatically create a lead for this click
         console.log("[LEAD CREATION] Starting lead creation for click...");
 
         // Fetch collaboration data directly to get creator_id and saas_id

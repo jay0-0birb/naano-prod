@@ -39,22 +39,22 @@
 
 ---
 
-## 🔍 REMAINING CLEANUP (Optional)
+## ✅ OLD BP1 SYSTEM REMOVED
 
-### Old System References (Can be removed later)
-These are from the old BP1 system but won't break anything if left:
+The old lead-based payment system has been fully removed:
+- `/api/billing/check-and-bill` - Deleted
+- `getSaasBillingSummary()` - Removed from wallet.ts
+- `saas_billing_debt` - No longer referenced in code
+- Run `supabase/remove-old-payment-system.sql` to drop obsolete DB functions and tables
 
-1. **Old Billing Functions** (in database, not used anymore):
-   - `should_bill_saas()` - Old threshold billing
-   - `increment_saas_debt()` - Old debt system
-   - `create_lead()` - Old lead creation (replaced by `create_lead_with_credits`)
-   - `saas_billing_debt` table - Old billing system
+## ⚠️ REQUIRED: Creator Wallet Fix
 
-2. **Old API Endpoints** (still exist but not used):
-   - `/api/billing/check-and-bill` - Old billing system
-   - Old commission calculation functions
+**If you ran credit-system-migration.sql before 2026-01-31**, run this fix:
+```bash
+supabase db execute -f supabase/fix-creator-wallet-credit-system.sql
+```
 
-**Note**: These can stay for now. They won't interfere with the new system. We can clean them up later if needed.
+This ensures creator earnings move to "available" immediately (SaaS prepays with credits), so creators can withdraw. Without it, earnings would stay in "pending" forever.
 
 ---
 

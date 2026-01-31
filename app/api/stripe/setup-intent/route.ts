@@ -14,7 +14,7 @@ const supabaseAdmin =
 
 /**
  * Create Stripe Setup Intent for card validation
- * Required for SaaS onboarding (BP1.md: Card required before dashboard access)
+ * Required for SaaS onboarding (Card required before dashboard access)
  */
 export async function POST(request: Request) {
   console.log("[setup-intent] API called");

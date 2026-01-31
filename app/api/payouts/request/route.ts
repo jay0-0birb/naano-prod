@@ -8,7 +8,7 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Minimum payout amount in EUR (from BP1.md)
+// Minimum payout amount in EUR
 const MIN_PAYOUT_AMOUNT = 50;
 
 export async function POST(request: Request) {
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    // Get creator wallet (BP1.md model)
+    // Get creator wallet
     const { data: wallet, error: walletError } = await supabaseAdmin
       .from('creator_wallets')
       .select('available_balance')
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
 
     const availableBalance = Number(wallet.available_balance || 0);
 
-    // Check minimum amount (BP1.md: €50 threshold)
+    // Check minimum amount (€50 threshold)
     if (availableBalance < MIN_PAYOUT_AMOUNT) {
       return NextResponse.json({ 
         error: `Montant minimum requis: ${MIN_PAYOUT_AMOUNT}€. Vous avez ${availableBalance.toFixed(2)}€ disponible` 
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
     const payoutAmount = availableBalance;
     const amountInCents = Math.round(payoutAmount * 100);
 
-    // Create payout and invoice using database function (BP1.md)
+    // Create payout and invoice using database function
     const { data: payoutId, error: payoutError } = await supabaseAdmin.rpc(
       'create_creator_payout',
       {
@@ -150,7 +150,7 @@ export async function POST(request: Request) {
 
       // Update payout as failed
       await supabaseAdmin
-        .from('commission_payouts')
+        .from('creator_payouts')
         .update({
           status: 'failed',
           failure_reason: stripeError.message,

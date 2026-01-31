@@ -226,29 +226,7 @@ export async function POST(request: Request) {
     case "payment_intent.succeeded": {
       const paymentIntent = event.data.object as any;
 
-      // BP1 Model: Handle billing invoice payment
-      if (paymentIntent.metadata?.invoice_id) {
-        const invoiceId = paymentIntent.metadata.invoice_id;
-        const saasId = paymentIntent.metadata.saas_id;
-
-        // Update invoice status
-        await supabaseAdmin
-          .from("billing_invoices")
-          .update({
-            status: "paid",
-            paid_at: new Date().toISOString(),
-            stripe_payment_intent_id: paymentIntent.id,
-          })
-          .eq("id", invoiceId);
-
-        // Note: bill_saas() function already moves wallets from pending to available
-        // when invoice is created. This webhook just confirms payment succeeded.
-        // If payment fails, we'd need to reverse the wallet movement (not implemented yet).
-
-        console.log(`Billing invoice ${invoiceId} paid successfully`);
-      }
-      // Legacy: Check if this is from a connected account (old revenue tracking)
-      else if (event.account) {
+      if (event.account) {
         await handleConnectedAccountPayment(
           event.account,
           paymentIntent,
@@ -271,21 +249,7 @@ export async function POST(request: Request) {
     case "payment_intent.payment_failed": {
       const paymentIntent = event.data.object as any;
 
-      // BP1 Model: Handle billing invoice payment failure
-      if (paymentIntent.metadata?.invoice_id) {
-        const invoiceId = paymentIntent.metadata.invoice_id;
-
-        await supabaseAdmin
-          .from("billing_invoices")
-          .update({
-            status: "failed",
-          })
-          .eq("id", invoiceId);
-
-        console.log(`Billing invoice ${invoiceId} payment failed`);
-      }
-      // Legacy: Old payment system
-      else {
+      {
         await supabaseAdmin
           .from("payments")
           .update({ status: "failed" })
@@ -563,7 +527,7 @@ export async function POST(request: Request) {
     }
 
     // =====================================================
-    // BP1 MODEL: Transfer events (Creator payouts)
+    // Transfer events (Creator payouts)
     // =====================================================
     default: {
       // Handle transfer events (not in Stripe TypeScript types, so check string)
@@ -633,7 +597,7 @@ export async function POST(request: Request) {
     }
 
     // =====================================================
-    // BP1 MODEL: Setup Intent (Card validation)
+    // Setup Intent (Card validation)
     // =====================================================
     case "setup_intent.succeeded": {
       const setupIntent = event.data.object as any;

@@ -261,7 +261,7 @@ BEGIN
     WHERE tl.collaboration_id = collab_id
   ),
   lead_revenue AS (
-    -- BP1 model: CA généré on collaboration page = lifetime creator earnings for this collab
+    -- CA généré on collaboration page = lifetime creator earnings for this collab
     -- We include both 'validated' (not yet billed) and 'billed' (already paid by SaaS)
     -- so influencers always see the TOTAL CA generated, even after invoicing.
     SELECT COALESCE(SUM(creator_earnings), 0) as revenue

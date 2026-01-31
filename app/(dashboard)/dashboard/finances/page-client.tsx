@@ -26,8 +26,8 @@ interface CreatorData {
   activeSaas: number;
   stripeConnected: boolean;
   minPayout: number;
-  pendingBalance: number; // BP1.md: Waiting for SaaS payment
-  availableBalance: number; // BP1.md: Ready for payout
+  pendingBalance: number;
+  availableBalance: number;
   totalEarned: number; // Lifetime total
   payoutHistory: any[];
   // Pro status
@@ -41,7 +41,7 @@ interface SaasData {
   companyName: string;
   subscriptionStatus: string;
   activeCreators: number;
-  invoices: any[]; // Billing invoices (credit subscriptions)
+  invoices: any[];
   cardOnFile: boolean; // Card registration status
   cardLast4: string | null; // Last 4 digits of card
   cardBrand: string | null; // Card brand (visa, mastercard, etc.)
@@ -256,7 +256,7 @@ export default function FinancesPageClient({
     }
   };
 
-  // Handle card registration (BP1.md: Card required for SaaS)
+  // Handle card registration
   const handleAddCard = async () => {
     // Redirect to settings page where card setup will be handled
     router.push("/dashboard/settings");
@@ -437,8 +437,7 @@ export default function FinancesPageClient({
                 {creatorData.pendingBalance.toFixed(2)}€
               </p>
               <p className="text-xs text-[#64748B] mt-1">
-                Waiting for SaaS to pay Naano. Once paid, this will move to
-                "Available".
+                Earnings from qualified clicks, pending transfer to your available balance.
               </p>
             </div>
             <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
@@ -498,8 +497,8 @@ export default function FinancesPageClient({
                     SaaS pays
                   </p>
                   <p className="text-xs text-[#64748B] mt-0.5">
-                    SaaS pays Naano, your balance moves from "Pending" to
-                    "Available".
+                    Credits are deducted per click. Your balance moves from "Pending" to
+                    "Available" when processed.
                   </p>
                 </div>
               </div>
@@ -521,7 +520,7 @@ export default function FinancesPageClient({
           </div>
         </div>
 
-        {/* Payout Section (BP1.md) */}
+        {/* Payout Section */}
         {creatorData.availableBalance > 0 && (
           <div className="mt-6 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
@@ -648,7 +647,7 @@ export default function FinancesPageClient({
     }
     const tabs = [
       { id: "plan", label: "Mon Plan" },
-      { id: "commissions", label: "Facturation" }, // BP1.md: Changed from "Commissions" to "Facturation"
+      { id: "commissions", label: "Facturation" },
     ];
 
     return (
@@ -713,8 +712,7 @@ export default function FinancesPageClient({
                 </h3>
                 <p className="text-slate-400 text-sm mb-4">
                   Vous devez enregistrer une carte bancaire pour utiliser Naano.
-                  Cette carte sera utilisée pour payer les leads générés par vos
-                  créateurs.
+                  Cette carte sera utilisée pour payer votre abonnement crédits.
                 </p>
                 <button
                   onClick={handleAddCard}

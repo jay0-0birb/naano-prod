@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { verifyStripeConnectStatus } from '@/lib/stripe-status';
-import { getCreatorWalletSummary, getCreatorPayoutHistory, getSaasBillingSummary } from '@/lib/wallet';
+import { getCreatorWalletSummary, getCreatorPayoutHistory } from '@/lib/wallet';
 import FinancesPageClient from './page-client';
 
 interface PageProps {
@@ -58,7 +58,6 @@ export default async function FinancesPage({ searchParams }: PageProps) {
       ? 'Votre compte Stripe a été configuré avec succès !'
       : undefined;
 
-    // Get wallet summary (BP1.md model)
     const walletSummary = await getCreatorWalletSummary();
     const payoutHistory = await getCreatorPayoutHistory();
 
@@ -69,7 +68,7 @@ export default async function FinancesPage({ searchParams }: PageProps) {
           creatorId: creatorProfile.id,
           activeSaas,
           stripeConnected: creatorProfile.stripe_onboarding_completed || false,
-          minPayout: 50, // BP1.md: €50 threshold
+          minPayout: 50,
           pendingBalance: walletSummary.pendingBalance, // Waiting for SaaS payment
           availableBalance: walletSummary.availableBalance, // Ready for payout
           totalEarned: walletSummary.totalEarned,
@@ -146,21 +145,6 @@ export default async function FinancesPage({ searchParams }: PageProps) {
       subscriptionMessage = undefined;
     }
 
-    // Get billing summary (BP1.md model)
-    let billingSummary;
-    try {
-      billingSummary = await getSaasBillingSummary();
-    } catch (error) {
-      console.error('Error fetching billing summary:', error);
-      // Return default values if there's an error
-      billingSummary = {
-        currentDebt: 0,
-        totalLeads: 0,
-        totalInvoiced: 0,
-        invoices: [],
-      };
-    }
-
     return (
       <FinancesPageClient
         isCreator={false}
@@ -168,7 +152,7 @@ export default async function FinancesPage({ searchParams }: PageProps) {
           companyName: saasCompany.company_name,
           subscriptionStatus: saasCompany.subscription_status || 'active',
           activeCreators,
-          invoices: billingSummary.invoices,
+          invoices: [],
           cardOnFile: saasCompany.card_on_file || false,
           cardLast4: saasCompany.card_last4 || null,
           cardBrand: saasCompany.card_brand || null,

@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 import { getClientIP } from '@/lib/get-client-ip';
 
 /**
- * LEAD TRACKING API (BP1 Model)
+ * LEAD TRACKING API (Credit-based model)
  * 
  * Creates a lead when user clicks tracking link
  * This replaces the old conversion tracking

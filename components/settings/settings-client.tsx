@@ -681,7 +681,7 @@ export default function SettingsClient({
           </div>
         )}
 
-        {/* Card Registration Section (SaaS only) - BP1.md: Required for billing */}
+        {/* Card Registration Section (SaaS only) */}
         {!isCreator && saasCompany && (
           <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
@@ -693,7 +693,7 @@ export default function SettingsClient({
                   Carte bancaire
                 </h3>
                 <p className="text-xs text-[#64748B]">
-                  Enregistrez une carte pour payer les leads générés
+                  Enregistrez une carte pour payer votre abonnement crédits
                 </p>
               </div>
             </div>

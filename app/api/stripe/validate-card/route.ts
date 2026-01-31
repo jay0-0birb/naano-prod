@@ -4,7 +4,7 @@ import { stripe } from '@/lib/stripe';
 
 /**
  * Validate card after Setup Intent succeeds
- * Updates SaaS card status and grants dashboard access (BP1.md)
+ * Updates SaaS card status and grants dashboard access
  */
 export async function POST(request: Request) {
   try {

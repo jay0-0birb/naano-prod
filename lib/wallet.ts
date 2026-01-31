@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 
 /**
- * BP1.md: Wallet system functions
+ * Wallet system functions
  * Get creator wallet balance (pending/available)
  */
 
@@ -94,69 +94,4 @@ export async function getCreatorPayoutHistory() {
   return { payouts: payouts || [] };
 }
 
-/**
- * Get SaaS billing summary (BP1.md)
- */
-export async function getSaasBillingSummary() {
-  const supabase = await createClient();
-  
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    redirect('/login');
-  }
-
-  // Get SaaS company
-  const { data: saasCompany } = await supabase
-    .from('saas_companies')
-    .select('id')
-    .eq('profile_id', user.id)
-    .single();
-
-  if (!saasCompany) {
-    return {
-      currentDebt: 0,
-      totalLeads: 0,
-      totalInvoiced: 0,
-      invoices: [],
-    };
-  }
-
-  // Get billing debt
-  const { data: debt } = await supabase
-    .from('saas_billing_debt')
-    .select('current_debt')
-    .eq('saas_id', saasCompany.id)
-    .single();
-
-  // Get total leads (validated)
-  const { count: totalLeads } = await supabase
-    .from('leads')
-    .select('*', { count: 'exact', head: true })
-    .eq('saas_id', saasCompany.id)
-    .eq('status', 'validated');
-
-  // Get total invoiced
-  const { data: invoices } = await supabase
-    .from('billing_invoices')
-    .select('amount_ht, status')
-    .eq('saas_id', saasCompany.id)
-    .eq('status', 'paid');
-
-  const totalInvoiced = invoices?.reduce((sum, inv) => sum + Number(inv.amount_ht || 0), 0) || 0;
-
-  // Get recent invoices
-  const { data: recentInvoices } = await supabase
-    .from('billing_invoices')
-    .select('*')
-    .eq('saas_id', saasCompany.id)
-    .order('created_at', { ascending: false })
-    .limit(10);
-
-  return {
-    currentDebt: Number(debt?.current_debt || 0),
-    totalLeads: totalLeads || 0,
-    totalInvoiced,
-    invoices: recentInvoices || [],
-  };
-}
 

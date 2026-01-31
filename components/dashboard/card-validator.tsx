@@ -11,8 +11,7 @@ interface CardValidatorProps {
 }
 
 /**
- * BP1.md: Card required for SaaS before dashboard access
- * Blocks dashboard access if SaaS doesn't have card on file
+ * Card required for SaaS before dashboard access
  */
 export default function CardValidator({ 
   cardOnFile, 
@@ -30,7 +29,7 @@ export default function CardValidator({
     '/dashboard/settings',
     '/dashboard/onboarding',
     // Allow access to finances page so SaaS can see billing info
-    // BP1.md: card is required for charging, but UI should be visible
+    // Card required for charging, but finances UI should be visible
     '/dashboard/finances',
   ];
 

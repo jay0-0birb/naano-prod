@@ -484,8 +484,10 @@ BEGIN
     RAISE EXCEPTION 'Failed to deduct credit. Lead creation cancelled.';
   END IF;
   
-  -- Update creator wallet (pending balance)
+  -- Update creator wallet: add to pending, then immediately move to available
+  -- (SaaS prepaid with credits, so creator earnings are immediately available)
   PERFORM public.increment_creator_wallet_pending(p_creator_id, v_creator_payout);
+  PERFORM public.move_wallet_pending_to_available(p_creator_id, v_creator_payout);
   
   RETURN v_lead_id;
 END;

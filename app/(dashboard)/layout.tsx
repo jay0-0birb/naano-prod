@@ -25,7 +25,7 @@ export default async function DashboardLayout({
     .eq('id', user.id)
     .single();
 
-  // BP1.md: Get card status for SaaS
+  // Get card status for SaaS
   let cardOnFile = true; // Default to true (creators don't need card)
   if (profile?.role === 'saas') {
     const { data: saasCompany } = await supabase

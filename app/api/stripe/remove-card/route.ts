@@ -27,15 +27,6 @@ export async function POST() {
       );
     }
 
-    // Check current debt
-    const { data: debt } = await supabase
-      .from('saas_billing_debt')
-      .select('current_debt')
-      .eq('saas_id', saasCompany.id)
-      .single();
-
-    const currentDebt = Number(debt?.current_debt || 0);
-
     // Check for unpaid invoices
     const { data: unpaidInvoices } = await supabase
       .from('billing_invoices')
@@ -48,7 +39,7 @@ export async function POST() {
       unpaidInvoices && unpaidInvoices.length > 0 &&
       Number(unpaidInvoices[0]?.amount_ht || 0) > 0;
 
-    if (currentDebt > 0 || hasUnpaidInvoices) {
+    if (hasUnpaidInvoices) {
       return NextResponse.json(
         {
           error:
