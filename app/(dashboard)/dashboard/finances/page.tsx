@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { CREATOR_TIERS, CreatorTier } from '@/lib/subscription-config';
 import { verifyStripeConnectStatus } from '@/lib/stripe-status';
 import { getCreatorWalletSummary, getCreatorPayoutHistory, getSaasBillingSummary } from '@/lib/wallet';
 import FinancesPageClient from './page-client';
@@ -38,8 +37,6 @@ export default async function FinancesPage({ searchParams }: PageProps) {
 
     if (!creatorProfile) redirect('/dashboard');
 
-    const tier = (creatorProfile.subscription_tier || 'free') as CreatorTier;
-    
     // Count active SaaS - handle if function doesn't exist
     let activeSaas = 0;
     try {
@@ -69,10 +66,8 @@ export default async function FinancesPage({ searchParams }: PageProps) {
       <FinancesPageClient
         isCreator={true}
         creatorData={{
-          tier,
-          tierConfig: CREATOR_TIERS[tier],
+          creatorId: creatorProfile.id,
           activeSaas,
-          maxSaas: CREATOR_TIERS[tier].maxSaas,
           stripeConnected: creatorProfile.stripe_onboarding_completed || false,
           minPayout: 50, // BP1.md: €50 threshold
           pendingBalance: walletSummary.pendingBalance, // Waiting for SaaS payment
@@ -173,9 +168,6 @@ export default async function FinancesPage({ searchParams }: PageProps) {
           companyName: saasCompany.company_name,
           subscriptionStatus: saasCompany.subscription_status || 'active',
           activeCreators,
-          currentDebt: billingSummary.currentDebt,
-          totalLeads: billingSummary.totalLeads,
-          totalInvoiced: billingSummary.totalInvoiced,
           invoices: billingSummary.invoices,
           cardOnFile: saasCompany.card_on_file || false,
           cardLast4: saasCompany.card_last4 || null,

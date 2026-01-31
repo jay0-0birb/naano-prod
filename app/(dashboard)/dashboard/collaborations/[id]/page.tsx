@@ -129,8 +129,6 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
     });
   };
 
-  const pendingPosts = posts.filter((p) => !p.validated);
-  const validatedPosts = posts.filter((p) => p.validated);
 
   // Get or create tracking link for this collaboration
   const trackingLinkResult = await getOrCreateTrackingLink(collaboration.id);
@@ -252,29 +250,13 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-100">
+        <div className="mt-6 pt-6 border-t border-gray-100">
           <div>
             <div className="text-2xl font-semibold text-[#111827]">
               {posts.length}
             </div>
             <div className="text-xs text-[#94A3B8] uppercase tracking-wide mt-1">
-              Posts soumis
-            </div>
-          </div>
-          <div>
-            <div className="text-2xl font-semibold text-emerald-600">
-              {validatedPosts.length}
-            </div>
-            <div className="text-xs text-[#94A3B8] uppercase tracking-wide mt-1">
-              Posts validés
-            </div>
-          </div>
-          <div>
-            <div className="text-2xl font-semibold text-amber-600">
-              {pendingPosts.length}
-            </div>
-            <div className="text-xs text-[#94A3B8] uppercase tracking-wide mt-1">
-              En attente
+              Posts
             </div>
           </div>
         </div>

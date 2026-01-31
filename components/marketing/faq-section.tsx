@@ -29,6 +29,11 @@ const creatorsFaqs = [
       "Yes, absolutely. We charge a service fee to the brands, not the talent. You keep 100% of your negotiated rate.",
   },
   {
+    question: "What is Naano Pro?",
+    answer:
+      "Naano Pro lets you earn €1.10 per qualified click instead of €0.90. Post about Naano on LinkedIn (with your unique link), submit the post URL in your dashboard, and Pro unlocks automatically for 6 months. No payment required.",
+  },
+  {
     question: "How do I get started?",
     answer:
       "Sign up as a creator, complete your profile, and start applying to campaigns that match your expertise. Once approved, you'll receive tracked links and can start creating content.",

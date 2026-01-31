@@ -32,3 +32,11 @@ BEGIN
   RETURN 1.00;  -- 1% for everyone
 END;
 $$ LANGUAGE plpgsql;
+
+-- Update get_creator_max_saas: unlimited for all creators
+CREATE OR REPLACE FUNCTION get_creator_max_saas(tier TEXT)
+RETURNS INTEGER AS $$
+BEGIN
+  RETURN 999999;  -- Unlimited for everyone
+END;
+$$ LANGUAGE plpgsql;

@@ -707,7 +707,7 @@ export default function SettingsClient({
             </div>
 
             <p className="text-xs text-[#64748B]">
-              Cette carte sera utilisée pour payer automatiquement les leads lorsque vous atteignez 100€ de dette ou à la fin du mois.
+              Cette carte sera utilisée pour vos abonnements crédits et les paiements aux créateurs.
             </p>
           </div>
         )}

@@ -1,8 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { ExternalLink, CheckCircle2, Clock, Loader2, Linkedin } from 'lucide-react';
-import { validatePost } from '@/app/(dashboard)/dashboard/collaborations/[id]/actions';
+import { ExternalLink, Linkedin } from 'lucide-react';
 
 interface Post {
   id: string;
@@ -15,22 +13,9 @@ interface Post {
 
 interface PostCardProps {
   post: Post;
-  canValidate: boolean;
 }
 
-export default function PostCard({ post, canValidate }: PostCardProps) {
-  const [isValidating, setIsValidating] = useState(false);
-  const [validated, setValidated] = useState(post.validated);
-
-  const handleValidate = async () => {
-    setIsValidating(true);
-    const result = await validatePost(post.id);
-    if (result.success) {
-      setValidated(true);
-    }
-    setIsValidating(false);
-  };
-
+export default function PostCard({ post }: PostCardProps) {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('fr-FR', {
       day: 'numeric',
@@ -65,28 +50,16 @@ export default function PostCard({ post, canValidate }: PostCardProps) {
   const embedId = getEmbedId(post.linkedin_post_url);
 
   return (
-    <div
-      className={`bg-white border rounded-2xl overflow-hidden shadow-sm ${
-        validated ? 'border-emerald-200' : 'border-gray-200'
-      }`}
-    >
+    <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-100">
         <div className="flex items-center gap-3">
-          <div
-            className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-              validated ? 'bg-emerald-50' : 'bg-[#0A66C2]/10'
-            }`}
-          >
-            {validated ? (
-              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-            ) : (
-              <Linkedin className="w-5 h-5 text-[#0A66C2]" />
-            )}
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-[#0A66C2]/10">
+            <Linkedin className="w-5 h-5 text-[#0A66C2]" />
           </div>
           <div>
             <div className="text-sm font-semibold text-[#111827]">
-              {validated ? 'Post validé' : 'Post en attente'}
+              Post LinkedIn
             </div>
             <div className="text-xs text-[#64748B]">
               Soumis le {formatDate(post.submitted_at)}
@@ -94,32 +67,15 @@ export default function PostCard({ post, canValidate }: PostCardProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <a
-            href={post.linkedin_post_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 text-[#111827] rounded-lg text-sm transition-colors"
-          >
-            <ExternalLink className="w-4 h-4" />
-            Ouvrir
-          </a>
-          
-          {canValidate && !validated && (
-            <button
-              onClick={handleValidate}
-              disabled={isValidating}
-              className="flex items-center gap-2 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm transition-colors disabled:opacity-50"
-            >
-              {isValidating ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <CheckCircle2 className="w-4 h-4" />
-              )}
-              Valider
-            </button>
-          )}
-        </div>
+        <a
+          href={post.linkedin_post_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 text-[#111827] rounded-lg text-sm transition-colors"
+        >
+          <ExternalLink className="w-4 h-4" />
+          Ouvrir
+        </a>
       </div>
 
       {/* LinkedIn Embed */}
@@ -153,15 +109,6 @@ export default function PostCard({ post, canValidate }: PostCardProps) {
         )}
       </div>
 
-      {/* Validated Footer */}
-      {validated && post.validated_at && (
-        <div className="px-4 pb-4">
-          <div className="flex items-center gap-2 text-xs text-emerald-700 bg-emerald-50 rounded-lg px-3 py-2">
-            <CheckCircle2 className="w-4 h-4" />
-            Validé le {formatDate(post.validated_at)}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

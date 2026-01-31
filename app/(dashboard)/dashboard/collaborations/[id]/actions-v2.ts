@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { notifyPostSubmitted, notifyPostValidated } from "@/lib/notifications";
+import { notifyPostSubmitted } from "@/lib/notifications";
 
 export async function submitPost(
   collaborationId: string,
@@ -89,10 +89,12 @@ export async function submitPost(
     };
   }
 
-  // Create the proof
+  // Create the proof (no validation step - posts are auto-confirmed)
   const { error } = await supabase.from("publication_proofs").insert({
       collaboration_id: collaborationId,
       linkedin_post_url: linkedinPostUrl,
+      validated: true,
+      validated_at: new Date().toISOString(),
   });
 
   if (error) {
@@ -103,65 +105,6 @@ export async function submitPost(
   notifyPostSubmitted(collaborationId).catch(console.error);
 
   revalidatePath(`/dashboard/collaborations/${collaborationId}`);
-  return { success: true };
-}
-
-export async function validatePost(proofId: string) {
-  const supabase = await createClient();
-  
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return { error: "Non authentifié" };
-  }
-
-  // Get the proof and verify the user is the SaaS owner
-  const { data: proof } = await supabase
-    .from("publication_proofs")
-    .select(
-      `
-      id,
-      collaboration_id,
-      collaborations:collaboration_id (
-        applications:application_id (
-          saas_companies:saas_id (
-            profile_id
-          )
-        )
-      )
-    `
-    )
-    .eq("id", proofId)
-    .single();
-
-  if (!proof) {
-    return { error: "Preuve non trouvée" };
-  }
-
-  const saasProfileId = (proof.collaborations as any)?.applications
-    ?.saas_companies?.profile_id;
-  if (saasProfileId !== user.id) {
-    return { error: "Non autorisé" };
-  }
-
-  // Validate the proof
-  const { error } = await supabase
-    .from("publication_proofs")
-    .update({
-      validated: true,
-      validated_at: new Date().toISOString(),
-    })
-    .eq("id", proofId);
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  // Notify creator that their post was validated
-  notifyPostValidated(proof.collaboration_id).catch(console.error);
-
-  revalidatePath(`/dashboard/collaborations/${proof.collaboration_id}`);
   return { success: true };
 }
 

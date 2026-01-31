@@ -1,6 +1,6 @@
 'use client'
 
-import { Plus, Clock, CheckCircle2, MessageSquare } from 'lucide-react'
+import { Plus, MessageSquare } from 'lucide-react'
 import SubmitPostForm from '@/components/collaborations/submit-post-form'
 import PostCard from '@/components/collaborations/post-card'
 
@@ -26,9 +26,6 @@ export default function PostsTab({
   collaborationStatus,
   saasWalletCredits
 }: PostsTabProps) {
-  const pendingPosts = posts.filter((p) => !p.validated)
-  const validatedPosts = posts.filter((p) => p.validated)
-
   return (
     <div className="space-y-6">
       {/* Submit Post Section (Creator only) */}
@@ -55,39 +52,14 @@ export default function PostsTab({
 
       {/* Posts List */}
       <div className="space-y-6">
-        {/* Pending Posts */}
-        {pendingPosts.length > 0 && (
+        {posts.length > 0 && (
           <div>
-            <h2 className="text-lg font-semibold text-[#111827] mb-4 flex items-center gap-2">
-              <Clock className="w-5 h-5 text-amber-500" />
-              En attente de validation ({pendingPosts.length})
+            <h2 className="text-lg font-semibold text-[#111827] mb-4">
+              Posts ({posts.length})
             </h2>
             <div className="space-y-4">
-              {pendingPosts.map((post) => (
-                <PostCard 
-                  key={post.id} 
-                  post={post} 
-                  canValidate={!isCreator}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Validated Posts */}
-        {validatedPosts.length > 0 && (
-          <div>
-            <h2 className="text-lg font-semibold text-[#111827] mb-4 flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-              Posts validés ({validatedPosts.length})
-            </h2>
-            <div className="space-y-4">
-              {validatedPosts.map((post) => (
-                <PostCard 
-                  key={post.id} 
-                  post={post} 
-                  canValidate={false}
-                />
+              {posts.map((post) => (
+                <PostCard key={post.id} post={post} />
               ))}
             </div>
           </div>

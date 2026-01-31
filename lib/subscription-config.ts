@@ -30,16 +30,13 @@ export const SAAS_TIERS = {
 
 export type SaasTier = keyof typeof SAAS_TIERS;
 
-// Creator Subscription Tiers (only free for now)
+// Creator config - no plans, no partnership cap
 export const CREATOR_TIERS = {
   free: {
     id: 'free',
-    name: 'Free',
-    price: 0,
-    priceLabel: 'Gratuit',
-    maxSaas: 5,
+    name: 'Creator',
+    maxSaas: Infinity,
     features: [
-      '5 partenariats SaaS maximum',
       '15% de commission sur les ventes',
       'Liens trackés personnalisés',
       'Paiements via Stripe',

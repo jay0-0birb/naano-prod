@@ -129,11 +129,9 @@ export async function checkCreatorCanApply(creatorId: string) {
   });
 
   if (!canApply) {
-    const tierConfig = CREATOR_TIERS.free;
-
     return {
       canApply: false,
-      reason: `Limite de partenariats atteinte (${tierConfig.maxSaas} max). Vous devez terminer une collaboration existante pour en commencer une nouvelle.`,
+      reason: `Limite de partenariats atteinte.`,
     };
   }
 

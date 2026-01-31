@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ArrowRight } from "lucide-react";
+import { Check, ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 // Volume pricing tiers (matches credit system)
@@ -202,7 +202,7 @@ export const PricingSection = () => {
                 </p>
 
                 {/* Simple benefits */}
-                <div className="flex flex-col gap-3 mb-8">
+                <div className="flex flex-col gap-3 mb-6">
                   {["No upfront costs", "Access to premium SaaS brands"].map(
                     (item) => (
                       <div
@@ -217,6 +217,21 @@ export const PricingSection = () => {
                       </div>
                     ),
                   )}
+                </div>
+
+                {/* Naano Pro callout */}
+                <div className="mb-8 p-4 rounded-xl bg-[#EFF6FF] border border-[#BFDBFE]">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Sparkles className="w-4 h-4 text-[#3B82F6]" />
+                    <span className="text-sm font-semibold text-[#1E40AF]">
+                      Naano Pro
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#475569] leading-relaxed">
+                    Post about Naano on LinkedIn and unlock 6 months of Pro — earn
+                    €1.10 per qualified click instead of €0.90. No payment
+                    required.
+                  </p>
                 </div>
 
                 <Link

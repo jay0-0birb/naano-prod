@@ -8,7 +8,6 @@ import {
   AlertCircle,
   ExternalLink,
   CreditCard,
-  TrendingUp,
   Info,
   Loader2,
   Settings,
@@ -23,16 +22,8 @@ import CreditSubscriptionSlider from "@/components/dashboard/credit-subscription
 import ProUpgradeBanner from "@/components/dashboard/pro-upgrade-banner";
 
 interface CreatorData {
-  tier: string;
-  tierConfig: {
-    name: string;
-    price: number;
-    priceLabel: string;
-    maxSaas: number;
-    features: string[];
-  };
+  creatorId: string;
   activeSaas: number;
-  maxSaas: number;
   stripeConnected: boolean;
   minPayout: number;
   pendingBalance: number; // BP1.md: Waiting for SaaS payment
@@ -50,10 +41,7 @@ interface SaasData {
   companyName: string;
   subscriptionStatus: string;
   activeCreators: number;
-  currentDebt: number; // BP1.md: Current accumulated debt
-  totalLeads: number; // Total leads generated
-  totalInvoiced: number; // Total amount invoiced
-  invoices: any[]; // Billing invoices
+  invoices: any[]; // Billing invoices (credit subscriptions)
   cardOnFile: boolean; // Card registration status
   cardLast4: string | null; // Last 4 digits of card
   cardBrand: string | null; // Card brand (visa, mastercard, etc.)
@@ -304,21 +292,16 @@ export default function FinancesPageClient({
           </div>
         )}
 
-        {/* Current Plan Card */}
+        {/* Overview */}
         <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
-                <Wallet className="w-6 h-6 text-[#1D4ED8]" />
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold text-[#111827]">
-                  Plan {creatorData.tierConfig.name}
-                </h2>
-                <p className="text-[#64748B]">
-                  {creatorData.tierConfig.priceLabel}
-                </p>
-              </div>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+              <Wallet className="w-6 h-6 text-[#1D4ED8]" />
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold text-[#111827]">
+                Vue d&apos;ensemble
+              </h2>
             </div>
           </div>
 
@@ -327,9 +310,6 @@ export default function FinancesPageClient({
               <p className="text-[#64748B] text-sm mb-1">Active Partnerships</p>
               <p className="text-2xl font-bold text-[#111827]">
                 {creatorData.activeSaas}
-                <span className="text-lg font-normal text-[#64748B]">
-                  /{creatorData.maxSaas}
-                </span>
               </p>
             </div>
             <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
@@ -435,6 +415,7 @@ export default function FinancesPageClient({
         {/* Pro Upgrade Banner */}
         <div className="mb-6">
           <ProUpgradeBanner
+            creatorId={creatorData.creatorId}
             isPro={creatorData.isPro}
             proStatusSource={creatorData.proStatusSource}
             proExpirationDate={creatorData.proExpirationDate}
@@ -851,98 +832,7 @@ export default function FinancesPageClient({
 
         {selectedTab === "commissions" && (
           <div className="space-y-6">
-            {/* Billing Overview */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-6 shadow-sm">
-              <h3 className="font-semibold text-[#111827] mb-4 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-[#1D4ED8]" />
-                Vue d&apos;ensemble de la facturation
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
-                  <p className="text-xs font-medium text-[#1D4ED8] mb-1 uppercase tracking-wide">
-                    Dette actuelle
-                  </p>
-                  <p className="text-3xl font-bold text-[#111827]">
-                    {saasData.currentDebt.toFixed(2)}€
-                  </p>
-                  <p className="text-xs text-[#1D4ED8] mt-1 mb-3">
-                    {saasData.currentDebt >= 100
-                      ? "⚠️ Facturation imminente"
-                      : `${(100 - saasData.currentDebt).toFixed(
-                          2,
-                        )}€ avant facturation`}
-                  </p>
-                  {saasData.currentDebt >= 100 && (
-                    <button
-                      onClick={async () => {
-                        if (
-                          !confirm(
-                            `Payer ${saasData.currentDebt.toFixed(
-                              2,
-                            )}€ maintenant ?`,
-                          )
-                        )
-                          return;
-
-                        try {
-                          const response = await fetch(
-                            "/api/billing/check-and-bill",
-                            {
-                              method: "POST",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({}),
-                            },
-                          );
-
-                          const result = await response.json();
-
-                          if (result.success || result.billed_count > 0) {
-                            alert(
-                              "Facturation en cours... Vous serez redirigé dans quelques secondes.",
-                            );
-                            setTimeout(() => window.location.reload(), 2000);
-                          } else {
-                            alert(
-                              "Erreur: " +
-                                (result.error || "Impossible de facturer"),
-                            );
-                          }
-                        } catch (error: any) {
-                          alert("Erreur: " + error.message);
-                        }
-                      }}
-                      className="w-full px-4 py-2 bg-[#0F172A] hover:bg-[#020617] text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
-                    >
-                      <CreditCard className="w-4 h-4" />
-                      Payer maintenant
-                    </button>
-                  )}
-                </div>
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                  <p className="text-xs font-medium text-[#6B7280] mb-1 uppercase tracking-wide">
-                    Total leads
-                  </p>
-                  <p className="text-3xl font-bold text-[#111827]">
-                    {saasData.totalLeads}
-                  </p>
-                  <p className="text-xs text-[#64748B] mt-1">Leads validés</p>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                  <p className="text-xs font-medium text-[#6B7280] mb-1 uppercase tracking-wide">
-                    Total facturé
-                  </p>
-                  <p className="text-3xl font-bold text-[#111827]">
-                    {saasData.totalInvoiced.toFixed(2)}€
-                  </p>
-                  <p className="text-xs text-[#64748B] mt-1">
-                    Toutes factures payées
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* How Billing Works */}
+            {/* Credit model - no debt */}
             <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
               <h3 className="font-semibold text-[#111827] mb-4 flex items-center gap-2">
                 <Info className="w-5 h-5 text-[#3B82F6]" />
@@ -956,10 +846,10 @@ export default function FinancesPageClient({
                   </div>
                   <div>
                     <h4 className="text-sm text-[#111827] font-medium">
-                      Vous recevez des leads
+                      Achetez des crédits
                     </h4>
                     <p className="text-xs text-[#64748B] mt-1">
-                      Les clics qualifiés consomment vos crédits (voir onglet Mon Plan).
+                      Choisissez votre volume mensuel dans l&apos;onglet Mon Plan.
                     </p>
                   </div>
                 </div>
@@ -969,11 +859,10 @@ export default function FinancesPageClient({
                   </div>
                   <div>
                     <h4 className="text-sm text-[#111827] font-medium">
-                      Facturation automatique
+                      Clics qualifiés
                     </h4>
                     <p className="text-xs text-[#64748B] mt-1">
-                      Vous êtes facturé automatiquement lorsque vous atteignez
-                      100€ de dette ou à la fin du mois.
+                      Chaque clic qualifié consomme un crédit. Les créateurs sont payés automatiquement.
                     </p>
                   </div>
                 </div>
@@ -983,29 +872,17 @@ export default function FinancesPageClient({
                   </div>
                   <div>
                     <h4 className="text-sm text-[#111827] font-medium">
-                      Paiement par carte
+                      Renouvellement mensuel
                     </h4>
                     <p className="text-xs text-[#64748B] mt-1">
-                      La facture est prélevée automatiquement sur votre carte
-                      enregistrée.
+                      Vos crédits se renouvellent automatiquement chaque mois.
                     </p>
                   </div>
                 </div>
               </div>
-
-              {/* Credit-based model */}
-              <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl">
-                <p className="text-xs text-[#1D4ED8] mb-3 font-medium">
-                  💡 Modèle crédits
-                </p>
-                <p className="text-xs text-[#64748B]">
-                  Vous achetez des crédits mensuels. Chaque clic qualifié consomme un crédit.
-                  Configurez votre volume dans l&apos;onglet Mon Plan.
-                </p>
-              </div>
             </div>
 
-            {/* Invoice History */}
+            {/* Invoice History (credit subscription invoices if any) */}
             {saasData.invoices && saasData.invoices.length > 0 ? (
               <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
                 <h3 className="font-semibold text-[#111827] mb-4 flex items-center gap-2">
@@ -1033,7 +910,7 @@ export default function FinancesPageClient({
                                 `Facture #${invoice.id.slice(0, 8)}`}
                             </p>
                             <p className="text-xs text-[#6B7280]">
-                              {period} • {invoice.leads_count} leads
+                              {period}
                             </p>
                           </div>
                           <div className="text-right">
@@ -1059,8 +936,7 @@ export default function FinancesPageClient({
             ) : (
               <div className="bg-white border border-gray-200 rounded-2xl p-6 text-center shadow-sm">
                 <p className="text-[#64748B] text-sm">
-                  Aucune facture pour le moment. Les factures apparaîtront ici
-                  une fois que vous atteignez 100€ de dette ou la fin du mois.
+                  Aucune facture pour le moment. Vos abonnements crédits apparaîtront ici.
                 </p>
               </div>
             )}

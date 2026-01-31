@@ -72,57 +72,6 @@ export async function submitPost(collaborationId: string, linkedinPostUrl: strin
   return { success: true }
 }
 
-export async function validatePost(proofId: string) {
-  const supabase = await createClient()
-  
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    return { error: 'Non authentifié' }
-  }
-
-  // Get the proof and verify the user is the SaaS owner
-  const { data: proof } = await supabase
-    .from('publication_proofs')
-    .select(`
-      id,
-      collaboration_id,
-      collaborations:collaboration_id (
-        applications:application_id (
-          saas_companies:saas_id (
-            profile_id
-          )
-        )
-      )
-    `)
-    .eq('id', proofId)
-    .single()
-
-  if (!proof) {
-    return { error: 'Preuve non trouvée' }
-  }
-
-  const saasProfileId = (proof.collaborations as any)?.applications?.saas_companies?.profile_id
-  if (saasProfileId !== user.id) {
-    return { error: 'Non autorisé' }
-  }
-
-  // Validate the proof
-  const { error } = await supabase
-    .from('publication_proofs')
-    .update({
-      validated: true,
-      validated_at: new Date().toISOString(),
-    })
-    .eq('id', proofId)
-
-  if (error) {
-    return { error: error.message }
-  }
-
-  revalidatePath(`/dashboard/collaborations/${proof.collaboration_id}`)
-  return { success: true }
-}
-
 /**
  * Generate or retrieve tracking link for a collaboration
  * This is called when viewing the collaboration page

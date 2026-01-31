@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Crown, Check, Loader2, Sparkles } from "lucide-react";
+import { Crown, Check, Loader2, Sparkles, Link as LinkIcon, Send } from "lucide-react";
+import { submitProUnlockPost } from "@/app/(dashboard)/dashboard/finances/actions";
+
+const NAANO_LINK = "https://naano.vercel.app/";
 
 interface ProUpgradeBannerProps {
+  creatorId: string;
   isPro: boolean;
   proStatusSource: string | null;
   proExpirationDate: string | null;
@@ -11,34 +15,34 @@ interface ProUpgradeBannerProps {
 }
 
 export default function ProUpgradeBanner({
+  creatorId,
   isPro,
   proStatusSource,
   proExpirationDate,
   hasProSubscription,
 }: ProUpgradeBannerProps) {
   const [loading, setLoading] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<"monthly" | "annual">("monthly");
+  const [postUrl, setPostUrl] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  const handleUpgrade = async (plan: "monthly" | "annual") => {
+  const handleUnlockPro = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!postUrl.trim()) return;
+
     setLoading(true);
+    setError(null);
     try {
-      const response = await fetch("/api/stripe/pro-subscription", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de la création de l'abonnement");
+      const result = await submitProUnlockPost(postUrl.trim());
+      if (result.error) {
+        setError(result.error);
+      } else {
+        setSuccess(true);
+        setPostUrl("");
+        window.location.reload();
       }
-
-      const { url } = await response.json();
-      if (url) {
-        window.location.href = url;
-      }
-    } catch (error) {
-      console.error("Pro upgrade error:", error);
-      alert("Erreur lors de l'upgrade. Veuillez réessayer.");
+    } catch (err) {
+      setError("Une erreur est survenue");
     } finally {
       setLoading(false);
     }
@@ -63,8 +67,8 @@ export default function ProUpgradeBanner({
     return `Expire dans ${diffDays} jour${diffDays !== 1 ? "s" : ""}`;
   };
 
-  // If Pro (paid)
-  if (isPro && proStatusSource === "PAYMENT" && hasProSubscription) {
+  // If Pro (legacy paid - no longer offered)
+  if (isPro && proStatusSource === "PAYMENT") {
     return (
       <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
         <div className="flex items-center gap-3 mb-4">
@@ -113,7 +117,9 @@ export default function ProUpgradeBanner({
     );
   }
 
-  // If Standard - show upgrade CTA
+  // If Standard - show "Unlock Pro by posting" CTA
+  const naanoLink = `${NAANO_LINK}?ref=${creatorId}`;
+
   return (
     <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
       <div className="flex items-start justify-between mb-4">
@@ -123,10 +129,10 @@ export default function ProUpgradeBanner({
           </div>
           <div>
             <h3 className="text-lg font-semibold text-slate-900">
-              Passez à Naano Pro
+              Débloquez Naano Pro
             </h3>
             <p className="text-sm text-slate-600">
-              Gagnez plus par clic qualifié
+              Postez sur Naano et gagnez 1,10€/clic pendant 6 mois
             </p>
           </div>
         </div>
@@ -135,57 +141,71 @@ export default function ProUpgradeBanner({
       <div className="mb-4 space-y-2">
         <div className="flex items-center gap-2 text-sm text-slate-700">
           <Check className="w-4 h-4 text-green-600" />
-          <span><strong>1,10€</strong> par clic (au lieu de 0,90€) <span className="text-xs text-slate-500">(HT)</span></span>
+          <span><strong>1,10€</strong> par clic (au lieu de 0,90€) pendant 6 mois <span className="text-xs text-slate-500">(HT)</span></span>
         </div>
         <div className="flex items-center gap-2 text-sm text-slate-700">
           <Check className="w-4 h-4 text-green-600" />
-          <span>Badge "Pro" sur votre profil</span>
+          <span>Badge &quot;Pro&quot; sur votre profil</span>
         </div>
       </div>
 
-      {/* Plan Selection */}
-      <div className="flex gap-2 mb-4">
-        <button
-          onClick={() => setSelectedPlan("monthly")}
-          className={`flex-1 px-4 py-2 rounded-lg border transition-colors ${
-            selectedPlan === "monthly"
-              ? "bg-[#0F172A] text-white border-[#0F172A]"
-              : "bg-white text-[#111827] border-gray-200 hover:bg-gray-50"
-          }`}
-        >
-          <div className="text-sm font-semibold">Mensuel</div>
-          <div className="text-xs opacity-90">25€/mois HT</div>
-        </button>
-        <button
-          onClick={() => setSelectedPlan("annual")}
-          className={`flex-1 px-4 py-2 rounded-lg border transition-colors ${
-            selectedPlan === "annual"
-              ? "bg-[#0F172A] text-white border-[#0F172A]"
-              : "bg-white text-[#111827] border-gray-200 hover:bg-gray-50"
-          }`}
-        >
-          <div className="text-sm font-semibold">Annuel</div>
-          <div className="text-xs opacity-90">250€/an HT</div>
-        </button>
+      {/* Instructions */}
+      <div className="mb-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+        <p className="text-sm font-medium text-slate-800 mb-2">Comment faire :</p>
+        <ol className="text-xs text-slate-600 space-y-1 list-decimal list-inside">
+          <li>Postez sur LinkedIn en mentionnant Naano et incluez ce lien :</li>
+        </ol>
+        <div className="mt-2 flex items-center gap-2">
+          <LinkIcon className="w-4 h-4 text-slate-500 shrink-0" />
+          <code className="text-xs bg-white px-2 py-1 rounded border border-slate-200 break-all">
+            {naanoLink}
+          </code>
+          <button
+            type="button"
+            onClick={() => navigator.clipboard.writeText(naanoLink)}
+            className="text-xs text-blue-600 hover:text-blue-700 shrink-0"
+          >
+            Copier
+          </button>
+        </div>
+        <p className="text-xs text-slate-600 mt-2">
+          2. Collez l&apos;URL de votre post LinkedIn ci-dessous pour débloquer Pro.
+        </p>
       </div>
 
-      <button
-        onClick={() => handleUpgrade(selectedPlan)}
-        disabled={loading}
-        className="w-full bg-[#0F172A] hover:bg-[#020617] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors"
-      >
-        {loading ? (
-          <>
-            <Loader2 className="w-5 h-5 animate-spin" />
-            <span>Chargement...</span>
-          </>
-        ) : (
-          <>
-            <Crown className="w-5 h-5" />
-            <span>Passer à Pro</span>
-          </>
+      {/* Submit form */}
+      <form onSubmit={handleUnlockPro} className="space-y-2">
+        <input
+          type="url"
+          value={postUrl}
+          onChange={(e) => setPostUrl(e.target.value)}
+          placeholder="https://www.linkedin.com/posts/..."
+          className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+        {error && (
+          <p className="text-xs text-red-600">{error}</p>
         )}
-      </button>
+        {success && (
+          <p className="text-xs text-green-600">Pro débloqué ! Actualisation...</p>
+        )}
+        <button
+          type="submit"
+          disabled={loading || !postUrl.trim()}
+          className="w-full bg-[#0F172A] hover:bg-[#020617] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span>Chargement...</span>
+            </>
+          ) : (
+            <>
+              <Send className="w-5 h-5" />
+              <span>Débloquer Pro</span>
+            </>
+          )}
+        </button>
+      </form>
     </div>
   );
 }
