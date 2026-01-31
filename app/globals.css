@@ -293,6 +293,18 @@ main.bg-white * {
   background: #475569;
 }
 
+/* Navbar logo + text: vertical center alignment */
+.navbar-brand {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.5rem;
+}
+.navbar-brand img,
+.navbar-brand span {
+  display: block;
+}
+
 /* Academy page: normalize light text utilities to dark */
 .academy-page {
   color: #111827;

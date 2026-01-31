@@ -32,7 +32,24 @@ export const Navbar = ({ showContent }: NavbarProps) => {
         showContent ? "opacity-100" : "opacity-0"
       }`}
     >
-      <div className="flex items-center justify-end mr-4 sm:mr-6 md:mr-10 relative">
+      <div className="flex items-center justify-between max-w-7xl mx-auto relative">
+        {/* Logo + Brand - middles aligned via CSS Grid */}
+        <Link
+          href="/"
+          className="navbar-brand"
+          style={{ fontFamily: "Satoshi, sans-serif" }}
+        >
+          <img
+            src="/logo.svg"
+            alt="naano"
+            className="h-6 w-6 sm:h-7 sm:w-7 object-contain"
+          />
+          <span className="font-bold text-lg sm:text-xl text-[#111827]">
+            naano
+          </span>
+        </Link>
+
+        <div className="flex items-center">
         {/* Menu Items - Slide in from right */}
         <AnimatePresence>
           {isMenuOpen && (
@@ -115,6 +132,7 @@ export const Navbar = ({ showContent }: NavbarProps) => {
             <Menu className="w-5 h-5 text-[#4B5563]" />
           )}
         </motion.button>
+        </div>
       </div>
     </nav>
   );

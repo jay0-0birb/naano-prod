@@ -35,7 +35,7 @@ export const HeroSection = ({
 
       {/* Content - Left Side */}
       <div
-        className={`max-w-7xl mx-auto relative z-[2] pt-20 sm:pt-24 md:pt-32 lg:pt-36 pb-12 sm:pb-16 md:pb-20 lg:pb-24 px-4 sm:px-6 ${showContent ? "opacity-100" : "opacity-0"}`}
+        className={`max-w-7xl mx-auto relative z-[2] pt-32 sm:pt-36 md:pt-44 lg:pt-52 pb-12 sm:pb-16 md:pb-20 lg:pb-24 px-4 sm:px-6 ${showContent ? "opacity-100" : "opacity-0"}`}
       >
         {/* Text Content - Aligned along pink line */}
         <div className="text-left max-w-full sm:max-w-[600px] ml-0 md:ml-8 lg:ml-16 mb-12 sm:mb-16 md:mb-20 lg:mb-28">
@@ -128,7 +128,7 @@ export const HeroSection = ({
           initial={{ opacity: 0, x: -30 }}
           animate={showContent ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="mt-12 sm:mt-16 md:mt-24 lg:mt-48"
+          className="mt-8 sm:mt-10 md:mt-14 lg:mt-20"
         >
           <p
             className="text-xs font-bold tracking-[0.1em] text-[#9CA3AF] uppercase text-center mb-6 sm:mb-8 md:mb-10"

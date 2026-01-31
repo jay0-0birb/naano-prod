@@ -38,7 +38,7 @@ export function ParticleFace({
   const onCompleteRef = useRef(onComplete);
   const [facePoints, setFacePoints] = useState<Array<[number, number]>>([]);
   const [pointsLoaded, setPointsLoaded] = useState(false);
-  
+
   // Keep onComplete ref updated
   useEffect(() => {
     onCompleteRef.current = onComplete;
@@ -161,7 +161,7 @@ export function ParticleFace({
 
   // Store facePoints in ref to avoid dependency issues
   const facePointsRef = useRef<Array<[number, number]>>([]);
-  
+
   useEffect(() => {
     if (facePoints.length > 0) {
       facePointsRef.current = facePoints;
@@ -194,7 +194,7 @@ export function ParticleFace({
       const edge = Math.floor(Math.random() * 4);
       let startX: number;
       let startY: number;
-      
+
       switch (edge) {
         case 0: // Top edge - off screen above
           startX = Math.random(); // Random X across screen
@@ -224,7 +224,7 @@ export function ParticleFace({
       // Initialize drift with random velocities for organic movement
       const driftVelX = (Math.random() - 0.5) * 0.0002; // Slow drift velocity
       const driftVelY = (Math.random() - 0.5) * 0.0002;
-      
+
       initialParticles.push({
         x: startX,
         y: startY,
@@ -241,12 +241,12 @@ export function ParticleFace({
     });
 
     particlesRef.current = initialParticles;
-    
+
     // Always start with assembly animation ONCE per page load
     if (!hasAssembledRef.current) {
       phaseRef.current = "scattered";
       hasAssembledRef.current = true;
-      
+
       assemblyTimerRef.current = setTimeout(() => {
         phaseRef.current = "assembling";
         startTimeRef.current = Date.now();
@@ -263,7 +263,7 @@ export function ParticleFace({
 
       const particles = particlesRef.current;
       const phase = phaseRef.current;
-      
+
       // Debug: log if no particles
       if (particles.length === 0) {
         console.warn("[ParticleFace] No particles to render");
@@ -296,30 +296,31 @@ export function ParticleFace({
           // Update drift position
           particle.driftX += particle.driftVelX;
           particle.driftY += particle.driftVelY;
-          
+
           // Constrain drift to a small radius (max distance from target)
           const maxDrift = 0.015; // Maximum drift distance (increased for more spacing)
           const currentDrift = Math.sqrt(
-            particle.driftX * particle.driftX + particle.driftY * particle.driftY
+            particle.driftX * particle.driftX +
+              particle.driftY * particle.driftY,
           );
-          
+
           if (currentDrift > maxDrift) {
             // Normalize and constrain
             const scale = maxDrift / currentDrift;
             particle.driftX *= scale;
             particle.driftY *= scale;
-            
+
             // Reverse velocity when hitting boundary for smooth bounce-back
             particle.driftVelX *= -0.8;
             particle.driftVelY *= -0.8;
           }
-          
+
           // Add slight random velocity changes for organic movement
           if (Math.random() < 0.01) {
             particle.driftVelX += (Math.random() - 0.5) * 0.00005;
             particle.driftVelY += (Math.random() - 0.5) * 0.00005;
           }
-          
+
           // Apply drift to particle position
           particle.x = particle.targetX + particle.driftX;
           particle.y = particle.targetY + particle.driftY;
@@ -330,7 +331,7 @@ export function ParticleFace({
         const baseY = particle.y;
 
         const baseSize = 2.5 + Math.sin(particle.progress * Math.PI) * 0.5;
-        
+
         ctx.fillStyle = "#3B82F6";
         ctx.globalAlpha = 0.8 + particle.progress * 0.2;
         ctx.beginPath();
@@ -361,7 +362,7 @@ export function ParticleFace({
         className={`${className} hidden md:block`}
         style={{
           position: "absolute",
-          top: 0,
+          top: "-8%",
           right: 0,
           width: "50%",
           height: "100%",
@@ -378,7 +379,7 @@ export function ParticleFace({
       className={`${className} hidden md:block`}
       style={{
         position: "absolute",
-        top: 0,
+        top: "-8%",
         right: 0,
         width: "50%",
         height: "100%",
