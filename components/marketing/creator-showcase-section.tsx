@@ -57,7 +57,7 @@ const creators = [
 ];
 
 const CreatorCard = ({ creator }: { creator: (typeof creators)[0] }) => (
-  <div className="bg-white border border-gray-200 rounded-xl p-5 w-[300px] flex-shrink-0 relative transition-all duration-200 hover:border-blue-400 hover:-translate-y-1 hover:shadow-[0_12px_24px_-8px_rgba(59,130,246,0.15)]">
+  <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-5 w-[280px] sm:w-[300px] flex-shrink-0 relative transition-all duration-200 hover:border-blue-400 hover:-translate-y-1 hover:shadow-[0_12px_24px_-8px_rgba(59,130,246,0.15)]">
     {/* Verified Badge */}
     <div className="absolute top-5 right-5">
       <CheckCircle2 className="w-5 h-5 text-[#3B82F6] fill-[#EFF6FF]" />
@@ -111,15 +111,15 @@ const CreatorCard = ({ creator }: { creator: (typeof creators)[0] }) => (
 
 export const CreatorShowcaseSection = () => {
   return (
-    <section id="creators" className="py-20 md:py-24 bg-white overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 mb-12 text-center">
+    <section id="creators" className="py-16 sm:py-20 md:py-24 bg-white overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-10 sm:mb-12 text-center">
         <span className="inline-block bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-semibold mb-4 border border-blue-100 w-fit mx-auto">
           FEATURES
         </span>
-        <h2 className="text-[32px] md:text-[44px] font-bold text-gray-900 tracking-[-0.03em] leading-[1.1] mb-4">
+        <h2 className="text-[28px] sm:text-[36px] md:text-[44px] font-bold text-gray-900 tracking-[-0.03em] leading-[1.1] mb-3 sm:mb-4">
           Find your perfect match
         </h2>
-        <p className="text-lg text-gray-500 max-w-[600px] mx-auto">
+        <p className="text-base sm:text-lg text-gray-500 max-w-[600px] mx-auto px-4">
           Browse through hundreds of vetted B2B creators ready to showcase your
           product.
         </p>

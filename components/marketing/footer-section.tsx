@@ -12,23 +12,23 @@ export const FooterSection = () => {
   return (
     <footer>
       {/* Final CTA - Ultra Minimal Newsletter */}
-      <div className="bg-white py-16 md:py-24 relative overflow-hidden border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 relative z-10">
+      <div className="bg-white py-12 sm:py-16 md:py-24 relative overflow-hidden border-t border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
           <div className="max-w-[600px] mx-auto text-center">
-            <h2 className="text-[32px] md:text-[48px] font-extrabold text-[#111827] tracking-[-0.03em] leading-[1.1] mb-8">
+            <h2 className="text-[28px] sm:text-[36px] md:text-[48px] font-extrabold text-[#111827] tracking-[-0.03em] leading-[1.1] mb-6 sm:mb-8">
               Ready to scale with <span className="text-[#3B82F6]">naano</span>?
             </h2>
 
             {/* Newsletter Input Group */}
-            <form className="flex flex-col sm:flex-row gap-3 max-w-[480px] mx-auto justify-center">
+            <form className="flex flex-col sm:flex-row gap-3 max-w-[480px] mx-auto justify-center px-4">
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="h-[52px] bg-gray-50 border border-gray-200 rounded-full text-base px-6 focus:border-[#3B82F6] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#3B82F6]/10 transition-all duration-200 placeholder:text-gray-400 hover:border-gray-300"
+                className="h-[48px] sm:h-[52px] bg-gray-50 border border-gray-200 rounded-full text-sm sm:text-base px-5 sm:px-6 focus:border-[#3B82F6] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#3B82F6]/10 transition-all duration-200 placeholder:text-gray-400 hover:border-gray-300"
               />
               <Link
                 href="/register"
-                className="h-[52px] px-8 bg-[#0F172A] text-white rounded-full text-[15px] font-semibold flex-shrink-0 hover:bg-[#1E293B] hover:-translate-y-[1px] hover:shadow-lg transition-all duration-200 flex items-center justify-center"
+                className="h-[48px] sm:h-[52px] px-6 sm:px-8 bg-[#0F172A] text-white rounded-full text-sm sm:text-[15px] font-semibold flex-shrink-0 hover:bg-[#1E293B] hover:-translate-y-[1px] hover:shadow-lg transition-all duration-200 flex items-center justify-center"
               >
                 Get Started
               </Link>
@@ -48,12 +48,12 @@ export const FooterSection = () => {
           </span>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
           {/* Footer Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 mb-12 sm:mb-16">
             {/* Column 1: Brand */}
-            <div className="flex flex-col gap-5">
-              <p className="text-2xl font-bold text-white tracking-[-0.03em]">
+            <div className="flex flex-col gap-4 sm:gap-5">
+              <p className="text-xl sm:text-2xl font-bold text-white tracking-[-0.03em]">
                 Naano
               </p>
               <p className="text-sm text-white/60 leading-relaxed max-w-[280px]">
@@ -75,7 +75,7 @@ export const FooterSection = () => {
             </div>
 
             {/* Column 2: Product */}
-            <div className="flex flex-col gap-3 ml-8 md:ml-12">
+            <div className="flex flex-col gap-3 ml-0 sm:ml-8 md:ml-12">
               <p className="text-[11px] font-semibold text-white/90 tracking-[0.08em] uppercase mb-2">
                 Product
               </p>
@@ -130,7 +130,7 @@ export const FooterSection = () => {
             </div>
 
             {/* Column 3: Resources */}
-            <div className="flex flex-col gap-3 ml-8 md:ml-12">
+            <div className="flex flex-col gap-3 ml-0 sm:ml-8 md:ml-12">
               <p className="text-[11px] font-semibold text-white/90 tracking-[0.08em] uppercase mb-2">
                 Resources
               </p>
@@ -149,7 +149,7 @@ export const FooterSection = () => {
             </div>
 
             {/* Column 4: Company */}
-            <div className="flex flex-col gap-3 ml-8 md:ml-12">
+            <div className="flex flex-col gap-3 ml-0 sm:ml-8 md:ml-12">
               <p className="text-[11px] font-semibold text-white/90 tracking-[0.08em] uppercase mb-2">
                 Company
               </p>

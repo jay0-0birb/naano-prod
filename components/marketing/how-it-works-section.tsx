@@ -332,9 +332,9 @@ export const HowItWorksSection = () => {
         </div>
 
         {/* Steps */}
-        <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-12 md:gap-8 relative">
+        <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-8 sm:gap-10 md:gap-8 lg:gap-12 relative">
           {steps.map((step, index) => (
-            <div key={index} className="flex-1 relative">
+            <div key={index} className="flex-1 relative w-full md:w-auto">
               <div className="flex flex-col gap-4 items-center">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -347,18 +347,18 @@ export const HowItWorksSection = () => {
                   <div className="w-full max-w-[260px]">{step.component}</div>
                 </motion.div>
 
-                <div className="flex flex-col gap-2 text-center px-2">
-                  <h3 className="text-base font-semibold text-[#111827]">
+                <div className="flex flex-col gap-2 text-center px-2 max-w-[280px]">
+                  <h3 className="text-base sm:text-lg font-semibold text-[#111827]">
                     {step.title}
                   </h3>
-                  <p className="text-sm text-[#6B7280] leading-relaxed">
+                  <p className="text-sm sm:text-base text-[#6B7280] leading-relaxed">
                     {step.description}
                   </p>
                 </div>
               </div>
 
               {index < steps.length - 1 && (
-                <ArrowRight className="absolute top-20 right-[-30px] text-gray-300 w-5 h-5 hidden md:block" />
+                <ArrowRight className="absolute top-20 right-[-20px] sm:right-[-30px] text-gray-300 w-4 h-4 sm:w-5 sm:h-5 hidden md:block rotate-90 md:rotate-0" />
               )}
             </div>
           ))}

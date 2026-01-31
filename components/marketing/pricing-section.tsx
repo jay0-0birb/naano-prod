@@ -55,14 +55,14 @@ export const PricingSection = () => {
         }}
       />
 
-      <div className="max-w-7xl mx-auto px-4 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         {/* Header */}
-        <div className="flex flex-col text-center mb-12">
+        <div className="flex flex-col text-center mb-10 sm:mb-12">
           <span className="inline-block bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-semibold mb-4 border border-blue-100 w-fit mx-auto">
             PRICING
           </span>
           <h2
-            className="text-[32px] md:text-[44px] font-bold text-[#0F172A] tracking-[-0.03em] leading-[1.1] mb-4"
+            className="text-[28px] sm:text-[36px] md:text-[44px] font-bold text-[#0F172A] tracking-[-0.03em] leading-[1.1] mb-3 sm:mb-4"
             style={{ fontFamily: "Satoshi, sans-serif" }}
           >
             Simple, transparent pricing
@@ -104,7 +104,7 @@ export const PricingSection = () => {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-[1000px] mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-[1000px] mx-auto">
                 {saasPricing.map((plan) => (
                   <div
                     key={plan.name}

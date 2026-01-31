@@ -28,11 +28,11 @@ export const Navbar = ({ showContent }: NavbarProps) => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-[1000] px-4 md:px-6 pt-4 md:pt-6 transition-opacity duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-[1000] px-4 sm:px-6 pt-3 sm:pt-4 md:pt-6 transition-opacity duration-300 ${
         showContent ? "opacity-100" : "opacity-0"
       }`}
     >
-      <div className="flex items-center justify-end mr-6 md:mr-10 relative">
+      <div className="flex items-center justify-end mr-4 sm:mr-6 md:mr-10 relative">
         {/* Menu Items - Slide in from right */}
         <AnimatePresence>
           {isMenuOpen && (
@@ -41,7 +41,7 @@ export const Navbar = ({ showContent }: NavbarProps) => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 50 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="flex items-center gap-6 md:gap-8 mr-12 absolute right-0"
+              className="flex flex-col sm:flex-row items-end sm:items-center gap-3 sm:gap-4 md:gap-6 lg:gap-8 mr-10 sm:mr-12 absolute right-0 bg-white sm:bg-transparent p-4 sm:p-0 rounded-lg sm:rounded-none shadow-lg sm:shadow-none border sm:border-0 border-gray-200 sm:border-0"
             >
               {navItems.map((item, index) => {
                 const baseClasses =
@@ -106,7 +106,7 @@ export const Navbar = ({ showContent }: NavbarProps) => {
           animate={showContent ? { opacity: 1 } : { opacity: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors relative z-10"
+          className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors relative z-10"
           style={{ fontFamily: "Satoshi, sans-serif" }}
         >
           {isMenuOpen ? (

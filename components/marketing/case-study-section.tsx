@@ -42,14 +42,14 @@ export const CaseStudySection = () => {
         }}
       />
 
-      <div className="max-w-7xl mx-auto px-4 relative z-10">
-        <div className="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+        <div className="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-12 sm:gap-16">
           {/* LEFT SIDE - Content & Methodology */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6 }}
-            className="flex-1 max-w-[500px]"
+            className="flex-1 max-w-full lg:max-w-[500px] w-full"
           >
             {/* Badge */}
             <span className="inline-block bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-semibold mb-4 border border-blue-100 w-fit">
@@ -57,7 +57,7 @@ export const CaseStudySection = () => {
             </span>
             {/* Heading */}
             <h2
-              className="text-[32px] md:text-[44px] font-bold text-[#0F172A] tracking-[-0.03em] leading-[1.1] mb-5"
+              className="text-[28px] sm:text-[36px] md:text-[44px] font-bold text-[#0F172A] tracking-[-0.03em] leading-[1.1] mb-4 sm:mb-5"
               style={{ fontFamily: "Satoshi, sans-serif" }}
             >
               The naano Framework:
@@ -113,9 +113,9 @@ export const CaseStudySection = () => {
             initial={{ opacity: 0, x: 30 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex-1 flex justify-center pb-12 lg:pb-0"
+            className="flex-1 flex justify-center pb-8 sm:pb-12 lg:pb-0 w-full"
           >
-            <div className="w-[280px] md:w-[320px] h-[560px] md:h-[620px] relative">
+            <div className="w-[240px] sm:w-[280px] md:w-[320px] h-[480px] sm:h-[560px] md:h-[620px] relative">
               {/* Simple phone bezel */}
               <div className="absolute inset-0 bg-[#111827] rounded-[32px] shadow-[0_25px_60px_-12px_rgba(0,0,0,0.3)] overflow-hidden p-1.5">
                 {/* Screen */}

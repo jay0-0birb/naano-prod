@@ -47,15 +47,15 @@ export const FAQSection = () => {
   const currentFaqs = activeTab === "brands" ? brandsFaqs : creatorsFaqs;
 
   return (
-    <section id="faq" className="py-16 md:py-24 bg-white relative">
-      <div className="max-w-7xl mx-auto px-4 relative z-10">
+    <section id="faq" className="py-16 sm:py-20 md:py-24 bg-white relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         {/* FAQ Header */}
-        <div className="flex flex-col text-center mb-10">
+        <div className="flex flex-col text-center mb-8 sm:mb-10">
           <span className="inline-block bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-semibold mb-4 border border-blue-100 w-fit mx-auto">
             FAQs
           </span>
           <h3
-            className="text-[32px] md:text-[44px] font-bold text-[#111827] tracking-[-0.03em] leading-[1.1]"
+            className="text-[28px] sm:text-[36px] md:text-[44px] font-bold text-[#111827] tracking-[-0.03em] leading-[1.1]"
             style={{ fontFamily: "Satoshi, sans-serif" }}
           >
             Frequently Asked Questions

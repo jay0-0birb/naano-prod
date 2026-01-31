@@ -358,7 +358,7 @@ export function ParticleFace({
   if (!pointsLoaded) {
     return (
       <div
-        className={className}
+        className={`${className} hidden md:block`}
         style={{
           position: "absolute",
           top: 0,
@@ -375,7 +375,7 @@ export function ParticleFace({
   return (
     <canvas
       ref={canvasRef}
-      className={className}
+      className={`${className} hidden md:block`}
       style={{
         position: "absolute",
         top: 0,
