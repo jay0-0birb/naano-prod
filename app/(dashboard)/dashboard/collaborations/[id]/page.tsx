@@ -121,6 +121,32 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
   const conversation = collaboration.conversations?.[0];
   const posts: PublicationProof[] = collaboration.publication_proofs || [];
 
+  // Creator post limit: 25 total across all collaborations
+  const CREATOR_POST_LIMIT = 25;
+  let creatorTotalPosts = 0;
+  if (isCreator && app?.creator_profiles?.id) {
+    const creatorId = app.creator_profiles.id;
+    const { data: creatorApps } = await supabase
+      .from("applications")
+      .select("id")
+      .eq("creator_id", creatorId);
+    const appIds = (creatorApps ?? []).map((a) => a.id);
+    if (appIds.length > 0) {
+      const { data: creatorCollabs } = await supabase
+        .from("collaborations")
+        .select("id")
+        .in("application_id", appIds);
+      const collabIds = (creatorCollabs ?? []).map((c) => c.id);
+      if (collabIds.length > 0) {
+        const { count } = await supabase
+          .from("publication_proofs")
+          .select("id", { count: "exact", head: true })
+          .in("collaboration_id", collabIds);
+        creatorTotalPosts = count ?? 0;
+      }
+    }
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("fr-FR", {
       day: "numeric",
@@ -340,6 +366,8 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
         saasWalletCredits={
           isCreator ? app?.saas_companies?.wallet_credits || 0 : undefined
         }
+        creatorTotalPosts={isCreator ? creatorTotalPosts : undefined}
+        creatorPostLimit={CREATOR_POST_LIMIT}
       />
     </div>
   );

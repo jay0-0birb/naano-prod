@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Loader2, Link as LinkIcon, Send, AlertCircle } from 'lucide-react';
+import { Loader2, Link as LinkIcon, Send, AlertCircle, X } from 'lucide-react';
 import { submitPost } from '@/app/(dashboard)/dashboard/collaborations/[id]/actions-v2';
 import LinkedInPreview from './linkedin-preview';
 
@@ -14,6 +14,7 @@ export default function SubmitPostForm({ collaborationId }: SubmitPostFormProps)
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [showLimitModal, setShowLimitModal] = useState(false);
 
   const isValidLinkedInUrl = (url: string) => {
     return url.includes('linkedin.com/') && (url.includes('/posts/') || url.includes('/feed/update/'));
@@ -29,6 +30,7 @@ export default function SubmitPostForm({ collaborationId }: SubmitPostFormProps)
 
     setIsLoading(true);
     setError(null);
+    setShowLimitModal(false);
 
     try {
     const result = await submitPost(collaborationId, url);
@@ -36,6 +38,9 @@ export default function SubmitPostForm({ collaborationId }: SubmitPostFormProps)
     if (result.error) {
         console.error('Submit error:', result.error);
       setError(result.error);
+      if (result.error.includes('Limite atteinte')) {
+        setShowLimitModal(true);
+      }
     } else {
       setSuccess(true);
       setUrl('');
@@ -55,6 +60,32 @@ export default function SubmitPostForm({ collaborationId }: SubmitPostFormProps)
 
   return (
     <div className="space-y-4">
+      {/* Limit modal */}
+      {showLimitModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 max-w-md w-full shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-[#111827]">Limite atteinte</h3>
+              <button
+                onClick={() => setShowLimitModal(false)}
+                className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+              >
+                <X className="w-5 h-5 text-[#64748B]" />
+              </button>
+            </div>
+            <p className="text-[#64748B] text-sm mb-6">
+              Vous avez atteint la limite de 25 posts au total (toutes collaborations confondues).
+            </p>
+            <button
+              onClick={() => setShowLimitModal(false)}
+              className="w-full py-2.5 bg-[#0F172A] hover:bg-[#1E293B] text-white rounded-xl text-sm font-medium transition-colors"
+            >
+              Compris
+            </button>
+          </div>
+        </div>
+      )}
+
       {error && (
         <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2">
           <AlertCircle className="w-4 h-4 shrink-0" />

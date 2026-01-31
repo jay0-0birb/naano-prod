@@ -159,6 +159,11 @@ export default async function CollaborationsPage() {
             ? "Manage your partnerships with SaaS companies"
             : "Manage your partnerships with creators"}
         </p>
+        {isCreator && (
+          <p className="text-xs text-[#64748B] mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 inline-block">
+            Limite : 25 posts au total (toutes collaborations confondues).
+          </p>
+        )}
       </div>
 
       {/* Collaborations List */}

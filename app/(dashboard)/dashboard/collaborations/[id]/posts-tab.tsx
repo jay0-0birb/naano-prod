@@ -17,6 +17,8 @@ interface PostsTabProps {
   }>
   collaborationStatus: string
   saasWalletCredits?: number // For blocking post submission when credits = 0
+  creatorTotalPosts?: number // Total posts across all collaborations
+  creatorPostLimit?: number // Max 25 posts per creator
 }
 
 export default function PostsTab({ 
@@ -24,8 +26,11 @@ export default function PostsTab({
   isCreator, 
   posts,
   collaborationStatus,
-  saasWalletCredits
+  saasWalletCredits,
+  creatorTotalPosts = 0,
+  creatorPostLimit = 25,
 }: PostsTabProps) {
+  const atPostLimit = isCreator && creatorTotalPosts >= creatorPostLimit
   return (
     <div className="space-y-6">
       {/* Submit Post Section (Creator only) */}
@@ -44,8 +49,24 @@ export default function PostsTab({
                 Le budget du SaaS est épuisé. Les posts ne peuvent pas être soumis jusqu'à ce que le budget soit renouvelé.
               </p>
             </div>
+          ) : atPostLimit ? (
+            <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+              <p className="text-sm text-amber-800 font-medium mb-2">
+                Limite atteinte ({creatorTotalPosts}/{creatorPostLimit} posts)
+              </p>
+              <p className="text-xs text-amber-700">
+                Vous avez atteint la limite de {creatorPostLimit} posts au total (toutes collaborations confondues).
+              </p>
+            </div>
           ) : (
-            <SubmitPostForm collaborationId={collaborationId} />
+            <>
+              {creatorTotalPosts > 0 && (
+                <p className="text-xs text-[#64748B] mb-3">
+                  {creatorTotalPosts}/{creatorPostLimit} posts au total
+                </p>
+              )}
+              <SubmitPostForm collaborationId={collaborationId} />
+            </>
           )}
         </div>
       )}

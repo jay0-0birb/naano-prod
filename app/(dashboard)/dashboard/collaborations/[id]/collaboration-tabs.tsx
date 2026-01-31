@@ -24,6 +24,8 @@ interface CollaborationTabsProps {
   collaborationStatus: string
   initialTab?: 'posts' | 'analytics' | 'leads'
   saasWalletCredits?: number // For blocking post submission when credits = 0
+  creatorTotalPosts?: number // Total posts across all collaborations
+  creatorPostLimit?: number // Max 25 posts per creator
 }
 
 export default function CollaborationTabs({
@@ -35,6 +37,8 @@ export default function CollaborationTabs({
   collaborationStatus,
   initialTab = 'posts',
   saasWalletCredits,
+  creatorTotalPosts,
+  creatorPostLimit = 25,
 }: CollaborationTabsProps) {
   const [selectedTab, setSelectedTab] = useState<'posts' | 'analytics' | 'leads'>(initialTab)
 
@@ -97,6 +101,8 @@ export default function CollaborationTabs({
             posts={posts}
             collaborationStatus={collaborationStatus}
             saasWalletCredits={saasWalletCredits}
+            creatorTotalPosts={creatorTotalPosts}
+            creatorPostLimit={creatorPostLimit}
           />
         )}
         {selectedTab === 'analytics' && isSaaS && (

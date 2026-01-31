@@ -25,6 +25,7 @@ export async function submitPost(
       id,
       status,
       applications:application_id (
+        creator_id,
         creator_profiles:creator_id (
           profile_id
         )
@@ -42,10 +43,43 @@ export async function submitPost(
     return { error: "Cette collaboration n'est plus active" };
   }
 
-  const creatorProfileId = (collaboration.applications as any)?.creator_profiles
-    ?.profile_id;
+  const applications = collaboration.applications as any;
+  const creatorProfileId = applications?.creator_profiles?.profile_id;
+  const creatorId = applications?.creator_id;
+
   if (creatorProfileId !== user.id) {
     return { error: "Non autorisé" };
+  }
+
+  // Limit: 25 posts total per creator (across all collaborations)
+  const CREATOR_POST_LIMIT = 25;
+  const { data: creatorApps } = await supabase
+    .from("applications")
+    .select("id")
+    .eq("creator_id", creatorId);
+  const appIds = (creatorApps ?? []).map((a) => a.id);
+
+  let postCount = 0;
+  if (appIds.length > 0) {
+    const { data: creatorCollabs } = await supabase
+      .from("collaborations")
+      .select("id")
+      .in("application_id", appIds);
+    const collabIds = (creatorCollabs ?? []).map((c) => c.id);
+
+    if (collabIds.length > 0) {
+      const { count } = await supabase
+        .from("publication_proofs")
+        .select("id", { count: "exact", head: true })
+        .in("collaboration_id", collabIds);
+      postCount = count ?? 0;
+    }
+  }
+
+  if (postCount >= CREATOR_POST_LIMIT) {
+    return {
+      error: `Limite atteinte : vous avez déjà ${CREATOR_POST_LIMIT} posts au total (toutes collaborations confondues).`,
+    };
   }
 
   // Validate LinkedIn URL
