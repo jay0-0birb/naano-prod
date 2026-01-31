@@ -1,8 +1,43 @@
 "use client";
 
-import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
-import { Zap, BarChart3, Target } from "lucide-react";
+import { motion, useInView, AnimatePresence } from "framer-motion";
+import { useRef, useState } from "react";
+import { Zap, BarChart3, Target, Linkedin } from "lucide-react";
+
+// Add your LinkedIn post URLs here (from any profile)
+// Format: https://www.linkedin.com/posts/username_activity-1234567890-xxxx
+// or: https://www.linkedin.com/feed/update/urn:li:activity:1234567890
+// Replace with real post URLs from your creators or company
+const FEATURED_LINKEDIN_POSTS: string[] = [
+  "https://www.linkedin.com/posts/alexis-jarre_i-just-built-an-agent-that-doesend-to-end-activity-7393969519771271168-kz5T",
+  "https://www.linkedin.com/posts/alexis-jarre_heres-how-to-create-luxury-car-ads-using-activity-7419363160811290625-JldW",
+  "https://www.linkedin.com/posts/alexis-jarre_heres-how-to-create-a-cinematic-video-activity-7407391687729180672-Sxok",
+  "https://www.linkedin.com/posts/alexis-jarre_heres-how-to-animate-your-photos-into-activity-7402323009086304256-TAIh",
+];
+
+function extractLinkedInPostId(url: string): string {
+  try {
+    if (url.includes("activity-")) {
+      const match = url.match(/activity-(\d+)/);
+      if (match) return `urn:li:activity:${match[1]}`;
+    }
+    if (url.includes("urn:li:activity:")) {
+      const match = url.match(/urn:li:activity:(\d+)/);
+      if (match) return `urn:li:activity:${match[1]}`;
+    }
+    if (url.includes("urn:li:share:")) {
+      const match = url.match(/urn:li:share:(\d+)/);
+      if (match) return `urn:li:share:${match[1]}`;
+    }
+    if (url.includes("ugcPost")) {
+      const match = url.match(/ugcPost:(\d+)/);
+      if (match) return `urn:li:ugcPost:${match[1]}`;
+    }
+    return "";
+  } catch {
+    return "";
+  }
+}
 
 const features = [
   {
@@ -26,6 +61,15 @@ const features = [
 export const CaseStudySection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
+  const [currentPostIndex, setCurrentPostIndex] = useState(0);
+
+  const validPosts = FEATURED_LINKEDIN_POSTS.filter((url) =>
+    extractLinkedInPostId(url)
+  );
+  const currentPostUrl = validPosts[currentPostIndex % validPosts.length];
+  const embedId = currentPostUrl
+    ? extractLinkedInPostId(currentPostUrl)
+    : null;
 
   return (
     <section
@@ -108,22 +152,81 @@ export const CaseStudySection = () => {
             </div>
           </motion.div>
 
-          {/* RIGHT SIDE - Placeholder for phone mockup */}
+          {/* RIGHT SIDE - Browser window mockup with LinkedIn embed */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex-1 flex justify-center pb-8 sm:pb-12 lg:pb-0 w-full"
+            className="flex-1 flex flex-col items-center justify-center pt-8 sm:pt-12 lg:pt-16 pb-8 sm:pb-12 lg:pb-0 w-full"
           >
-            <div className="w-[240px] sm:w-[280px] md:w-[320px] h-[480px] sm:h-[560px] md:h-[620px] relative">
-              {/* Simple phone bezel */}
-              <div className="absolute inset-0 bg-[#111827] rounded-[32px] shadow-[0_25px_60px_-12px_rgba(0,0,0,0.3)] overflow-hidden p-1.5">
-                {/* Screen */}
-                <div className="w-full h-full bg-white rounded-[26px] overflow-hidden relative flex items-center justify-center">
-                  <p className="text-gray-400 text-sm">LinkedIn Post Preview</p>
+            <div className="relative flex flex-col items-center w-full">
+              {/* Browser window */}
+              <div className="w-full max-w-[480px] sm:max-w-[560px] rounded-lg overflow-hidden shadow-[0_20px_50px_-12px_rgba(0,0,0,0.18)] border border-gray-200/80 bg-white">
+                {/* Browser chrome */}
+                <div className="bg-[#f1f3f4] px-3 py-2 border-b border-gray-200/60 flex items-center gap-2">
+                  {/* Traffic light dots */}
+                  <div className="flex gap-1">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
+                  </div>
+                  {/* Address bar */}
+                  <div className="flex-1 flex items-center gap-2 px-3 py-1.5 bg-white rounded-md border border-gray-200/80 text-[11px] text-gray-500">
+                    <Linkedin className="w-3 h-3 text-[#0A66C2] shrink-0" />
+                    <span>linkedin.com/feed</span>
+                  </div>
+                </div>
+
+                {/* Content area */}
+                <div className="bg-white min-h-[360px] sm:min-h-[400px] overflow-hidden">
+                  {embedId ? (
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={currentPostIndex}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.25 }}
+                        className="w-full overflow-hidden"
+                      >
+                        <iframe
+                          src={`https://www.linkedin.com/embed/feed/update/${embedId}`}
+                          className="w-full border-0"
+                          style={{ height: "400px", minHeight: "360px" }}
+                          allowFullScreen
+                          title={`LinkedIn Post ${currentPostIndex + 1}`}
+                        />
+                      </motion.div>
+                    </AnimatePresence>
+                  ) : (
+                    <div className="w-full min-h-[360px] flex items-center justify-center p-6">
+                      <p className="text-gray-400 text-sm text-center">
+                        Add valid LinkedIn post URLs to FEATURED_LINKEDIN_POSTS
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
+
+            {/* Dots indicator */}
+            {validPosts.length > 1 && (
+              <div className="flex gap-2 mt-4">
+                {validPosts.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setCurrentPostIndex(i)}
+                    className={`w-2 h-2 rounded-full transition-all ${
+                      i === currentPostIndex
+                        ? "bg-[#0A66C2] w-6"
+                        : "bg-gray-300 hover:bg-gray-400"
+                    }`}
+                    aria-label={`Go to post ${i + 1}`}
+                  />
+                ))}
+              </div>
+            )}
           </motion.div>
         </div>
       </div>
