@@ -3,6 +3,34 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
+const AVATAR_MAX_SIZE = 2 * 1024 * 1024 // 2MB
+const AVATAR_ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+
+async function uploadAvatar(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  file: File,
+  filename: string
+): Promise<string | null> {
+  if (file.size > AVATAR_MAX_SIZE) return null
+  if (!AVATAR_ALLOWED_TYPES.includes(file.type)) return null
+
+  const ext = file.name.split('.').pop() || 'jpg'
+  const path = `${userId}/${filename}-${Date.now()}.${ext}`
+
+  const { error } = await supabase.storage
+    .from('avatars')
+    .upload(path, file, { cacheControl: '3600', upsert: true })
+
+  if (error) return null
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('avatars')
+    .getPublicUrl(path)
+
+  return publicUrl
+}
+
 export async function updateProfile(formData: FormData) {
   const supabase = await createClient()
   
@@ -12,12 +40,20 @@ export async function updateProfile(formData: FormData) {
   }
 
   const fullName = formData.get('fullName') as string
+  const avatarFile = formData.get('avatar') as File | null
+
+  let avatarUrl: string | null | undefined = undefined
+  if (avatarFile && avatarFile.size > 0) {
+    const url = await uploadAvatar(supabase, user.id, avatarFile, 'avatar')
+    if (url) avatarUrl = url
+  }
+
+  const updateData: Record<string, string | null> = { full_name: fullName }
+  if (avatarUrl !== undefined) updateData.avatar_url = avatarUrl
 
   const { error } = await supabase
     .from('profiles')
-    .update({
-      full_name: fullName,
-    })
+    .update(updateData)
     .eq('id', user.id)
 
   if (error) {
@@ -25,6 +61,7 @@ export async function updateProfile(formData: FormData) {
   }
 
   revalidatePath('/dashboard/settings')
+  revalidatePath('/dashboard')
   return { success: true }
 }
 
@@ -79,17 +116,27 @@ export async function updateSaasProfile(formData: FormData) {
   const industry = formData.get('industry') as string
   const commissionRate = parseFloat(formData.get('commissionRate') as string) || null
   const conditions = formData.get('conditions') as string
+  const logoFile = formData.get('logo') as File | null
+
+  let logoUrl: string | null | undefined = undefined
+  if (logoFile && logoFile.size > 0) {
+    const url = await uploadAvatar(supabase, user.id, logoFile, 'logo')
+    if (url) logoUrl = url
+  }
+
+  const updateData: Record<string, string | number | null> = {
+    company_name: companyName,
+    description,
+    website,
+    industry,
+    commission_rate: commissionRate,
+    conditions,
+  }
+  if (logoUrl !== undefined) updateData.logo_url = logoUrl
 
   const { error } = await supabase
     .from('saas_companies')
-    .update({
-      company_name: companyName,
-      description,
-      website,
-      industry,
-      commission_rate: commissionRate,
-      conditions,
-    })
+    .update(updateData)
     .eq('profile_id', user.id)
 
   if (error) {

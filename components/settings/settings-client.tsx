@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   User,
   CreditCard,
@@ -314,9 +315,21 @@ export default function SettingsClient({
         <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
-                <User className="w-5 h-5 text-[#1D4ED8]" />
-              </div>
+              {profile?.avatar_url ? (
+                <div className="w-10 h-10 rounded-xl overflow-hidden relative shrink-0">
+                  <Image
+                    src={profile.avatar_url}
+                    alt={profile?.full_name || "Avatar"}
+                    fill
+                    className="object-cover"
+                    sizes="40px"
+                  />
+                </div>
+              ) : (
+                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                  <User className="w-5 h-5 text-[#1D4ED8]" />
+                </div>
+              )}
               <div>
                 <h3 className="font-medium text-[#111827]">Profil</h3>
                 <p className="text-xs text-[#64748B]">
@@ -364,9 +377,21 @@ export default function SettingsClient({
           <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
-                  <User className="w-5 h-5 text-[#1D4ED8]" />
-                </div>
+                {profile?.avatar_url ? (
+                  <div className="w-10 h-10 rounded-xl overflow-hidden relative shrink-0">
+                    <Image
+                      src={profile.avatar_url}
+                      alt={profile?.full_name || "Avatar"}
+                      fill
+                      className="object-cover"
+                      sizes="40px"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                    <User className="w-5 h-5 text-[#1D4ED8]" />
+                  </div>
+                )}
                 <div>
                   <h3 className="font-medium text-[#111827]">
                     Profil Créateur
@@ -425,9 +450,21 @@ export default function SettingsClient({
           <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
-                  <User className="w-5 h-5 text-[#1D4ED8]" />
-                </div>
+                {saasCompany.logo_url ? (
+                  <div className="w-10 h-10 rounded-xl overflow-hidden relative shrink-0 bg-white border border-gray-200">
+                    <Image
+                      src={saasCompany.logo_url}
+                      alt={saasCompany.company_name || "Logo"}
+                      fill
+                      className="object-contain p-1"
+                      sizes="40px"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                    <User className="w-5 h-5 text-[#1D4ED8]" />
+                  </div>
+                )}
                 <div>
                   <h3 className="font-medium text-[#111827]">
                     Profil Entreprise
