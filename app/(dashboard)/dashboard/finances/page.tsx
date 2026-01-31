@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { SAAS_TIERS, CREATOR_TIERS, SaasTier, CreatorTier } from '@/lib/subscription-config';
+import { CREATOR_TIERS, CreatorTier } from '@/lib/subscription-config';
 import { verifyStripeConnectStatus } from '@/lib/stripe-status';
 import { getCreatorWalletSummary, getCreatorPayoutHistory, getSaasBillingSummary } from '@/lib/wallet';
 import FinancesPageClient from './page-client';
@@ -98,8 +98,6 @@ export default async function FinancesPage({ searchParams }: PageProps) {
 
     if (!saasCompany) redirect('/dashboard');
 
-    const tier = (saasCompany.subscription_tier || 'starter') as SaasTier;
-    
     // Count active creators - handle if function doesn't exist
     let activeCreators = 0;
     try {
@@ -145,21 +143,12 @@ export default async function FinancesPage({ searchParams }: PageProps) {
       }
     }
 
-    // Generate subscription message if coming from Stripe
+    // Generate subscription message if coming from Stripe (legacy - for credit subscriptions)
     let subscriptionMessage: string | undefined;
-    // Use tier from URL if available (more recent than DB), otherwise use DB tier
-    let displayTier = tier;
-    
     if (subscription === 'success' && newTier) {
-      const tierName = SAAS_TIERS[newTier as SaasTier]?.name || newTier;
-      subscriptionMessage = `Félicitations ! Votre abonnement ${tierName} est maintenant actif.`;
-      
-      // If URL tier is different from DB tier, use URL tier (it's more recent)
-      if (newTier !== tier && SAAS_TIERS[newTier as SaasTier]) {
-        displayTier = newTier as SaasTier;
-      }
+      subscriptionMessage = `Félicitations ! Votre abonnement est maintenant actif.`;
     } else if (subscription === 'cancelled') {
-      subscriptionMessage = undefined; // No message for cancelled
+      subscriptionMessage = undefined;
     }
 
     // Get billing summary (BP1.md model)
@@ -182,12 +171,8 @@ export default async function FinancesPage({ searchParams }: PageProps) {
         isCreator={false}
         saasData={{
           companyName: saasCompany.company_name,
-          tier: displayTier,
-          tierConfig: SAAS_TIERS[displayTier],
           subscriptionStatus: saasCompany.subscription_status || 'active',
           activeCreators,
-          maxCreators: SAAS_TIERS[displayTier].maxCreators,
-          allTiers: SAAS_TIERS,
           currentDebt: billingSummary.currentDebt,
           totalLeads: billingSummary.totalLeads,
           totalInvoiced: billingSummary.totalInvoiced,

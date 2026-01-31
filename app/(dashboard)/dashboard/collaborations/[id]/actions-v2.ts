@@ -557,12 +557,7 @@ export async function getCollaborationLeads(
     return { error: "Non autorisé - Lead Feed réservé aux SaaS" };
   }
 
-  // Check tier access (Growth/Scale only for Lead Feed)
-  if (subscriptionTier !== "growth" && subscriptionTier !== "scale") {
-    return {
-      error: "Lead Feed disponible uniquement pour les plans Growth et Scale",
-    };
-  }
+  // Lead Feed available to all SaaS (no plan restrictions)
 
   // Get tracked link for this collaboration
   const { data: trackedLink } = await supabase

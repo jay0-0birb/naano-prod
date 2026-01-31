@@ -157,8 +157,8 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
     brands = (brandRows || []) as any;
   }
 
-  const subscriptionTier = app?.saas_companies?.subscription_tier || "starter";
-  const isScale = subscriptionTier === "scale";
+  // Multi-brand & Lead Feed available to all SaaS (no plan restrictions)
+  const isScale = true;
   const currentBrandId = (collaboration as any)?.brand_id || null;
   const defaultUrl = app?.saas_companies?.website || null;
 

@@ -1,55 +1,31 @@
 // =====================================================
 // SUBSCRIPTION CONFIGURATION
 // =====================================================
+// Pricing plans removed: Everyone gets multi-brand dashboard,
+// unlimited creators, and qualified links (Lead Feed) analysis.
+// SaaS pays only for credits (credit-based model).
+// =====================================================
 
-// SaaS Subscription Tiers
+// Single unified config - no tiered plans
+export const SAAS_DEFAULT_CONFIG = {
+  id: 'default',
+  name: 'Naano',
+  maxCreators: Infinity,
+  platformFee: 1, // 1% of revenue for all
+  features: [
+    'Créateurs illimités',
+    'Multi-brand dashboard',
+    'Analytics & Lead Feed',
+    'Liens trackés qualifiés',
+  ],
+} as const;
+
+// Legacy: DB may still have subscription_tier (starter/growth/scale)
+// All map to same config - no limits, 1% fee
 export const SAAS_TIERS = {
-  starter: {
-    id: 'starter',
-    name: 'Starter',
-    price: 0,
-    priceLabel: 'Gratuit',
-    maxCreators: 3,
-    platformFee: 5, // 5% of revenue
-    features: [
-      '3 créateurs maximum',
-      'Analytics de base',
-      'Liens trackés',
-      'Support email',
-    ],
-    recommended: false,
-  },
-  growth: {
-    id: 'growth',
-    name: 'Growth',
-    price: 59,
-    priceLabel: '59€/mois HT',
-    maxCreators: 10,
-    platformFee: 3, // 3% of revenue
-    features: [
-      '10 créateurs maximum',
-      'Analytics avancés',
-      'Visibilité augmentée',
-      'Support prioritaire',
-    ],
-    recommended: true,
-  },
-  scale: {
-    id: 'scale',
-    name: 'Scale',
-    price: 89,
-    priceLabel: '89€/mois HT',
-    maxCreators: Infinity,
-    platformFee: 1, // 1% of revenue
-    features: [
-      'Créateurs illimités',
-      'Analytics premium',
-      'Mise en avant premium',
-      'Support dédié',
-      'Matching premium',
-    ],
-    recommended: false,
-  },
+  starter: { ...SAAS_DEFAULT_CONFIG, id: 'starter', name: 'Starter', price: 0, priceLabel: 'Gratuit', recommended: false },
+  growth: { ...SAAS_DEFAULT_CONFIG, id: 'growth', name: 'Growth', price: 0, priceLabel: 'Gratuit', recommended: false },
+  scale: { ...SAAS_DEFAULT_CONFIG, id: 'scale', name: 'Scale', price: 0, priceLabel: 'Gratuit', recommended: false },
 } as const;
 
 export type SaasTier = keyof typeof SAAS_TIERS;

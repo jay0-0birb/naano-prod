@@ -171,12 +171,7 @@ export async function getGlobalLeads(
     return { error: "SaaS non trouvé" };
   }
 
-  // Check tier access (Growth/Scale only for Lead Feed)
-  if (saasCompany.subscription_tier !== "growth" && saasCompany.subscription_tier !== "scale") {
-    return {
-      error: "Lead Feed disponible uniquement pour les plans Growth et Scale",
-    };
-  }
+  // Lead Feed available to all SaaS (no plan restrictions)
 
   // Get all tracked links for this SaaS
   const { data: applications } = await supabase

@@ -1,47 +1,51 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-const saasPricing = [
-  {
-    name: "Starter",
-    price: "Free",
-    description: "Perfect for testing creator marketing.",
-    features: ["3 creators max", "Basic analytics", "Tracked links"],
-    highlight: false,
-    cta: "Start Free Trial",
-  },
-  {
-    name: "Growth",
-    price: 59,
-    description: "Scale your SaaS with consistent content.",
-    features: [
-      "Everything in Starter",
-      "10 creators max",
-      "Advanced analytics",
-    ],
-    highlight: true,
-    cta: "Get Started",
-  },
-  {
-    name: "Scale",
-    price: 89,
-    description: "For teams managing multiple brands.",
-    features: [
-      "Everything in Growth",
-      "Unlimited creators",
-      "Mutli-brand dashboard",
-    ],
-    highlight: false,
-    cta: "Contact Sales",
-  },
+// Volume pricing tiers (matches credit system)
+function getCreditUnitPrice(volume: number): number {
+  if (volume >= 5000) return 1.6;
+  if (volume >= 4000) return 1.75;
+  if (volume >= 3000) return 1.85;
+  if (volume >= 2500) return 1.95;
+  if (volume >= 2000) return 2.05;
+  if (volume >= 1750) return 2.1;
+  if (volume >= 1500) return 2.15;
+  if (volume >= 1250) return 2.2;
+  if (volume >= 1000) return 2.25;
+  if (volume >= 750) return 2.35;
+  if (volume >= 500) return 2.45;
+  if (volume >= 250) return 2.55;
+  return 2.6;
+}
+
+const brandFeatures = [
+  "Unlimited creators",
+  "Multi-brand dashboard",
+  "Qualified links analytics",
 ];
 
 export const PricingSection = () => {
   const [activeTab, setActiveTab] = useState<"saas" | "creators">("saas");
+  const [creditVolume, setCreditVolume] = useState(1000);
+  const [unitPrice, setUnitPrice] = useState(2.25);
+  const [totalPrice, setTotalPrice] = useState(2250);
+
+  useEffect(() => {
+    const price = getCreditUnitPrice(creditVolume);
+    setUnitPrice(price);
+    setTotalPrice(price * creditVolume);
+  }, [creditVolume]);
+
+  const roundToStep = (value: number, step = 50) =>
+    Math.round(value / step) * step;
+
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCreditVolume(roundToStep(parseInt(e.target.value), 50));
+  };
 
   return (
     <section id="pricing" className="py-16 md:py-24 bg-white relative">
@@ -71,7 +75,7 @@ export const PricingSection = () => {
             className="text-lg text-[#64748B] max-w-[600px] mx-auto"
             style={{ fontFamily: "Satoshi, sans-serif" }}
           >
-            No hidden fees. Start, then upgrade as you grow.
+            Pay per qualified click. Volume discounts included.
           </p>
 
           {/* Toggle */}
@@ -103,71 +107,74 @@ export const PricingSection = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
+              className="max-w-[560px] mx-auto"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-[1000px] mx-auto">
-                {saasPricing.map((plan) => (
-                  <div
-                    key={plan.name}
-                    className={`relative bg-white rounded-2xl p-6 flex flex-col ${
-                      plan.highlight
-                        ? "border-2 border-[#0F172A]"
-                        : "border border-[#E5E7EB]"
-                    } hover:border-[#CBD5E1] transition-all duration-200`}
-                  >
-                    {plan.highlight && (
-                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#0F172A] text-white px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-[0.05em]">
-                        Popular
-                      </span>
-                    )}
-
-                    {/* Plan Name */}
-                    <p className="text-sm font-semibold text-[#64748B] mb-1">
-                      {plan.name}
-                    </p>
-
-                    {/* Price */}
-                    <div className="flex items-baseline mb-2">
-                      <span className="text-4xl font-bold text-[#0F172A] tracking-[-0.03em]">
-                        ${plan.price}
-                      </span>
-                      <span className="text-sm text-[#94A3B8] ml-1">
-                        /month <span className="text-xs">HT</span>
-                      </span>
-                    </div>
-
-                    {/* Description */}
-                    <p className="text-sm text-[#64748B] mb-6 leading-relaxed">
-                      {plan.description}
-                    </p>
-
-                    {/* CTA */}
-                    <Link
-                      href="/register"
-                      className={`w-full h-11 rounded-[10px] text-sm font-semibold mb-6 flex items-center justify-center transition-all duration-200 ${
-                        plan.highlight
-                          ? "bg-[#0F172A] text-white border border-[#0F172A] hover:bg-[#1E293B]"
-                          : "bg-white text-[#0F172A] border border-[#E5E7EB] hover:bg-[#F8FAFC]"
-                      }`}
-                    >
-                      {plan.cta}
-                    </Link>
-
-                    {/* Features */}
-                    <div className="flex flex-col gap-3 pt-6 border-t border-[#F1F5F9]">
-                      {plan.features.map((feature) => (
-                        <div key={feature} className="flex items-start gap-3">
-                          <Check
-                            className="w-4 h-4 text-[#10B981] mt-0.5 flex-shrink-0"
-                            strokeWidth={2.5}
-                          />
-                          <p className="text-[13px] text-[#475569]">
-                            {feature}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
+              <div className="bg-white rounded-2xl p-6 sm:p-8 border-2 border-[#0F172A] shadow-sm">
+                {/* Slider */}
+                <div className="mb-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <label className="text-sm font-semibold text-[#0F172A]">
+                      Monthly credits
+                    </label>
+                    <span className="text-xl font-bold text-[#0F172A]">
+                      {creditVolume.toLocaleString()} credits
+                    </span>
                   </div>
-                ))}
+
+                  <input
+                    type="range"
+                    min="100"
+                    max="5000"
+                    step="50"
+                    value={creditVolume}
+                    onChange={handleSliderChange}
+                    className="w-full h-3 bg-[#E5E7EB] rounded-lg appearance-none cursor-pointer accent-[#0F172A]"
+                  />
+
+                  <div className="flex justify-between text-xs text-[#94A3B8] mt-2">
+                    <span>100</span>
+                    <span>2,500</span>
+                    <span>5,000+</span>
+                  </div>
+                </div>
+
+                {/* Price display */}
+                <div className="bg-[#F8FAFC] rounded-xl p-4 mb-6">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm text-[#64748B]">Unit price</span>
+                    <span className="text-sm font-semibold text-[#0F172A]">
+                      €{unitPrice.toFixed(2)} / credit
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t border-[#E5E7EB]">
+                    <span className="text-base font-semibold text-[#0F172A]">
+                      Total monthly (excl. VAT)
+                    </span>
+                    <span className="text-2xl font-bold text-[#0F172A]">
+                      €{totalPrice.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Features */}
+                <div className="flex flex-col gap-3 mb-6">
+                  {brandFeatures.map((feature) => (
+                    <div key={feature} className="flex items-center gap-3">
+                      <Check
+                        className="w-4 h-4 text-[#10B981] flex-shrink-0"
+                        strokeWidth={2.5}
+                      />
+                      <p className="text-sm text-[#475569]">{feature}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <Link
+                  href="/register"
+                  className="w-full h-12 rounded-[10px] bg-[#0F172A] text-white text-sm font-semibold flex items-center justify-center hover:bg-[#1E293B] transition-colors"
+                >
+                  Get started
+                </Link>
               </div>
             </motion.div>
           ) : (

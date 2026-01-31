@@ -4,9 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Wallet,
-  Crown,
-  Zap,
-  Rocket,
   Check,
   AlertCircle,
   ExternalLink,
@@ -19,7 +16,6 @@ import {
   FileText,
 } from "lucide-react";
 import Link from "next/link";
-import { SAAS_TIERS, SaasTier } from "@/lib/subscription-config";
 import { refreshStripeStatus } from "@/lib/stripe-status";
 import { verifySubscriptionStatus } from "@/lib/subscription-status";
 import CreditBalanceWidget from "@/components/dashboard/credit-balance-widget";
@@ -52,12 +48,8 @@ interface CreatorData {
 
 interface SaasData {
   companyName: string;
-  tier: SaasTier;
-  tierConfig: (typeof SAAS_TIERS)[SaasTier];
   subscriptionStatus: string;
   activeCreators: number;
-  maxCreators: number;
-  allTiers: typeof SAAS_TIERS;
   currentDebt: number; // BP1.md: Current accumulated debt
   totalLeads: number; // Total leads generated
   totalInvoiced: number; // Total amount invoiced
@@ -91,7 +83,6 @@ export default function FinancesPageClient({
   const [selectedTab, setSelectedTab] = useState<"plan" | "commissions">(
     "plan",
   );
-  const [loadingTier, setLoadingTier] = useState<SaasTier | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [stripeLoading, setStripeLoading] = useState(false);
   const [payoutLoading, setPayoutLoading] = useState(false);
@@ -143,108 +134,20 @@ export default function FinancesPageClient({
     }
   }, [stripeMessage, isCreator, creatorData, router]);
 
-  // Auto-refresh for SaaS subscriptions when coming back from Stripe Checkout
+  // Auto-refresh for SaaS when coming back from Stripe (credits or legacy tier)
   useEffect(() => {
     if (subscriptionMessage && !isCreator && saasData) {
-      // Verify subscription status immediately, then refresh multiple times
       const verifyAndRefresh = async () => {
         try {
-          // First verification attempt
-          const result = await verifySubscriptionStatus();
-          if (result.success && result.tier && result.tier !== "starter") {
-            // Success! Refresh immediately
-            setTimeout(() => {
-              router.refresh();
-            }, 500);
-          } else {
-            // If not found yet, try again after 1 second
-            setTimeout(async () => {
-              const retryResult = await verifySubscriptionStatus();
-              if (retryResult.success && retryResult.tier) {
-                router.refresh();
-              } else {
-                // Still refresh after 2 seconds (webhook might have updated it)
-                setTimeout(() => {
-                  router.refresh();
-                }, 2000);
-              }
-            }, 1000);
-          }
+          await verifySubscriptionStatus();
+          setTimeout(() => router.refresh(), 500);
         } catch (err) {
-          console.error("Error verifying subscription:", err);
-          // Still refresh after delays
-          setTimeout(() => {
-            router.refresh();
-          }, 1000);
-          setTimeout(() => {
-            router.refresh();
-          }, 3000);
+          setTimeout(() => router.refresh(), 1000);
         }
       };
-
       verifyAndRefresh();
     }
   }, [subscriptionMessage, isCreator, saasData, router]);
-
-  const getTierIcon = (tier: SaasTier) => {
-    switch (tier) {
-      case "starter":
-        return <Zap className="w-5 h-5" />;
-      case "growth":
-        return <Rocket className="w-5 h-5" />;
-      case "scale":
-        return <Crown className="w-5 h-5" />;
-    }
-  };
-
-  const getTierGradient = (tier: SaasTier) => {
-    switch (tier) {
-      case "starter":
-        return "from-slate-600 to-slate-700";
-      case "growth":
-        return "from-blue-600 to-blue-700";
-      case "scale":
-        return "from-amber-500 to-amber-600";
-    }
-  };
-
-  const formatMaxCreators = (max: number) => {
-    return max === Infinity || max > 100000 ? "∞" : max.toString();
-  };
-
-  // Handle plan change for SaaS
-  const handlePlanChange = async (targetTier: SaasTier) => {
-    setLoadingTier(targetTier);
-    setError(null);
-
-    try {
-      const response = await fetch("/api/stripe/subscription", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tier: targetTier }),
-      });
-
-      const data = await response.json();
-
-      if (data.error) {
-        setError(data.error);
-        setLoadingTier(null);
-        return;
-      }
-
-      if (data.url) {
-        // Redirect to Stripe Checkout
-        window.location.href = data.url;
-      } else if (data.success) {
-        // Plan changed directly (downgrade or update)
-        router.refresh();
-      }
-    } catch (err) {
-      setError("Une erreur est survenue");
-    } finally {
-      setLoadingTier(null);
-    }
-  };
 
   // Handle Stripe Connect for creators
   const handleStripeConnect = async () => {
@@ -322,26 +225,6 @@ export default function FinancesPageClient({
     }
   };
 
-  // Handle sync subscription status
-  const handleSyncSubscription = async () => {
-    setStripeLoading(true);
-    setError(null);
-
-    try {
-      const result = await verifySubscriptionStatus();
-      if (result.error) {
-        setError(result.error);
-      } else {
-        // Refresh the page to show updated status
-        router.refresh();
-      }
-    } catch (err) {
-      setError("Une erreur est survenue");
-    } finally {
-      setStripeLoading(false);
-    }
-  };
-
   // Handle payout request for creators
   const handleRequestPayout = async () => {
     setPayoutLoading(true);
@@ -382,33 +265,6 @@ export default function FinancesPageClient({
     } catch (err) {
       setError("Une erreur est survenue");
       setPayoutLoading(false);
-    }
-  };
-
-  // Handle manage subscription (Stripe portal)
-  const handleManageSubscription = async () => {
-    setStripeLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch("/api/stripe/subscription", {
-        method: "GET",
-      });
-
-      const data = await response.json();
-
-      if (data.error) {
-        setError(data.error);
-        setStripeLoading(false);
-        return;
-      }
-
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch (err) {
-      setError("Une erreur est survenue");
-      setStripeLoading(false);
     }
   };
 
@@ -954,82 +810,18 @@ export default function FinancesPageClient({
               />
             </div>
 
-            {/* Current Plan Card */}
+            {/* Overview */}
             <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-[#1D4ED8]">
-                    {getTierIcon(saasData.tier)}
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-semibold text-[#111827]">
-                      Plan {saasData.tierConfig.name}
-                    </h2>
-                    <p className="text-sm text-[#64748B]">
-                      {saasData.tierConfig.priceLabel}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {(subscriptionMessage || saasData.tier !== "starter") && (
-                    <button
-                      onClick={handleSyncSubscription}
-                      disabled={stripeLoading}
-                      className="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-[#111827] rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-                      title="Synchroniser avec Stripe"
-                    >
-                      <RefreshCw
-                        className={`w-4 h-4 ${
-                          stripeLoading ? "animate-spin" : ""
-                        }`}
-                      />
-                    </button>
-                  )}
-                  {saasData.tier !== "starter" && (
-                    <button
-                      onClick={handleManageSubscription}
-                      disabled={stripeLoading}
-                      className="px-4 py-2 bg-[#0F172A] hover:bg-[#020617] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-                    >
-                      {stripeLoading ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Settings className="w-4 h-4" />
-                      )}
-                      Gérer
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
+              <h2 className="text-lg font-semibold text-[#111827] mb-4">
+                Vue d&apos;ensemble
+              </h2>
+              <div className="grid grid-cols-2 gap-4">
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                   <p className="text-xs font-medium text-[#6B7280] mb-1 uppercase tracking-wide">
                     Créateurs actifs
                   </p>
                   <p className="text-2xl font-bold text-[#111827]">
                     {saasData.activeCreators}
-                    <span className="text-lg font-normal text-[#64748B]">
-                      /{formatMaxCreators(saasData.maxCreators)}
-                    </span>
-                  </p>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                  <p className="text-xs font-medium text-[#6B7280] mb-1 uppercase tracking-wide">
-                    Prix par lead
-                  </p>
-                  <p className="text-2xl font-bold text-[#111827]">
-                    {saasData.tier === "starter"
-                      ? "2,50€"
-                      : saasData.tier === "growth"
-                        ? "2,00€"
-                        : saasData.tier === "scale"
-                          ? "1,60€"
-                          : "N/A"}
-                    <span className="text-sm font-normal text-[#64748B] ml-1">HT</span>
-                  </p>
-                  <p className="text-xs text-[#64748B] mt-1">
-                    Selon votre plan
                   </p>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
@@ -1052,129 +844,6 @@ export default function FinancesPageClient({
                         : saasData.subscriptionStatus}
                   </p>
                 </div>
-              </div>
-            </div>
-
-            {/* All Plans */}
-            <div>
-              <h3 className="text-lg font-medium text-[#111827] mb-4">
-                Tous les plans
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {(
-                  Object.entries(saasData.allTiers) as [
-                    SaasTier,
-                    (typeof SAAS_TIERS)[SaasTier],
-                  ][]
-                ).map(([tierKey, tier]) => {
-                  const isCurrentTier = tierKey === saasData.tier;
-                  const isLoading = loadingTier === tierKey;
-                  const isUpgrade = tier.price > saasData.tierConfig.price;
-                  const isDowngrade = tier.price < saasData.tierConfig.price;
-
-                  return (
-                    <div
-                      key={tierKey}
-                      className={`bg-white border rounded-2xl p-6 relative shadow-sm ${
-                        isCurrentTier
-                          ? "border-[#3B82F6] ring-1 ring-[#3B82F6]/10"
-                          : "border-gray-200"
-                      }`}
-                    >
-                      {isCurrentTier && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#3B82F6] text-white text-xs font-medium rounded-full">
-                          Plan actuel
-                        </div>
-                      )}
-
-                      {tier.recommended && !isCurrentTier && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-emerald-500 text-white text-xs font-medium rounded-full">
-                          Recommandé
-                        </div>
-                      )}
-
-                      <div className="flex items-center gap-3 mb-4 mt-2">
-                        <div
-                          className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                            tierKey === "starter"
-                              ? "bg-gray-100 text-gray-600"
-                              : tierKey === "growth"
-                                ? "bg-blue-50 text-[#1D4ED8]"
-                                : "bg-amber-50 text-amber-600"
-                          }`}
-                        >
-                          {getTierIcon(tierKey)}
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-[#111827]">
-                            {tier.name}
-                          </h4>
-                          <p className="text-xl font-bold text-[#111827]">
-                            {tier.price === 0 ? "Gratuit" : `${tier.price}€`}
-                            {tier.price > 0 && (
-                              <span className="text-sm font-normal text-[#6B7280]">
-                                /mois
-                              </span>
-                            )}
-                          </p>
-                        </div>
-                      </div>
-
-                      <ul className="space-y-2 mb-6">
-                        {tier.features.map((feature, i) => (
-                          <li
-                            key={i}
-                            className="flex items-center gap-2 text-sm text-[#4B5563]"
-                          >
-                            <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                            {feature}
-                          </li>
-                        ))}
-                        <li className="flex items-center gap-2 text-sm text-[#4B5563]">
-                          <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                          {tierKey === "starter"
-                            ? "2,50€"
-                            : tierKey === "growth"
-                              ? "2,00€"
-                              : "1,60€"}{" "}
-                          par lead
-                        </li>
-                      </ul>
-
-                      {isCurrentTier ? (
-                        <button
-                          disabled
-                          className="w-full py-2.5 bg-gray-100 text-[#6B7280] rounded-xl text-sm font-medium cursor-not-allowed"
-                        >
-                          Plan actuel
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => handlePlanChange(tierKey)}
-                          disabled={isLoading || loadingTier !== null}
-                          className={`w-full py-2.5 rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 ${
-                            tierKey === "scale"
-                              ? "bg-amber-500 hover:bg-amber-400 text-black"
-                              : "bg-[#0F172A] hover:bg-[#020617] text-white"
-                          }`}
-                        >
-                          {isLoading ? (
-                            <>
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                              Chargement...
-                            </>
-                          ) : isDowngrade ? (
-                            "Rétrograder"
-                          ) : isUpgrade ? (
-                            "Passer à ce plan"
-                          ) : (
-                            "Sélectionner"
-                          )}
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
               </div>
             </div>
           </div>
@@ -1290,13 +959,7 @@ export default function FinancesPageClient({
                       Vous recevez des leads
                     </h4>
                     <p className="text-xs text-[#64748B] mt-1">
-                      Chaque lead validé ajoute{" "}
-                      {saasData.tier === "starter"
-                        ? "2,50€"
-                        : saasData.tier === "growth"
-                          ? "2,00€"
-                          : "1,60€"}{" "}
-                      à votre dette.
+                      Les clics qualifiés consomment vos crédits (voir onglet Mon Plan).
                     </p>
                   </div>
                 </div>
@@ -1330,33 +993,15 @@ export default function FinancesPageClient({
                 </div>
               </div>
 
-              {/* Pricing by Plan */}
+              {/* Credit-based model */}
               <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl">
                 <p className="text-xs text-[#1D4ED8] mb-3 font-medium">
-                  💡 Prix par lead selon votre plan
+                  💡 Modèle crédits
                 </p>
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[#64748B]">Plan Starter</span>
-                    <span className="text-[#111827] font-medium">2,50€</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[#64748B]">Plan Growth</span>
-                    <span className="text-[#111827] font-medium">2,00€</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[#64748B]">Plan Scale</span>
-                    <span className="text-[#111827] font-medium">1,60€</span>
-                  </div>
-                  <div className="flex justify-between items-center pt-2 border-t border-blue-100">
-                    <span className="text-[#1D4ED8] font-medium">
-                      Créateur reçoit
-                    </span>
-                    <span className="text-[#1D4ED8] font-medium">
-                      1,20€ (fixe)
-                    </span>
-                  </div>
-                </div>
+                <p className="text-xs text-[#64748B]">
+                  Vous achetez des crédits mensuels. Chaque clic qualifié consomme un crédit.
+                  Configurez votre volume dans l&apos;onglet Mon Plan.
+                </p>
               </div>
             </div>
 

@@ -501,7 +501,7 @@ export default function SettingsClient({
                 <div>
                   <h3 className="font-medium text-[#111827]">Marques & URLs</h3>
                   <p className="text-xs text-[#64748B]">
-                    Définissez plusieurs marques et pages de destination (Plan Scale)
+                    Définissez plusieurs marques et pages de destination
                   </p>
                 </div>
               </div>
@@ -552,12 +552,8 @@ export default function SettingsClient({
                 </p>
               )}
 
-              {/* Add brand form - only meaningful for Scale */}
+              {/* Add brand form */}
               <div className="pt-4 border-t border-gray-200 space-y-2">
-                <p className="text-[11px] text-[#6B7280] mb-1">
-                  Multi-marque est optimisé pour le plan{" "}
-                  <span className="font-semibold">Scale</span>.
-                </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <input
                     type="text"

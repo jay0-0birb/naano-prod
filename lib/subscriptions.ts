@@ -109,9 +109,9 @@ export async function checkSaasCanAcceptCreator(saasId: string) {
 
     return {
       canAccept: false,
-      reason: `Limite de créateurs atteinte (${tierConfig.maxCreators} max). Passez au plan supérieur pour ajouter plus de créateurs.`,
+      reason: `Limite de créateurs atteinte.`,
       currentTier: tier,
-      suggestedTier: tier === 'starter' ? 'growth' : 'scale',
+      suggestedTier: tier,
     };
   }
 

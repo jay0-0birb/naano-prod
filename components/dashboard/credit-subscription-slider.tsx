@@ -3,6 +3,23 @@
 import { useState, useEffect } from "react";
 import { Loader2, CreditCard } from "lucide-react";
 
+// Volume pricing tiers (from planP.md) - used for instant local calculation
+function getCreditUnitPrice(volume: number): number {
+  if (volume >= 5000) return 1.60;
+  if (volume >= 4000) return 1.75;
+  if (volume >= 3000) return 1.85;
+  if (volume >= 2500) return 1.95;
+  if (volume >= 2000) return 2.05;
+  if (volume >= 1750) return 2.10;
+  if (volume >= 1500) return 2.15;
+  if (volume >= 1250) return 2.20;
+  if (volume >= 1000) return 2.25;
+  if (volume >= 750) return 2.35;
+  if (volume >= 500) return 2.45;
+  if (volume >= 250) return 2.55;
+  return 2.60; // Default for 100-249
+}
+
 interface CreditSubscriptionSliderProps {
   currentSubscription?: number | null;
   onSubscribe: (creditVolume: number) => Promise<void>;
@@ -17,52 +34,12 @@ export default function CreditSubscriptionSlider({
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [loading, setLoading] = useState(false);
 
-  // Calculate price based on volume (from planP.md)
+  // Calculate price - use local calculation for instant display (avoids race condition when slider moves quickly)
   useEffect(() => {
-    const calculatePrice = async () => {
-      try {
-        const response = await fetch("/api/calculate-credit-price", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ volume: creditVolume }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setUnitPrice(data.unitPrice);
-          setTotalPrice(data.totalPrice);
-        } else {
-          // Fallback calculation
-          const price = getCreditUnitPrice(creditVolume);
-          setUnitPrice(price);
-          setTotalPrice(price * creditVolume);
-        }
-      } catch (error) {
-        // Fallback calculation
-        const price = getCreditUnitPrice(creditVolume);
-        setUnitPrice(price);
-        setTotalPrice(price * creditVolume);
-      }
-    };
-
-    calculatePrice();
+    const price = getCreditUnitPrice(creditVolume);
+    setUnitPrice(price);
+    setTotalPrice(price * creditVolume);
   }, [creditVolume]);
-
-  const getCreditUnitPrice = (volume: number): number => {
-    if (volume >= 5000) return 1.60;
-    if (volume >= 4000) return 1.75;
-    if (volume >= 3000) return 1.85;
-    if (volume >= 2500) return 1.95;
-    if (volume >= 2000) return 2.05;
-    if (volume >= 1750) return 2.10;
-    if (volume >= 1500) return 2.15;
-    if (volume >= 1250) return 2.20;
-    if (volume >= 1000) return 2.25;
-    if (volume >= 750) return 2.35;
-    if (volume >= 500) return 2.45;
-    if (volume >= 250) return 2.55;
-    return 2.60; // Default for 100-249
-  };
 
   const handleSubscribe = async () => {
     setLoading(true);

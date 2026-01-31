@@ -15,7 +15,7 @@ interface BrandSelectorProps {
   brands: Brand[];
   currentBrandId: string | null;
   defaultUrl: string | null;
-  isScale: boolean;
+  isScale?: boolean; // Deprecated: multi-brand now available to all
 }
 
 export default function BrandSelector({
@@ -23,7 +23,7 @@ export default function BrandSelector({
   brands,
   currentBrandId,
   defaultUrl,
-  isScale,
+  isScale = true, // Always true - multi-brand for everyone
 }: BrandSelectorProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -33,7 +33,6 @@ export default function BrandSelector({
   );
 
   const handleChange = async (value: string) => {
-    if (!isScale) return; // Safety guard
     setSelectedId(value);
     setLoading(true);
     setError(null);
@@ -61,20 +60,6 @@ export default function BrandSelector({
     }
   };
 
-  if (!isScale) {
-    return (
-      <div className="mt-4 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600">
-        Multi-brand is available on the <span className="font-semibold">Scale</span> plan.
-        {defaultUrl && (
-          <>
-            {' '}Current link used for this collaboration:{' '}
-            <span className="font-mono break-all">{defaultUrl}</span>
-          </>
-        )}
-      </div>
-    );
-  }
-
   return (
     <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-xl">
       <div className="flex items-center justify-between gap-3">
@@ -83,7 +68,7 @@ export default function BrandSelector({
             Brand / Landing page
           </p>
           <p className="text-[11px] text-blue-700">
-            Choose which brand URL this creator promotes. Scale plan only.
+            Choose which brand URL this creator promotes.
           </p>
           {error && (
             <p className="mt-1 text-[11px] text-red-600">

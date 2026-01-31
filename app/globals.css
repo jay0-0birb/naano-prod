@@ -3,7 +3,6 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
 
@@ -118,10 +117,12 @@
   }
 
   @keyframes blink {
-    0%, 49% {
+    0%,
+    49% {
       opacity: 1;
     }
-    50%, 100% {
+    50%,
+    100% {
       opacity: 0;
     }
   }
@@ -162,7 +163,7 @@
 
   --radius-3xl: calc(var(--radius) + 12px);
 
-  --radius-4xl: calc(var(--radius) + 16px)
+  --radius-4xl: calc(var(--radius) + 16px);
 }
 
 /* All headings use Satoshi in dashboard, Plus Jakarta Sans elsewhere */
@@ -194,7 +195,12 @@ h6 {
 /* Apply Satoshi to all dashboard content - must override heading rule */
 .dashboard-layout,
 .dashboard-layout * {
-  font-family: Satoshi, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-family:
+    Satoshi,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif !important;
 }
 
 /* Specifically override headings in dashboard */
@@ -204,7 +210,12 @@ h6 {
 .dashboard-layout h4,
 .dashboard-layout h5,
 .dashboard-layout h6 {
-  font-family: Satoshi, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-family:
+    Satoshi,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif !important;
 }
 
 /* Base Styles */
@@ -330,7 +341,6 @@ main.bg-white * {
 }
 
 .dark {
-
   --background: oklch(0.145 0 0);
 
   --foreground: oklch(0.985 0 0);
