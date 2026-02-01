@@ -3,6 +3,39 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
+/** Update creator SIRET (for Particuliers blocked at €500 to unlock withdrawals) */
+export async function updateCreatorSiret(siret: string) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "Non authentifié" };
+  }
+
+  const trimmed = (siret || "").replace(/\s/g, "").trim();
+  if (trimmed.length < 9) {
+    return { error: "Numéro SIRET invalide (9 chiffres minimum)" };
+  }
+
+  const { error } = await supabase
+    .from("creator_profiles")
+    .update({
+      siret_number: trimmed,
+      legal_status: "professionnel", // Unlock unlimited withdrawals
+    })
+    .eq("profile_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/dashboard/finances");
+  revalidatePath("/dashboard/settings");
+  return { success: true };
+}
+
 const NAANO_LINK = "https://naano.vercel.app/";
 
 /**

@@ -4,7 +4,6 @@ import { useState } from "react";
 import {
   Linkedin,
   Users,
-  TrendingUp,
   CheckCircle2,
   XCircle,
   Loader2,
@@ -16,9 +15,7 @@ interface CreatorProfile {
   bio: string | null;
   linkedin_url: string | null;
   followers_count: number;
-  engagement_rate: number | null;
-  expertise_sectors: string[] | null;
-  hourly_rate: number | null;
+  theme: string | null;
   profiles: {
     id: string;
     full_name: string | null;
@@ -119,33 +116,12 @@ export default function CandidateCard({
               <Users className="w-4 h-4" />
               <span>{creator.followers_count.toLocaleString()} followers</span>
             </div>
-            {creator.engagement_rate && (
-              <div className="flex items-center gap-1.5 text-[#64748B]">
-                <TrendingUp className="w-4 h-4" />
-                <span>{creator.engagement_rate}% engagement</span>
-              </div>
+            {creator.theme && (
+              <span className="text-xs px-2 py-0.5 bg-gray-100 text-[#4B5563] rounded-full capitalize">
+                {creator.theme}
+              </span>
             )}
           </div>
-
-          {/* Expertise */}
-          {creator.expertise_sectors &&
-            creator.expertise_sectors.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-2">
-                {creator.expertise_sectors.slice(0, 3).map((sector) => (
-                  <span
-                    key={sector}
-                    className="text-xs px-2 py-0.5 bg-gray-100 text-[#4B5563] rounded-full"
-                  >
-                    {sector}
-                  </span>
-                ))}
-                {creator.expertise_sectors.length > 3 && (
-                  <span className="text-xs text-slate-500">
-                    +{creator.expertise_sectors.length - 3}
-                  </span>
-                )}
-              </div>
-            )}
         </div>
 
         {/* Date & Status */}

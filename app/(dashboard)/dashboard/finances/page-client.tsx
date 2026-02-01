@@ -13,6 +13,7 @@ import {
   Settings,
   RefreshCw,
   FileText,
+  Calendar,
 } from "lucide-react";
 import Link from "next/link";
 import { refreshStripeStatus } from "@/lib/stripe-status";
@@ -20,6 +21,7 @@ import { verifySubscriptionStatus } from "@/lib/subscription-status";
 import CreditBalanceWidget from "@/components/dashboard/credit-balance-widget";
 import CreditSubscriptionSlider from "@/components/dashboard/credit-subscription-slider";
 import ProUpgradeBanner from "@/components/dashboard/pro-upgrade-banner";
+import { updateCreatorSiret } from "./actions";
 
 interface CreatorData {
   creatorId: string;
@@ -35,6 +37,11 @@ interface CreatorData {
   proStatusSource: string | null;
   proExpirationDate: string | null;
   hasProSubscription: boolean;
+  // €500 withdrawal cap (Particulier without SIRET)
+  canWithdraw: boolean;
+  withdrawBlockReason: string | null;
+  legalStatus: "particulier" | "professionnel";
+  hasSiret: boolean;
 }
 
 interface SaasData {
@@ -74,6 +81,13 @@ export default function FinancesPageClient({
   const [error, setError] = useState<string | null>(null);
   const [stripeLoading, setStripeLoading] = useState(false);
   const [payoutLoading, setPayoutLoading] = useState(false);
+  const [siretLoading, setSiretLoading] = useState(false);
+  const [siretInput, setSiretInput] = useState("");
+  const [showSiretForm, setShowSiretForm] = useState(false);
+
+  const CALENDLY_EXPERT_URL =
+    process.env.NEXT_PUBLIC_CALENDLY_EXPERT_CALL_URL ||
+    "https://calendly.com/naano-expert/10min";
 
   // Debug: Log what we're rendering
   useEffect(() => {
@@ -264,6 +278,10 @@ export default function FinancesPageClient({
 
   // Creator View
   if (isCreator && creatorData) {
+    const canWithdraw = creatorData.canWithdraw ?? true;
+    const legalStatus = creatorData.legalStatus ?? "particulier";
+    const hasSiret = creatorData.hasSiret ?? false;
+
     return (
       <div className="max-w-5xl">
         {/* Header */}
@@ -423,6 +441,41 @@ export default function FinancesPageClient({
           />
         </div>
 
+        {/* €400 banner: Particulier without SIRET approaching €500 cap */}
+        {legalStatus === "particulier" &&
+          !hasSiret &&
+          creatorData.totalEarned >= 400 &&
+          creatorData.totalEarned < 500 && (
+          <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200">
+            <p className="text-sm text-amber-800 font-medium">
+              Plus que {Math.ceil(500 - creatorData.totalEarned)} € avant le
+              palier Pro. Anticipez votre création d&apos;entreprise !
+            </p>
+            <p className="text-xs text-amber-700 mt-1">
+              Créer votre micro-entreprise prend 15 minutes et débloque des
+              retraits illimités.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <a
+                href={CALENDLY_EXPERT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-800 text-sm font-medium transition-colors"
+              >
+                <Calendar className="w-4 h-4" />
+                Prendre RDV pour créer mon Auto-Entreprise
+              </a>
+              <button
+                type="button"
+                onClick={() => setShowSiretForm(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-200 hover:bg-amber-300 text-amber-900 text-sm font-medium transition-colors"
+              >
+                Saisir mon SIRET
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Wallet Overview - Simplified */}
         <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-6 shadow-sm">
           <h3 className="font-semibold text-[#111827] mb-4 flex items-center gap-2">
@@ -539,23 +592,52 @@ export default function FinancesPageClient({
 
             {creatorData.stripeConnected ? (
               creatorData.availableBalance >= creatorData.minPayout ? (
-                <button
-                  onClick={handleRequestPayout}
-                  disabled={payoutLoading}
-                  className="w-full py-3 bg-[#0F172A] hover:bg-[#020617] text-white rounded-xl font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {payoutLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Traitement en cours...
-                    </>
-                  ) : (
-                    <>
-                      <Wallet className="w-4 h-4" />
-                      Retirer ({creatorData.availableBalance.toFixed(2)}€)
-                    </>
-                  )}
-                </button>
+                canWithdraw ? (
+                  <button
+                    onClick={handleRequestPayout}
+                    disabled={payoutLoading}
+                    className="w-full py-3 bg-[#0F172A] hover:bg-[#020617] text-white rounded-xl font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {payoutLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Traitement en cours...
+                      </>
+                    ) : (
+                      <>
+                        <Wallet className="w-4 h-4" />
+                        Demander un virement ({creatorData.availableBalance.toFixed(2)}€)
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                      <p className="text-sm text-amber-800 font-medium">
+                        {creatorData.withdrawBlockReason ||
+                          "Pour débloquer votre virement, renseignez un SIRET."}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <a
+                        href={CALENDLY_EXPERT_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white text-sm font-medium transition-colors"
+                      >
+                        <Calendar className="w-4 h-4" />
+                        Prendre RDV pour créer mon Auto-Entreprise
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => setShowSiretForm(true)}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 text-[#111827] text-sm font-medium transition-colors"
+                      >
+                        Saisir mon SIRET
+                      </button>
+                    </div>
+                  </div>
+                )
               ) : (
                 <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
                   <p className="text-sm text-amber-700">
@@ -575,6 +657,79 @@ export default function FinancesPageClient({
                 </p>
               </div>
             )}
+          </div>
+        )}
+
+        {/* SIRET entry modal (for Particuliers blocked at €500) */}
+        {showSiretForm && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white border border-gray-200 rounded-2xl p-6 max-w-md w-full shadow-xl">
+              <h3 className="text-lg font-semibold text-[#111827] mb-2">
+                Saisir mon SIRET
+              </h3>
+              <p className="text-sm text-[#64748B] mb-4">
+                Dès validation, votre compte bascule en statut Pro et débloque
+                tous les fonds en attente.
+              </p>
+              {error && (
+                <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  {error}
+                </div>
+              )}
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  setSiretLoading(true);
+                  setError(null);
+                  const result = await updateCreatorSiret(siretInput);
+                  setSiretLoading(false);
+                  if (result?.error) {
+                    setError(result.error);
+                  } else {
+                    setShowSiretForm(false);
+                    setSiretInput("");
+                    router.refresh();
+                  }
+                }}
+                className="space-y-4"
+              >
+                <input
+                  type="text"
+                  value={siretInput}
+                  onChange={(e) => setSiretInput(e.target.value)}
+                  placeholder="123 456 789 00012"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10"
+                  required
+                  minLength={9}
+                />
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowSiretForm(false);
+                      setSiretInput("");
+                      setError(null);
+                    }}
+                    disabled={siretLoading}
+                    className="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-[#111827] rounded-xl font-medium transition-colors disabled:opacity-50"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={siretLoading}
+                    className="flex-1 py-2.5 bg-[#0F172A] hover:bg-[#1E293B] text-white rounded-xl font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {siretLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      "Valider"
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
 

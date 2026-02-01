@@ -2,37 +2,28 @@
 
 import { useState } from "react";
 import { completeCreatorOnboarding } from "@/app/(dashboard)/actions";
-import { Loader2, AlertCircle, Linkedin, Users } from "lucide-react";
+import { Loader2, AlertCircle, Linkedin, Users, FileText, Calendar } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-const EXPERTISE_SECTORS = [
-  "Tech / SaaS",
-  "Digital Marketing",
-  "Finance / Fintech",
-  "Entrepreneurship",
-  "Productivity",
-  "Leadership",
-  "Sales",
-  "Human Resources",
-  "Data / Analytics",
-  "Design / UX",
-  "AI / Innovation",
-  "Other",
+const THEMES = [
+  { value: "tech", label: "Tech" },
+  { value: "business", label: "Business" },
+  { value: "lifestyle", label: "Lifestyle" },
 ];
+
+const CALENDLY_EXPERT_URL =
+  process.env.NEXT_PUBLIC_CALENDLY_EXPERT_CALL_URL ||
+  "https://calendly.com/naano-expert/10min";
+const MICROENTREPRISE_PDF_URL =
+  process.env.NEXT_PUBLIC_MICROENTREPRISE_PDF_URL ||
+  "/docs/creer-micro-entreprise-15min.pdf";
 
 export default function CreatorOnboardingForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
-
-  function toggleSector(sector: string) {
-    setSelectedSectors((prev) =>
-      prev.includes(sector)
-        ? prev.filter((s) => s !== sector)
-        : [...prev, sector],
-    );
-  }
+  const [legalStatus, setLegalStatus] = useState<"particulier" | "professionnel">("particulier");
+  const [theme, setTheme] = useState<string>("");
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -40,7 +31,8 @@ export default function CreatorOnboardingForm() {
     setError(null);
 
     const formData = new FormData(event.currentTarget);
-    formData.append("expertiseSectors", selectedSectors.join(","));
+    formData.append("legalStatus", legalStatus);
+    formData.append("theme", theme);
 
     const result = await completeCreatorOnboarding(formData);
 
@@ -62,25 +54,91 @@ export default function CreatorOnboardingForm() {
         </div>
       )}
 
+      {/* Step 2: Profil & Identification */}
       <div className="space-y-5">
-        {/* Bio */}
+        <h3 className="text-sm font-semibold text-[#0F172A]">
+          Informations personnelles *
+        </h3>
+        <p className="text-xs text-[#64748B]">
+          Ces données serviront à la génération automatique des contrats.
+        </p>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-[#475569] mb-2">
+              Prénom *
+            </label>
+            <input
+              name="firstName"
+              required
+              placeholder="Jean"
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[#475569] mb-2">
+              Nom *
+            </label>
+            <input
+              name="lastName"
+              required
+              placeholder="Dupont"
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
+            />
+          </div>
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            Bio *
+            Date de naissance *
           </label>
-          <textarea
-            name="bio"
+          <input
+            name="dateOfBirth"
+            type="date"
             required
-            rows={4}
-            placeholder="Introduce yourself in a few lines: your background, expertise, what you're passionate about..."
-            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all resize-none"
+            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
           />
         </div>
 
-        {/* LinkedIn URL */}
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            LinkedIn Profile *
+            Adresse postale complète *
+          </label>
+          <input
+            name="streetAddress"
+            required
+            placeholder="123 rue de la Paix"
+            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all mb-3"
+          />
+          <div className="grid grid-cols-3 gap-3">
+            <input
+              name="postalCode"
+              required
+              placeholder="CP"
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
+            />
+            <input
+              name="city"
+              required
+              placeholder="Ville"
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
+            />
+            <input
+              name="country"
+              required
+              placeholder="Pays"
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
+            />
+          </div>
+        </div>
+
+        <h3 className="text-sm font-semibold text-[#0F172A] pt-4">
+          Informations sociales
+        </h3>
+
+        <div>
+          <label className="block text-sm font-medium text-[#475569] mb-2">
+            LinkedIn *
           </label>
           <div className="relative">
             <Linkedin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B]" />
@@ -94,88 +152,173 @@ export default function CreatorOnboardingForm() {
           </div>
         </div>
 
-        {/* Stats Row */}
-        <div className="grid grid-cols-2 gap-4">
-          {/* Followers Count */}
-          <div>
-            <label className="block text-sm font-medium text-[#475569] mb-2">
-              Follower Count *
-            </label>
-            <input
-              name="followersCount"
-              type="number"
-              required
-              min="0"
-              placeholder="5000"
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
-            />
-          </div>
-
-          {/* Engagement Rate */}
-          <div>
-            <label className="block text-sm font-medium text-[#475569] mb-2">
-              Engagement Rate (%)
-            </label>
-            <div className="relative">
-              <input
-                name="engagementRate"
-                type="number"
-                min="0"
-                max="100"
-                step="0.1"
-                placeholder="3.5"
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 pr-12 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
-              />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#64748B]">
-                %
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Expertise Sectors */}
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            Expertise Sectors
+            Thématique
           </label>
           <div className="flex flex-wrap gap-2">
-            {EXPERTISE_SECTORS.map((sector) => (
+            {THEMES.map((t) => (
               <button
-                key={sector}
+                key={t.value}
                 type="button"
-                onClick={() => toggleSector(sector)}
-                className={`px-3 py-1.5 rounded-full text-sm transition-all ${
-                  selectedSectors.includes(sector)
-                    ? "bg-[#0F172A] text-white"
-                    : "bg-gray-50 text-[#64748B] hover:bg-gray-100 hover:text-[#111827] border border-gray-200"
+                onClick={() => setTheme(t.value)}
+                className={`px-4 py-2 rounded-full text-sm transition-all border ${
+                  theme === t.value
+                    ? "bg-[#0F172A] text-white border-[#0F172A]"
+                    : "bg-gray-50 border-gray-200 text-[#64748B] hover:bg-gray-100"
                 }`}
               >
-                {sector}
+                {t.label}
               </button>
             ))}
           </div>
+          <input type="hidden" name="theme" value={theme} />
         </div>
 
-        {/* Hourly Rate */}
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            Indicative Rate (€/post)
+            Présentation (optionnel)
           </label>
-          <div className="relative">
+          <textarea
+            name="bio"
+            rows={3}
+            placeholder="Quelques lignes sur votre parcours et expertise..."
+            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all resize-none"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-[#475569] mb-2">
+            Derniers posts LinkedIn (optionnel)
+          </label>
+          <input
+            name="recentPostsLinkedin"
+            type="url"
+            placeholder="https://linkedin.com/posts/..."
+            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
+          />
+        </div>
+
+        {/* Choix du Statut */}
+        <h3 className="text-sm font-semibold text-[#0F172A] pt-4">
+          Choix du statut
+        </h3>
+        <div className="space-y-3">
+          <label className="flex items-start gap-3 p-4 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors">
             <input
-              name="hourlyRate"
-              type="number"
-              min="0"
-              placeholder="150"
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 pr-12 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
+              type="radio"
+              name="legalStatus"
+              value="particulier"
+              checked={legalStatus === "particulier"}
+              onChange={() => setLegalStatus("particulier")}
+              className="mt-1"
             />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#64748B]">
-              €
-            </span>
+            <div>
+              <span className="font-medium text-[#111827]">
+                Particulier (Occasionnel)
+              </span>
+              <p className="text-xs text-[#64748B] mt-0.5">
+                Je débute sans SIRET. Retraits limités à 500 € cumulés.
+              </p>
+            </div>
+          </label>
+          <label className="flex items-start gap-3 p-4 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors">
+            <input
+              type="radio"
+              name="legalStatus"
+              value="professionnel"
+              checked={legalStatus === "professionnel"}
+              onChange={() => setLegalStatus("professionnel")}
+              className="mt-1"
+            />
+            <div>
+              <span className="font-medium text-[#111827]">
+                Professionnel (Freelance / AE)
+              </span>
+              <p className="text-xs text-[#64748B] mt-0.5">
+                J&apos;ai déjà un SIRET. Retraits illimités.
+              </p>
+            </div>
+          </label>
+        </div>
+
+        {legalStatus === "professionnel" && (
+          <div>
+            <label className="block text-sm font-medium text-[#475569] mb-2">
+              Numéro SIRET *
+            </label>
+            <input
+              name="siretNumber"
+              required
+              placeholder="123 456 789 00012"
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
+            />
           </div>
-          <p className="text-xs text-[#64748B] mt-1.5">
-            Average price you charge for a sponsored LinkedIn post
-          </p>
+        )}
+
+        {/* Step 3: Bridge for Particulier */}
+        {legalStatus === "particulier" && (
+          <div className="p-4 rounded-xl bg-blue-50 border border-blue-200">
+            <p className="text-sm font-medium text-blue-900 mb-2">
+              💡 Le saviez-vous ?
+            </p>
+            <p className="text-sm text-blue-800 mb-4">
+              Créer votre micro-entreprise prend exactement{" "}
+              <strong>15 minutes</strong> et vous permet de générer des revenus
+              illimités sur Naano.
+            </p>
+            <div className="space-y-2">
+              <a
+                href={MICROENTREPRISE_PDF_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-blue-700 hover:text-blue-900"
+              >
+                <FileText className="w-4 h-4" />
+                Télécharger le guide (PDF)
+              </a>
+              <a
+                href={CALENDLY_EXPERT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-blue-700 hover:text-blue-900"
+              >
+                <Calendar className="w-4 h-4" />
+                Besoin d&apos;aide ? Réserver un call de 10 min avec un expert
+                Naano
+              </a>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Mandate signature */}
+        <h3 className="text-sm font-semibold text-[#0F172A] pt-4">
+          Signature du mandat
+        </h3>
+        <div className="space-y-3">
+          <label className="flex items-start gap-3">
+            <input
+              type="checkbox"
+              name="mandateAccepted"
+              required
+              className="mt-1 rounded border-gray-300"
+            />
+            <span className="text-sm text-[#475569]">
+              J&apos;accepte le Mandat d&apos;Apport d&apos;Affaires Digital.
+            </span>
+          </label>
+          <label className="flex items-start gap-3">
+            <input
+              type="checkbox"
+              name="accuracyCertified"
+              required
+              className="mt-1 rounded border-gray-300"
+            />
+            <span className="text-sm text-[#475569]">
+              Je certifie sur l&apos;honneur l&apos;exactitude des informations
+              fournies.
+            </span>
+          </label>
         </div>
       </div>
 
@@ -187,12 +330,12 @@ export default function CreatorOnboardingForm() {
         {isLoading ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />
-            Saving...
+            Enregistrement...
           </>
         ) : (
           <>
             <Users className="w-5 h-5" />
-            Create Creator Profile
+            Créer mon profil créateur
           </>
         )}
       </button>

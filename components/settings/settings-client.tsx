@@ -423,22 +423,10 @@ export default function SettingsClient({
                   {creatorProfile.followers_count?.toLocaleString() || "0"}
                 </span>
               </div>
-              <div className="flex items-center justify-between py-3 border-b border-gray-200">
-                <span className="text-sm text-[#6B7280]">Engagement</span>
-                <span className="text-sm text-[#111827]">
-                  {creatorProfile.engagement_rate
-                    ? `${creatorProfile.engagement_rate}%`
-                    : "-"}
-                </span>
-              </div>
               <div className="flex items-center justify-between py-3">
-                <span className="text-sm text-[#6B7280]">
-                  Tarif indicatif
-                </span>
-                <span className="text-sm text-[#111827]">
-                  {creatorProfile.hourly_rate
-                    ? `${creatorProfile.hourly_rate}€`
-                    : "-"}
+                <span className="text-sm text-[#6B7280]">Thématique</span>
+                <span className="text-sm text-[#111827] capitalize">
+                  {creatorProfile.theme || "-"}
                 </span>
               </div>
             </div>
@@ -509,18 +497,10 @@ export default function SettingsClient({
                   {saasCompany.website || "-"}
                 </a>
               </div>
-              <div className="flex items-center justify-between py-3 border-b border-gray-200">
+              <div className="flex items-center justify-between py-3">
                 <span className="text-sm text-[#6B7280]">Secteur</span>
                 <span className="text-sm text-[#111827]">
                   {saasCompany.industry || "-"}
-                </span>
-              </div>
-              <div className="flex items-center justify-between py-3">
-                <span className="text-sm text-[#6B7280]">Commission</span>
-                <span className="text-sm text-[#111827]">
-                  {saasCompany.commission_rate
-                    ? `${saasCompany.commission_rate}%`
-                    : "-"}
                 </span>
               </div>
             </div>

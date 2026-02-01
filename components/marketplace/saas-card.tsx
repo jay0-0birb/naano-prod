@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Building2, Globe, Percent, ExternalLink, Send } from "lucide-react";
+import { Building2, ExternalLink, Send } from "lucide-react";
 import type { SaasCompanyWithProfile } from "@/types/database";
 import ApplyModal from "./apply-modal";
 import BudgetWidget from "@/components/collaborations/budget-widget";
@@ -97,18 +97,6 @@ export default function SaasCard({
               renewalDate={company.credit_renewal_date || null}
               saasCompanyName={company.company_name}
             />
-          </div>
-        )}
-
-        {/* Commission Badge */}
-        {company.commission_rate && (
-          <div className="flex items-center gap-2 mb-4">
-            <div className="flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 px-3 py-1.5 rounded-lg">
-              <Percent className="w-4 h-4" />
-              <span className="text-sm font-medium">
-                {company.commission_rate}% commission
-              </span>
-            </div>
           </div>
         )}
 

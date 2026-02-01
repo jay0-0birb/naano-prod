@@ -83,7 +83,6 @@ export default async function CollaborationsPage() {
               logo_url,
               industry,
               website,
-              commission_rate,
               profiles:profile_id (
                 full_name
               )
@@ -238,11 +237,6 @@ export default async function CollaborationsPage() {
                             <span className="text-xs text-[#64748B]">
                               {partner?.industry}
                             </span>
-                            {partner?.commission_rate && (
-                              <span className="text-xs text-green-600 font-medium">
-                                {partner.commission_rate}% commission
-                              </span>
-                            )}
                           </>
                         ) : (
                           <span className="text-xs text-[#64748B]">

@@ -28,10 +28,10 @@ export default async function FinancesPage({ searchParams }: PageProps) {
   const isCreator = profile?.role === 'influencer';
 
   if (isCreator) {
-    // Get creator data (including Pro status)
+    // Get creator data (including Pro status + legal status for €500 cap)
     const { data: creatorProfile } = await supabase
       .from('creator_profiles')
-      .select('id, subscription_tier, stripe_account_id, stripe_onboarding_completed, is_pro, pro_status_source, pro_expiration_date, stripe_subscription_id_pro')
+      .select('id, subscription_tier, stripe_account_id, stripe_onboarding_completed, is_pro, pro_status_source, pro_expiration_date, stripe_subscription_id_pro, legal_status, siret_number')
       .eq('profile_id', user.id)
       .single();
 
@@ -61,6 +61,26 @@ export default async function FinancesPage({ searchParams }: PageProps) {
     const walletSummary = await getCreatorWalletSummary();
     const payoutHistory = await getCreatorPayoutHistory();
 
+    // Check €500 withdrawal cap for Particuliers without SIRET
+    let canWithdraw = true;
+    let withdrawBlockReason: string | null = null;
+    try {
+      const { data: withdrawResult } = await supabase
+        .rpc('can_creator_withdraw', { p_creator_id: creatorProfile.id });
+      const withdrawCheck = Array.isArray(withdrawResult) && withdrawResult.length > 0
+        ? withdrawResult[0]
+        : withdrawResult;
+      if (withdrawCheck && !withdrawCheck.can_withdraw) {
+        canWithdraw = false;
+        withdrawBlockReason = withdrawCheck.reason || null;
+      }
+    } catch {
+      // RPC may not exist yet; allow withdraw
+    }
+
+    const legalStatus = creatorProfile.legal_status || 'particulier';
+    const hasSiret = !!(creatorProfile.siret_number && creatorProfile.siret_number.trim());
+
     return (
       <FinancesPageClient
         isCreator={true}
@@ -78,6 +98,11 @@ export default async function FinancesPage({ searchParams }: PageProps) {
           proStatusSource: creatorProfile.pro_status_source || null,
           proExpirationDate: creatorProfile.pro_expiration_date || null,
           hasProSubscription: !!creatorProfile.stripe_subscription_id_pro,
+          // €500 withdrawal cap (Particulier without SIRET)
+          canWithdraw,
+          withdrawBlockReason,
+          legalStatus,
+          hasSiret,
         }}
         stripeMessage={stripeMessage}
       />

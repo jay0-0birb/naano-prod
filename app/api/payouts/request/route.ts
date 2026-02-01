@@ -45,6 +45,20 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
+    // Check €500 withdrawal cap for Particuliers without SIRET
+    const { data: withdrawResult, error: withdrawCheckError } = await supabaseAdmin
+      .rpc('can_creator_withdraw', { p_creator_id: creatorProfile.id });
+
+    const withdrawCheck = Array.isArray(withdrawResult) && withdrawResult.length > 0
+      ? withdrawResult[0]
+      : withdrawResult;
+
+    if (!withdrawCheckError && withdrawCheck && !withdrawCheck.can_withdraw) {
+      return NextResponse.json({
+        error: withdrawCheck.reason || 'Pour débloquer votre virement, renseignez un SIRET.',
+      }, { status: 400 });
+    }
+
     // Get creator wallet
     const { data: wallet, error: walletError } = await supabaseAdmin
       .from('creator_wallets')

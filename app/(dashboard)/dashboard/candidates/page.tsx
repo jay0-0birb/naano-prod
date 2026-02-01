@@ -41,14 +41,12 @@ export default async function CandidatesPage() {
     .from('applications')
     .select(`
       *,
-      creator_profiles:creator_id (
+        creator_profiles:creator_id (
         id,
         bio,
         linkedin_url,
         followers_count,
-        engagement_rate,
-        expertise_sectors,
-        hourly_rate,
+        theme,
         profiles:profile_id (
           id,
           full_name,

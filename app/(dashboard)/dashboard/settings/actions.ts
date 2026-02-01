@@ -115,10 +115,7 @@ export async function updateCreatorProfile(formData: FormData) {
   const bio = formData.get('bio') as string
   const linkedinUrl = formData.get('linkedinUrl') as string
   const followersCount = parseInt(formData.get('followersCount') as string) || 0
-  const engagementRate = parseFloat(formData.get('engagementRate') as string) || null
-  const expertiseSectorsRaw = formData.get('expertiseSectors') as string
-  const expertiseSectors = expertiseSectorsRaw ? expertiseSectorsRaw.split(',').map(s => s.trim()).filter(Boolean) : []
-  const hourlyRate = parseInt(formData.get('hourlyRate') as string) || null
+  const theme = (formData.get('theme') as string) || null
 
   const { error } = await supabase
     .from('creator_profiles')
@@ -126,9 +123,7 @@ export async function updateCreatorProfile(formData: FormData) {
       bio,
       linkedin_url: linkedinUrl,
       followers_count: followersCount,
-      engagement_rate: engagementRate,
-      expertise_sectors: expertiseSectors.length > 0 ? expertiseSectors : null,
-      hourly_rate: hourlyRate,
+      theme: theme || null,
     })
     .eq('profile_id', user.id)
 
@@ -153,7 +148,6 @@ export async function updateSaasProfile(formData: FormData) {
   const description = formData.get('description') as string
   const website = formData.get('website') as string
   const industry = formData.get('industry') as string
-  const commissionRate = parseFloat(formData.get('commissionRate') as string) || null
   const conditions = formData.get('conditions') as string
   const logoFile = formData.get('logo') as File | null
   const removeLogo = formData.get('removeLogo') === 'true'
@@ -171,7 +165,6 @@ export async function updateSaasProfile(formData: FormData) {
     description,
     website,
     industry,
-    commission_rate: commissionRate,
     conditions,
   }
   if (logoUrl !== undefined) updateData.logo_url = logoUrl

@@ -80,8 +80,7 @@ export default async function ApplicationsPage() {
         company_name,
         logo_url,
         industry,
-        website,
-        commission_rate
+        website
       )
     `,
     )
@@ -155,11 +154,6 @@ export default async function ApplicationsPage() {
                         <span className="text-xs text-[#64748B]">
                           {company?.industry}
                         </span>
-                        {company?.commission_rate && (
-                          <span className="text-xs text-green-600 font-medium">
-                            {company.commission_rate}% commission
-                          </span>
-                        )}
                       </div>
                     </div>
                   </div>

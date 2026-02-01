@@ -15,7 +15,6 @@ export async function completeSaasOnboarding(formData: FormData) {
   const description = formData.get('description') as string
   const website = formData.get('website') as string
   const industry = formData.get('industry') as string
-  const commissionRate = parseFloat(formData.get('commissionRate') as string) || 0
   const conditions = formData.get('conditions') as string
   const mediaPackUrl = formData.get('mediaPackUrl') as string | null
   const country = formData.get('country') as string
@@ -38,7 +37,6 @@ export async function completeSaasOnboarding(formData: FormData) {
         description,
         website,
         industry,
-        commission_rate: commissionRate,
         conditions,
         media_pack_url: mediaPackUrl,
         country: country || null,
@@ -61,7 +59,6 @@ export async function completeSaasOnboarding(formData: FormData) {
         description,
         website,
         industry,
-        commission_rate: commissionRate,
         conditions,
         media_pack_url: mediaPackUrl,
         country: country || null,
@@ -97,13 +94,42 @@ export async function completeCreatorOnboarding(formData: FormData) {
     return { error: 'Non authentifié' }
   }
 
-  const bio = formData.get('bio') as string
+  const legalStatus = formData.get('legalStatus') as 'particulier' | 'professionnel'
+  const firstName = formData.get('firstName') as string
+  const lastName = formData.get('lastName') as string
+  const dateOfBirth = formData.get('dateOfBirth') as string
+  const streetAddress = formData.get('streetAddress') as string
+  const postalCode = formData.get('postalCode') as string
+  const city = formData.get('city') as string
+  const country = formData.get('country') as string
   const linkedinUrl = formData.get('linkedinUrl') as string
-  const followersCount = parseInt(formData.get('followersCount') as string) || 0
-  const engagementRate = parseFloat(formData.get('engagementRate') as string) || 0
-  const expertiseSectorsRaw = formData.get('expertiseSectors') as string
-  const expertiseSectors = expertiseSectorsRaw ? expertiseSectorsRaw.split(',').map(s => s.trim()) : []
-  const hourlyRate = parseInt(formData.get('hourlyRate') as string) || null
+  const theme = formData.get('theme') as string | null
+  const bio = formData.get('bio') as string | null
+  const recentPostsLinkedin = formData.get('recentPostsLinkedin') as string | null
+  const siretNumber = formData.get('siretNumber') as string | null
+
+  const updateData: Record<string, unknown> = {
+    first_name: firstName,
+    last_name: lastName,
+    date_of_birth: dateOfBirth || null,
+    street_address: streetAddress,
+    postal_code: postalCode,
+    city,
+    country,
+    linkedin_url: linkedinUrl,
+    theme: theme || null,
+    bio: bio || null,
+    legal_status: legalStatus || 'particulier',
+    mandate_accepted_at: new Date().toISOString(),
+  }
+
+  if (legalStatus === 'professionnel' && siretNumber) {
+    updateData.siret_number = siretNumber
+  }
+
+  if (recentPostsLinkedin) {
+    updateData.recent_posts_linkedin = recentPostsLinkedin
+  }
 
   // Check if creator profile already exists
   const { data: existingProfile } = await supabase
@@ -113,39 +139,34 @@ export async function completeCreatorOnboarding(formData: FormData) {
     .single()
 
   if (existingProfile) {
-    // Update existing profile
     const { error } = await supabase
       .from('creator_profiles')
-      .update({
-        bio,
-        linkedin_url: linkedinUrl,
-        followers_count: followersCount,
-        engagement_rate: engagementRate,
-        expertise_sectors: expertiseSectors,
-        hourly_rate: hourlyRate,
-      })
+      .update(updateData)
       .eq('profile_id', user.id)
 
     if (error) {
       return { error: error.message }
     }
   } else {
-    // Create new profile
     const { error } = await supabase
       .from('creator_profiles')
       .insert({
         profile_id: user.id,
-        bio,
-        linkedin_url: linkedinUrl,
-        followers_count: followersCount,
-        engagement_rate: engagementRate,
-        expertise_sectors: expertiseSectors,
-        hourly_rate: hourlyRate,
+        ...updateData,
       })
 
     if (error) {
       return { error: error.message }
     }
+  }
+
+  // Update profiles full_name from first + last
+  const fullName = [firstName, lastName].filter(Boolean).join(' ')
+  if (fullName) {
+    await supabase
+      .from('profiles')
+      .update({ full_name: fullName })
+      .eq('id', user.id)
   }
 
   // Mark onboarding as completed

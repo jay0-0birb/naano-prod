@@ -76,7 +76,6 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
           logo_url,
           industry,
           website,
-          commission_rate,
           description,
           subscription_tier,
           wallet_credits,
@@ -236,11 +235,6 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
                     <span className="text-sm text-[#64748B]">
                       {partner?.industry}
                     </span>
-                    {partner?.commission_rate && (
-                      <span className="text-sm font-medium text-emerald-600">
-                        {partner.commission_rate}% commission
-                      </span>
-                    )}
                   </>
                 ) : (
                   <span className="text-sm text-[#64748B]">

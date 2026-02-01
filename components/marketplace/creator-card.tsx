@@ -3,8 +3,6 @@
 import { useState } from "react";
 import {
   Users,
-  TrendingUp,
-  Briefcase,
   Mail,
   CheckCircle2,
   Loader2,
@@ -18,8 +16,7 @@ interface CreatorCardProps {
     bio: string | null;
     linkedin_url: string | null;
     followers_count: number;
-    engagement_rate: number | null;
-    expertise_sectors: string[] | null;
+    theme: string | null;
     is_pro?: boolean; // Pro status
     profiles: {
       id: string;
@@ -104,44 +101,12 @@ export default function CreatorCard({
           </p>
         )}
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-gray-50 rounded-lg p-3">
-            <div className="flex items-center gap-2 text-[#64748B] text-xs mb-1">
-              <TrendingUp className="w-3 h-3" />
-              <span>Engagement</span>
-            </div>
-            <div className="text-[#111827] font-semibold">
-              {creator.engagement_rate ? `${creator.engagement_rate}%` : "N/A"}
-            </div>
-          </div>
-          <div className="bg-gray-50 rounded-lg p-3">
-            <div className="flex items-center gap-2 text-[#64748B] text-xs mb-1">
-              <Briefcase className="w-3 h-3" />
-              <span>Sectors</span>
-            </div>
-            <div className="text-[#111827] font-semibold">
-              {creator.expertise_sectors?.length || 0}
-            </div>
-          </div>
-        </div>
-
-        {/* Sectors */}
-        {creator.expertise_sectors && creator.expertise_sectors.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {creator.expertise_sectors.slice(0, 3).map((sector) => (
-              <span
-                key={sector}
-                className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md border border-blue-100"
-              >
-                {sector}
-              </span>
-            ))}
-            {creator.expertise_sectors.length > 3 && (
-              <span className="px-2 py-1 bg-gray-50 text-[#64748B] text-xs rounded-md border border-gray-200">
-                +{creator.expertise_sectors.length - 3}
-              </span>
-            )}
+        {/* Theme */}
+        {creator.theme && (
+          <div className="mb-4">
+            <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md border border-blue-100 capitalize">
+              {creator.theme}
+            </span>
           </div>
         )}
 

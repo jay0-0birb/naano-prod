@@ -2,21 +2,12 @@
 
 import { useState } from "react";
 import { updateCreatorProfile } from "@/app/(dashboard)/dashboard/settings/actions";
-import { Loader2, Save, X, Linkedin, Users as UsersIcon } from "lucide-react";
+import { Loader2, Save, X, Linkedin } from "lucide-react";
 
-const EXPERTISE_SECTORS = [
-  "Tech / SaaS",
-  "Marketing Digital",
-  "Finance / Fintech",
-  "Entrepreneuriat",
-  "Productivité",
-  "Leadership",
-  "Ventes / Sales",
-  "Ressources Humaines",
-  "Data / Analytics",
-  "Design / UX",
-  "IA / Innovation",
-  "Autre",
+const THEMES = [
+  { value: "tech", label: "Tech" },
+  { value: "business", label: "Business" },
+  { value: "lifestyle", label: "Lifestyle" },
 ];
 
 interface EditCreatorProfileFormProps {
@@ -25,9 +16,7 @@ interface EditCreatorProfileFormProps {
     bio: string | null;
     linkedin_url: string | null;
     followers_count: number;
-    engagement_rate: number | null;
-    expertise_sectors: string[] | null;
-    hourly_rate: number | null;
+    theme: string | null;
   };
   onClose: () => void;
   onSuccess: () => void;
@@ -40,17 +29,7 @@ export default function EditCreatorProfileForm({
 }: EditCreatorProfileFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedSectors, setSelectedSectors] = useState<string[]>(
-    creatorProfile.expertise_sectors || [],
-  );
-
-  function toggleSector(sector: string) {
-    setSelectedSectors((prev) =>
-      prev.includes(sector)
-        ? prev.filter((s) => s !== sector)
-        : [...prev, sector],
-    );
-  }
+  const [theme, setTheme] = useState<string>(creatorProfile.theme || "");
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -58,7 +37,7 @@ export default function EditCreatorProfileForm({
     setError(null);
 
     const formData = new FormData(event.currentTarget);
-    formData.append("expertiseSectors", selectedSectors.join(","));
+    formData.append("theme", theme);
 
     const result = await updateCreatorProfile(formData);
 
@@ -125,86 +104,41 @@ export default function EditCreatorProfileForm({
             </div>
           </div>
 
-          {/* Stats Row */}
-          <div className="grid grid-cols-2 gap-4">
-            {/* Followers Count */}
-            <div>
-              <label className="block text-sm font-medium text-[#374151] mb-2">
-                Nombre de followers *
-              </label>
-              <input
-                name="followersCount"
-                type="number"
-                required
-                min="0"
-                defaultValue={creatorProfile.followers_count}
-                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
-              />
-            </div>
-
-            {/* Engagement Rate */}
-            <div>
-              <label className="block text-sm font-medium text-[#374151] mb-2">
-                Taux d&apos;engagement (%)
-              </label>
-              <div className="relative">
-                <input
-                  name="engagementRate"
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="0.1"
-                  defaultValue={creatorProfile.engagement_rate || ""}
-                  placeholder="3.5"
-                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 pr-12 text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
-                />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#64748B]">
-                  %
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Expertise Sectors */}
+          {/* Followers Count */}
           <div>
             <label className="block text-sm font-medium text-[#374151] mb-2">
-              Secteurs d&apos;expertise
+              Nombre de followers *
+            </label>
+            <input
+              name="followersCount"
+              type="number"
+              required
+              min="0"
+              defaultValue={creatorProfile.followers_count}
+              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
+            />
+          </div>
+
+          {/* Theme */}
+          <div>
+            <label className="block text-sm font-medium text-[#374151] mb-2">
+              Thématique
             </label>
             <div className="flex flex-wrap gap-2">
-              {EXPERTISE_SECTORS.map((sector) => (
+              {THEMES.map((t) => (
                 <button
-                  key={sector}
+                  key={t.value}
                   type="button"
-                  onClick={() => toggleSector(sector)}
+                  onClick={() => setTheme(t.value)}
                   className={`px-3 py-1.5 rounded-full text-sm transition-all ${
-                    selectedSectors.includes(sector)
+                    theme === t.value
                       ? "bg-[#0F172A] text-white"
                       : "bg-gray-100 text-[#64748B] hover:bg-gray-200 hover:text-[#111827] border border-gray-200"
                   }`}
                 >
-                  {sector}
+                  {t.label}
                 </button>
               ))}
-            </div>
-          </div>
-
-          {/* Hourly Rate */}
-          <div>
-            <label className="block text-sm font-medium text-[#374151] mb-2">
-              Tarif indicatif (€/post)
-            </label>
-            <div className="relative">
-              <input
-                name="hourlyRate"
-                type="number"
-                min="0"
-                defaultValue={creatorProfile.hourly_rate || ""}
-                placeholder="150"
-                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 pr-12 text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
-              />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#64748B]">
-                €
-              </span>
             </div>
           </div>
 

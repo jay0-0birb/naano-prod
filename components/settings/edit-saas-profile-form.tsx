@@ -12,7 +12,6 @@ interface EditSaasProfileFormProps {
     description: string | null;
     website: string | null;
     industry: string | null;
-    commission_rate: number | null;
     conditions: string | null;
     logo_url?: string | null;
   };
@@ -259,50 +258,27 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
             </div>
           </div>
 
-          {/* Industry & Commission Rate */}
-          <div className="grid grid-cols-2 gap-4">
-            {/* Industry */}
-            <div>
-              <label className="block text-sm font-medium text-[#374151] mb-2">
-                Secteur *
-              </label>
-              <select
-                name="industry"
-                required
-                defaultValue={saasCompany.industry || ''}
-                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
-              >
-                <option value="">Sélectionner...</option>
-                <option value="SaaS">SaaS</option>
-                <option value="Marketing">Marketing</option>
-                <option value="Finance">Finance</option>
-                <option value="E-commerce">E-commerce</option>
-                <option value="Productivité">Productivité</option>
-                <option value="RH">Ressources Humaines</option>
-                <option value="Ventes">Ventes</option>
-                <option value="Autre">Autre</option>
-              </select>
-            </div>
-
-            {/* Commission Rate */}
-            <div>
-              <label className="block text-sm font-medium text-[#374151] mb-2">
-                Taux de commission (%)
-              </label>
-              <div className="relative">
-                <input
-                  name="commissionRate"
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="0.1"
-                  defaultValue={saasCompany.commission_rate || ''}
-                  placeholder="15"
-                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 pr-12 text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
-                />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#64748B]">%</span>
-              </div>
-            </div>
+          {/* Industry */}
+          <div>
+            <label className="block text-sm font-medium text-[#374151] mb-2">
+              Secteur *
+            </label>
+            <select
+              name="industry"
+              required
+              defaultValue={saasCompany.industry || ''}
+              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
+            >
+              <option value="">Sélectionner...</option>
+              <option value="SaaS">SaaS</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Finance">Finance</option>
+              <option value="E-commerce">E-commerce</option>
+              <option value="Productivité">Productivité</option>
+              <option value="RH">Ressources Humaines</option>
+              <option value="Ventes">Ventes</option>
+              <option value="Autre">Autre</option>
+            </select>
           </div>
 
           {/* Conditions */}
