@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getCollaborationLeads } from "./actions-v2";
-import { maskIPAddress, formatConfidence, formatDaysAgo } from "@/lib/utils";
+import { maskIPAddress, formatConfidence, formatDaysAgo, getLeadTypeLabel } from "@/lib/utils";
 import {
   HelpCircle,
   Filter,
@@ -122,60 +122,61 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
     return Math.max(lead.company.confidenceScore - decay, 0.3);
   };
 
-  // Download CSV with all fields
+  // Download CSV with all fields (English)
   const handleDownloadCSV = () => {
     if (leads.length === 0) {
-      alert("Aucune donnée à exporter");
+      alert("No data to export");
       return;
     }
 
-    // Define CSV headers with all useful fields
+    // Define CSV headers (English)
     const headers = [
       // Basic info
       "Date",
-      "Heure",
-      "Créateur",
+      "Time",
+      "Creator",
       // Layer 1: Session Intelligence
-      "IP (masquée)",
-      "Pays",
-      "Ville",
-      "Type d'appareil",
+      "IP (masked)",
+      "Country",
+      "City",
+      "Device type",
       "OS",
-      "Navigateur",
-      "Type de réseau",
-      "Temps sur site (s)",
-      "Référent",
+      "Browser",
+      "Network type",
+      "Lead type",
+      "Time on site (s)",
+      "Referrer",
       "Session ID",
       // Layer 2: Company Inference
-      "Nom entreprise",
-      "Domaine entreprise",
-      "Industrie",
-      "Taille entreprise",
-      "Localisation entreprise",
-      "Score de confiance",
-      "Confiance effective",
-      "État d'attribution",
-      "Raisons de confiance",
-      "ASN Organisation",
-      "Ambigu",
-      "Date d'enrichissement",
-      "Date de confirmation",
+      "Company name",
+      "Company domain",
+      "Industry",
+      "Company size",
+      "Company location",
+      "Confidence score",
+      "Effective confidence",
+      "Attribution state",
+      "Confidence reasons",
+      "ASN Organization",
+      "Ambiguous",
+      "Enrichment date",
+      "Confirmation date",
       // Layer 3: Intent Scoring
-      "Score intention session",
-      "Score intention entreprise (moyen)",
-      "Score intention entreprise (max)",
-      "Tendance intention",
-      "Visite répétée",
-      "Nombre de visites",
-      "Heures de travail",
-      "Poids de récence",
-      "Jours depuis session",
-      "A vu tarifs",
-      "A vu sécurité",
-      "A vu intégrations",
-      "Total sessions entreprise",
-      "Visites répétées entreprise",
-      "Dernière haute intention",
+      "Session intent score",
+      "Company intent score (avg)",
+      "Company intent score (max)",
+      "Intent trend",
+      "Repeat visit",
+      "Visit count",
+      "Working hours",
+      "Recency weight",
+      "Days since session",
+      "Viewed pricing",
+      "Viewed security",
+      "Viewed integrations",
+      "Company total sessions",
+      "Company repeat visits",
+      "Last high intent",
     ];
 
     // Convert leads to CSV rows
@@ -186,8 +187,8 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
 
       return [
         // Basic info
-        date.toLocaleDateString("fr-FR"),
-        date.toLocaleTimeString("fr-FR"),
+        date.toISOString().split("T")[0],
+        date.toTimeString().slice(0, 8),
         lead.creatorName,
         // Layer 1
         maskIPAddress(lead.session.ipAddress),
@@ -197,6 +198,7 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
         lead.session.os || "",
         lead.session.browser || "",
         lead.session.networkType || "",
+        getLeadTypeLabel(lead.session.networkType),
         lead.session.timeOnSite?.toString() || "",
         lead.session.referrer || "",
         lead.session.sessionId || "",
@@ -213,12 +215,12 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
         lead.company?.attributionState || "",
         lead.company?.confidenceReasons.join("; ") || "",
         lead.company?.asnOrganization || "",
-        lead.company?.isAmbiguous ? "Oui" : "Non",
+        lead.company?.isAmbiguous ? "Yes" : "No",
         lead.company?.createdAt
-          ? new Date(lead.company.createdAt).toLocaleString("fr-FR")
+          ? new Date(lead.company.createdAt).toISOString()
           : "",
         lead.company?.confirmedAt
-          ? new Date(lead.company.confirmedAt).toLocaleString("fr-FR")
+          ? new Date(lead.company.confirmedAt).toISOString()
           : "",
         // Layer 3
         lead.intent?.score.toString() || "",
@@ -227,20 +229,20 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
           : "",
         companyIntent ? companyIntent.max_intent_score.toString() : "",
         companyIntent?.intent_trend || "",
-        lead.intent?.isRepeatVisit ? "Oui" : "Non",
+        lead.intent?.isRepeatVisit ? "Yes" : "No",
         lead.intent?.visitCount.toString() || "",
-        lead.intent?.signals?.isWorkingHours ? "Oui" : "Non",
+        lead.intent?.signals?.isWorkingHours ? "Yes" : "No",
         lead.intent?.recencyWeight
           ? (lead.intent.recencyWeight * 100).toFixed(0) + "%"
           : "",
         lead.intent?.daysSinceSession?.toString() || "",
-        lead.intent?.viewedPricing ? "Oui" : "Non",
-        lead.intent?.viewedSecurity ? "Oui" : "Non",
-        lead.intent?.viewedIntegrations ? "Oui" : "Non",
+        lead.intent?.viewedPricing ? "Yes" : "No",
+        lead.intent?.viewedSecurity ? "Yes" : "No",
+        lead.intent?.viewedIntegrations ? "Yes" : "No",
         companyIntent?.total_sessions.toString() || "",
         companyIntent?.repeat_visits.toString() || "",
         companyIntent?.last_high_intent_at
-          ? new Date(companyIntent.last_high_intent_at).toLocaleString("fr-FR")
+          ? new Date(companyIntent.last_high_intent_at).toISOString()
           : "",
       ];
     });

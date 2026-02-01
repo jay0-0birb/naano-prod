@@ -63,6 +63,23 @@ export function getConfidenceColor(score: number): string {
 }
 
 /**
+ * Map network_type to human-friendly Lead type label (for CSV export)
+ */
+export function getLeadTypeLabel(networkType: string | null): string {
+  if (!networkType) return "Unknown";
+  const map: Record<string, string> = {
+    corporate: "Corporate",
+    residential: "Individual",
+    mobile: "Mobile",
+    hosting: "Hosting",
+    vpn: "VPN",
+    proxy: "Proxy",
+    unknown: "Unknown",
+  };
+  return map[networkType.toLowerCase()] ?? networkType;
+}
+
+/**
  * Format days ago
  */
 export function formatDaysAgo(days: number | null): string {
