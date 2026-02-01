@@ -16,7 +16,7 @@ const CALENDLY_EXPERT_URL =
   "https://calendly.com/naano-expert/10min";
 const MICROENTREPRISE_PDF_URL =
   process.env.NEXT_PUBLIC_MICROENTREPRISE_PDF_URL ||
-  "/docs/creer-micro-entreprise-15min.pdf";
+  "/creer-micro-entreprise-15min.pdf";
 
 export default function CreatorOnboardingForm() {
   const router = useRouter();
