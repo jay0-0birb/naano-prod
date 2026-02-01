@@ -33,6 +33,42 @@ interface CompanyEnrichmentResult {
 }
 
 /**
+ * Fetch with exponential backoff retry for rate limits and transient failures
+ */
+async function fetchWithRetry(
+  url: string,
+  options: { maxRetries?: number; baseDelayMs?: number } = {}
+): Promise<Response> {
+  const { maxRetries = 2, baseDelayMs = 500 } = options;
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+      });
+      // Retry on 429 (rate limit) or 5xx (server error)
+      if ((response.status === 429 || response.status >= 500) && attempt < maxRetries) {
+        const delayMs = baseDelayMs * Math.pow(2, attempt);
+        await new Promise((r) => setTimeout(r, delayMs));
+        continue;
+      }
+      return response;
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      if (attempt < maxRetries) {
+        const delayMs = baseDelayMs * Math.pow(2, attempt);
+        await new Promise((r) => setTimeout(r, delayMs));
+        continue;
+      }
+      throw lastError;
+    }
+  }
+  throw lastError ?? new Error('Fetch failed');
+}
+
+/**
  * Enrich IP address with company information
  * Uses IPinfo.io API (free tier: 50k requests/month)
  * Falls back to ip-api.com if needed
@@ -66,41 +102,38 @@ export async function enrichCompanyFromIP(ipAddress: string): Promise<CompanyEnr
   }
 
   try {
-    // Try IPinfo.io first (better for company data)
+    // Try IPinfo.io first (better for company data) with retry/backoff
     const ipinfoKey = process.env.IPINFO_API_KEY; // Optional, works without key but limited
     const ipinfoUrl = ipinfoKey 
       ? `https://ipinfo.io/${ipAddress}?token=${ipinfoKey}`
       : `https://ipinfo.io/${ipAddress}`;
     
-    const response = await fetch(ipinfoUrl, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
+    const response = await fetchWithRetry(ipinfoUrl, { maxRetries: 2, baseDelayMs: 500 });
 
     if (response.ok) {
       const data = await response.json();
       return parseIPinfoResponse(data);
     }
+    if (response.status === 429) {
+      console.warn('IPinfo rate limit hit, falling back to ip-api');
+    }
   } catch (error) {
     console.error('Error fetching from IPinfo:', error);
   }
 
-  // Fallback: Try ip-api.com
+  // Fallback: Try ip-api.com with retry/backoff
   try {
-    const response = await fetch(`http://ip-api.com/json/${ipAddress}?fields=status,country,countryCode,city,org,as,query,proxy,hosting,mobile`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
+    const ipApiUrl = `http://ip-api.com/json/${ipAddress}?fields=status,country,countryCode,city,org,as,query,proxy,hosting,mobile`;
+    const response = await fetchWithRetry(ipApiUrl, { maxRetries: 2, baseDelayMs: 300 });
 
     if (response.ok) {
       const data = await response.json();
       if (data.status === 'success') {
         return parseIPApiResponse(data);
       }
+    }
+    if (response.status === 429) {
+      console.warn('ip-api rate limit hit');
     }
   } catch (error) {
     console.error('Error fetching from ip-api:', error);

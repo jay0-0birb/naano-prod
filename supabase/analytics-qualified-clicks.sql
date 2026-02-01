@@ -3,9 +3,8 @@
 -- =====================================================
 -- Implements filtering for qualified clicks:
 -- 1. Anti-Bot: Filters known bot user agents
--- 2. IP Deduplication: Filters duplicate IPs within 1 hour
--- 3. Geo-targeting: (Future - requires IP geolocation)
--- 4. 3-second rule: (Future - requires SaaS-side integration)
+-- 2. 3-second rule: User stayed 3+ seconds on redirect page (time_on_site)
+-- 3. IP Deduplication: Filters duplicate IPs within 1 hour
 -- =====================================================
 
 -- Function to check if user agent is a bot
@@ -59,7 +58,8 @@ BEGIN
       le.ip_address,
       le.user_agent,
       le.occurred_at,
-      le.tracked_link_id
+      le.tracked_link_id,
+      le.time_on_site
     FROM link_events le
     JOIN tracked_links tl ON tl.id = le.tracked_link_id
     WHERE tl.collaboration_id = collab_id
@@ -70,12 +70,22 @@ BEGIN
     FROM all_clicks
     WHERE NOT is_bot_user_agent(user_agent)
   ),
+  filtered_3sec AS (
+    -- 3-second rule: only include clicks where user stayed 3+ seconds on redirect page
+    -- OR time_on_site is NULL AND click is very recent (within last 5 minutes)
+    -- The grace period covers clicks where 3sec API hasn't updated yet
+    -- Old clicks (before 3-sec rule) with NULL time_on_site are excluded
+    SELECT *
+    FROM filtered_bots
+    WHERE time_on_site >= 3
+       OR (time_on_site IS NULL AND occurred_at > NOW() - INTERVAL '5 minutes')
+  ),
   deduplicated AS (
     SELECT DISTINCT ON (ip_address, DATE_TRUNC('hour', occurred_at))
       id,
       ip_address,
       occurred_at
-    FROM filtered_bots
+    FROM filtered_3sec
     ORDER BY ip_address, DATE_TRUNC('hour', occurred_at), occurred_at DESC
   )
   SELECT COUNT(*) INTO qualified_count

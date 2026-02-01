@@ -56,7 +56,20 @@ supabase db execute -f supabase/fix-creator-wallet-credit-system.sql
 
 ---
 
-## Step 6: Remove old BP1 payment system
+## Step 6: Qualified leads only (Option A)
+
+```bash
+supabase db execute -f supabase/analytics-qualified-clicks.sql   # if not run yet (is_bot_user_agent)
+supabase db execute -f supabase/add-3sec-geo-tracking.sql       # if not run yet (time_on_site)
+supabase db execute -f supabase/qualified-lead-only-migration.sql
+```
+
+**Requires:** `analytics-qualified-clicks.sql` and `add-3sec-geo-tracking.sql` for `is_bot_user_agent` and `time_on_site`.  
+**Effect:** Leads (credit deduction, creator payout) are created ONLY for qualified clicks: not bot, time_on_site >= 3, dedup by IP/hour.
+
+---
+
+## Step 7: Remove old BP1 payment system
 
 ```bash
 supabase db execute -f supabase/remove-old-payment-system.sql
@@ -94,6 +107,9 @@ If your app is already running and you're migrating from BP1 to credit system:
 ```bash
 supabase db execute -f supabase/credit-system-migration.sql      # if not run yet
 supabase db execute -f supabase/fix-creator-wallet-credit-system.sql
+supabase db execute -f supabase/analytics-qualified-clicks.sql    # if not run yet
+supabase db execute -f supabase/add-3sec-geo-tracking.sql        # if not run yet
+supabase db execute -f supabase/qualified-lead-only-migration.sql
 supabase db execute -f supabase/remove-old-payment-system.sql
 ```
 
@@ -106,5 +122,8 @@ supabase db execute -f supabase/bp1-billing-payout.sql
 supabase db execute -f supabase/tracking-system-v2.sql
 supabase db execute -f supabase/credit-system-migration.sql
 supabase db execute -f supabase/fix-creator-wallet-credit-system.sql
+supabase db execute -f supabase/analytics-qualified-clicks.sql
+supabase db execute -f supabase/add-3sec-geo-tracking.sql
+supabase db execute -f supabase/qualified-lead-only-migration.sql
 supabase db execute -f supabase/remove-old-payment-system.sql
 ```

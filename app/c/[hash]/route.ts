@@ -166,130 +166,7 @@ export async function GET(
         console.error(`Error logging ${eventType}:`, insertResult.error);
       }
 
-      if (eventType === "click") {
-        // Automatically create a lead for this click
-        console.log("[LEAD CREATION] Starting lead creation for click...");
-
-        // Fetch collaboration data directly to get creator_id and saas_id
-        const { data: collaboration, error: collabError } = await supabase
-          .from("collaborations")
-          .select(
-            `
-            id,
-            application_id,
-            applications:application_id (
-              creator_id,
-              saas_id
-            )
-          `,
-          )
-          .eq("id", trackingLink.collaboration_id)
-          .single();
-
-        if (collabError) {
-          console.error(
-            "[LEAD CREATION] ❌ Error fetching collaboration:",
-            collabError,
-          );
-        } else if (!collaboration) {
-          console.error(
-            "[LEAD CREATION] ❌ Collaboration not found:",
-            trackingLink.collaboration_id,
-          );
-        } else {
-          // Try to get IDs from nested structure first
-          let creatorId = (collaboration as any)?.applications?.creator_id;
-          let saasId = (collaboration as any)?.applications?.saas_id;
-
-          // Fallback: fetch application directly if nested structure failed
-          if (!creatorId || !saasId) {
-            console.log(
-              "[LEAD CREATION] Nested structure failed, fetching application directly...",
-            );
-            const { data: application, error: appError } = await supabase
-              .from("applications")
-              .select("creator_id, saas_id")
-              .eq("id", collaboration.application_id)
-              .single();
-
-            if (appError) {
-              console.error(
-                "[LEAD CREATION] ❌ Error fetching application:",
-                appError,
-              );
-            } else {
-              creatorId = application?.creator_id;
-              saasId = application?.saas_id;
-            }
-          }
-
-          console.log("[LEAD CREATION] Attempting to create lead:", {
-            collaboration_id: trackingLink.collaboration_id,
-            application_id: collaboration.application_id,
-            creator_id: creatorId,
-            saas_id: saasId,
-            tracked_link_id: trackingLink.id,
-          });
-
-          if (!creatorId || !saasId) {
-            console.error("[LEAD CREATION] ❌ Missing creator_id or saas_id:", {
-              creatorId,
-              saasId,
-            });
-          } else {
-            // CREDIT SYSTEM: Check if SaaS has credits before creating lead
-            const { data: saas } = await supabase
-              .from("saas_companies")
-              .select("wallet_credits")
-              .eq("id", saasId)
-              .single();
-
-            const walletCredits = saas?.wallet_credits || 0;
-
-            if (walletCredits <= 0) {
-              console.log(
-                "[LEAD CREATION] ⚠️ Blocked - insufficient credits:",
-                { saasId, credits: walletCredits },
-              );
-              // Still redirect user, but don't create lead or pay creator
-            } else {
-              // Create lead using new credit-based function
-              // This deducts 1 credit and pays creator (€0.90 or €1.10)
-              const { data: leadId, error: leadError } = await supabase.rpc(
-                "create_lead_with_credits",
-                {
-                  p_tracked_link_id: trackingLink.id,
-                  p_creator_id: creatorId,
-                  p_saas_id: saasId,
-                },
-              );
-
-              if (leadError) {
-                console.error(
-                  "[LEAD CREATION] ❌ Error creating lead:",
-                  leadError,
-                );
-                console.error(
-                  "[LEAD CREATION] Error details:",
-                  JSON.stringify(leadError, null, 2),
-                );
-
-                // If credits insufficient, log but continue (user still gets redirected)
-                if (leadError.message?.includes("Insufficient credits")) {
-                  console.log(
-                    "[LEAD CREATION] ⚠️ Blocked - insufficient credits",
-                  );
-                }
-              } else {
-                console.log(
-                  "[LEAD CREATION] ✅ Lead created successfully! Lead ID:",
-                  leadId,
-                );
-              }
-            }
-          }
-        }
-      }
+      // Lead creation deferred to 3sec API - only qualified clicks (bot filter, 3-sec rule, dedup) create leads
     }
 
     // 6. Build the destination URL with UTM parameters
@@ -420,6 +297,10 @@ export async function GET(
             </style>
           </head>
           <body>
+            <noscript>
+              <meta http-equiv="refresh" content="0;url=${destinationUrl.toString().replace(/&/g, "&amp;").replace(/"/g, "&quot;")}">
+              <p>Redirecting...</p>
+            </noscript>
             <div class="loader">
               <div class="spinner"></div>
               <p>Redirecting...</p>
