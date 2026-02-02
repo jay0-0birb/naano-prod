@@ -155,6 +155,43 @@
       "a4": "Le paiement est libéré instantanément une fois que la marque valide votre livrable. Les fonds sont sécurisés à l'avance quand une campagne est approuvée, vous êtes garanti d'être payé pour le travail complété."
     }
   },
+  "about": {
+    "title": "À propos",
+    "subtitle": "La marketplace UGC B2B qui connecte les entreprises tech avec des nano-créateurs vérifiés.",
+    "section1Title": "À propos",
+    "section1P1": "Naano connecte les entreprises qui veulent croître avec des micro-créateurs LinkedIn qui veulent monétiser leur réseau.",
+    "section1P2": "Nous croyons que la croissance fonctionne mieux quand elle est portée par des humains, pas des pubs.",
+    "section1P3": "C'est pourquoi nous aidons les entreprises à scaler via le Creator-Led Growth : des professionnels qui parlent à de vraies audiences.",
+    "section2Title": "Notre mission",
+    "section2P1": "Faire du creator marketing votre canal de revenus le plus efficace.",
+    "section2P2": "Nous connectons les entreprises B2B avec des micro-créateurs LinkedIn qui ont une forte crédibilité dans leur secteur et savent transformer la confiance en croissance.",
+    "section3Title": "Bâti sur des résultats prouvés",
+    "section3P1": "Naano n'a pas été bâti sur de la théorie. Il a été bâti sur des résultats.",
+    "section3P2": "Avant de lancer la plateforme, nous avons testé ce modèle avec une startup de vidéo IA :",
+    "section3Bullet1": "30 micro-créateurs LinkedIn activés",
+    "section3Bullet2": "+50% de revenus en 30 jours",
+    "section3P3": "Naano a été créé pour rendre ce succès facile à reproduire, à l'échelle.",
+    "section4Title": "Pourquoi Naano ?",
+    "section4ForBrands": "Pour les marques",
+    "section4Brand1": "Débloquez une nouvelle croissance : Transformez les créateurs LinkedIn en votre meilleur canal de vente",
+    "section4Brand2": "Renforcez l'autorité de marque : Faites-vous recommander par des voix de confiance dans votre secteur",
+    "section4Brand3": "Paiement à la performance uniquement : Payez au clic, pas au post",
+    "section4ForCreators": "Pour les créateurs",
+    "section4Creator1": "Votre expertise est l'actif : Votre crédibilité compte plus que votre nombre de followers",
+    "section4Creator2": "Monétisez ce que vous faites déjà : Soyez payé pour recommander les outils que vous utilisez vraiment",
+    "section4Creator3": "Gagnez grâce à votre réseau : Transformez vos posts LinkedIn en revenus",
+    "section5Title": "L'avenir de la croissance",
+    "section5P1": "La publicité traditionnelle perd en impact.",
+    "section5P2": "La collaboration est l'avenir."
+  },
+  "legal": {
+    "privacyPolicy": "Politique de confidentialité",
+    "termsOfService": "Conditions d'utilisation",
+    "downloadPdf": "Télécharger le PDF",
+    "viewInNewTab": "Ouvrir dans un nouvel onglet",
+    "viewDocument": "Voir le document",
+    "troubleViewing": "Problème d'affichage ? Ouvrez dans un nouvel onglet ou téléchargez."
+  },
   "footer": {
     "readyToScale": "Prêt à scaler avec",
     "naano": "naano",

@@ -7,13 +7,6 @@ import { Menu, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { LocaleToggle } from "@/components/ui/locale-toggle";
 
-const scrollToSection = (id: string) => {
-  const element = document.getElementById(id);
-  if (element) {
-    element.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-};
-
 interface NavbarProps {
   showContent: boolean;
 }
@@ -23,9 +16,9 @@ export const Navbar = ({ showContent }: NavbarProps) => {
   const t = useTranslations("nav");
 
   const navItems = [
-    { label: t("features"), action: () => scrollToSection("how-it-works") },
-    { label: t("pricing"), action: () => scrollToSection("pricing") },
-    { label: t("faqs"), action: () => scrollToSection("faq") },
+    { label: t("features"), href: "/#how-it-works" },
+    { label: t("pricing"), href: "/#pricing" },
+    { label: t("faqs"), href: "/#faq" },
     { label: t("about"), href: "/about" },
   ];
 
@@ -63,59 +56,27 @@ export const Navbar = ({ showContent }: NavbarProps) => {
                 transition={{ duration: 0.3, ease: "easeOut" }}
                 className="flex flex-col sm:flex-row items-end sm:items-center gap-3 sm:gap-4 md:gap-6 lg:gap-8 bg-white sm:bg-transparent p-4 sm:p-0 rounded-lg sm:rounded-none shadow-lg sm:shadow-none border sm:border-0 border-gray-200 sm:border-0"
               >
-                {navItems.map((item, index) => {
-                  const baseClasses =
-                    "font-semibold text-base md:text-[17px] underline text-[#4B5563] hover:text-[#3B82F6] transition-colors";
-                  const style = { fontFamily: "Satoshi, sans-serif" };
-
-                  if (item.href) {
-                    return (
-                      <motion.div
-                        key={item.label}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{
-                          duration: 0.3,
-                          delay: index * 0.05,
-                          ease: "easeOut",
-                        }}
-                      >
-                        <Link
-                          href={item.href}
-                          onClick={() => setIsMenuOpen(false)}
-                          className={baseClasses}
-                          style={style}
-                        >
-                          {item.label}
-                        </Link>
-                      </motion.div>
-                    );
-                  }
-
-                  return (
-                    <motion.div
-                      key={item.label}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{
-                        duration: 0.3,
-                        delay: index * 0.05,
-                        ease: "easeOut",
-                      }}
+                {navItems.map((item, index) => (
+                  <motion.div
+                    key={item.label}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{
+                      duration: 0.3,
+                      delay: index * 0.05,
+                      ease: "easeOut",
+                    }}
+                  >
+                    <Link
+                      href={item.href!}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="font-semibold text-base md:text-[17px] underline text-[#4B5563] hover:text-[#3B82F6] transition-colors"
+                      style={{ fontFamily: "Satoshi, sans-serif" }}
                     >
-                      <button
-                        onClick={() => {
-                          item.action?.();
-                          setIsMenuOpen(false);
-                        }}
-                        className={baseClasses}
-                        style={style}
-                      >
-                        {item.label}
-                      </button>
-                    </motion.div>
-                  );
-                })}
+                      {item.label}
+                    </Link>
+                  </motion.div>
+                ))}
               </motion.div>
             )}
           </AnimatePresence>

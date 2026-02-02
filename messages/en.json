@@ -155,6 +155,43 @@
       "a4": "Payment is released instantly once the brand validates your deliverable. Funds are secured upfront when a campaign is approved, so you're guaranteed payment for completed work."
     }
   },
+  "about": {
+    "title": "About Us",
+    "subtitle": "The B2B UGC marketplace connecting tech companies with vetted nano-creators.",
+    "section1Title": "About Us",
+    "section1P1": "Naano connects companies that want to grow with LinkedIn micro-creators who want to monetize their network.",
+    "section1P2": "We believe growth works better when it's driven by people, not ads.",
+    "section1P3": "That's why we help businesses scale through Creator-Led Growth: real professionals talking to real audiences.",
+    "section2Title": "Our Mission",
+    "section2P1": "Make creator marketing your most effective revenue channel.",
+    "section2P2": "We connect B2B companies with LinkedIn micro-creators who have strong credibility in their industry and can turn trust into growth.",
+    "section3Title": "Built on Proven Results",
+    "section3P1": "Naano wasn't built on theory. It was built on results.",
+    "section3P2": "Before launching the platform, we tested this model with a video AI startup:",
+    "section3Bullet1": "30 LinkedIn micro-creators activated",
+    "section3Bullet2": "+50% revenue in 30 days",
+    "section3P3": "Naano was created to make this success easy to repeat, at scale.",
+    "section4Title": "Why Naano?",
+    "section4ForBrands": "For Brands",
+    "section4Brand1": "Unlock new growth: Turn LinkedIn creators into your best sales channel",
+    "section4Brand2": "Build brand authority: Get recommended by trusted voices in your industry",
+    "section4Brand3": "Performance-pay only: Pay per click, not per post",
+    "section4ForCreators": "For Creators",
+    "section4Creator1": "Your expertise is the asset: Your credibility matters more than your follower count",
+    "section4Creator2": "Monetize what you already do: Get paid for recommending tools you actually use",
+    "section4Creator3": "Earn from your network: Turn your LinkedIn posts into revenue",
+    "section5Title": "The Future of Growth",
+    "section5P1": "Traditional advertising is losing impact.",
+    "section5P2": "Collaboration is the future."
+  },
+  "legal": {
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "downloadPdf": "Download PDF",
+    "viewInNewTab": "View in new tab",
+    "viewDocument": "View document",
+    "troubleViewing": "Having trouble viewing? Open in a new tab or download."
+  },
   "footer": {
     "readyToScale": "Ready to scale with",
     "naano": "naano",

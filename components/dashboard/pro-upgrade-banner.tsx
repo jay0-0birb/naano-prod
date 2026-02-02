@@ -22,11 +22,9 @@ export default function ProUpgradeBanner({
   proExpirationDate,
   hasProSubscription,
 }: ProUpgradeBannerProps) {
-  const t = useTranslations("proUpgrade");
-  const tFinances = useTranslations("finances");
-  const tCredits = useTranslations("credits");
   const [loading, setLoading] = useState(false);
   const [postUrl, setPostUrl] = useState("");
+  const tCredits = useTranslations("credits");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
@@ -46,9 +44,9 @@ export default function ProUpgradeBanner({
         window.location.reload();
       }
     } catch (err) {
-      setError(tFinances("error"));
+      setError("Une erreur est survenue");
     } finally {
-      setLoading(false);
+      setError(tFinances("error"));
     }
   };
 
@@ -58,6 +56,8 @@ export default function ProUpgradeBanner({
     const now = new Date();
     
     if (expiration < now) {
+      return "Expiré";
+    }
       return t("expired");
     }
     
@@ -69,8 +69,6 @@ export default function ProUpgradeBanner({
       return months === 1 ? t("expiresInMonths", { count: 1 }) : t("expiresInMonthsPlural", { count: months });
     }
     return diffDays === 1 ? t("expiresInDays", { count: 1 }) : t("expiresInDaysPlural", { count: diffDays });
-  };
-
   // If Pro (legacy paid - no longer offered)
   if (isPro && proStatusSource === "PAYMENT") {
     return (
@@ -81,18 +79,18 @@ export default function ProUpgradeBanner({
           </div>
           <div>
             <h3 className="text-lg font-semibold text-slate-900">
-              {t("memberPro")}
+              Membre Pro
             </h3>
-            <p className="text-sm text-slate-600">
+              {t("memberPro")}
               {proExpirationDate && getExpirationText(proExpirationDate)}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2 text-sm text-slate-700">
           <Check className="w-4 h-4 text-green-600" />
-          <span>{t("earnPerClick", { amount: "1,10€" })}</span>
+          <span>Vous gagnez <strong>1,10€</strong> par clic qualifié (au lieu de 0,90€) <span className="text-xs text-slate-500">(HT)</span></span>
         </div>
-      </div>
+          <span>{t("earnPerClick", { amount: "1,10€" })}</span>
     );
   }
 
@@ -106,18 +104,18 @@ export default function ProUpgradeBanner({
           </div>
           <div>
             <h3 className="text-lg font-semibold text-slate-900">
-              {t("memberProFree")}
+              Membre Pro (Offert) 🎁
             </h3>
-            <p className="text-sm text-slate-600">
+              {t("memberProFree")}
               {proExpirationDate && getExpirationText(proExpirationDate)}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2 text-sm text-slate-700">
           <Check className="w-4 h-4 text-green-600" />
-          <span>{t("earnPerClickPro", { amount: "1,10€" })}</span>
+          <span>Vous gagnez <strong>1,10€</strong> par clic qualifié <span className="text-xs text-slate-500">(HT)</span></span>
         </div>
-      </div>
+          <span>{t("earnPerClickPro", { amount: "1,10€" })}</span>
     );
   }
 
@@ -133,33 +131,33 @@ export default function ProUpgradeBanner({
           </div>
           <div>
             <h3 className="text-lg font-semibold text-slate-900">
+              Débloquez Naano Pro
+            </h3>
               {t("unlockPro")}
             </h3>
             <p className="text-sm text-slate-600">
               {t("unlockProDesc")}
-            </p>
-          </div>
         </div>
       </div>
 
       <div className="mb-4 space-y-2">
         <div className="flex items-center gap-2 text-sm text-slate-700">
           <Check className="w-4 h-4 text-green-600" />
+          <span><strong>1,10€</strong> par clic (au lieu de 0,90€) pendant 6 mois <span className="text-xs text-slate-500">(HT)</span></span>
+        </div>
           <span>{t("earnPerClick", { amount: "1,10€" })}</span>
         </div>
         <div className="flex items-center gap-2 text-sm text-slate-700">
           <Check className="w-4 h-4 text-green-600" />
           <span>{t("badgePro")}</span>
-        </div>
-      </div>
 
       {/* Instructions */}
       <div className="mb-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+        <p className="text-sm font-medium text-slate-800 mb-2">Comment faire :</p>
+        <ol className="text-xs text-slate-600 space-y-1 list-decimal list-inside">
         <p className="text-sm font-medium text-slate-800 mb-2">{t("howTo")}</p>
         <ol className="text-xs text-slate-600 space-y-1 list-decimal list-inside">
           <li>{t("step1")}</li>
-        </ol>
-        <div className="mt-2 flex items-center gap-2">
           <LinkIcon className="w-4 h-4 text-slate-500 shrink-0" />
           <code className="text-xs bg-white px-2 py-1 rounded border border-slate-200 break-all">
             {naanoLink}
@@ -169,13 +167,13 @@ export default function ProUpgradeBanner({
             onClick={() => navigator.clipboard.writeText(naanoLink)}
             className="text-xs text-blue-600 hover:text-blue-700 shrink-0"
           >
-            {t("copy")}
+            Copier
           </button>
-        </div>
+            {t("copy")}
         <p className="text-xs text-slate-600 mt-2">
-          2. {t("step2")}
+          2. Collez l&apos;URL de votre post LinkedIn ci-dessous pour débloquer Pro.
         </p>
-      </div>
+          2. {t("step2")}
 
       {/* Submit form */}
       <form onSubmit={handleUnlockPro} className="space-y-2">
@@ -183,16 +181,16 @@ export default function ProUpgradeBanner({
           type="url"
           value={postUrl}
           onChange={(e) => setPostUrl(e.target.value)}
-          placeholder={tCredits("placeholder")}
+          placeholder="https://www.linkedin.com/posts/..."
           className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
+          placeholder={tCredits("placeholder")}
         {error && (
           <p className="text-xs text-red-600">{error}</p>
         )}
         {success && (
-          <p className="text-xs text-green-600">{t("proUnlocked")}</p>
+          <p className="text-xs text-green-600">Pro débloqué ! Actualisation...</p>
         )}
-        <button
+          <p className="text-xs text-green-600">{t("proUnlocked")}</p>
           type="submit"
           disabled={loading || !postUrl.trim()}
           className="w-full bg-[#0F172A] hover:bg-[#020617] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors"
@@ -200,14 +198,14 @@ export default function ProUpgradeBanner({
           {loading ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
+              <span>Chargement...</span>
+            </>
               <span>{tCredits("loading")}</span>
             </>
           ) : (
             <>
               <Send className="w-5 h-5" />
               <span>{t("unlockProBtn")}</span>
-            </>
-          )}
         </button>
       </form>
     </div>

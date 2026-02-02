@@ -9,12 +9,18 @@ const socialLinks = {
   linkedin: "https://www.linkedin.com/company/naanooo/",
 };
 
-export const FooterSection = () => {
+interface FooterSectionProps {
+  /** Hide the newsletter CTA (e.g. on legal pages like Privacy/Terms) */
+  compact?: boolean;
+}
+
+export const FooterSection = ({ compact = false }: FooterSectionProps) => {
   const t = useTranslations("footer");
   const tCommon = useTranslations("common");
   return (
     <footer>
-      {/* Final CTA - Ultra Minimal Newsletter */}
+      {/* Final CTA - Ultra Minimal Newsletter (hidden on compact/legal pages) */}
+      {!compact && (
       <div className="bg-white py-12 sm:py-16 md:py-24 relative overflow-hidden border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
           <div className="max-w-[600px] mx-auto text-center">
@@ -41,6 +47,7 @@ export const FooterSection = () => {
           </div>
         </div>
       </div>
+      )}
 
       {/* Footer - Organized Grid with Large Branding */}
       <div className="bg-[#0F172A] pt-20 pb-8 relative overflow-hidden">
@@ -82,49 +89,19 @@ export const FooterSection = () => {
                 {tCommon("product")}
               </p>
               <Link
-                href="#how-it-works"
-                onClick={(e) => {
-                  e.preventDefault();
-                  const element = document.getElementById("how-it-works");
-                  if (element) {
-                    element.scrollIntoView({
-                      behavior: "smooth",
-                      block: "start",
-                    });
-                  }
-                }}
+                href="/#how-it-works"
                 className="text-sm text-white/50 hover:text-white transition-colors duration-150"
               >
                 {tCommon("features")}
               </Link>
               <Link
-                href="#pricing"
-                onClick={(e) => {
-                  e.preventDefault();
-                  const element = document.getElementById("pricing");
-                  if (element) {
-                    element.scrollIntoView({
-                      behavior: "smooth",
-                      block: "start",
-                    });
-                  }
-                }}
+                href="/#pricing"
                 className="text-sm text-white/50 hover:text-white transition-colors duration-150"
               >
                 {tCommon("pricing")}
               </Link>
               <Link
-                href="#faq"
-                onClick={(e) => {
-                  e.preventDefault();
-                  const element = document.getElementById("faq");
-                  if (element) {
-                    element.scrollIntoView({
-                      behavior: "smooth",
-                      block: "start",
-                    });
-                  }
-                }}
+                href="/#faq"
                 className="text-sm text-white/50 hover:text-white transition-colors duration-150"
               >
                 {tCommon("faqs")}
@@ -162,13 +139,13 @@ export const FooterSection = () => {
                 {tCommon("about")}
               </Link>
               <Link
-                href="#"
+                href="/privacy"
                 className="text-sm text-white/50 hover:text-white transition-colors duration-150"
               >
                 {tCommon("privacy")}
               </Link>
               <Link
-                href="#"
+                href="/terms"
                 className="text-sm text-white/50 hover:text-white transition-colors duration-150"
               >
                 {tCommon("terms")}
