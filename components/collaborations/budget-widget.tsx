@@ -86,16 +86,22 @@ export default function BudgetWidget({
         <div className="text-xs text-slate-600">{t("creditsRemaining")}</div>
       </div>
 
-      {renewalDate && daysUntilRenewal !== null && (
-        <div className="flex items-center gap-2 text-xs text-slate-600 mb-3">
-          <Clock className="w-3 h-3" />
-          <span>
-            {daysUntilRenewal === 1
-              ? tCredits("renewalInDays", { count: 1 })
-              : tCredits("renewalInDaysPlural", { count: daysUntilRenewal })}
-          </span>
-        </div>
-      )}
+      {/* Renewal line - always reserve space so cards align */}
+      <div
+        className="mb-3 flex items-center gap-2"
+        style={{ minHeight: "28px" }}
+      >
+        {renewalDate && daysUntilRenewal !== null && (
+          <>
+            <Clock className="w-3 h-3 text-slate-600 shrink-0" />
+            <span className="text-xs text-slate-600">
+              {daysUntilRenewal === 1
+                ? tCredits("renewalInDays", { count: 1 })
+                : tCredits("renewalInDaysPlural", { count: daysUntilRenewal })}
+            </span>
+          </>
+        )}
+      </div>
 
       <div className="flex items-start gap-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
         <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
@@ -104,13 +110,16 @@ export default function BudgetWidget({
         </p>
       </div>
 
-      {walletCredits === 0 && (
-        <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-xs text-red-700 font-medium">
-            ⚠️ {t("budgetExhausted")}
-          </p>
-        </div>
-      )}
+      {/* Budget exhausted - always reserve space so cards align */}
+      <div style={{ minHeight: "44px", marginTop: "12px" }}>
+        {walletCredits === 0 && (
+          <div className="p-2 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-xs text-red-700 font-medium">
+              ⚠️ {t("budgetExhausted")}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

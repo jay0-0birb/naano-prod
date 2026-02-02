@@ -129,7 +129,7 @@ export default async function MarketplacePage() {
 
       {/* Companies Grid */}
       {companies && companies.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
           {companies.map((company: any) => {
             const tier = (company.subscription_tier || 'starter') as SaasTier;
             const tierConfig = SAAS_TIERS[tier];
@@ -144,8 +144,6 @@ export default async function MarketplacePage() {
                 company={company as any}
                 hasApplied={appliedSaasIds.includes(company.id)}
                 creatorProfileId={creatorProfile?.id || null}
-                activeCreators={activeCreators}
-                maxCreators={maxCreators}
                 isFull={isFull}
               />
             );
