@@ -1,24 +1,26 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import EngagementHeatmap from "@/components/academy/engagement-heatmap";
 import CollapsibleSection from "@/components/academy/collapsible-section";
 
 export default function AcademyPageClient() {
+  const t = useTranslations("academy");
+
   return (
     <div className="max-w-4xl mx-auto pb-16 academy-page">
       {/* Header */}
       <div className="mb-12">
         <h1 className="text-4xl font-bold text-[#111827] mb-2">
-          Naano Onboarding
+          {t("title")}
         </h1>
         <p className="text-[#64748B] text-sm">
-          La stratégie complète pour générer un reach massif sur LinkedIn et
-          Instagram
+          {t("subtitle")}
         </p>
       </div>
 
       {/* LinkedIn Section */}
-      <CollapsibleSection title="LinkedIn" defaultOpen={true}>
+      <CollapsibleSection title={t("linkedIn")} defaultOpen={true}>
         {/* Welcome */}
         <div className="space-y-3 mb-6">
           <h2 className="text-2xl font-semibold text-[#111827] flex items-center gap-2">
@@ -496,7 +498,7 @@ export default function AcademyPageClient() {
       </CollapsibleSection>
 
       {/* Instagram Section */}
-      <CollapsibleSection title="Instagram" defaultOpen={true}>
+      <CollapsibleSection title={t("instagram")} defaultOpen={true}>
         {/* Welcome */}
         <div className="space-y-3 mb-6">
           <h2 className="text-2xl font-semibold text-white flex items-center gap-2">
@@ -1447,8 +1449,7 @@ export default function AcademyPageClient() {
       {/* Footer */}
       <div className="text-center pt-8 mt-12 border-t border-white/5">
         <p className="text-slate-400 text-sm">
-          💡 Ready to launch? Go to the "Campaigns" tab, pick a SaaS, and draft
-          your first viral post using this recipe.
+          💡 {t("readyToLaunch")}
         </p>
       </div>
     </div>

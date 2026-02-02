@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import {
   Handshake,
   MessageSquare,
@@ -12,31 +13,31 @@ import {
   FileText,
 } from "lucide-react";
 
-const STATUS_CONFIG = {
-  active: {
-    label: "Active",
-    icon: Clock,
-    color: "text-blue-600",
-    bg: "bg-blue-50",
-    border: "border-blue-200",
-  },
-  completed: {
-    label: "Completed",
-    icon: CheckCircle2,
-    color: "text-green-600",
-    bg: "bg-green-50",
-    border: "border-green-200",
-  },
-  cancelled: {
-    label: "Cancelled",
-    icon: Clock,
-    color: "text-gray-500",
-    bg: "bg-gray-50",
-    border: "border-gray-200",
-  },
-};
-
 export default async function CollaborationsPage() {
+  const t = await getTranslations("collaborations");
+  const STATUS_CONFIG = {
+    active: {
+      label: t("active"),
+      icon: Clock,
+      color: "text-blue-600",
+      bg: "bg-blue-50",
+      border: "border-blue-200",
+    },
+    completed: {
+      label: t("completed"),
+      icon: CheckCircle2,
+      color: "text-green-600",
+      bg: "bg-green-50",
+      border: "border-green-200",
+    },
+    cancelled: {
+      label: t("cancelled"),
+      icon: Clock,
+      color: "text-gray-500",
+      bg: "bg-gray-50",
+      border: "border-gray-200",
+    },
+  };
   const supabase = await createClient();
 
   const {
@@ -151,16 +152,14 @@ export default async function CollaborationsPage() {
       {/* Header */}
       <div className="mb-8">
         <h2 className="text-2xl font-semibold text-[#111827] mb-1">
-          Collaborations
+          {t("title")}
         </h2>
         <p className="text-[#64748B] text-sm">
-          {isCreator
-            ? "Manage your partnerships with SaaS companies"
-            : "Manage your partnerships with creators"}
+          {isCreator ? t("creatorSubtitle") : t("saasSubtitle")}
         </p>
         {isCreator && (
           <p className="text-xs text-[#64748B] mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 inline-block">
-            Limite : 25 posts au total (toutes collaborations confondues).
+            {t("postLimit")}
           </p>
         )}
       </div>
@@ -241,7 +240,7 @@ export default async function CollaborationsPage() {
                         ) : (
                           <span className="text-xs text-[#64748B]">
                             {partner?.followers_count?.toLocaleString()}{" "}
-                            followers
+                            {t("followers")}
                           </span>
                         )}
                       </div>
@@ -262,7 +261,7 @@ export default async function CollaborationsPage() {
                 {/* Footer */}
                 <div className="mt-4 flex items-center justify-between pt-4 border-t border-gray-200">
                   <span className="text-xs text-[#64748B]">
-                    Collaboration started on {formatDate(collab.started_at)}
+                    {t("startedOn", { date: formatDate(collab.started_at) })}
                   </span>
 
                   <div className="flex gap-3">
@@ -271,7 +270,7 @@ export default async function CollaborationsPage() {
                       className="flex items-center gap-2 px-3 py-1.5 bg-[#0F172A] hover:bg-[#1E293B] text-white rounded-lg text-sm font-medium transition-colors"
                     >
                       <FileText className="w-4 h-4" />
-                      View posts
+                      {t("viewPosts")}
                     </Link>
                     {conversation && (
                       <Link
@@ -279,7 +278,7 @@ export default async function CollaborationsPage() {
                         className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 text-[#64748B] hover:text-[#111827] rounded-lg text-sm font-medium transition-colors border border-gray-200"
                       >
                         <MessageSquare className="w-4 h-4" />
-                        Messages
+                        {t("messages")}
                       </Link>
                     )}
                   </div>
@@ -294,12 +293,10 @@ export default async function CollaborationsPage() {
             <Handshake className="w-8 h-8 text-[#94A3B8]" />
           </div>
           <h3 className="text-lg font-semibold text-[#111827] mb-2">
-            No collaborations
+            {t("noCollaborations")}
           </h3>
           <p className="text-[#64748B] text-sm max-w-md mx-auto mb-6">
-            {isCreator
-              ? "You don't have any active collaborations yet. Apply to SaaS companies!"
-              : "You don't have any active collaborations yet. Accept creator applications!"}
+            {isCreator ? t("creatorEmpty") : t("saasEmpty")}
           </p>
           <Link
             href={
@@ -307,7 +304,7 @@ export default async function CollaborationsPage() {
             }
             className="inline-flex items-center gap-2 px-4 py-2 bg-[#0F172A] hover:bg-[#1E293B] text-white rounded-lg text-sm font-medium transition-colors"
           >
-            {isCreator ? "Explore Marketplace" : "View Applications"}
+            {isCreator ? t("exploreMarketplace") : t("viewApplications")}
           </Link>
         </div>
       )}

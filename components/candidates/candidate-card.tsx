@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Linkedin,
   Users,
@@ -41,6 +42,8 @@ export default function CandidateCard({
   application,
   readonly = false,
 }: CandidateCardProps) {
+  const t = useTranslations("candidatesActions");
+  const tDashboard = useTranslations("dashboard");
   const [isLoading, setIsLoading] = useState<"accept" | "reject" | null>(null);
   const [status, setStatus] = useState(application.status);
 
@@ -96,7 +99,7 @@ export default function CandidateCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-1">
             <h3 className="font-semibold text-[#111827] text-lg truncate">
-              {profile.full_name || "Créateur"}
+              {profile.full_name || tDashboard("profile")}
             </h3>
             {creator.linkedin_url && (
               <a
@@ -114,7 +117,7 @@ export default function CandidateCard({
           <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-1.5 text-[#64748B]">
               <Users className="w-4 h-4" />
-              <span>{creator.followers_count.toLocaleString()} followers</span>
+              <span>{creator.followers_count.toLocaleString()} {tDashboard("followers")}</span>
             </div>
             {creator.theme && (
               <span className="text-xs px-2 py-0.5 bg-gray-100 text-[#4B5563] rounded-full capitalize">
@@ -140,12 +143,12 @@ export default function CandidateCard({
               {status === "accepted" ? (
                 <>
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>Acceptée</span>
+                  <span>{t("accepted")}</span>
                 </>
               ) : (
                 <>
                   <XCircle className="w-4 h-4" />
-                  <span>Refusée</span>
+                  <span>{t("rejected")}</span>
                 </>
               )}
             </div>
@@ -164,7 +167,7 @@ export default function CandidateCard({
       {application.message && (
         <div className="mt-3 p-3 bg-purple-50 rounded-lg">
           <p className="text-xs text-[#6B7280] mb-1">
-            Message de candidature :
+            {t("applicationMessage")}
           </p>
           <p className="text-sm text-[#111827]">{application.message}</p>
         </div>
@@ -183,7 +186,7 @@ export default function CandidateCard({
             ) : (
               <>
                 <XCircle className="w-4 h-4" />
-                Refuser
+                {t("reject")}
               </>
             )}
           </button>
@@ -197,7 +200,7 @@ export default function CandidateCard({
             ) : (
               <>
                 <CheckCircle2 className="w-4 h-4" />
-                Accepter
+                {t("accept")}
               </>
             )}
           </button>

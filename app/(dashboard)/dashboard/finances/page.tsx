@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { verifyStripeConnectStatus } from '@/lib/stripe-status';
+import { getTranslations } from 'next-intl/server';
 import { getCreatorWalletSummary, getCreatorPayoutHistory } from '@/lib/wallet';
 import FinancesPageClient from './page-client';
 
@@ -54,9 +54,8 @@ export default async function FinancesPage({ searchParams }: PageProps) {
     }
 
     // Generate Stripe success message if coming from Stripe
-    const stripeMessage = stripeStatus === 'success' 
-      ? 'Votre compte Stripe a été configuré avec succès !'
-      : undefined;
+    const t = await getTranslations('finances');
+    const stripeMessage = stripeStatus === 'success' ? t('stripeSuccess') : undefined;
 
     const walletSummary = await getCreatorWalletSummary();
     const payoutHistory = await getCreatorPayoutHistory();
@@ -163,9 +162,10 @@ export default async function FinancesPage({ searchParams }: PageProps) {
     }
 
     // Generate subscription message if coming from Stripe (legacy - for credit subscriptions)
+    const t = await getTranslations('finances');
     let subscriptionMessage: string | undefined;
     if (subscription === 'success' && newTier) {
-      subscriptionMessage = `Félicitations ! Votre abonnement est maintenant actif.`;
+      subscriptionMessage = t('subscriptionSuccess');
     } else if (subscription === 'cancelled') {
       subscriptionMessage = undefined;
     }

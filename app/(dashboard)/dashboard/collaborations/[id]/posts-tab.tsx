@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Plus, MessageSquare } from 'lucide-react'
 import SubmitPostForm from '@/components/collaborations/submit-post-form'
 import PostCard from '@/components/collaborations/post-card'
@@ -30,6 +31,7 @@ export default function PostsTab({
   creatorTotalPosts = 0,
   creatorPostLimit = 25,
 }: PostsTabProps) {
+  const t = useTranslations('postsTab')
   const atPostLimit = isCreator && creatorTotalPosts >= creatorPostLimit
   return (
     <div className="space-y-6">
@@ -38,7 +40,7 @@ export default function PostsTab({
         <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-6 shadow-sm">
           <h2 className="text-lg font-semibold text-[#111827] mb-4 flex items-center gap-2">
             <Plus className="w-5 h-5" />
-            Soumettre un post LinkedIn
+            {t('submitLinkedInPost')}
           </h2>
           {saasWalletCredits !== undefined && saasWalletCredits <= 0 ? (
             <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
@@ -76,7 +78,7 @@ export default function PostsTab({
         {posts.length > 0 && (
           <div>
             <h2 className="text-lg font-semibold text-[#111827] mb-4">
-              Posts ({posts.length})
+              {t('postsCount', { count: posts.length })}
             </h2>
             <div className="space-y-4">
               {posts.map((post) => (
@@ -93,9 +95,7 @@ export default function PostsTab({
               <MessageSquare className="w-6 h-6 text-[#94A3B8]" />
             </div>
             <p className="text-[#64748B] text-sm">
-              {isCreator 
-                ? 'Aucun post soumis. Partagez votre premier post LinkedIn !'
-                : 'Le créateur n\'a pas encore soumis de post.'}
+              {isCreator ? t('noPostCreator') : t('noPostSaas')}
             </p>
           </div>
         )}

@@ -18,6 +18,7 @@ interface AnalyticsData {
 }
 
 export default function AnalyticsTab({ collaborationId }: AnalyticsTabProps) {
+  const t = useTranslations('collaborationAnalytics')
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -34,7 +35,7 @@ export default function AnalyticsTab({ collaborationId }: AnalyticsTabProps) {
           setAnalytics(result.analytics)
         }
       } catch (err) {
-        setError('Erreur lors du chargement des analytics')
+        setError(t('loadingError'))
         console.error(err)
       } finally {
         setLoading(false)
@@ -70,7 +71,7 @@ export default function AnalyticsTab({ collaborationId }: AnalyticsTabProps) {
   if (!analytics) {
     return (
       <div className="bg-white border border-gray-200 rounded-2xl p-6 text-center">
-        <p className="text-[#64748B] text-sm">Aucune donnée disponible</p>
+        <p className="text-[#64748B] text-sm">{t('noData')}</p>
       </div>
     )
   }
@@ -90,48 +91,48 @@ export default function AnalyticsTab({ collaborationId }: AnalyticsTabProps) {
 
   const kpiCards = [
     {
-      label: 'Total Impressions',
+      label: t('totalImpressions'),
       value: formatNumber(analytics.totalImpressions),
       icon: BarChart3,
       color: 'text-[#1D4ED8]',
       bgColor: 'bg-blue-50',
     },
     {
-      label: 'Total Clicks (Brut)',
+      label: t('totalClicksRaw'),
       value: formatNumber(analytics.totalClicks),
       icon: MousePointerClick,
       color: 'text-[#1D4ED8]',
       bgColor: 'bg-blue-50',
     },
     {
-      label: 'Qualified Clicks (Billable)',
+      label: t('qualifiedClicksBillable'),
       value: formatNumber(analytics.qualifiedClicks),
       icon: Target,
       color: 'text-[#1D4ED8]',
       bgColor: 'bg-blue-50',
-      description: 'Filtrés: bots, doublons IP, règle des 3 secondes',
+      description: t('qualifiedClicksDesc'),
     },
     {
-      label: 'Conversions / Leads',
+      label: t('conversionsLeads'),
       value: formatNumber(analytics.leadsCount),
       icon: Users,
       color: 'text-[#1D4ED8]',
       bgColor: 'bg-blue-50',
     },
     {
-      label: 'Coût Total Naano',
+      label: t('totalNaanoCost'),
       value: formatCurrency(analytics.totalLeadCost),
       icon: TrendingDown,
       color: 'text-[#1D4ED8]',
       bgColor: 'bg-blue-50',
     },
     {
-      label: 'Économies vs LinkedIn Ads',
+      label: t('savingsVsLinkedIn'),
       value: formatCurrency(analytics.savingsVsLinkedIn),
       icon: TrendingUp,
       color: 'text-[#1D4ED8]',
       bgColor: 'bg-blue-50',
-      description: `(Qualified Clicks × 8€) - Coût Naano`,
+      description: t('savingsFormula'),
     },
   ]
 
@@ -140,10 +141,10 @@ export default function AnalyticsTab({ collaborationId }: AnalyticsTabProps) {
       {/* Header */}
       <div>
         <h2 className="text-lg font-semibold text-[#111827] mb-2">
-          Analytics de performance
+          {t('performanceTitle')}
         </h2>
         <p className="text-sm text-[#64748B]">
-          Métriques clés pour mesurer l&apos;impact de votre collaboration
+          {t('performanceDesc')}
         </p>
       </div>
 
@@ -180,10 +181,7 @@ export default function AnalyticsTab({ collaborationId }: AnalyticsTabProps) {
       {/* Info Note */}
       <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
         <p className="text-sm text-[#1D4ED8]">
-          <strong>Note :</strong> Les Qualified Clicks sont filtrés automatiquement
-          pour exclure les bots, les doublons IP, et les clics de moins de 3 secondes.
-          Les données géographiques sont collectées automatiquement pour l&apos;analyse
-          (non utilisées pour le filtrage).
+          <strong>{t('note')}</strong> {t('noteQualifiedClicks')}
         </p>
       </div>
     </div>

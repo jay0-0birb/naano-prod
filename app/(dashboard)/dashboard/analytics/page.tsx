@@ -1,10 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { getGlobalAnalytics, getGlobalLeads } from "./actions";
 import GlobalAnalyticsTab from "./analytics-tab";
 import GlobalLeadFeedTab from "./lead-feed-tab";
 
 export default async function GlobalAnalyticsPage() {
+  const t = await getTranslations("analytics");
   const supabase = await createClient();
 
   const {
@@ -27,11 +29,10 @@ export default async function GlobalAnalyticsPage() {
     <div className="max-w-7xl">
       <div className="mb-8">
         <h1 className="text-2xl font-semibold text-[#111827] mb-2">
-          Analytics &amp; Leads globaux
+          {t("title")}
         </h1>
         <p className="text-[#64748B] text-sm">
-          Vue d&apos;ensemble de toutes vos collaborations — Analytics et Lead
-          Feed agrégés.
+          {t("subtitle")}
         </p>
       </div>
 

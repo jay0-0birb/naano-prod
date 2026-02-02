@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { getGlobalAnalytics } from "./actions";
 import {
   TrendingUp,
@@ -22,6 +23,7 @@ interface Analytics {
 }
 
 export default function GlobalAnalyticsTab() {
+  const t = useTranslations("analytics");
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +50,7 @@ export default function GlobalAnalyticsTab() {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="text-gray-500">Chargement des analytics...</div>
+        <div className="text-gray-500">{t("loading")}</div>
       </div>
     );
   }
@@ -80,7 +82,7 @@ export default function GlobalAnalyticsTab() {
         {/* Total Impressions */}
         <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <div className="text-sm text-[#64748B]">Total impressions</div>
+            <div className="text-sm text-[#64748B]">{t("totalImpressions")}</div>
             <TrendingUp className="w-5 h-5 text-[#3B82F6]" />
           </div>
           <div className="text-3xl font-bold text-[#111827]">
@@ -94,14 +96,14 @@ export default function GlobalAnalyticsTab() {
         {/* Total Clicks */}
         <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <div className="text-sm text-[#64748B]">Total clics (brut)</div>
+            <div className="text-sm text-[#64748B]">{t("totalClicks")}</div>
             <MousePointerClick className="w-5 h-5 text-emerald-500" />
           </div>
           <div className="text-3xl font-bold text-[#111827]">
             {analytics.totalClicks.toLocaleString()}
           </div>
           <div className="text-xs text-[#94A3B8] mt-2">
-            Tous les clics enregistrés
+            {t("totalClicksDesc")}
           </div>
         </div>
 
@@ -109,7 +111,7 @@ export default function GlobalAnalyticsTab() {
         <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div className="text-sm text-[#64748B]">
-              Qualified clicks (billable)
+              {t("qualifiedClicksLabel")}
             </div>
             <CheckCircle className="w-5 h-5 text-amber-500" />
           </div>
@@ -117,35 +119,35 @@ export default function GlobalAnalyticsTab() {
             {analytics.qualifiedClicks.toLocaleString()}
           </div>
           <div className="text-xs text-[#94A3B8] mt-2">
-            Règle 3s + Anti-bot + IP + Geo
+            {t("qualifiedClicksDesc")}
           </div>
         </div>
 
         {/* Conversions/Leads */}
         <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <div className="text-sm text-[#64748B]">Conversions / leads</div>
+            <div className="text-sm text-[#64748B]">{t("conversionsLeads")}</div>
             <Users className="w-5 h-5 text-purple-500" />
           </div>
           <div className="text-3xl font-bold text-[#111827]">
             {analytics.leadsCount.toLocaleString()}
           </div>
           <div className="text-xs text-[#94A3B8] mt-2">
-            Sign-ups ou démos enregistrés
+            {t("conversionsLeadsDesc")}
           </div>
         </div>
 
         {/* Total Naano Cost */}
         <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <div className="text-sm text-[#64748B]">Coût total Naano</div>
+            <div className="text-sm text-[#64748B]">{t("totalCost")}</div>
             <DollarSign className="w-5 h-5 text-rose-500" />
           </div>
           <div className="text-3xl font-bold text-[#111827]">
             {formatCurrency(analytics.totalLeadCost)}
           </div>
           <div className="text-xs text-[#94A3B8] mt-2">
-            Coût total des leads générés
+            {t("totalCostDesc")}
           </div>
         </div>
 
@@ -153,7 +155,7 @@ export default function GlobalAnalyticsTab() {
         <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div className="text-sm text-[#64748B]">
-              Économies vs LinkedIn Ads
+              {t("savingsVsLinkedInLabel")}
             </div>
             {savingsIsPositive ? (
               <ArrowUpRight className="w-5 h-5 text-emerald-500" />
@@ -170,7 +172,7 @@ export default function GlobalAnalyticsTab() {
             {formatCurrency(analytics.savingsVsLinkedIn)}
           </div>
           <div className="text-xs text-[#94A3B8] mt-2">
-            (Qualified Clicks × 8€) - Coût Naano
+            {t("savingsDesc")}
           </div>
         </div>
       </div>

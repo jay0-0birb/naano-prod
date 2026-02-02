@@ -20,6 +20,7 @@ export default function TrackingLinkCard({
   clickCount,
   isCreator,
 }: TrackingLinkCardProps) {
+  const t = useTranslations("collaboration");
   const [copied, setCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -53,12 +54,12 @@ export default function TrackingLinkCard({
           </div>
           <div>
             <h3 className="text-lg font-medium text-white">
-              {isCreator ? "Ton Lien Tracké" : "Lien Tracké du Créateur"}
+              {isCreator ? t("yourLink") : t("creatorLink")}
             </h3>
             <p className="text-xs text-slate-400">
               {isCreator
-                ? "Utilise ce lien dans tes posts, bio, et commentaires"
-                : "Lien unique pour suivre le trafic généré"}
+                ? t("useInPosts")
+                : t("uniqueForTraffic")}
             </p>
           </div>
         </div>
@@ -86,12 +87,12 @@ export default function TrackingLinkCard({
             {copied ? (
               <>
                 <Check className="w-4 h-4" />
-                Copié !
+                {t("copied")}
               </>
             ) : (
               <>
                 <Copy className="w-4 h-4" />
-                Copier
+                {t("copy")}
               </>
             )}
           </button>
@@ -151,7 +152,7 @@ export default function TrackingLinkCard({
           className="inline-flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors"
         >
           <ExternalLink className="w-4 h-4" />
-          Tester le lien (ouvre dans un nouvel onglet)
+          {t("testLinkNewTab")}
         </a>
       </div>
     </div>

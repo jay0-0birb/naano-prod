@@ -20,6 +20,8 @@ interface EditSaasProfileFormProps {
 }
 
 export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }: EditSaasProfileFormProps) {
+  const t = useTranslations('forms');
+  const tSettings = useTranslations('settings');
   const [isLoading, setIsLoading] = useState(false);
   const [fetchingLogo, setFetchingLogo] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +61,7 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
     const file = e.target.files?.[0];
     if (!file || !file.type.startsWith('image/')) return;
     if (file.size > MAX_FILE_SIZE) {
-      setError('L\'image ne doit pas dépasser 2 Mo. Choisissez une image plus légère.');
+      setError(t('imageTooLarge'));
       return;
     }
     setError(null);
@@ -80,7 +82,7 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
     event.preventDefault();
     const logoFile = (event.currentTarget.elements.namedItem('logo') as HTMLInputElement)?.files?.[0];
     if (logoFile && logoFile.size > MAX_FILE_SIZE) {
-      setError('L\'image ne doit pas dépasser 2 Mo. Choisissez une image plus légère.');
+      setError(t('imageTooLarge'));
       return;
     }
     setIsLoading(true);
@@ -99,8 +101,8 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg.includes('1 MB') || msg.includes('body size')
-        ? 'L\'image est trop volumineuse (max 2 Mo). Choisissez une image plus légère.'
-        : 'Une erreur est survenue. Réessayez.');
+        ? t('imageTooLarge')
+        : t('errorTryAgain'));
     } finally {
       setIsLoading(false);
     }
@@ -110,7 +112,7 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
       <div className="bg-white border border-gray-200 rounded-2xl p-6 max-w-2xl w-full my-8 shadow-xl">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-medium text-[#111827]">Modifier le profil entreprise</h3>
+          <h3 className="text-xl font-medium text-[#111827]">{t('editCompanyProfile')}</h3>
           <button
             onClick={onClose}
             className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
@@ -129,7 +131,7 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
           {/* Logo - big and centered */}
           <div className="flex flex-col items-center">
             <label className="block text-sm font-medium text-[#374151] mb-3 w-full text-center">
-              Logo de l&apos;entreprise
+              {t('companyLogo')}
             </label>
             <button
               type="button"
@@ -153,7 +155,7 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
               )}
               <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                 <Camera className="w-10 h-10 text-white" />
-                <span className="absolute bottom-2 left-0 right-0 text-white text-xs font-medium">Cliquer pour changer</span>
+                <span className="absolute bottom-2 left-0 right-0 text-white text-xs font-medium">{t('clickToChange')}</span>
               </div>
             </button>
             <input
@@ -171,7 +173,7 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
                 onClick={() => fileInputRef.current?.click()}
                 className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-[#374151] text-sm font-medium transition-colors"
               >
-                {hasLogo ? 'Changer' : 'Ajouter un logo'}
+                {hasLogo ? t('change') : t('addLogo')}
               </button>
               <button
                 type="button"
@@ -182,12 +184,12 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
                 {fetchingLogo ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Détection...
+                    {t('detecting')}
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4" />
-                    Importer depuis le site
+                    {t('importFromSite')}
                   </>
                 )}
               </button>

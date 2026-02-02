@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import {
   ArrowLeft,
   Building2,
@@ -48,6 +49,7 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
   }
 
   const isCreator = profile?.role === "influencer";
+  const t = await getTranslations("collaborationDetail");
 
   // Get collaboration with all details
   const { data: collaboration } = await supabase
@@ -193,7 +195,7 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
         className="inline-flex items-center gap-2 text-[#64748B] hover:text-[#111827] transition-colors mb-6 text-sm"
       >
         <ArrowLeft className="w-4 h-4" />
-        Retour aux collaborations
+        {t("backToCollaborations")}
       </Link>
 
       {/* Header */}
@@ -226,8 +228,9 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
 
             <div>
               <h1 className="text-xl font-semibold text-[#111827] mb-1">
-                Collaboration avec{" "}
-                {isCreator ? partner?.company_name : partnerProfile?.full_name}
+                {t("collaborationWith", {
+                  name: isCreator ? partner?.company_name : partnerProfile?.full_name,
+                })}
               </h1>
               <div className="flex items-center gap-3">
                 {isCreator ? (
@@ -254,7 +257,7 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
                 className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 text-[#111827] rounded-lg text-sm transition-colors"
               >
                 <ExternalLink className="w-4 h-4" />
-                Site web
+                {t("website")}
               </a>
             )}
             {conversation && (
@@ -263,7 +266,7 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
                 className="flex items-center gap-2 px-3 py-1.5 bg-[#0F172A] hover:bg-[#020617] text-white rounded-lg text-sm transition-colors"
               >
                 <MessageSquare className="w-4 h-4" />
-                Messages
+                {t("messages")}
               </Link>
             )}
           </div>
@@ -276,7 +279,7 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
               {posts.length}
             </div>
             <div className="text-xs text-[#94A3B8] uppercase tracking-wide mt-1">
-              Posts
+              {t("posts")}
             </div>
           </div>
         </div>

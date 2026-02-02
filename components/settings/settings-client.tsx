@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import {
   User,
@@ -49,6 +50,8 @@ export default function SettingsClient({
   initialNotificationPrefs,
 }: SettingsClientProps) {
   const router = useRouter();
+  const t = useTranslations("settings");
+  const tFinances = useTranslations("finances");
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showEditCreatorProfile, setShowEditCreatorProfile] = useState(false);
   const [showEditSaasProfile, setShowEditSaasProfile] = useState(false);
@@ -164,12 +167,12 @@ export default function SettingsClient({
           .eq("saas_id", saasCompany.id)
           .order("created_at", { ascending: true });
         if (error) {
-          setBrandError(error.message);
+          setBrandError(t("errorLoadingBrands"));
         } else {
           setBrands((data || []) as any);
         }
       } catch (err: any) {
-        setBrandError(err.message || "Erreur lors du chargement des marques");
+        setBrandError(err.message || t("errorLoadingBrands"));
       } finally {
         setLoadingBrands(false);
       }
@@ -201,14 +204,14 @@ export default function SettingsClient({
         setNewBrandUrl("");
       }
     } catch (err: any) {
-      setBrandError(err.message || "Erreur lors de la création de la marque");
+      setBrandError(err.message || t("errorCreatingBrand"));
     } finally {
       setLoadingBrands(false);
     }
   };
 
   const handleDeleteBrand = async (id: string) => {
-    if (!window.confirm("Supprimer cette marque ?")) return;
+    if (!window.confirm(tFinances("deleteBrandConfirm"))) return;
     setLoadingBrands(true);
     setBrandError(null);
     try {
@@ -223,7 +226,7 @@ export default function SettingsClient({
         setBrands((prev) => prev.filter((b) => b.id !== id));
       }
     } catch (err: any) {
-      setBrandError(err.message || "Erreur lors de la suppression de la marque");
+      setBrandError(err.message || t("errorDeletingBrand"));
     } finally {
       setLoadingBrands(false);
     }
@@ -239,7 +242,7 @@ export default function SettingsClient({
       if (!response.ok) {
         alert(
           data.error ||
-            "Impossible de déconnecter Stripe. Merci de réessayer ou de contacter Naano.",
+            tFinances("disconnectStripeError"),
         );
         return;
       }
@@ -263,7 +266,7 @@ export default function SettingsClient({
       if (!response.ok) {
         alert(
           data.error ||
-            "Impossible de supprimer la carte. Merci de réessayer ou de contacter Naano.",
+            tFinances("removeCardError"),
         );
         return;
       }
@@ -272,7 +275,7 @@ export default function SettingsClient({
     } catch (error: any) {
       alert(
         error?.message ||
-          "Impossible de supprimer la carte. Merci de réessayer ou de contacter Naano.",
+          tFinances("removeCardError"),
       );
     }
   };
@@ -282,10 +285,10 @@ export default function SettingsClient({
       {/* Header */}
       <div className="mb-8">
         <h2 className="text-2xl font-semibold text-[#111827] mb-1">
-          Paramètres
+          {t("title")}
         </h2>
         <p className="text-[#64748B] text-sm">
-          Gérez votre compte et vos préférences
+          {t("subtitle")}
         </p>
       </div>
 
@@ -295,8 +298,8 @@ export default function SettingsClient({
           <CheckCircle2 className="w-5 h-5 text-green-600" />
           <p className="text-green-700 text-sm">
             {isCreator
-              ? "Votre compte Stripe a été configuré avec succès !"
-              : "Votre compte Stripe a été connecté avec succès ! Le CA sera automatiquement tracké."}
+              ? t("stripeSuccessCreator")
+              : t("stripeSuccessSaas")}
           </p>
         </div>
       )}
@@ -305,7 +308,7 @@ export default function SettingsClient({
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
           <AlertCircle className="w-5 h-5 text-red-600" />
           <p className="text-red-700 text-sm">
-            Erreur lors de la connexion Stripe : {stripeError}
+            {t("stripeError", { error: stripeError })}
           </p>
         </div>
       )}
@@ -331,9 +334,9 @@ export default function SettingsClient({
                 </div>
               )}
               <div>
-                <h3 className="font-medium text-[#111827]">Profil</h3>
+                <h3 className="font-medium text-[#111827]">{t("profile")}</h3>
                 <p className="text-xs text-[#64748B]">
-                  Informations personnelles
+                  {t("personalInfo")}
                 </p>
               </div>
             </div>
@@ -342,23 +345,23 @@ export default function SettingsClient({
               className="flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-[#111827] transition-all"
             >
               <Edit2 className="w-4 h-4" />
-              <span>Modifier</span>
+              <span>{t("edit")}</span>
             </button>
           </div>
 
           <div className="space-y-4">
             <div className="flex items-center justify-between py-3 border-b border-gray-200">
-              <span className="text-sm text-[#6B7280]">Nom</span>
+              <span className="text-sm text-[#6B7280]">{t("name")}</span>
               <span className="text-sm text-[#111827]">
                 {profile?.full_name || "-"}
               </span>
             </div>
             <div className="flex items-center justify-between py-3 border-b border-gray-200">
-              <span className="text-sm text-[#6B7280]">Email</span>
+              <span className="text-sm text-[#6B7280]">{t("email")}</span>
               <span className="text-sm text-[#111827]">{profile?.email}</span>
             </div>
             <div className="flex items-center justify-between py-3">
-              <span className="text-sm text-[#6B7280]">Rôle</span>
+              <span className="text-sm text-[#6B7280]">{t("role")}</span>
               <span
                 className={`text-sm px-2 py-0.5 rounded-full ${
                   isCreator
@@ -366,7 +369,7 @@ export default function SettingsClient({
                     : "bg-blue-50 text-[#1D4ED8]"
                 }`}
               >
-                {isCreator ? "Créateur" : "Entreprise"}
+                {isCreator ? t("creator") : t("company")}
               </span>
             </div>
           </div>
@@ -394,10 +397,10 @@ export default function SettingsClient({
                 )}
                 <div>
                   <h3 className="font-medium text-[#111827]">
-                    Profil Créateur
+                    {t("creatorProfile")}
                   </h3>
                   <p className="text-xs text-[#64748B]">
-                    Informations professionnelles
+                    {t("professionalInfo")}
                   </p>
                 </div>
               </div>
@@ -406,25 +409,25 @@ export default function SettingsClient({
                 className="flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-[#111827] transition-all"
               >
                 <Edit2 className="w-4 h-4" />
-                <span>Modifier</span>
+                <span>{t("edit")}</span>
               </button>
             </div>
 
             <div className="space-y-4">
               <div className="py-3 border-b border-gray-200">
-                <span className="text-sm text-[#6B7280] block mb-1">Bio</span>
+                <span className="text-sm text-[#6B7280] block mb-1">{t("bio")}</span>
                 <span className="text-sm text-[#111827]">
                   {creatorProfile.bio || "-"}
                 </span>
               </div>
               <div className="flex items-center justify-between py-3 border-b border-gray-200">
-                <span className="text-sm text-[#6B7280]">Followers</span>
+                <span className="text-sm text-[#6B7280]">{t("followers")}</span>
                 <span className="text-sm text-[#111827]">
                   {creatorProfile.followers_count?.toLocaleString() || "0"}
                 </span>
               </div>
               <div className="flex items-center justify-between py-3">
-                <span className="text-sm text-[#6B7280]">Thématique</span>
+                <span className="text-sm text-[#6B7280]">{t("theme")}</span>
                 <span className="text-sm text-[#111827] capitalize">
                   {creatorProfile.theme || "-"}
                 </span>
@@ -455,10 +458,10 @@ export default function SettingsClient({
                 )}
                 <div>
                   <h3 className="font-medium text-[#111827]">
-                    Profil Entreprise
+                    {t("companyProfile")}
                   </h3>
                   <p className="text-xs text-[#64748B]">
-                    Informations de l'entreprise
+                    {t("companyInfo")}
                   </p>
                 </div>
               </div>
@@ -467,27 +470,27 @@ export default function SettingsClient({
                 className="flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-[#111827] transition-all"
               >
                 <Edit2 className="w-4 h-4" />
-                <span>Modifier</span>
+                <span>{t("edit")}</span>
               </button>
             </div>
 
             <div className="space-y-4">
               <div className="flex items-center justify-between py-3 border-b border-gray-200">
-                <span className="text-sm text-[#6B7280]">Entreprise</span>
+                <span className="text-sm text-[#6B7280]">{t("company")}</span>
                 <span className="text-sm text-[#111827]">
                   {saasCompany.company_name || "-"}
                 </span>
               </div>
               <div className="py-3 border-b border-gray-200">
                 <span className="text-sm text-[#6B7280] block mb-1">
-                  Description
+                  {t("description")}
                 </span>
                 <span className="text-sm text-[#111827]">
                   {saasCompany.description || "-"}
                 </span>
               </div>
               <div className="flex items-center justify-between py-3 border-b border-gray-200">
-                <span className="text-sm text-[#6B7280]">Site web</span>
+                <span className="text-sm text-[#6B7280]">{t("website")}</span>
                 <a
                   href={saasCompany.website}
                   target="_blank"
@@ -498,7 +501,7 @@ export default function SettingsClient({
                 </a>
               </div>
               <div className="flex items-center justify-between py-3">
-                <span className="text-sm text-[#6B7280]">Secteur</span>
+                <span className="text-sm text-[#6B7280]">{t("industry")}</span>
                 <span className="text-sm text-[#111827]">
                   {saasCompany.industry || "-"}
                 </span>
@@ -516,9 +519,9 @@ export default function SettingsClient({
                   <CreditCard className="w-5 h-5 text-[#1D4ED8]" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-[#111827]">Marques & URLs</h3>
+                  <h3 className="font-medium text-[#111827]">{t("brandsUrls")}</h3>
                   <p className="text-xs text-[#64748B]">
-                    Définissez plusieurs marques et pages de destination
+                    {t("brandsDesc")}
                   </p>
                 </div>
               </div>
@@ -554,17 +557,16 @@ export default function SettingsClient({
                         disabled={loadingBrands}
                         className="text-[11px] px-2 py-1 rounded-lg bg-white hover:bg-gray-50 text-[#111827] border border-gray-200 disabled:opacity-50"
                       >
-                        Supprimer
+                        {t("delete")}
                       </button>
                     </div>
                   ))}
                 </div>
               ) : (
                 <p className="text-xs text-[#64748B]">
-                  Aucune marque configurée pour le moment. Par défaut, le site web
-                  de votre entreprise est utilisé:{" "}
+                  {t("noBrands")}{" "}
                   <span className="font-mono break-all text-[#111827]">
-                    {saasCompany.website || "non défini"}
+                    {saasCompany.website || t("notDefined")}
                   </span>
                 </p>
               )}
@@ -574,14 +576,14 @@ export default function SettingsClient({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <input
                     type="text"
-                    placeholder="Nom de la marque"
+                    placeholder={t("brandNamePlaceholder")}
                     value={newBrandName}
                     onChange={(e) => setNewBrandName(e.target.value)}
                     className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/40"
                   />
                   <input
                     type="url"
-                    placeholder="URL principale (https://...)"
+                    placeholder={t("brandUrlPlaceholder")}
                     value={newBrandUrl}
                     onChange={(e) => setNewBrandUrl(e.target.value)}
                     className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/40"
@@ -598,10 +600,10 @@ export default function SettingsClient({
                   {loadingBrands ? (
                     <>
                       <Loader2 className="w-3 h-3 animate-spin" />
-                      Enregistrement...
+                      {t("saving")}
                     </>
                   ) : (
-                    'Ajouter une marque'
+                    t("addBrand")
                   )}
                 </button>
               </div>
@@ -617,9 +619,9 @@ export default function SettingsClient({
                 <CreditCard className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
-                <h3 className="font-medium text-[#111827]">Paiements</h3>
+                <h3 className="font-medium text-[#111827]">{t("payments")}</h3>
                 <p className="text-xs text-[#64748B]">
-                  Configuration Stripe Connect
+                  {t("stripeConnect")}
                 </p>
               </div>
             </div>
@@ -627,25 +629,25 @@ export default function SettingsClient({
             <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 mb-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-[#111827] mb-1">Compte Stripe</p>
+                  <p className="text-sm text-[#111827] mb-1">{t("stripeAccount")}</p>
                   <p className="text-xs text-[#64748B]">
                     {stripeConnected
-                      ? "Votre compte est configuré pour recevoir des paiements"
-                      : "Connectez votre compte pour recevoir des paiements"}
+                      ? t("stripeConfigured")
+                      : t("connectToReceive")}
                   </p>
                 </div>
                 {stripeConnected ? (
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2 text-emerald-600">
                       <CheckCircle2 className="w-5 h-5" />
-                      <span className="text-sm">Connecté</span>
+                      <span className="text-sm">{t("connected")}</span>
                     </div>
                     <button
                       type="button"
                       onClick={handleCreatorDisconnectStripe}
                       className="px-3 py-1.5 text-xs rounded-lg border border-gray-300 text-[#6B7280] hover:text-[#111827] hover:bg-gray-50"
                     >
-                      Déconnecter
+                      {t("disconnect")}
                     </button>
                   </div>
                 ) : (
@@ -655,8 +657,7 @@ export default function SettingsClient({
             </div>
 
             <p className="text-xs text-[#64748B]">
-              Stripe Connect permet de recevoir les paiements des entreprises
-              SaaS directement sur votre compte bancaire.
+              {t("stripeConnectDesc")}
             </p>
           </div>
         )}
@@ -670,10 +671,10 @@ export default function SettingsClient({
               </div>
               <div>
                 <h3 className="font-medium text-[#111827]">
-                  Carte bancaire
+                  {t("card")}
                 </h3>
                 <p className="text-xs text-[#64748B]">
-                  Enregistrez une carte pour payer votre abonnement crédits
+                  {t("cardDesc")}
                 </p>
               </div>
             </div>
@@ -683,7 +684,7 @@ export default function SettingsClient({
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="text-sm text-[#111827] mb-1">
-                      Carte enregistrée
+                      {t("cardRegistered")}
                     </p>
                     <p className="text-xs text-[#64748B]">
                       {saasCompany.card_brand &&
@@ -696,14 +697,14 @@ export default function SettingsClient({
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2 text-emerald-600">
                       <CheckCircle2 className="w-5 h-5" />
-                      <span className="text-sm">Enregistrée</span>
+                      <span className="text-sm">{t("cardRegistered")}</span>
                     </div>
                     <button
                       type="button"
                       onClick={handleSaasRemoveCard}
                       className="px-3 py-1.5 text-xs rounded-lg border border-gray-300 text-[#6B7280] hover:text-[#111827] hover:bg-gray-50"
                     >
-                      Supprimer la carte
+                      {t("removeCard")}
                     </button>
                   </div>
                 </div>
@@ -711,11 +712,10 @@ export default function SettingsClient({
                 <div className="space-y-4">
                   <div>
                     <p className="text-sm text-[#111827] mb-1">
-                      Aucune carte enregistrée
+                      {t("noCard")}
                     </p>
                     <p className="text-xs text-[#64748B]">
-                      Vous devez enregistrer une carte pour utiliser Naano et
-                      payer les leads générés par vos créateurs.
+                      {t("noCardDesc")}
                     </p>
                   </div>
                   <CardRegistrationButton />
@@ -738,10 +738,10 @@ export default function SettingsClient({
               </div>
               <div>
                 <h3 className="font-medium text-[#111827]">
-                  Notifications par email
+                  {t("emailNotifications")}
                 </h3>
                 <p className="text-xs text-[#64748B]">
-                  Recevez des emails pour ces événements
+                  {t("receiveEmails")}
                 </p>
               </div>
             </div>
@@ -754,12 +754,12 @@ export default function SettingsClient({
             <label className="flex items-center justify-between py-3 border-b border-gray-200 cursor-pointer group">
               <div>
                 <span className="text-sm text-[#111827] block">
-                  Nouvelles candidatures
+                  {t("newApplications")}
                 </span>
                 <span className="text-xs text-[#64748B]">
                   {isCreator
-                    ? "Quand une entreprise vous contacte"
-                    : "Quand un créateur postule"}
+                    ? t("whenCompanyContacts")
+                    : t("whenCreatorApplies")}
                 </span>
               </div>
               <input
@@ -777,10 +777,10 @@ export default function SettingsClient({
             <label className="flex items-center justify-between py-3 border-b border-gray-200 cursor-pointer group">
               <div>
                 <span className="text-sm text-[#111827] block">
-                  Nouveaux messages
+                  {t("newMessages")}
                 </span>
                 <span className="text-xs text-[#64748B]">
-                  Quand vous recevez un message
+                  {t("whenYouReceiveMessage")}
                 </span>
               </div>
               <input
@@ -798,12 +798,12 @@ export default function SettingsClient({
             <label className="flex items-center justify-between py-3 cursor-pointer group">
               <div>
                 <span className="text-sm text-[#111827] block">
-                  Mises à jour de collaboration
+                  {t("collaborationUpdates")}
                 </span>
                 <span className="text-xs text-[#64748B]">
                   {isCreator
-                    ? "Candidatures acceptées, posts validés..."
-                    : "Nouveaux posts soumis, etc."}
+                    ? t("creatorUpdates")
+                    : t("saasUpdates")}
                 </span>
               </div>
               <input
@@ -828,15 +828,15 @@ export default function SettingsClient({
               <Shield className="w-5 h-5 text-red-500" />
             </div>
             <div>
-              <h3 className="font-medium text-[#111827]">Sécurité</h3>
+              <h3 className="font-medium text-[#111827]">{t("security")}</h3>
               <p className="text-xs text-[#64748B]">
-                Mot de passe et connexion
+                {t("passwordLogin")}
               </p>
             </div>
           </div>
 
           <button className="w-full py-2.5 bg-[#0F172A] hover:bg-[#020617] text-white rounded-xl text-sm font-medium transition-colors">
-            Changer le mot de passe
+            {t("changePassword")}
           </button>
         </div>
       </div>

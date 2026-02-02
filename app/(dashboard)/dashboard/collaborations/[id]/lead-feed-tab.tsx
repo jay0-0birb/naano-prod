@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { getCollaborationLeads } from "./actions-v2";
 import { maskIPAddress, formatConfidence, formatDaysAgo, getLeadTypeLabel } from "@/lib/utils";
 import {
@@ -70,6 +71,8 @@ interface LeadFeedTabProps {
 }
 
 export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
+  const t = useTranslations("leadFeed");
+  const tDetail = useTranslations("leadFeedDetail");
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -125,7 +128,7 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
   // Download CSV with all fields (English)
   const handleDownloadCSV = () => {
     if (leads.length === 0) {
-      alert("No data to export");
+      alert(t("noDataExport"));
       return;
     }
 
@@ -288,7 +291,7 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="text-gray-500">Chargement des leads...</div>
+        <div className="text-gray-500">{t("loading")}</div>
       </div>
     );
   }
@@ -304,14 +307,9 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
   if (leads.length === 0) {
     return (
       <div className="p-8 text-center text-gray-500">
-        <p>Aucun lead enrichi pour le moment.</p>
-        <p className="text-sm mt-2">
-          Les leads apparaîtront ici une fois qu'ils auront été enrichis avec
-          des données d'entreprise (confiance ≥30%).
-        </p>
-        <p className="text-xs mt-1 text-gray-400">
-          Seuls les clics avec identification d'entreprise sont affichés ici.
-        </p>
+        <p>{t("noLeads")}</p>
+        <p className="text-sm mt-2">{t("noLeadsDesc")}</p>
+        <p className="text-xs mt-1 text-gray-400">{tDetail("onlyCompanyClicks")}</p>
       </div>
     );
   }
@@ -322,20 +320,17 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-semibold mb-2">Lead Feed</h2>
+            <h2 className="text-xl font-semibold mb-2">{t("leadFeedTitle")}</h2>
             <p className="text-sm text-gray-600">
-              Visiteurs enrichis avec intelligence d'entreprise et scoring
-              d'intention.
+              {tDetail("enrichedVisitors")}
               <span className="ml-2 inline-flex items-center gap-1 text-xs text-gray-500">
                 <span
                   className="inline-flex items-center"
-                  title="Les données sont probabilistes avant signup, confirmées après."
+                  title={tDetail("dataProbabilistic")}
                 >
                   <HelpCircle className="w-3 h-3" />
                 </span>
-                <span>
-                  Les données sont probabilistes avant signup, confirmées après.
-                </span>
+                <span>{tDetail("dataProbabilistic")}</span>
               </span>
             </p>
           </div>
@@ -345,14 +340,14 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
               className="flex items-center gap-2 px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Download className="w-4 h-4" />
-              Télécharger CSV
+              {t("downloadCsv")}
             </button>
             <button
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center gap-2 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
             >
               <Filter className="w-4 h-4" />
-              Filtres
+              {t("filters")}
             </button>
           </div>
         </div>
@@ -363,19 +358,17 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Trier par
+                  {tDetail("sortBy")}
                 </label>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as any)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                 >
-                  <option value="company_intent">
-                    Intention entreprise (recommandé)
-                  </option>
-                  <option value="intent">Intention session</option>
-                  <option value="confidence">Confiance</option>
-                  <option value="date">Date</option>
+                  <option value="company_intent">{tDetail("sortCompanyIntent")}</option>
+                  <option value="intent">{tDetail("sortIntent")}</option>
+                  <option value="confidence">{tDetail("sortConfidence")}</option>
+                  <option value="date">{tDetail("sortDate")}</option>
                 </select>
               </div>
               <div className="space-y-2">
@@ -386,7 +379,7 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                     onChange={(e) => setFilterConfirmed(e.target.checked)}
                     className="rounded"
                   />
-                  Afficher uniquement les confirmés
+                  {tDetail("showConfirmedOnly")}
                 </label>
                 <label className="flex items-center gap-2 text-sm">
                   <input
@@ -395,7 +388,7 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                     onChange={(e) => setFilterHighConfidence(e.target.checked)}
                     className="rounded"
                   />
-                  Confiance élevée uniquement (≥70%)
+                  {tDetail("highConfidenceOnly")}
                 </label>
               </div>
             </div>
@@ -433,7 +426,7 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                             </h3>
                             <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded flex items-center gap-1">
                               <CheckCircle2 className="w-3 h-3" />
-                              Confirmé
+                              {t("confirmed")}
                             </span>
                           </>
                         ) : lead.company.attributionState === "mismatch" ? (
@@ -443,7 +436,7 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                             </h3>
                             <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded flex items-center gap-1">
                               <XCircle className="w-3 h-3" />
-                              Incompatible
+                              {tDetail("mismatch")}
                             </span>
                           </>
                         ) : lead.company.isAmbiguous ? (
@@ -460,12 +453,12 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                         ) : (
                           <>
                             <h3 className="text-lg font-semibold text-gray-700">
-                              <span className="text-gray-500">Probable: </span>
+                              <span className="text-gray-500">{tDetail("probable")}: </span>
                               {lead.company.name}
                             </h3>
                             <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded flex items-center gap-1">
                               <AlertTriangle className="w-3 h-3" />
-                              Probable ({formatConfidence(effectiveConfidence)})
+                              {tDetail("probable")} ({formatConfidence(effectiveConfidence)})
                             </span>
                           </>
                         )}
@@ -477,14 +470,16 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                       )}
                       {daysOld !== null && daysOld > 0 && (
                         <p className="text-xs text-gray-500 mt-1">
-                          Identifié il y a {formatDaysAgo(daysOld)} • Confiance
-                          effective: {formatConfidence(effectiveConfidence)}
+                          {tDetail("identifiedAgo", {
+                            days: formatDaysAgo(daysOld),
+                            confidence: formatConfidence(effectiveConfidence),
+                          })}
                         </p>
                       )}
                     </div>
                   ) : (
                     <h3 className="text-lg font-semibold text-gray-500">
-                      Entreprise inconnue
+                      {tDetail("unknownCompany")}
                     </h3>
                   )}
                 </div>
@@ -497,10 +492,10 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                         {Math.round(companyIntent.avg_intent_score)}
                       </div>
                       <div className="text-xs text-gray-500">
-                        Intention entreprise
+                        {tDetail("companyIntent")}
                         <span
                           className="inline-flex items-center ml-1"
-                          title="Score d'intention agrégé au niveau entreprise (plus fiable que session individuelle)"
+                          title={tDetail("companyIntentTooltip")}
                         >
                           <HelpCircle className="w-3 h-3" />
                         </span>
@@ -519,7 +514,7 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                         Intention session
                         <span
                           className="inline-flex items-center ml-1"
-                          title="Score d'intention basé sur l'engagement, la qualité du référent, et les signaux comportementaux. Plus élevé = plus susceptible de convertir."
+                          title={tDetail("sessionIntentTooltip")}
                         >
                           <HelpCircle className="w-3 h-3" />
                         </span>
@@ -535,7 +530,7 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     {lead.company.industry && (
                       <div>
-                        <span className="text-gray-500">Industrie:</span>{" "}
+                        <span className="text-gray-500">{tDetail("industry")}:</span>{" "}
                         <span className="font-medium">
                           {lead.company.industry}
                         </span>
@@ -543,25 +538,25 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                     )}
                     {lead.company.size && (
                       <div>
-                        <span className="text-gray-500">Taille:</span>{" "}
+                        <span className="text-gray-500">{tDetail("size")}:</span>{" "}
                         <span className="font-medium">{lead.company.size}</span>
                       </div>
                     )}
                     {lead.company.location && (
                       <div>
-                        <span className="text-gray-500">Localisation:</span>{" "}
+                        <span className="text-gray-500">{tDetail("location")}:</span>{" "}
                         <span className="font-medium">
                           {lead.company.location}
                         </span>
                       </div>
                     )}
                     <div>
-                      <span className="text-gray-500">Confiance:</span>{" "}
+                      <span className="text-gray-500">{tDetail("confidence")}:</span>{" "}
                       <span className="font-medium">
                         {formatConfidence(effectiveConfidence)}
                         {effectiveConfidence < lead.company.confidenceScore && (
                           <span className="text-xs text-orange-600 ml-1">
-                            (décroissance:{" "}
+                            ({tDetail("decay")}:{" "}
                             {formatConfidence(lead.company.confidenceScore)} →{" "}
                             {formatConfidence(effectiveConfidence)})
                           </span>
@@ -593,54 +588,54 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
               {/* Layer 1: Session Intelligence with masked IP (Issue 6.1) */}
               <div className="mb-4 p-4 bg-blue-50 rounded-lg">
                 <div className="text-sm font-medium text-gray-700 mb-2">
-                  Intelligence de session
+                  {tDetail("sessionIntelligence")}
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                   <div>
-                    <span className="text-gray-500">Pays:</span>{" "}
+                    <span className="text-gray-500">{tDetail("country")}:</span>{" "}
                     <span className="font-medium">
-                      {lead.session.country || "Inconnu"}
+                      {lead.session.country || tDetail("unknown")}
                     </span>
                   </div>
                   <div>
-                    <span className="text-gray-500">Ville:</span>{" "}
+                    <span className="text-gray-500">{tDetail("city")}:</span>{" "}
                     <span className="font-medium">
-                      {lead.session.city || "Inconnu"}
+                      {lead.session.city || tDetail("unknown")}
                     </span>
                   </div>
                   <div>
-                    <span className="text-gray-500">IP:</span>{" "}
+                    <span className="text-gray-500">{tDetail("ip")}:</span>{" "}
                     <span className="font-medium">
                       {maskIPAddress(lead.session.ipAddress)}
                     </span>
                   </div>
                   <div>
-                    <span className="text-gray-500">Appareil:</span>{" "}
+                    <span className="text-gray-500">{tDetail("device")}:</span>{" "}
                     <span className="font-medium">
-                      {lead.session.deviceType || "Inconnu"}
+                      {lead.session.deviceType || tDetail("unknown")}
                     </span>
                   </div>
                   <div>
                     <span className="text-gray-500">OS:</span>{" "}
                     <span className="font-medium">
-                      {lead.session.os || "Inconnu"}
+                      {lead.session.os || tDetail("unknown")}
                     </span>
                   </div>
                   <div>
-                    <span className="text-gray-500">Navigateur:</span>{" "}
+                    <span className="text-gray-500">{tDetail("browser")}:</span>{" "}
                     <span className="font-medium">
-                      {lead.session.browser || "Inconnu"}
+                      {lead.session.browser || tDetail("unknown")}
                     </span>
                   </div>
                   <div>
-                    <span className="text-gray-500">Réseau:</span>{" "}
+                    <span className="text-gray-500">{tDetail("network")}:</span>{" "}
                     <span className="font-medium">
-                      {lead.session.networkType || "Inconnu"}
+                      {lead.session.networkType || tDetail("unknown")}
                     </span>
                   </div>
                   {lead.session.timeOnSite && (
                     <div>
-                      <span className="text-gray-500">Temps sur site:</span>{" "}
+                      <span className="text-gray-500">{tDetail("timeOnSite")}:</span>{" "}
                       <span className="font-medium">
                         {lead.session.timeOnSite}s
                       </span>
@@ -648,7 +643,7 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                   )}
                   {lead.session.referrer && (
                     <div>
-                      <span className="text-gray-500">Source:</span>{" "}
+                      <span className="text-gray-500">{tDetail("source")}:</span>{" "}
                       <span className="font-medium">
                         {lead.session.referrer.includes("linkedin.com")
                           ? "LinkedIn"
@@ -663,32 +658,32 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
               {lead.intent && (
                 <div className="mb-4 p-4 bg-green-50 rounded-lg">
                   <div className="text-sm font-medium text-gray-700 mb-2">
-                    Signaux d'intention (session)
+                    {tDetail("intentSignals")}
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {lead.intent.isRepeatVisit && (
                       <span className="text-xs bg-green-200 text-green-800 px-2 py-1 rounded">
-                        Visite répétée ({lead.intent.visitCount}x)
+                        {tDetail("repeatVisit", { count: lead.intent.visitCount })}
                       </span>
                     )}
                     {lead.intent.viewedPricing && (
                       <span className="text-xs bg-green-200 text-green-800 px-2 py-1 rounded">
-                        Page tarifs
+                        {tDetail("pricingPage")}
                       </span>
                     )}
                     {lead.intent.viewedSecurity && (
                       <span className="text-xs bg-green-200 text-green-800 px-2 py-1 rounded">
-                        Page sécurité
+                        {tDetail("securityPage")}
                       </span>
                     )}
                     {lead.intent.viewedIntegrations && (
                       <span className="text-xs bg-green-200 text-green-800 px-2 py-1 rounded">
-                        Page intégrations
+                        {tDetail("integrationsPage")}
                       </span>
                     )}
                     {lead.intent.recencyWeight < 1.0 && (
                       <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded">
-                        Poids recence:{" "}
+                        {tDetail("recencyWeight")}:{" "}
                         {Math.round(lead.intent.recencyWeight * 100)}%
                       </span>
                     )}
@@ -700,7 +695,7 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
               {companyIntent && (
                 <div className="mb-4 p-4 bg-purple-50 rounded-lg">
                   <div className="text-sm font-medium text-gray-700 mb-2">
-                    Intention entreprise (agrégée)
+                    {tDetail("companyIntentAggregated")}
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                     <div>
@@ -710,13 +705,13 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Score max:</span>{" "}
+                      <span className="text-gray-500">{tDetail("maxScore")}:</span>{" "}
                       <span className="font-medium">
                         {companyIntent.max_intent_score}
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Tendance:</span>{" "}
+                      <span className="text-gray-500">{tDetail("trend")}:</span>{" "}
                       <span
                         className={`font-medium ${
                           companyIntent.intent_trend === "increasing"
@@ -727,14 +722,14 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
                         }`}
                       >
                         {companyIntent.intent_trend === "increasing"
-                          ? "↑ Croissante"
+                          ? tDetail("trendIncreasing")
                           : companyIntent.intent_trend === "decreasing"
-                            ? "↓ Décroissante"
-                            : "→ Stable"}
+                            ? tDetail("trendDecreasing")
+                            : tDetail("trendStable")}
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Visites répétées:</span>{" "}
+                      <span className="text-gray-500">{tDetail("repeatVisits")}:</span>{" "}
                       <span className="font-medium">
                         {companyIntent.repeat_visits}
                       </span>
@@ -746,7 +741,7 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
               {/* Footer: Metadata */}
               <div className="flex items-center justify-between text-xs text-gray-500 pt-4 border-t border-gray-200">
                 <div>
-                  <span>Créateur:</span>{" "}
+                  <span>{tDetail("creator")}:</span>{" "}
                   <span className="font-medium">{lead.creatorName}</span>
                 </div>
                 <div>

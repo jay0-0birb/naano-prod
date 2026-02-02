@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { AlertCircle, Loader2 } from 'lucide-react';
 
@@ -20,6 +21,7 @@ export default function CollaborationActions({
   cancelReason,
 }: CollaborationActionsProps) {
   const router = useRouter();
+  const t = useTranslations('collaboration');
   const [loading, setLoading] = useState<null | 'request' | 'confirm' | 'reject'>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,7 +43,7 @@ export default function CollaborationActions({
       });
       const data = await res.json();
       if (!res.ok || data.error) {
-        setError(data.error || 'Erreur lors de la mise à jour de la collaboration');
+        setError(data.error || t('collabError'));
       } else {
         router.refresh();
       }
@@ -57,8 +59,7 @@ export default function CollaborationActions({
       <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5" />
       <div className="flex-1">
         <p className="text-xs text-amber-800 mb-2">
-          Vous pouvez arrêter cette collaboration à tout moment. Cette action
-          mettra fin à la collaboration pour les deux parties.
+          {t('stopDesc')}
         </p>
         <button
           onClick={() => handleAction('request')}
@@ -68,10 +69,10 @@ export default function CollaborationActions({
           {loading === 'request' ? (
             <span className="inline-flex items-center gap-1">
               <Loader2 className="w-3 h-3 animate-spin" />
-              Arrêt en cours...
+              {t('stopping')}
             </span>
           ) : (
-            "Arrêter la collaboration"
+            t('stopCollaboration')
           )}
         </button>
         {error && (

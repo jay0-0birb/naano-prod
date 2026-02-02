@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Building2, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -46,6 +47,7 @@ export default function ConversationList({
   currentUserId,
   currentUserRole,
 }: ConversationListProps) {
+  const t = useTranslations("messages");
   const [unreadConversations, setUnreadConversations] = useState<Set<string>>(
     new Set(),
   );
@@ -139,7 +141,7 @@ export default function ConversationList({
     // If current user is the creator, show the SaaS company
     if (creatorProfileId === currentUserId) {
       return {
-        name: app.saas_companies?.company_name || "Entreprise",
+        name: app.saas_companies?.company_name || t("company"),
         avatar: app.saas_companies?.logo_url,
         type: "saas" as const,
       };
@@ -147,7 +149,7 @@ export default function ConversationList({
 
     // If current user is the SaaS, show the creator
     return {
-      name: app.creator_profiles?.profiles?.full_name || "Créateur",
+      name: app.creator_profiles?.profiles?.full_name || t("creator"),
       avatar: app.creator_profiles?.profiles?.avatar_url,
       type: "creator" as const,
     };
@@ -156,7 +158,7 @@ export default function ConversationList({
   return (
     <div className="h-full bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
       <div className="p-4 border-b border-gray-200">
-        <h3 className="font-semibold text-[#111827] text-sm">Conversations</h3>
+        <h3 className="font-semibold text-[#111827] text-sm">{t("conversations")}</h3>
       </div>
 
       <div className="overflow-y-auto h-[calc(100%-60px)]">
@@ -216,7 +218,7 @@ export default function ConversationList({
                         hasUnread ? "text-[#3B82F6]" : "text-[#64748B]"
                       }`}
                     >
-                      {hasUnread ? "Nouveau message" : "Collaboration active"}
+                      {hasUnread ? t("newMessage") : t("activeCollaboration")}
                     </p>
                   </div>
                 </Link>
@@ -226,10 +228,9 @@ export default function ConversationList({
         ) : (
           <div className="flex items-center justify-center h-full p-4">
             <p className="text-sm text-[#64748B] text-center">
-              Aucune conversation.
+              {t("noConversationYet")}
               <br />
-              Les conversations sont créées automatiquement lors de
-              l'acceptation d'une candidature.
+              {t("conversationsAutoCreated")}
             </p>
           </div>
         )}

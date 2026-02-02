@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import { MessageSquare } from 'lucide-react';
 import ConversationList from '@/components/messages/conversation-list';
 import ChatView from '@/components/messages/chat-view';
@@ -9,6 +10,7 @@ interface PageProps {
 }
 
 export default async function MessagesPage({ searchParams }: PageProps) {
+  const t = await getTranslations('messages');
   const { conversation: conversationParam } = await searchParams;
   const supabase = await createClient();
   
@@ -84,14 +86,14 @@ export default async function MessagesPage({ searchParams }: PageProps) {
     // If current user is the creator, show the SaaS company
     if (creatorProfileId === user.id) {
       return {
-        name: app.saas_companies?.company_name || 'Entreprise',
+        name: app.saas_companies?.company_name || t('company'),
         avatar: app.saas_companies?.logo_url,
       };
     }
     
     // If current user is the SaaS, show the creator
     return {
-      name: app.creator_profiles?.profiles?.full_name || 'Créateur',
+      name: app.creator_profiles?.profiles?.full_name || t('creator'),
       avatar: app.creator_profiles?.profiles?.avatar_url,
     };
   };
@@ -130,10 +132,10 @@ export default async function MessagesPage({ searchParams }: PageProps) {
                 <MessageSquare className="w-8 h-8 text-[#94A3B8]" />
               </div>
               <h3 className="text-lg font-semibold text-[#111827] mb-2">
-                Sélectionnez une conversation
+                {t('selectConversation')}
               </h3>
               <p className="text-[#64748B] text-sm max-w-xs mx-auto">
-                Choisissez une conversation dans la liste pour commencer à discuter.
+                {t('selectConversationDesc')}
               </p>
             </div>
           </div>

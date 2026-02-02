@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { X, Loader2, Send, Building2 } from "lucide-react";
 import { applyToSaas } from "@/app/(dashboard)/dashboard/marketplace/actions";
 import type { SaasCompanyWithProfile } from "@/types/database";
@@ -18,6 +19,7 @@ export default function ApplyModal({
   onClose,
   onSuccess,
 }: ApplyModalProps) {
+  const t = useTranslations("dashboard");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState("");
@@ -67,7 +69,7 @@ export default function ApplyModal({
             )}
             <div>
               <h3 className="font-medium text-white">
-                Postuler chez {company.company_name}
+                {t("applyTo", { company: company.company_name })}
               </h3>
               <p className="text-xs text-slate-500">{company.industry}</p>
             </div>
@@ -90,17 +92,17 @@ export default function ApplyModal({
 
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">
-              Message de candidature
+              {t("applicationMessage")}
             </label>
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={5}
-              placeholder="Présentez-vous et expliquez pourquoi vous souhaitez collaborer avec cette entreprise..."
+              placeholder={t("applicationPlaceholder")}
               className="w-full bg-[#020408] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all resize-none"
             />
             <p className="text-xs text-slate-500 mt-1.5">
-              Un bon message augmente vos chances d'être accepté
+              {t("applicationTip")}
             </p>
           </div>
 
@@ -110,7 +112,7 @@ export default function ApplyModal({
               onClick={onClose}
               className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 text-slate-300 rounded-xl text-sm font-medium transition-colors"
             >
-              Annuler
+              {t("cancel")}
             </button>
             <button
               type="submit"
@@ -120,12 +122,12 @@ export default function ApplyModal({
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Envoi...
+                  {t("sending")}
                 </>
               ) : (
                 <>
                   <Send className="w-4 h-4" />
-                  Envoyer ma candidature
+                  {t("submitApplication")}
                 </>
               )}
             </button>

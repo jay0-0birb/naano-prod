@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Loader2, CreditCard } from 'lucide-react';
 
 export default function CardRegistrationButton() {
+  const t = useTranslations('forms');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -31,7 +33,7 @@ export default function CardRegistrationButton() {
       // Redirect to card setup page (it will create a fresh setup intent)
       router.push('/dashboard/settings/card-setup');
     } catch (err: any) {
-      setError('Une erreur est survenue: ' + err.message);
+      setError(t('errorOccurred') + ': ' + err.message);
       setIsLoading(false);
     }
   };
@@ -46,12 +48,12 @@ export default function CardRegistrationButton() {
         {isLoading ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
-            Chargement...
+            {t('loading')}
           </>
         ) : (
           <>
             <CreditCard className="w-4 h-4" />
-            Enregistrer une carte
+            {t('registerCard')}
           </>
         )}
       </button>

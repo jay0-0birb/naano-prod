@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { AlertCircle, CheckCircle2, Clock } from "lucide-react";
 
 interface CreditBalanceWidgetProps {
@@ -13,6 +14,7 @@ export default function CreditBalanceWidget({
   monthlySubscription,
   renewalDate,
 }: CreditBalanceWidgetProps) {
+  const t = useTranslations("credits");
   const getHealthStatus = (credits: number): {
     status: "safe" | "risky" | "low" | "empty";
     color: string;
@@ -24,7 +26,7 @@ export default function CreditBalanceWidget({
         status: "safe",
         color: "text-green-600 bg-green-50 border-green-200",
         icon: <CheckCircle2 className="w-5 h-5 text-green-600" />,
-        label: "Safe",
+        label: t("safe"),
       };
     }
     if (credits > 50) {
@@ -32,7 +34,7 @@ export default function CreditBalanceWidget({
         status: "risky",
         color: "text-orange-600 bg-orange-50 border-orange-200",
         icon: <AlertCircle className="w-5 h-5 text-orange-600" />,
-        label: "Risky",
+        label: t("risky"),
       };
     }
     if (credits > 0) {
@@ -40,14 +42,14 @@ export default function CreditBalanceWidget({
         status: "low",
         color: "text-red-600 bg-red-50 border-red-200",
         icon: <AlertCircle className="w-5 h-5 text-red-600" />,
-        label: "Low",
+        label: t("low"),
       };
     }
     return {
       status: "empty",
       color: "text-red-700 bg-red-100 border-red-300",
       icon: <AlertCircle className="w-5 h-5 text-red-700" />,
-      label: "Empty",
+      label: t("empty"),
     };
   };
 
@@ -68,7 +70,7 @@ export default function CreditBalanceWidget({
     <div className="bg-white rounded-2xl p-6 border border-slate-200">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-slate-900">
-          Solde de Crédits
+          {t("balance")}
         </h3>
         <div className={`px-3 py-1 rounded-full border ${health.color} flex items-center gap-2`}>
           {health.icon}
@@ -80,14 +82,14 @@ export default function CreditBalanceWidget({
         <div className="text-4xl font-bold text-slate-900 mb-1">
           {walletCredits.toLocaleString()}
         </div>
-        <div className="text-sm text-slate-600">crédits disponibles</div>
+        <div className="text-sm text-slate-600">{t("creditsAvailable")}</div>
       </div>
 
       {monthlySubscription && (
         <div className="mb-4 pb-4 border-b border-slate-200">
-          <div className="text-sm text-slate-600 mb-1">Abonnement mensuel</div>
+          <div className="text-sm text-slate-600 mb-1">{t("monthlySubscription")}</div>
           <div className="text-lg font-semibold text-slate-900">
-            {monthlySubscription.toLocaleString()} crédits/mois
+            {monthlySubscription.toLocaleString()} {t("creditsPerMonth")}
           </div>
         </div>
       )}
@@ -96,7 +98,9 @@ export default function CreditBalanceWidget({
         <div className="flex items-center gap-2 text-sm text-slate-600">
           <Clock className="w-4 h-4" />
           <span>
-            Renouvellement dans {daysUntilRenewal} jour{daysUntilRenewal !== 1 ? "s" : ""}
+            {daysUntilRenewal === 1
+              ? t("renewalInDays", { count: 1 })
+              : t("renewalInDaysPlural", { count: daysUntilRenewal })}
           </span>
         </div>
       )}
@@ -104,7 +108,7 @@ export default function CreditBalanceWidget({
       {walletCredits === 0 && (
         <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-sm text-red-700">
-            ⚠️ Aucun crédit disponible. Les clics qualifiés seront bloqués jusqu'à ce que vous ajoutiez des crédits.
+            ⚠️ {t("noCredits")}
           </p>
         </div>
       )}

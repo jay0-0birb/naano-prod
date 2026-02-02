@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Loader2, ExternalLink } from 'lucide-react';
 
 export default function StripeConnectButton() {
+  const t = useTranslations('forms');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,7 +32,7 @@ export default function StripeConnectButton() {
         window.location.href = data.url;
       }
     } catch (err) {
-      setError('Une erreur est survenue');
+      setError(t('errorOccurred'));
       setIsLoading(false);
     }
   };
@@ -45,12 +47,12 @@ export default function StripeConnectButton() {
         {isLoading ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
-            Connexion...
+            {t('connecting')}
           </>
         ) : (
           <>
             <ExternalLink className="w-4 h-4" />
-            Connecter Stripe
+            {t('connectStripe')}
           </>
         )}
       </button>

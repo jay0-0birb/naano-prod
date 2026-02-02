@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   Wallet,
   Check,
@@ -75,6 +76,8 @@ export default function FinancesPageClient({
   stripeMessage,
 }: FinancesPageClientProps) {
   const router = useRouter();
+  const t = useTranslations("finances");
+  const tDashboard = useTranslations("dashboard");
   const [selectedTab, setSelectedTab] = useState<"plan" | "commissions">(
     "plan",
   );
@@ -175,7 +178,7 @@ export default function FinancesPageClient({
         window.location.href = data.url;
       }
     } catch (err) {
-      setError("Une erreur est survenue");
+      setError(t("error"));
       setStripeLoading(false);
     }
   };
@@ -194,7 +197,7 @@ export default function FinancesPageClient({
         router.refresh();
       }
     } catch (err) {
-      setError("Une erreur est survenue");
+      setError(t("error"));
     } finally {
       setStripeLoading(false);
     }
@@ -223,7 +226,7 @@ export default function FinancesPageClient({
         router.refresh();
       }
     } catch (err) {
-      setError("Une erreur est survenue lors de la création de l'abonnement");
+      setError(t("subscriptionError"));
     }
   };
 
@@ -239,7 +242,7 @@ export default function FinancesPageClient({
       } = await supabase.auth.getSession();
 
       if (!session) {
-        setError("Non authentifié");
+        setError(t("notAuthenticated"));
         setPayoutLoading(false);
         return;
       }
@@ -265,7 +268,7 @@ export default function FinancesPageClient({
         router.refresh();
       }
     } catch (err) {
-      setError("Une erreur est survenue");
+      setError(t("error"));
       setPayoutLoading(false);
     }
   };
@@ -287,10 +290,10 @@ export default function FinancesPageClient({
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-semibold text-[#111827] mb-1">
-            Finances
+            {t("title")}
           </h1>
           <p className="text-[#64748B] text-sm">
-            Manage your earnings and request payouts
+            {t("subtitle")}
           </p>
         </div>
 
@@ -318,31 +321,31 @@ export default function FinancesPageClient({
             </div>
             <div>
               <h2 className="text-xl font-semibold text-[#111827]">
-                Vue d&apos;ensemble
+                {t("overview")}
               </h2>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <p className="text-[#64748B] text-sm mb-1">Active Partnerships</p>
+              <p className="text-[#64748B] text-sm mb-1">{t("activePartnerships")}</p>
               <p className="text-2xl font-bold text-[#111827]">
                 {creatorData.activeSaas}
               </p>
             </div>
             <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <p className="text-[#64748B] text-sm mb-1">Total Earned</p>
+              <p className="text-[#64748B] text-sm mb-1">{t("totalEarned")}</p>
               <p className="text-2xl font-bold text-[#111827]">
                 {creatorData.totalEarned.toFixed(2)}€
               </p>
-              <p className="text-xs text-[#64748B]">Since the beginning</p>
+              <p className="text-xs text-[#64748B]">{t("sinceBeginning")}</p>
             </div>
             <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <p className="text-[#64748B] text-sm mb-1">Available</p>
+              <p className="text-[#64748B] text-sm mb-1">{t("available")}</p>
               <p className="text-2xl font-bold text-[#111827]">
                 {creatorData.availableBalance.toFixed(2)}€
               </p>
-              <p className="text-xs text-[#64748B]">Ready for payout</p>
+              <p className="text-xs text-[#64748B]">{t("readyForPayout")}</p>
             </div>
           </div>
         </div>
@@ -354,8 +357,8 @@ export default function FinancesPageClient({
               <CreditCard className="w-5 h-5 text-[#3B82F6]" />
             </div>
             <div>
-              <h3 className="font-semibold text-[#111827]">Stripe Payments</h3>
-              <p className="text-xs text-[#64748B]">Receive your commissions</p>
+              <h3 className="font-semibold text-[#111827]">{t("stripePayments")}</h3>
+              <p className="text-xs text-[#64748B]">{t("receiveCommissions")}</p>
             </div>
           </div>
 
@@ -364,7 +367,7 @@ export default function FinancesPageClient({
               <div className="flex items-center gap-2">
                 <Check className="w-5 h-5 text-green-600" />
                 <span className="text-sm text-green-700 font-medium">
-                  Stripe account connected
+                  {t("stripeConnected")}
                 </span>
               </div>
               <Link
@@ -372,7 +375,7 @@ export default function FinancesPageClient({
                 className="text-xs text-[#64748B] hover:text-[#111827] flex items-center gap-1"
               >
                 <Settings className="w-3 h-3" />
-                Manage
+                {t("manage")}
               </Link>
             </div>
           ) : (
@@ -382,11 +385,10 @@ export default function FinancesPageClient({
                   <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                   <div className="flex-1">
                     <p className="text-sm text-amber-400 font-medium">
-                      Stripe non connecté
+                      {t("stripeNotConnected")}
                     </p>
                     <p className="text-xs text-amber-400/70 mt-1">
-                      Connectez votre compte pour recevoir vos commissions
-                      directement sur votre compte bancaire.
+                      {t("connectStripeDesc")}
                     </p>
                   </div>
                 </div>
@@ -401,12 +403,12 @@ export default function FinancesPageClient({
                   {stripeLoading ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Connexion en cours...
+                      {t("connecting")}
                     </>
                   ) : (
                     <>
                       <ExternalLink className="w-4 h-4" />
-                      Connecter mon compte Stripe
+                      {t("connectStripe")}
                     </>
                   )}
                 </button>
@@ -416,7 +418,7 @@ export default function FinancesPageClient({
                     onClick={handleRefreshStatus}
                     disabled={stripeLoading}
                     className="px-4 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
-                    title="Actualiser le statut"
+                    title={t("refreshStatus")}
                   >
                     <RefreshCw
                       className={`w-4 h-4 ${
@@ -448,12 +450,10 @@ export default function FinancesPageClient({
           creatorData.totalEarned < 500 && (
           <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200">
             <p className="text-sm text-amber-800 font-medium">
-              Plus que {Math.ceil(500 - creatorData.totalEarned)} € avant le
-              palier Pro. Anticipez votre création d&apos;entreprise !
+              {t("euro400Banner", { amount: Math.ceil(500 - creatorData.totalEarned).toString() })}
             </p>
             <p className="text-xs text-amber-700 mt-1">
-              Créer votre micro-entreprise prend 15 minutes et débloque des
-              retraits illimités.
+              {t("microEntrepriseBanner")}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               <a
@@ -463,14 +463,14 @@ export default function FinancesPageClient({
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-800 text-sm font-medium transition-colors"
               >
                 <Calendar className="w-4 h-4" />
-                Prendre RDV pour créer mon Auto-Entreprise
+                {t("bookCall")}
               </a>
               <button
                 type="button"
                 onClick={() => setShowSiretForm(true)}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-200 hover:bg-amber-300 text-amber-900 text-sm font-medium transition-colors"
               >
-                Saisir mon SIRET
+                {t("enterSiret")}
               </button>
             </div>
           </div>
@@ -480,43 +480,41 @@ export default function FinancesPageClient({
         <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-6 shadow-sm">
           <h3 className="font-semibold text-[#111827] mb-4 flex items-center gap-2">
             <Wallet className="w-5 h-5 text-[#1D4ED8]" />
-            Wallet Balance
+            {t("walletBalance")}
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
-              <p className="text-xs text-[#6B7280] mb-1 font-medium">Pending</p>
+              <p className="text-xs text-[#6B7280] mb-1 font-medium">{t("pending")}</p>
               <p className="text-2xl font-bold text-[#111827]">
                 {creatorData.pendingBalance.toFixed(2)}€
               </p>
               <p className="text-xs text-[#64748B] mt-1">
-                Earnings from qualified clicks, pending transfer to your available balance.
+                {t("pendingDesc")}
               </p>
             </div>
             <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
               <p className="text-xs text-green-700 mb-1 font-medium">
-                Available
+                {t("available")}
               </p>
               <p className="text-2xl font-bold text-[#111827]">
                 {creatorData.availableBalance.toFixed(2)}€
               </p>
               <p className="text-xs text-[#64748B] mt-1">
-                Ready for payout. Click "Withdraw" to receive this money in your
-                Stripe account.
+                {t("availableDesc")}
               </p>
             </div>
           </div>
 
           <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
             <p className="text-xs text-[#6B7280] mb-1 font-medium">
-              Total Earned (Lifetime)
+              {t("totalEarnedLifetime")}
             </p>
             <p className="text-2xl font-bold text-[#111827]">
               {creatorData.totalEarned.toFixed(2)}€
             </p>
             <p className="text-xs text-[#64748B] mt-1">
-              Total of all your earnings since the beginning (Pending +
-              Available + Already withdrawn)
+              {t("totalEarnedDesc")}
             </p>
           </div>
 
@@ -524,7 +522,7 @@ export default function FinancesPageClient({
           <div className="pt-6 border-t border-gray-200">
             <h4 className="text-sm font-semibold text-[#111827] mb-3 flex items-center gap-2">
               <Info className="w-4 h-4 text-[#3B82F6]" />
-              How it works
+              {t("howItWorks")}
             </h4>
             <div className="space-y-3">
               <div className="flex items-start gap-3">
@@ -533,11 +531,10 @@ export default function FinancesPageClient({
                 </div>
                 <div>
                   <p className="text-xs text-[#111827] font-medium">
-                    You generate leads
+                    {t("step1Title")}
                   </p>
                   <p className="text-xs text-[#64748B] mt-0.5">
-                    Share your tracked link. Each validated lead earns you
-                    {creatorData.isPro ? " 1,10€" : " 0,90€"} (HT).
+                    {t("step1Desc", { amount: creatorData.isPro ? "1,10€" : "0,90€" })}
                   </p>
                 </div>
               </div>
@@ -547,11 +544,10 @@ export default function FinancesPageClient({
                 </div>
                 <div>
                   <p className="text-xs text-[#111827] font-medium">
-                    SaaS pays
+                    {t("step2Title")}
                   </p>
                   <p className="text-xs text-[#64748B] mt-0.5">
-                    Credits are deducted per click. Your balance moves from "Pending" to
-                    "Available" when processed.
+                    {t("step2Desc")}
                   </p>
                 </div>
               </div>
@@ -561,11 +557,10 @@ export default function FinancesPageClient({
                 </div>
                 <div>
                   <p className="text-xs text-[#111827] font-medium">
-                    Request payout
+                    {t("step3Title")}
                   </p>
                   <p className="text-xs text-[#64748B] mt-0.5">
-                    Once you have {creatorData.minPayout}€ available, withdraw
-                    via Stripe.
+                    {t("step3Desc", { min: creatorData.minPayout })}
                   </p>
                 </div>
               </div>
@@ -579,13 +574,13 @@ export default function FinancesPageClient({
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h4 className="text-lg font-medium text-[#111827] mb-1">
-                  Solde disponible
+                  {t("availableBalance")}
                 </h4>
                 <p className="text-3xl font-bold text-emerald-600">
                   {creatorData.availableBalance.toFixed(2)}€
                 </p>
                 <p className="text-xs text-[#64748B] mt-1">
-                  Total gagné: {creatorData.totalEarned.toFixed(2)}€
+                  {t("totalGained")}: {creatorData.totalEarned.toFixed(2)}€
                 </p>
               </div>
             </div>
@@ -601,12 +596,12 @@ export default function FinancesPageClient({
                     {payoutLoading ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        Traitement en cours...
+                        {t("processing")}
                       </>
                     ) : (
                       <>
                         <Wallet className="w-4 h-4" />
-                        Demander un virement ({creatorData.availableBalance.toFixed(2)}€)
+                        {t("requestTransfer", { amount: creatorData.availableBalance.toFixed(2) })}
                       </>
                     )}
                   </button>
@@ -615,7 +610,7 @@ export default function FinancesPageClient({
                     <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
                       <p className="text-sm text-amber-800 font-medium">
                         {creatorData.withdrawBlockReason ||
-                          "Pour débloquer votre virement, renseignez un SIRET."}
+                          t("unlockWithdrawSiret")}
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -626,14 +621,14 @@ export default function FinancesPageClient({
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white text-sm font-medium transition-colors"
                       >
                         <Calendar className="w-4 h-4" />
-                        Prendre RDV pour créer mon Auto-Entreprise
+                        {t("bookCall")}
                       </a>
                       <button
                         type="button"
                         onClick={() => setShowSiretForm(true)}
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 text-[#111827] text-sm font-medium transition-colors"
                       >
-                        Saisir mon SIRET
+                        {t("enterSiret")}
                       </button>
                     </div>
                   </div>
@@ -641,19 +636,17 @@ export default function FinancesPageClient({
               ) : (
                 <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
                   <p className="text-sm text-amber-700">
-                    Montant minimum requis: {creatorData.minPayout}€. Il vous
-                    manque{" "}
-                    {(
-                      creatorData.minPayout - creatorData.availableBalance
-                    ).toFixed(2)}
-                    €.
+                    {t("minRequired", {
+                      min: creatorData.minPayout,
+                      missing: (creatorData.minPayout - creatorData.availableBalance).toFixed(2),
+                    })}
                   </p>
                 </div>
               )
             ) : (
               <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
                 <p className="text-sm text-amber-700">
-                  Connectez votre compte Stripe pour recevoir vos gains.
+                  {t("connectStripeToReceive")}
                 </p>
               </div>
             )}
@@ -665,11 +658,10 @@ export default function FinancesPageClient({
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white border border-gray-200 rounded-2xl p-6 max-w-md w-full shadow-xl">
               <h3 className="text-lg font-semibold text-[#111827] mb-2">
-                Saisir mon SIRET
+                {t("enterSiretTitle")}
               </h3>
               <p className="text-sm text-[#64748B] mb-4">
-                Dès validation, votre compte bascule en statut Pro et débloque
-                tous les fonds en attente.
+                {t("enterSiretDesc")}
               </p>
               {error && (
                 <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm flex items-center gap-2">
@@ -714,7 +706,7 @@ export default function FinancesPageClient({
                     disabled={siretLoading}
                     className="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-[#111827] rounded-xl font-medium transition-colors disabled:opacity-50"
                   >
-                    Annuler
+                    {tDashboard("cancel")}
                   </button>
                   <button
                     type="submit"
@@ -724,7 +716,7 @@ export default function FinancesPageClient({
                     {siretLoading ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      "Valider"
+                      t("validate")
                     )}
                   </button>
                 </div>
@@ -737,7 +729,7 @@ export default function FinancesPageClient({
         {creatorData.payoutHistory && creatorData.payoutHistory.length > 0 && (
           <div className="mt-6 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
             <h4 className="text-lg font-medium text-[#111827] mb-4">
-              Historique des virements
+              {t("payoutHistory")}
             </h4>
             <div className="space-y-3">
               {creatorData.payoutHistory.map((payout: any) => (
@@ -765,12 +757,12 @@ export default function FinancesPageClient({
                     }`}
                   >
                     {payout.status === "completed"
-                      ? "Complété"
+                      ? t("completed")
                       : payout.status === "processing"
-                        ? "En cours"
+                        ? t("processingStatus")
                         : payout.status === "failed"
-                          ? "Échoué"
-                          : "En attente"}
+                          ? t("failed")
+                          : t("waiting")}
                   </div>
                 </div>
               ))}
@@ -788,21 +780,21 @@ export default function FinancesPageClient({
         <div className="max-w-5xl">
           <div className="mb-8">
             <h1 className="text-2xl font-normal text-white mb-1">
-              Finances & Plans
+              {t("financesPlans")}
             </h1>
             <p className="text-slate-400 text-sm">
-              Gérez votre abonnement et votre facturation
+              {t("saasSubtitle")}
             </p>
           </div>
           <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6">
-            <p className="text-red-400">Erreur: Données SaaS non trouvées</p>
+            <p className="text-red-400">{t("saasError")}</p>
           </div>
         </div>
       );
     }
     const tabs = [
-      { id: "plan", label: "Mon Plan" },
-      { id: "commissions", label: "Facturation" },
+      { id: "plan", label: t("myPlan") },
+      { id: "commissions", label: t("billing") },
     ];
 
     return (
@@ -810,10 +802,10 @@ export default function FinancesPageClient({
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-semibold text-[#111827] mb-1">
-            Finances & Plans
+            {t("financesPlans")}
           </h1>
           <p className="text-[#64748B] text-sm">
-            Manage your subscription and billing
+            {t("saasSubtitle")}
           </p>
         </div>
 
@@ -863,11 +855,10 @@ export default function FinancesPageClient({
               </div>
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-white mb-2">
-                  Carte bancaire requise
+                  {t("cardRequired")}
                 </h3>
                 <p className="text-slate-400 text-sm mb-4">
-                  Vous devez enregistrer une carte bancaire pour utiliser Naano.
-                  Cette carte sera utilisée pour payer votre abonnement crédits.
+                  {t("cardRequiredDesc")}
                 </p>
                 <button
                   onClick={handleAddCard}
@@ -877,12 +868,12 @@ export default function FinancesPageClient({
                   {stripeLoading ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Chargement...
+                      {t("loading")}
                     </>
                   ) : (
                     <>
                       <CreditCard className="w-4 h-4" />
-                      Ajouter une carte
+                      {t("addCard")}
                     </>
                   )}
                 </button>
@@ -901,7 +892,7 @@ export default function FinancesPageClient({
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-[#166534] mb-1">
-                    Carte enregistrée
+                    {t("cardRegistered")}
                   </h3>
                   <p className="text-sm text-[#166534]">
                     {saasData.cardBrand &&
@@ -921,7 +912,7 @@ export default function FinancesPageClient({
                 ) : (
                   <>
                     <Settings className="w-4 h-4" />
-                    Modifier
+                    {t("manage")}
                   </>
                 )}
               </button>
@@ -947,12 +938,12 @@ export default function FinancesPageClient({
             {/* Overview */}
             <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
               <h2 className="text-lg font-semibold text-[#111827] mb-4">
-                Vue d&apos;ensemble
+                {t("overview")}
               </h2>
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                   <p className="text-xs font-medium text-[#6B7280] mb-1 uppercase tracking-wide">
-                    Créateurs actifs
+                    {t("activeCreators")}
                   </p>
                   <p className="text-2xl font-bold text-[#111827]">
                     {saasData.activeCreators}
@@ -960,7 +951,7 @@ export default function FinancesPageClient({
                 </div>
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                   <p className="text-xs font-medium text-[#6B7280] mb-1 uppercase tracking-wide">
-                    Statut
+                    {t("status")}
                   </p>
                   <p
                     className={`text-lg font-semibold capitalize ${
@@ -972,9 +963,9 @@ export default function FinancesPageClient({
                     }`}
                   >
                     {saasData.subscriptionStatus === "active"
-                      ? "Actif"
+                      ? t("active")
                       : saasData.subscriptionStatus === "past_due"
-                        ? "Paiement en retard"
+                        ? t("pastDue")
                         : saasData.subscriptionStatus}
                   </p>
                 </div>
@@ -989,7 +980,7 @@ export default function FinancesPageClient({
             <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
               <h3 className="font-semibold text-[#111827] mb-4 flex items-center gap-2">
                 <Info className="w-5 h-5 text-[#3B82F6]" />
-                Comment fonctionne la facturation
+                {t("howBillingWorks")}
               </h3>
 
               <div className="space-y-4 mb-6">
@@ -999,10 +990,10 @@ export default function FinancesPageClient({
                   </div>
                   <div>
                     <h4 className="text-sm text-[#111827] font-medium">
-                      Achetez des crédits
+                      {t("buyCredits")}
                     </h4>
                     <p className="text-xs text-[#64748B] mt-1">
-                      Choisissez votre volume mensuel dans l&apos;onglet Mon Plan.
+                      {t("buyCreditsDesc")}
                     </p>
                   </div>
                 </div>
@@ -1012,10 +1003,10 @@ export default function FinancesPageClient({
                   </div>
                   <div>
                     <h4 className="text-sm text-[#111827] font-medium">
-                      Clics qualifiés
+                      {t("qualifiedClicks")}
                     </h4>
                     <p className="text-xs text-[#64748B] mt-1">
-                      Chaque clic qualifié consomme un crédit. Les créateurs sont payés automatiquement.
+                      {t("qualifiedClicksDesc")}
                     </p>
                   </div>
                 </div>
@@ -1025,10 +1016,10 @@ export default function FinancesPageClient({
                   </div>
                   <div>
                     <h4 className="text-sm text-[#111827] font-medium">
-                      Renouvellement mensuel
+                      {t("monthlyRenewal")}
                     </h4>
                     <p className="text-xs text-[#64748B] mt-1">
-                      Vos crédits se renouvellent automatiquement chaque mois.
+                      {t("monthlyRenewalDesc")}
                     </p>
                   </div>
                 </div>
@@ -1040,7 +1031,7 @@ export default function FinancesPageClient({
               <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
                 <h3 className="font-semibold text-[#111827] mb-4 flex items-center gap-2">
                   <FileText className="w-5 h-5 text-[#3B82F6]" />
-                  Historique des factures
+                  {t("invoiceHistory")}
                 </h3>
                 <div className="space-y-3">
                   {saasData.invoices.map((invoice: any) => {
@@ -1072,12 +1063,12 @@ export default function FinancesPageClient({
                             </p>
                             <p className="text-xs text-[#6B7280]">
                               {invoice.status === "paid"
-                                ? "Payée"
+                                ? t("paid")
                                 : invoice.status === "sent"
-                                  ? "Envoyée"
+                                  ? t("sent")
                                   : invoice.status === "failed"
-                                    ? "Échouée"
-                                    : "Brouillon"}
+                                    ? t("failed")
+                                    : t("draft")}
                             </p>
                           </div>
                         </div>
@@ -1089,7 +1080,7 @@ export default function FinancesPageClient({
             ) : (
               <div className="bg-white border border-gray-200 rounded-2xl p-6 text-center shadow-sm">
                 <p className="text-[#64748B] text-sm">
-                  Aucune facture pour le moment. Vos abonnements crédits apparaîtront ici.
+                  {t("noInvoices")}
                 </p>
               </div>
             )}

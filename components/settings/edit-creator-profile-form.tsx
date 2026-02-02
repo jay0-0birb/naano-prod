@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { updateCreatorProfile } from "@/app/(dashboard)/dashboard/settings/actions";
 import { Loader2, Save, X, Linkedin } from "lucide-react";
 
@@ -27,6 +28,8 @@ export default function EditCreatorProfileForm({
   onClose,
   onSuccess,
 }: EditCreatorProfileFormProps) {
+  const t = useTranslations("forms");
+  const tSettings = useTranslations("settings");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [theme, setTheme] = useState<string>(creatorProfile.theme || "");
@@ -54,7 +57,7 @@ export default function EditCreatorProfileForm({
       <div className="bg-white border border-gray-200 rounded-2xl p-6 max-w-2xl w-full my-8 shadow-xl">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-medium text-[#111827]">
-            Modifier le profil créateur
+            {t("editCreatorProfile")}
           </h3>
           <button
             onClick={onClose}
@@ -74,7 +77,7 @@ export default function EditCreatorProfileForm({
           {/* Bio */}
           <div>
             <label className="block text-sm font-medium text-[#374151] mb-2">
-              Bio *
+              {tSettings("bio")} *
             </label>
             <textarea
               name="bio"
@@ -89,7 +92,7 @@ export default function EditCreatorProfileForm({
           {/* LinkedIn URL */}
           <div>
             <label className="block text-sm font-medium text-[#374151] mb-2">
-              Profil LinkedIn *
+              {t("linkedInProfile")} *
             </label>
             <div className="relative">
               <Linkedin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9CA3AF]" />
@@ -98,7 +101,7 @@ export default function EditCreatorProfileForm({
                 type="url"
                 required
                 defaultValue={creatorProfile.linkedin_url || ""}
-                placeholder="https://linkedin.com/in/votre-profil"
+                placeholder={t("linkedInPlaceholder")}
                 className="w-full bg-white border border-gray-200 rounded-xl pl-12 pr-4 py-3 text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
               />
             </div>
@@ -107,7 +110,7 @@ export default function EditCreatorProfileForm({
           {/* Followers Count */}
           <div>
             <label className="block text-sm font-medium text-[#374151] mb-2">
-              Nombre de followers *
+              {t("followersCount")} *
             </label>
             <input
               name="followersCount"
@@ -125,18 +128,18 @@ export default function EditCreatorProfileForm({
               Thématique
             </label>
             <div className="flex flex-wrap gap-2">
-              {THEMES.map((t) => (
+              {THEMES.map((themeOpt) => (
                 <button
-                  key={t.value}
+                  key={themeOpt.value}
                   type="button"
-                  onClick={() => setTheme(t.value)}
+                  onClick={() => setTheme(themeOpt.value)}
                   className={`px-3 py-1.5 rounded-full text-sm transition-all ${
-                    theme === t.value
+                    theme === themeOpt.value
                       ? "bg-[#0F172A] text-white"
                       : "bg-gray-100 text-[#64748B] hover:bg-gray-200 hover:text-[#111827] border border-gray-200"
                   }`}
                 >
-                  {t.label}
+                  {themeOpt.label}
                 </button>
               ))}
             </div>
@@ -149,7 +152,7 @@ export default function EditCreatorProfileForm({
               disabled={isLoading}
               className="flex-1 px-4 py-2.5 bg-gray-100 border border-gray-200 rounded-xl text-[#374151] hover:bg-gray-200 transition-all disabled:opacity-50"
             >
-              Annuler
+              {t("cancel")}
             </button>
             <button
               type="submit"
@@ -159,12 +162,12 @@ export default function EditCreatorProfileForm({
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Enregistrement...</span>
+                  <span>{t("saving")}</span>
                 </>
               ) : (
                 <>
                   <Save className="w-4 h-4" />
-                  <span>Enregistrer</span>
+                  <span>{t("save")}</span>
                 </>
               )}
             </button>

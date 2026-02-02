@@ -1,15 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { completeCreatorOnboarding } from "@/app/(dashboard)/actions";
 import { Loader2, AlertCircle, Linkedin, Users, FileText, Calendar } from "lucide-react";
 import { useRouter } from "next/navigation";
-
-const THEMES = [
-  { value: "tech", label: "Tech" },
-  { value: "business", label: "Business" },
-  { value: "lifestyle", label: "Lifestyle" },
-];
 
 const CALENDLY_EXPERT_URL =
   process.env.NEXT_PUBLIC_CALENDLY_EXPERT_CALL_URL ||
@@ -19,8 +14,14 @@ const MICROENTREPRISE_PDF_URL =
   "/creer-micro-entreprise-15min.pdf";
 
 export default function CreatorOnboardingForm() {
+  const t = useTranslations("onboarding");
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const THEMES = [
+    { value: "tech", label: t("themeTech") },
+    { value: "business", label: t("themeBusiness") },
+    { value: "lifestyle", label: t("themeLifestyle") },
+  ];
   const [error, setError] = useState<string | null>(null);
   const [legalStatus, setLegalStatus] = useState<"particulier" | "professionnel">("particulier");
   const [theme, setTheme] = useState<string>("");
@@ -57,32 +58,32 @@ export default function CreatorOnboardingForm() {
       {/* Step 2: Profil & Identification */}
       <div className="space-y-5">
         <h3 className="text-sm font-semibold text-[#0F172A]">
-          Informations personnelles *
+          {t("personalInfo")}
         </h3>
         <p className="text-xs text-[#64748B]">
-          Ces données serviront à la génération automatique des contrats.
+          {t("contractData")}
         </p>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-[#475569] mb-2">
-              Prénom *
+              {t("firstName")}
             </label>
             <input
               name="firstName"
               required
-              placeholder="Jean"
+              placeholder={t("firstNamePlaceholder")}
               className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-[#475569] mb-2">
-              Nom *
+              {t("lastName")}
             </label>
             <input
               name="lastName"
               required
-              placeholder="Dupont"
+              placeholder={t("lastNamePlaceholder")}
               className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
             />
           </div>
@@ -90,7 +91,7 @@ export default function CreatorOnboardingForm() {
 
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            Date de naissance *
+            {t("dateOfBirth")}
           </label>
           <input
             name="dateOfBirth"
@@ -102,43 +103,43 @@ export default function CreatorOnboardingForm() {
 
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            Adresse postale complète *
+            {t("fullAddress")}
           </label>
           <input
             name="streetAddress"
             required
-            placeholder="123 rue de la Paix"
+            placeholder={t("addressPlaceholder")}
             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all mb-3"
           />
           <div className="grid grid-cols-3 gap-3">
             <input
               name="postalCode"
               required
-              placeholder="CP"
+              placeholder={t("postalCode")}
               className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
             />
             <input
               name="city"
               required
-              placeholder="Ville"
+              placeholder={t("city")}
               className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
             />
             <input
               name="country"
               required
-              placeholder="Pays"
+              placeholder={t("country")}
               className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
             />
           </div>
         </div>
 
         <h3 className="text-sm font-semibold text-[#0F172A] pt-4">
-          Informations sociales
+          {t("socialInfo")}
         </h3>
 
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            LinkedIn *
+            {t("linkedin")}
           </label>
           <div className="relative">
             <Linkedin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B]" />
@@ -146,7 +147,7 @@ export default function CreatorOnboardingForm() {
               name="linkedinUrl"
               type="url"
               required
-              placeholder="https://linkedin.com/in/your-profile"
+              placeholder={t("linkedinPlaceholder")}
               className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-12 pr-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
             />
           </div>
@@ -154,7 +155,7 @@ export default function CreatorOnboardingForm() {
 
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            Thématique
+            {t("theme")}
           </label>
           <div className="flex flex-wrap gap-2">
             {THEMES.map((t) => (
@@ -177,31 +178,31 @@ export default function CreatorOnboardingForm() {
 
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            Présentation (optionnel)
+            {t("bio")}
           </label>
           <textarea
             name="bio"
             rows={3}
-            placeholder="Quelques lignes sur votre parcours et expertise..."
+            placeholder={t("bioPlaceholder")}
             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all resize-none"
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            Derniers posts LinkedIn (optionnel)
+            {t("recentPosts")}
           </label>
           <input
             name="recentPostsLinkedin"
             type="url"
-            placeholder="https://linkedin.com/posts/..."
+            placeholder={t("recentPostsPlaceholder")}
             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
           />
         </div>
 
         {/* Choix du Statut */}
         <h3 className="text-sm font-semibold text-[#0F172A] pt-4">
-          Choix du statut
+          {t("legalStatus")}
         </h3>
         <div className="space-y-3">
           <label className="flex items-start gap-3 p-4 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors">
@@ -215,10 +216,10 @@ export default function CreatorOnboardingForm() {
             />
             <div>
               <span className="font-medium text-[#111827]">
-                Particulier (Occasionnel)
+                {t("particulier")}
               </span>
               <p className="text-xs text-[#64748B] mt-0.5">
-                Je débute sans SIRET. Retraits limités à 500 € cumulés.
+                {t("particulierDesc")}
               </p>
             </div>
           </label>
@@ -233,10 +234,10 @@ export default function CreatorOnboardingForm() {
             />
             <div>
               <span className="font-medium text-[#111827]">
-                Professionnel (Freelance / AE)
+                {t("professionnel")}
               </span>
               <p className="text-xs text-[#64748B] mt-0.5">
-                J&apos;ai déjà un SIRET. Retraits illimités.
+                {t("professionnelDesc")}
               </p>
             </div>
           </label>
@@ -245,12 +246,12 @@ export default function CreatorOnboardingForm() {
         {legalStatus === "professionnel" && (
           <div>
             <label className="block text-sm font-medium text-[#475569] mb-2">
-              Numéro SIRET *
+              {t("siretNumber")}
             </label>
             <input
               name="siretNumber"
               required
-              placeholder="123 456 789 00012"
+              placeholder={t("siretPlaceholder")}
               className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
             />
           </div>
@@ -260,12 +261,10 @@ export default function CreatorOnboardingForm() {
         {legalStatus === "particulier" && (
           <div className="p-4 rounded-xl bg-blue-50 border border-blue-200">
             <p className="text-sm font-medium text-blue-900 mb-2">
-              💡 Le saviez-vous ?
+              💡 {t("microEntrepriseTip")}
             </p>
             <p className="text-sm text-blue-800 mb-4">
-              Créer votre micro-entreprise prend exactement{" "}
-              <strong>15 minutes</strong> et vous permet de générer des revenus
-              illimités sur Naano.
+              {t("microEntrepriseDesc")}
             </p>
             <div className="space-y-2">
               <a
@@ -275,7 +274,7 @@ export default function CreatorOnboardingForm() {
                 className="flex items-center gap-2 text-sm text-blue-700 hover:text-blue-900"
               >
                 <FileText className="w-4 h-4" />
-                Télécharger le guide (PDF)
+                {t("downloadGuide")}
               </a>
               <a
                 href={CALENDLY_EXPERT_URL}
@@ -284,8 +283,7 @@ export default function CreatorOnboardingForm() {
                 className="flex items-center gap-2 text-sm text-blue-700 hover:text-blue-900"
               >
                 <Calendar className="w-4 h-4" />
-                Besoin d&apos;aide ? Réserver un call de 10 min avec un expert
-                Naano
+                {t("needHelp")}
               </a>
             </div>
           </div>
@@ -293,7 +291,7 @@ export default function CreatorOnboardingForm() {
 
         {/* Step 4: Mandate signature */}
         <h3 className="text-sm font-semibold text-[#0F172A] pt-4">
-          Signature du mandat
+          {t("mandateSignature")}
         </h3>
         <div className="space-y-3">
           <label className="flex items-start gap-3">
@@ -304,7 +302,7 @@ export default function CreatorOnboardingForm() {
               className="mt-1 rounded border-gray-300"
             />
             <span className="text-sm text-[#475569]">
-              J&apos;accepte le Mandat d&apos;Apport d&apos;Affaires Digital.
+              {t("acceptMandate")}
             </span>
           </label>
           <label className="flex items-start gap-3">
@@ -315,8 +313,7 @@ export default function CreatorOnboardingForm() {
               className="mt-1 rounded border-gray-300"
             />
             <span className="text-sm text-[#475569]">
-              Je certifie sur l&apos;honneur l&apos;exactitude des informations
-              fournies.
+              {t("certifyAccuracy")}
             </span>
           </label>
         </div>
@@ -330,12 +327,12 @@ export default function CreatorOnboardingForm() {
         {isLoading ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />
-            Enregistrement...
+            {t("saving")}
           </>
         ) : (
           <>
             <Users className="w-5 h-5" />
-            Créer mon profil créateur
+            {t("createCreatorProfile")}
           </>
         )}
       </button>

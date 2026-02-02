@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { completeSaasOnboarding, uploadMediaPack } from '@/app/(dashboard)/actions';
 import { Loader2, AlertCircle, Upload, CheckCircle2, Building2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -43,6 +44,7 @@ const COUNTRIES = [
 ];
 
 export default function SaasOnboardingForm() {
+  const t = useTranslations('onboarding');
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -102,13 +104,13 @@ export default function SaasOnboardingForm() {
         {/* Company Name */}
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            Company Name *
+            {t('companyName')}
           </label>
           <input
             name="companyName"
             type="text"
             required
-            placeholder="Acme Inc."
+            placeholder={t('companyPlaceholder')}
             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
           />
         </div>
@@ -116,13 +118,13 @@ export default function SaasOnboardingForm() {
         {/* Description */}
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            Product Description *
+            {t('productDescription')}
           </label>
           <textarea
             name="description"
             required
             rows={4}
-            placeholder="Describe your product/service and what you're looking for in creators..."
+            placeholder={t('productPlaceholder')}
             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all resize-none"
           />
         </div>
@@ -130,12 +132,12 @@ export default function SaasOnboardingForm() {
         {/* Website */}
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            Website
+            {t('website')}
           </label>
           <input
             name="website"
             type="url"
-            placeholder="https://www.example.com"
+            placeholder={t('websitePlaceholder')}
             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
           />
         </div>
@@ -143,14 +145,14 @@ export default function SaasOnboardingForm() {
         {/* Industry */}
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            Industry *
+            {t('industry')}
           </label>
           <select
             name="industry"
             required
             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
           >
-            <option value="">Select an industry</option>
+            <option value="">{t('selectIndustry')}</option>
             {INDUSTRIES.map((industry) => (
               <option key={industry} value={industry}>
                 {industry}
@@ -162,12 +164,12 @@ export default function SaasOnboardingForm() {
         {/* Conditions */}
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            Collaboration Terms
+            {t('collaborationTerms')}
           </label>
           <textarea
             name="conditions"
             rows={3}
-            placeholder="Minimum duration, exclusivity, specific expectations..."
+            placeholder={t('termsPlaceholder')}
             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all resize-none"
           />
         </div>
@@ -175,14 +177,14 @@ export default function SaasOnboardingForm() {
         {/* Country */}
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            Country *
+            {t('country')} *
           </label>
           <select
             name="country"
             required
             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
           >
-            <option value="">Select your country</option>
+            <option value="">{t('selectCountry')}</option>
             {COUNTRIES.map((country) => (
               <option key={country.code} value={country.code}>
                 {country.name}
@@ -190,7 +192,7 @@ export default function SaasOnboardingForm() {
             ))}
           </select>
           <p className="text-xs text-[#64748B] mt-1.5">
-            Used for billing and tax purposes
+            {t('billingNote')}
           </p>
         </div>
 
@@ -206,22 +208,22 @@ export default function SaasOnboardingForm() {
               className="w-4 h-4 text-[#3B82F6] border-gray-300 rounded focus:ring-[#3B82F6]"
             />
             <label htmlFor="isVatRegistered" className="text-sm text-[#475569]">
-              I am VAT registered (EU B2B)
+              {t('vatRegistered')}
             </label>
           </div>
           {isVatRegistered && (
             <div>
             <label className="block text-sm font-medium text-[#475569] mb-2">
-              VAT Number
+              {t('vatNumber')}
             </label>
             <input
               name="vatNumber"
               type="text"
-              placeholder="FR12345678901"
+              placeholder={t('vatPlaceholder')}
               className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
             />
               <p className="text-xs text-[#64748B] mt-1.5">
-                Your EU VAT number (optional but recommended for B2B)
+                {t('vatNote')}
               </p>
             </div>
           )}
@@ -230,7 +232,7 @@ export default function SaasOnboardingForm() {
         {/* Media Pack Upload */}
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            Media Pack (logos, guidelines)
+            {t('mediaPack')}
           </label>
           <div className="relative">
             <input
@@ -251,17 +253,17 @@ export default function SaasOnboardingForm() {
               {isUploading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin text-[#3B82F6]" />
-                  <span className="text-[#64748B]">Uploading...</span>
+                  <span className="text-[#64748B]">{t('uploading')}</span>
                 </>
               ) : mediaPackUrl ? (
                 <>
                   <CheckCircle2 className="w-5 h-5 text-green-600" />
-                  <span className="text-green-700 font-medium">File uploaded</span>
+                  <span className="text-green-700 font-medium">{t('fileUploaded')}</span>
                 </>
               ) : (
                 <>
                   <Upload className="w-5 h-5 text-[#64748B]" />
-                  <span className="text-[#64748B]">Click to upload (PDF, ZIP, images)</span>
+                  <span className="text-[#64748B]">{t('clickToUpload')}</span>
                 </>
               )}
             </label>
@@ -277,12 +279,12 @@ export default function SaasOnboardingForm() {
         {isLoading ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />
-            Saving...
+            {t('saving')}
           </>
         ) : (
           <>
             <Building2 className="w-5 h-5" />
-            Create Company Profile
+            {t('createCompanyProfile')}
           </>
         )}
       </button>

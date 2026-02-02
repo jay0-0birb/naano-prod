@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Link as LinkIcon, Copy, Check, ExternalLink, Eye, MousePointerClick, DollarSign, AlertCircle, BarChart3 } from 'lucide-react';
 
 interface TrackingLinkCardProps {
@@ -24,6 +25,7 @@ export default function TrackingLinkCardV2({
   trackClicks,
   trackRevenue
 }: TrackingLinkCardProps) {
+  const t = useTranslations('collaboration');
   const [copied, setCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
   
@@ -67,12 +69,12 @@ export default function TrackingLinkCardV2({
           </div>
           <div>
             <h3 className="text-lg font-semibold text-[#111827]">
-              {isCreator ? 'Ton lien tracké' : 'Performance du créateur'}
+              {isCreator ? t('yourLink') : t('creatorPerformance')}
             </h3>
             <p className="text-xs text-[#64748B]">
               {isCreator 
-                ? 'Utilise ce lien dans tes posts, bio, et commentaires'
-                : 'Statistiques de trafic et conversions générées'}
+                ? t('useInPosts')
+                : t('creatorStats')}
             </p>
           </div>
         </div>
@@ -85,7 +87,7 @@ export default function TrackingLinkCardV2({
           <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
             <div className="flex items-center gap-2 text-[#64748B] mb-1">
               <Eye className="w-4 h-4" />
-              <span className="text-xs font-medium">Impressions</span>
+              <span className="text-xs font-medium">{t('impressions')}</span>
             </div>
             <div className="text-2xl font-semibold text-[#111827]">
               {impressions.toLocaleString()}
@@ -98,7 +100,7 @@ export default function TrackingLinkCardV2({
           <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
             <div className="flex items-center gap-2 text-[#64748B] mb-1">
               <MousePointerClick className="w-4 h-4" />
-              <span className="text-xs font-medium">Clics</span>
+              <span className="text-xs font-medium">{t('clicks')}</span>
             </div>
             <div className="text-2xl font-semibold text-[#1D4ED8]">
               {clicks.toLocaleString()}
@@ -111,7 +113,7 @@ export default function TrackingLinkCardV2({
           <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
             <div className="flex items-center gap-2 text-[#64748B] mb-1">
               <DollarSign className="w-4 h-4" />
-              <span className="text-xs font-medium">CA Généré</span>
+              <span className="text-xs font-medium">{t('revenue')}</span>
             </div>
             <div className="text-2xl font-semibold text-emerald-600">
               €{revenue.toFixed(2)}
@@ -136,12 +138,12 @@ export default function TrackingLinkCardV2({
                 {copied ? (
                   <>
                     <Check className="w-4 h-4" />
-                    Copié !
+                    {t('copied')}
                   </>
                 ) : (
                   <>
                     <Copy className="w-4 h-4" />
-                    Copier
+                    {t('copy')}
                   </>
                 )}
               </button>
@@ -151,29 +153,28 @@ export default function TrackingLinkCardV2({
           {/* Instructions for Creator */}
           <div className="space-y-2 mb-4">
             <p className="text-sm text-[#111827] font-medium">
-              💡 Comment l&apos;utiliser :
+              💡 {t('howToUse')}
             </p>
             <ul className="space-y-1.5 text-xs text-[#4B5563]">
               <li className="flex items-start gap-2">
                 <span className="text-[#3B82F6] mt-0.5">•</span>
                 <span>
                   Ajoute-le en{" "}
-                  <strong className="text-[#111827]">premier commentaire</strong>{" "}
+                  <strong className="text-[#111827]">{t('firstComment')}</strong>{" "}
                   de tes posts LinkedIn
                 </span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-[#3B82F6] mt-0.5">•</span>
                 <span>
-                  Mets-le dans ta <strong className="text-[#111827]">bio LinkedIn</strong>{" "}
-                  (section &quot;À propos&quot;)
+                  Mets-le dans ta <strong className="text-[#111827]">{t('bioLinkedIn')}</strong>{" "}
+                  ({t('aboutSection')})
                 </span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-[#3B82F6] mt-0.5">•</span>
                 <span>
-                  Partage-le en <strong className="text-[#111827]">DM</strong> quand
-                  on te demande le produit
+                  {t('shareDM')}
                 </span>
               </li>
             </ul>
@@ -184,8 +185,7 @@ export default function TrackingLinkCardV2({
             <div className="flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
               <p className="text-xs text-amber-800">
-                <strong>Important :</strong> Ne modifie pas ce lien ! Utilise-le tel
-                quel pour que tes stats soient correctement comptabilisées.
+                {t('importantNoModify')}
               </p>
             </div>
           </div>
@@ -199,7 +199,7 @@ export default function TrackingLinkCardV2({
               className="inline-flex items-center gap-2 text-sm text-[#3B82F6] hover:text-[#1D4ED8] transition-colors"
             >
               <ExternalLink className="w-4 h-4" />
-              Tester le lien
+              {t('testLink')}
             </a>
           </div>
         </>

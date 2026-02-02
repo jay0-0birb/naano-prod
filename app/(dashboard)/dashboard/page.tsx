@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import {
   ArrowRight,
   ShoppingBag,
@@ -11,6 +12,7 @@ import {
 } from "lucide-react";
 
 export default async function DashboardPage() {
+  const t = await getTranslations("dashboard");
   const supabase = await createClient();
 
   const {
@@ -82,22 +84,22 @@ export default async function DashboardPage() {
     }
   }
 
+  const firstName = profile?.full_name?.split(" ")[0] || "User";
+
   return (
     <div>
       <h2 className="text-2xl font-semibold text-[#111827] mb-2">
-        Welcome back, {profile?.full_name?.split(" ")[0] || "User"} 👋
+        {t("welcomeBack", { name: firstName })}
       </h2>
       <p className="text-[#64748B] mb-8">
-        {isCreator
-          ? "Discover SaaS opportunities and grow your partnerships."
-          : "Manage applications and collaborations with creators."}
+        {isCreator ? t("creatorSubtitle") : t("saasSubtitle")}
       </p>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
           <div className="text-[#64748B] text-sm mb-1">
-            {isCreator ? "Pending Applications" : "Applications Received"}
+            {isCreator ? t("pendingApplications") : t("applicationsReceived")}
           </div>
           <div className="text-3xl font-bold text-[#111827]">
             {stats.pending}
@@ -105,7 +107,7 @@ export default async function DashboardPage() {
         </div>
         <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
           <div className="text-[#64748B] text-sm mb-1">
-            Active Collaborations
+            {t("activeCollaborations")}
           </div>
           <div className="text-3xl font-bold text-[#111827]">
             {stats.collaborations}
@@ -115,7 +117,7 @@ export default async function DashboardPage() {
 
       {/* Quick Actions */}
       <h3 className="text-lg font-semibold text-[#111827] mb-4">
-        Quick Actions
+        {t("quickActions")}
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {isCreator ? (
@@ -131,10 +133,10 @@ export default async function DashboardPage() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-[#111827]">
-                      Explore Marketplace
+                      {t("exploreMarketplace")}
                     </h4>
                     <p className="text-sm text-[#64748B]">
-                      Discover SaaS companies
+                      {t("discoverSaaS")}
                     </p>
                   </div>
                 </div>
@@ -152,10 +154,10 @@ export default async function DashboardPage() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-[#111827]">
-                      My Applications
+                      {t("myApplications")}
                     </h4>
                     <p className="text-sm text-[#64748B]">
-                      Track your applications
+                      {t("trackApplications")}
                     </p>
                   </div>
                 </div>
@@ -173,10 +175,10 @@ export default async function DashboardPage() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-[#111827]">
-                      My Finances
+                      {t("myFinances")}
                     </h4>
                     <p className="text-sm text-[#64748B]">
-                      Commissions and payments
+                      {t("commissionsPayments")}
                     </p>
                   </div>
                 </div>
@@ -197,10 +199,10 @@ export default async function DashboardPage() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-[#111827]">
-                      View Applications
+                      {t("viewApplications")}
                     </h4>
                     <p className="text-sm text-[#64748B]">
-                      {stats.pending} pending
+                      {t("pendingCount", { count: stats.pending })}
                     </p>
                   </div>
                 </div>
@@ -218,10 +220,10 @@ export default async function DashboardPage() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-[#111827]">
-                      Collaborations
+                      {t("collaborations")}
                     </h4>
                     <p className="text-sm text-[#64748B]">
-                      Manage partnerships
+                      {t("managePartnerships")}
                     </p>
                   </div>
                 </div>
@@ -239,10 +241,10 @@ export default async function DashboardPage() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-[#111827]">
-                      Finances & Plans
+                      {t("financesPlans")}
                     </h4>
                     <p className="text-sm text-[#64748B]">
-                      Manage subscription
+                      {t("manageSubscription")}
                     </p>
                   </div>
                 </div>

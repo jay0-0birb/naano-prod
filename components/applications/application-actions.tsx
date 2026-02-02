@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { respondToApplication } from '@/app/(dashboard)/dashboard/applications/actions';
 
@@ -15,6 +16,7 @@ export default function ApplicationActions({
   initialStatus,
 }: ApplicationActionsProps) {
   const router = useRouter();
+  const t = useTranslations('candidatesActions');
   const [status, setStatus] = useState<ApplicationActionsProps['initialStatus']>(
     initialStatus,
   );
@@ -49,12 +51,12 @@ export default function ApplicationActions({
         {loading === 'accept' ? (
           <>
             <Loader2 className="w-3 h-3 animate-spin" />
-            <span>Acceptation...</span>
+            <span>{t('accepting')}</span>
           </>
         ) : (
           <>
             <CheckCircle2 className="w-3 h-3" />
-            <span>Accepter</span>
+            <span>{t('accept')}</span>
           </>
         )}
       </button>
@@ -66,12 +68,12 @@ export default function ApplicationActions({
         {loading === 'reject' ? (
           <>
             <Loader2 className="w-3 h-3 animate-spin" />
-            <span>Refus...</span>
+            <span>{t('rejecting')}</span>
           </>
         ) : (
           <>
             <XCircle className="w-3 h-3" />
-            <span>Refuser</span>
+            <span>{t('reject')}</span>
           </>
         )}
       </button>

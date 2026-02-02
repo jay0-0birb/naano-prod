@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Loader2, Link as LinkIcon, Send, AlertCircle, X } from 'lucide-react';
 import { submitPost } from '@/app/(dashboard)/dashboard/collaborations/[id]/actions-v2';
 import LinkedInPreview from './linkedin-preview';
@@ -10,6 +11,8 @@ interface SubmitPostFormProps {
 }
 
 export default function SubmitPostForm({ collaborationId }: SubmitPostFormProps) {
+  const t = useTranslations('collaboration');
+  const tCredits = useTranslations('credits');
   const [url, setUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +27,7 @@ export default function SubmitPostForm({ collaborationId }: SubmitPostFormProps)
     e.preventDefault();
     
     if (!isValidLinkedInUrl(url)) {
-      setError('Veuillez entrer une URL de post LinkedIn valide');
+      setError(t('invalidUrl'));
       return;
     }
 
@@ -38,7 +41,7 @@ export default function SubmitPostForm({ collaborationId }: SubmitPostFormProps)
     if (result.error) {
         console.error('Submit error:', result.error);
       setError(result.error);
-      if (result.error.includes('Limite atteinte')) {
+      if (result.error.toLowerCase().includes('limit') || result.error.toLowerCase().includes('limite')) {
         setShowLimitModal(true);
       }
     } else {
@@ -52,7 +55,7 @@ export default function SubmitPostForm({ collaborationId }: SubmitPostFormProps)
       }
     } catch (err) {
       console.error('Unexpected error:', err);
-      setError('Une erreur inattendue s\'est produite. Vérifiez les permissions dans Supabase.');
+      setError(t('unexpectedError'));
     }
 
     setIsLoading(false);
@@ -65,7 +68,7 @@ export default function SubmitPostForm({ collaborationId }: SubmitPostFormProps)
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white border border-gray-200 rounded-2xl p-6 max-w-md w-full shadow-xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-[#111827]">Limite atteinte</h3>
+              <h3 className="text-lg font-semibold text-[#111827]">{t('limitReached')}</h3>
               <button
                 onClick={() => setShowLimitModal(false)}
                 className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
@@ -74,13 +77,13 @@ export default function SubmitPostForm({ collaborationId }: SubmitPostFormProps)
               </button>
             </div>
             <p className="text-[#64748B] text-sm mb-6">
-              Vous avez atteint la limite de 25 posts au total (toutes collaborations confondues).
+              {t('limitDesc')}
             </p>
             <button
               onClick={() => setShowLimitModal(false)}
               className="w-full py-2.5 bg-[#0F172A] hover:bg-[#1E293B] text-white rounded-xl text-sm font-medium transition-colors"
             >
-              Compris
+              {t('gotIt')}
             </button>
           </div>
         </div>
@@ -96,14 +99,14 @@ export default function SubmitPostForm({ collaborationId }: SubmitPostFormProps)
       {success && (
         <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-sm flex items-center gap-2">
           <Send className="w-4 h-4 shrink-0" />
-          Post soumis avec succès !
+          {t('postSubmitted')}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-2">
-            Lien du post LinkedIn
+            {t('linkLabel')}
           </label>
           <div className="relative">
             <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
@@ -111,12 +114,12 @@ export default function SubmitPostForm({ collaborationId }: SubmitPostFormProps)
               type="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://www.linkedin.com/posts/..."
+              placeholder={tCredits('placeholder')}
               className="w-full bg-[#020408] border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
             />
           </div>
           <p className="text-xs text-slate-500 mt-1.5">
-            Copiez l'URL de votre post LinkedIn depuis la barre d'adresse ou via "Copier le lien"
+            {t('copyUrlHint')}
           </p>
         </div>
 
@@ -124,7 +127,7 @@ export default function SubmitPostForm({ collaborationId }: SubmitPostFormProps)
         {url && isValidLinkedInUrl(url) && (
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">
-              Aperçu
+              {t('preview')}
             </label>
             <LinkedInPreview url={url} />
           </div>
@@ -138,12 +141,12 @@ export default function SubmitPostForm({ collaborationId }: SubmitPostFormProps)
           {isLoading ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              Envoi en cours...
+              {t('sending')}
             </>
           ) : (
             <>
               <Send className="w-4 h-4" />
-              Soumettre le post
+              {t('submit')}
             </>
           )}
         </button>

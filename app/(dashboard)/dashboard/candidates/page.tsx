@@ -1,9 +1,11 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { Users, Linkedin, ExternalLink } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
+import { Users } from 'lucide-react';
 import CandidateCard from '@/components/candidates/candidate-card';
 
 export default async function CandidatesPage() {
+  const t = await getTranslations('candidates');
   const supabase = await createClient();
   
   const { data: { user } } = await supabase.auth.getUser();
@@ -66,17 +68,17 @@ export default async function CandidatesPage() {
       {/* Header */}
       <div className="mb-8">
         <h2 className="text-2xl font-semibold text-[#111827] mb-1">
-          Candidatures reçues
+          {t('title')}
         </h2>
         <p className="text-[#64748B] text-sm">
-          Gérez les candidatures des créateurs souhaitant collaborer avec vous
+          {t('subtitle')}
         </p>
       </div>
 
       {/* Pending Applications */}
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-[#111827] mb-4 flex items-center gap-2">
-          En attente
+          {t('pending')}
           {pendingApplications.length > 0 && (
             <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
               {pendingApplications.length}
@@ -99,7 +101,7 @@ export default async function CandidatesPage() {
               <Users className="w-6 h-6 text-[#94A3B8]" />
             </div>
             <p className="text-sm text-[#64748B]">
-              Aucune candidature en attente
+              {t('noPending')}
             </p>
           </div>
         )}
@@ -109,7 +111,7 @@ export default async function CandidatesPage() {
       {processedApplications.length > 0 && (
         <div>
           <h3 className="text-lg font-semibold text-[#111827] mb-4">
-            Historique
+            {t('history')}
           </h3>
           <div className="space-y-4 opacity-80">
             {processedApplications.map((application) => (

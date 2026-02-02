@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { ExternalLink, Linkedin } from 'lucide-react';
 
 interface Post {
@@ -16,6 +17,7 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post }: PostCardProps) {
+  const t = useTranslations('collaboration');
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('fr-FR', {
       day: 'numeric',
@@ -94,7 +96,7 @@ export default function PostCard({ post }: PostCardProps) {
           <div className="aspect-video bg-gradient-to-br from-[#0A66C2]/5 to-blue-500/5 rounded-lg flex flex-col items-center justify-center border border-gray-100">
             <Linkedin className="w-12 h-12 text-[#0A66C2] mb-3" />
             <p className="text-[#64748B] text-sm text-center">
-              Cliquez sur "Ouvrir" pour voir le post sur LinkedIn
+              {t('clickOpenToView')}
             </p>
             <a
               href={post.linkedin_post_url}
@@ -103,7 +105,7 @@ export default function PostCard({ post }: PostCardProps) {
               className="mt-4 flex items-center gap-2 px-4 py-2 bg-[#0A66C2] hover:bg-[#004182] text-white rounded-lg text-sm transition-colors"
             >
               <ExternalLink className="w-4 h-4" />
-              Voir sur LinkedIn
+              {t('viewPost')}
             </a>
           </div>
         )}

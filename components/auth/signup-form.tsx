@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { signup } from '@/app/(auth)/actions';
 import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export default function SignUpForm() {
+  const t = useTranslations('auth');
   const [isLoading, setIsLoading] = useState(false);
   const [role, setRole] = useState<'saas' | 'influencer'>('saas');
   const [error, setError] = useState<string | null>(null);
@@ -35,9 +37,9 @@ export default function SignUpForm() {
             <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-200">
                 <CheckCircle2 className="w-8 h-8 text-green-600" />
             </div>
-            <h3 className="text-xl font-semibold text-[#111827] mb-2">Check your email</h3>
+            <h3 className="text-xl font-semibold text-[#111827] mb-2">{t('checkEmail')}</h3>
             <p className="text-[#64748B] text-sm leading-relaxed max-w-xs mx-auto">
-                A confirmation link has been sent to your email address. Click it to activate your account.
+                {t('confirmationSent')}
             </p>
         </div>
     );
@@ -63,7 +65,7 @@ export default function SignUpForm() {
                 : 'text-[#64748B] hover:text-[#111827] hover:bg-white'
             }`}
         >
-            Brand
+            {t('brand')}
         </button>
         <button
             type="button"
@@ -74,35 +76,35 @@ export default function SignUpForm() {
                 : 'text-[#64748B] hover:text-[#111827] hover:bg-white'
             }`}
         >
-            Creator
+            {t('creator')}
         </button>
       </div>
 
       <div className="space-y-4">
         <div>
-            <label className="block text-xs font-medium text-[#475569] mb-1.5 ml-1">Full name</label>
+            <label className="block text-xs font-medium text-[#475569] mb-1.5 ml-1">{t('fullName')}</label>
             <input 
                 name="fullName" 
                 type="text" 
                 required 
-                placeholder="John Doe"
+                placeholder={t('fullNamePlaceholder')}
                 className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
             />
         </div>
         
         <div>
-            <label className="block text-xs font-medium text-[#475569] mb-1.5 ml-1">Email</label>
+            <label className="block text-xs font-medium text-[#475569] mb-1.5 ml-1">{t('email')}</label>
             <input 
                 name="email" 
                 type="email" 
                 required 
-                placeholder="john@company.com"
+                placeholder={t('emailPlaceholder')}
                 className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
             />
         </div>
 
         <div>
-            <label className="block text-xs font-medium text-[#475569] mb-1.5 ml-1">Password</label>
+            <label className="block text-xs font-medium text-[#475569] mb-1.5 ml-1">{t('password')}</label>
             <input 
                 name="password" 
                 type="password" 
@@ -122,10 +124,10 @@ export default function SignUpForm() {
         {isLoading ? (
             <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Creating account...
+                {t('creatingAccount')}
             </>
         ) : (
-            "Create account"
+            t('createAccountBtn')
         )}
       </button>
     </form>

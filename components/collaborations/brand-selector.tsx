@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Loader2 } from 'lucide-react';
 
 interface Brand {
@@ -25,6 +26,7 @@ export default function BrandSelector({
   defaultUrl,
   isScale = true, // Always true - multi-brand for everyone
 }: BrandSelectorProps) {
+  const t = useTranslations('brandSelector');
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,12 +51,12 @@ export default function BrandSelector({
 
       const data = await res.json();
       if (!res.ok || data.error) {
-        setError(data.error || 'Erreur lors de la mise à jour de la marque');
+        setError(data.error || t('errorUpdate'));
       } else {
         router.refresh();
       }
     } catch (err: any) {
-      setError(err.message || 'Erreur réseau');
+      setError(err.message || t('networkError'));
     } finally {
       setLoading(false);
     }
@@ -65,10 +67,10 @@ export default function BrandSelector({
       <div className="flex items-center justify-between gap-3">
         <div className="flex-1">
           <p className="text-xs font-semibold text-blue-800 mb-1">
-            Brand / Landing page
+            {t('label')}
           </p>
           <p className="text-[11px] text-blue-700">
-            Choose which brand URL this creator promotes.
+            {t('desc')}
           </p>
           {error && (
             <p className="mt-1 text-[11px] text-red-600">
@@ -84,7 +86,7 @@ export default function BrandSelector({
             onChange={(e) => handleChange(e.target.value)}
           >
             <option value="default">
-              Default website
+              {t('defaultWebsite')}
             </option>
             {brands.map((b) => (
               <option key={b.id} value={b.id}>
@@ -97,7 +99,7 @@ export default function BrandSelector({
       </div>
       {selectedId !== 'default' && (
         <p className="mt-1 text-[11px] text-blue-700 break-all">
-          URL: {brands.find((b) => b.id === selectedId)?.main_url}
+          {t('url')}: {brands.find((b) => b.id === selectedId)?.main_url}
         </p>
       )}
     </div>

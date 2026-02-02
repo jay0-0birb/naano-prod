@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { getGlobalLeads } from "./actions";
 import { maskIPAddress, formatConfidence, formatDaysAgo, getLeadTypeLabel } from "@/lib/utils";
 import {
@@ -71,6 +72,7 @@ interface Lead {
 }
 
 export default function GlobalLeadFeedTab() {
+  const t = useTranslations("leadFeed");
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -211,7 +213,7 @@ export default function GlobalLeadFeedTab() {
   // Download CSV with all fields (English)
   const handleDownloadCSV = () => {
     if (leads.length === 0) {
-      alert("No data to export");
+      alert(t("noDataExport"));
       return;
     }
 
@@ -363,7 +365,7 @@ export default function GlobalLeadFeedTab() {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="text-gray-500">Chargement des leads...</div>
+        <div className="text-gray-500">{t("loading")}</div>
       </div>
     );
   }
@@ -399,11 +401,8 @@ export default function GlobalLeadFeedTab() {
   if (leads.length === 0) {
     return (
       <div className="p-8 text-center text-gray-500">
-        <p>Aucun lead enrichi pour le moment.</p>
-        <p className="text-sm mt-2">
-          Les leads apparaîtront ici une fois qu'ils auront été enrichis avec
-          des données d'entreprise (confiance ≥30%).
-        </p>
+        <p>{t("noLeads")}</p>
+        <p className="text-sm mt-2">{t("noLeadsDesc")}</p>
       </div>
     );
   }
@@ -414,10 +413,8 @@ export default function GlobalLeadFeedTab() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-semibold mb-2">Lead Feed Global</h2>
-            <p className="text-sm text-gray-600">
-              Tous vos leads enrichis à travers toutes vos collaborations.
-            </p>
+            <h2 className="text-xl font-semibold mb-2">{t("leadFeedGlobal")}</h2>
+            <p className="text-sm text-gray-600">{t("allLeadsDesc")}</p>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -436,7 +433,7 @@ export default function GlobalLeadFeedTab() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Rechercher par entreprise, domaine, créateur, pays, ville, industrie..."
+              placeholder={t("searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -453,7 +450,7 @@ export default function GlobalLeadFeedTab() {
               <tr>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700 sticky left-0 bg-gray-50 z-10">
                   <div className="flex items-center gap-2">
-                    Date
+                    {t("date")}
                     <button
                       onClick={() => handleSort("date")}
                       className="hover:text-blue-600"
@@ -464,7 +461,7 @@ export default function GlobalLeadFeedTab() {
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
                   <div className="flex items-center gap-2">
-                    Entreprise
+                    {t("company")}
                     <button
                       onClick={() => handleSort("company_intent")}
                       className="hover:text-blue-600"
@@ -474,7 +471,7 @@ export default function GlobalLeadFeedTab() {
                   </div>
                   <input
                     type="text"
-                    placeholder="Filtrer..."
+                    placeholder={t("filter")}
                     value={columnFilters.company || ""}
                     onChange={(e) =>
                       setColumnFilters({
@@ -486,11 +483,11 @@ export default function GlobalLeadFeedTab() {
                   />
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
-                  Domaine
+                  {t("domain")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
                   <div className="flex items-center gap-2">
-                    Confiance
+                    {t("confidence")}
                     <button
                       onClick={() => handleSort("confidence")}
                       className="hover:text-blue-600"
@@ -500,11 +497,11 @@ export default function GlobalLeadFeedTab() {
                   </div>
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
-                  État
+                  {t("state")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
                   <div className="flex items-center gap-2">
-                    Intention
+                    {t("intent")}
                     <button
                       onClick={() => handleSort("intent")}
                       className="hover:text-blue-600"
@@ -516,7 +513,7 @@ export default function GlobalLeadFeedTab() {
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
                   <input
                     type="text"
-                    placeholder="Filtrer..."
+                    placeholder={t("filter")}
                     value={columnFilters.country || ""}
                     onChange={(e) =>
                       setColumnFilters({
@@ -526,15 +523,15 @@ export default function GlobalLeadFeedTab() {
                     }
                     className="w-full px-2 py-1 text-xs border border-gray-300 rounded"
                   />
-                  Pays
+                  {t("country")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
-                  Ville
+                  {t("city")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
                   <input
                     type="text"
-                    placeholder="Filtrer..."
+                    placeholder={t("filter")}
                     value={columnFilters.industry || ""}
                     onChange={(e) =>
                       setColumnFilters({
@@ -544,15 +541,15 @@ export default function GlobalLeadFeedTab() {
                     }
                     className="w-full px-2 py-1 text-xs border border-gray-300 rounded"
                   />
-                  Industrie
+                  {t("industry")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
-                  Taille
+                  {t("size")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
                   <input
                     type="text"
-                    placeholder="Filtrer..."
+                    placeholder={t("filter")}
                     value={columnFilters.creator || ""}
                     onChange={(e) =>
                       setColumnFilters({
@@ -562,31 +559,31 @@ export default function GlobalLeadFeedTab() {
                     }
                     className="w-full px-2 py-1 text-xs border border-gray-300 rounded"
                   />
-                  Créateur
+                  {t("creator")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
-                  Appareil
+                  {t("device")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
-                  OS
+                  {t("os")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
-                  Navigateur
+                  {t("browser")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
-                  Réseau
+                  {t("network")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
-                  Temps (s)
+                  {t("timeSec")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
-                  Source
+                  {t("source")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
-                  Répété
+                  {t("repeated")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
-                  Visites
+                  {t("visits")}
                 </th>
               </tr>
             </thead>
@@ -645,15 +642,15 @@ export default function GlobalLeadFeedTab() {
                     <td className="px-4 py-3">
                       {lead.company?.attributionState === "confirmed" ? (
                         <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                          Confirmé
+                          {t("confirmed")}
                         </span>
                       ) : lead.company?.isAmbiguous ? (
                         <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">
-                          Ambigu
+                          {t("ambiguous")}
                         </span>
                       ) : (
                         <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-                          Probable
+                          {t("probable")}
                         </span>
                       )}
                     </td>
@@ -715,10 +712,10 @@ export default function GlobalLeadFeedTab() {
                     <td className="px-4 py-3">
                       {lead.intent?.isRepeatVisit ? (
                         <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                          Oui
+                          {t("yes")}
                         </span>
                       ) : (
-                        <span className="text-gray-400">Non</span>
+                        <span className="text-gray-400">{t("no")}</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-gray-700">
@@ -739,7 +736,10 @@ export default function GlobalLeadFeedTab() {
 
       {/* Results count */}
       <div className="text-sm text-gray-600">
-        Affichage de {filteredAndSortedLeads.length} sur {leads.length} leads
+        {t("showingCount", {
+          filtered: filteredAndSortedLeads.length,
+          total: leads.length,
+        })}
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2, CreditCard } from "lucide-react";
 
 // Volume pricing tiers (from planP.md) - used for instant local calculation
@@ -29,6 +30,7 @@ export default function CreditSubscriptionSlider({
   currentSubscription,
   onSubscribe,
 }: CreditSubscriptionSliderProps) {
+  const t = useTranslations("credits");
   const [creditVolume, setCreditVolume] = useState(currentSubscription || 1000);
   const [unitPrice, setUnitPrice] = useState<number>(0);
   const [totalPrice, setTotalPrice] = useState<number>(0);
@@ -66,10 +68,10 @@ export default function CreditSubscriptionSlider({
     <div className="bg-white rounded-2xl p-6 border border-slate-200">
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-slate-900 mb-2">
-          Abonnement Crédits
+          {t("subscription")}
         </h3>
         <p className="text-sm text-slate-600">
-          Choisissez votre volume mensuel de crédits (1 crédit = 1 clic qualifié)
+          {t("chooseVolume")}
         </p>
       </div>
 
@@ -77,10 +79,10 @@ export default function CreditSubscriptionSlider({
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <label className="text-sm font-medium text-slate-700">
-            Volume mensuel
+            {t("monthlyVolume")}
           </label>
           <span className="text-lg font-semibold text-slate-900">
-            {creditVolume.toLocaleString()} crédits
+            {creditVolume.toLocaleString()} {t("creditsAvailable")}
           </span>
         </div>
 
@@ -104,28 +106,28 @@ export default function CreditSubscriptionSlider({
       {/* Pricing Display */}
       <div className="bg-slate-50 rounded-xl p-4 mb-6">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-sm text-slate-600">Prix unitaire</span>
+          <span className="text-sm text-slate-600">{t("unitPrice")}</span>
           <span className="text-sm font-medium text-slate-900">
-            {unitPrice.toFixed(2)}€ / crédit
+            {unitPrice.toFixed(2)}€ / {t("perCredit")}
           </span>
         </div>
         <div className="flex justify-between items-center mb-2">
-          <span className="text-sm text-slate-600">Volume</span>
+          <span className="text-sm text-slate-600">{t("volume")}</span>
           <span className="text-sm font-medium text-slate-900">
-            {creditVolume.toLocaleString()} crédits
+            {creditVolume.toLocaleString()} {t("creditsAvailable")}
           </span>
         </div>
         <div className="border-t border-slate-200 pt-2 mt-2">
           <div className="flex justify-between items-center">
             <span className="text-base font-semibold text-slate-900">
-              Total mensuel (HT)
+              {t("totalMonthly")}
             </span>
             <span className="text-xl font-bold text-blue-600">
               {totalPrice.toFixed(2)}€
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1 text-right">
-            TVA calculée automatiquement à la commande
+            {t("vatNote")}
           </p>
         </div>
       </div>
@@ -139,24 +141,24 @@ export default function CreditSubscriptionSlider({
         {loading ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />
-            <span>Chargement...</span>
+            <span>{t("loading")}</span>
           </>
         ) : currentSubscription ? (
           <>
             <CreditCard className="w-5 h-5" />
-            <span>Mettre à jour l'abonnement</span>
+            <span>{t("updateSubscription")}</span>
           </>
         ) : (
           <>
             <CreditCard className="w-5 h-5" />
-            <span>S'abonner</span>
+            <span>{t("subscribe")}</span>
           </>
         )}
       </button>
 
       {currentSubscription && (
         <p className="text-xs text-slate-500 text-center mt-3">
-          Abonnement actuel: {currentSubscription.toLocaleString()} crédits/mois
+          {t("currentSubscription", { count: currentSubscription })}
         </p>
       )}
     </div>

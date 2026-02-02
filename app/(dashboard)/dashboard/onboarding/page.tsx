@@ -1,10 +1,12 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations } from "next-intl/server";
 import { Building2, Users } from "lucide-react";
 import SaasOnboardingForm from "@/components/onboarding/saas-onboarding-form";
 import CreatorOnboardingForm from "@/components/onboarding/creator-onboarding-form";
 
 export default async function OnboardingPage() {
+  const t = await getTranslations("dashboard");
   const supabase = await createClient();
 
   const {
@@ -51,26 +53,26 @@ export default async function OnboardingPage() {
               <>
                 <Users className="w-4 h-4 text-purple-600" />
                 <span className="text-sm text-purple-700 font-medium">
-                  Creator Profile
+                  {t("creatorProfile")}
                 </span>
               </>
             ) : (
               <>
                 <Building2 className="w-4 h-4 text-blue-600" />
                 <span className="text-sm text-blue-700 font-medium">
-                  Company Profile
+                  {t("companyProfile")}
                 </span>
               </>
             )}
           </div>
 
           <h1 className="text-2xl font-semibold text-[#111827] mb-2">
-            Complete your profile
+            {t("completeProfile")}
           </h1>
           <p className="text-[#64748B] text-sm max-w-md mx-auto">
             {isCreator
-              ? "Introduce yourself to SaaS companies and showcase your LinkedIn expertise."
-              : "Describe your company and offers to attract the best creators."}
+              ? t("creatorOnboardingDesc")
+              : t("saasOnboardingDesc")}
           </p>
         </div>
 

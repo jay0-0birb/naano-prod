@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { AlertCircle, CheckCircle2, Clock, Info } from "lucide-react";
 
 interface BudgetWidgetProps {
@@ -13,6 +14,8 @@ export default function BudgetWidget({
   renewalDate,
   saasCompanyName,
 }: BudgetWidgetProps) {
+  const t = useTranslations("collaboration");
+  const tCredits = useTranslations("credits");
   const getHealthStatus = (credits: number): {
     status: "safe" | "risky" | "low" | "empty";
     color: string;
@@ -24,7 +27,7 @@ export default function BudgetWidget({
         status: "safe",
         color: "text-green-600 bg-green-50 border-green-200",
         icon: <CheckCircle2 className="w-4 h-4 text-green-600" />,
-        label: "Safe",
+        label: tCredits("safe"),
       };
     }
     if (credits > 50) {
@@ -32,7 +35,7 @@ export default function BudgetWidget({
         status: "risky",
         color: "text-orange-600 bg-orange-50 border-orange-200",
         icon: <AlertCircle className="w-4 h-4 text-orange-600" />,
-        label: "Risky",
+        label: tCredits("risky"),
       };
     }
     if (credits > 0) {
@@ -47,7 +50,7 @@ export default function BudgetWidget({
       status: "empty",
       color: "text-red-700 bg-red-100 border-red-300",
       icon: <AlertCircle className="w-4 h-4 text-red-700" />,
-      label: "Empty",
+      label: tCredits("empty"),
     };
   };
 
@@ -80,13 +83,17 @@ export default function BudgetWidget({
         <div className="text-2xl font-bold text-slate-900">
           {walletCredits.toLocaleString()}
         </div>
-        <div className="text-xs text-slate-600">crédits restants</div>
+        <div className="text-xs text-slate-600">{t("creditsRemaining")}</div>
       </div>
 
       {renewalDate && daysUntilRenewal !== null && (
         <div className="flex items-center gap-2 text-xs text-slate-600 mb-3">
           <Clock className="w-3 h-3" />
-          <span>Renouvellement dans {daysUntilRenewal} jour{daysUntilRenewal !== 1 ? "s" : ""}</span>
+          <span>
+            {daysUntilRenewal === 1
+              ? tCredits("renewalInDays", { count: 1 })
+              : tCredits("renewalInDaysPlural", { count: daysUntilRenewal })}
+          </span>
         </div>
       )}
 
@@ -100,7 +107,7 @@ export default function BudgetWidget({
       {walletCredits === 0 && (
         <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-xs text-red-700 font-medium">
-            ⚠️ Budget épuisé. Les posts ne peuvent pas être soumis jusqu'à ce que le budget soit renouvelé.
+            ⚠️ {t("budgetExhausted")}
           </p>
         </div>
       )}

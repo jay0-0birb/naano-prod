@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import {
   Clock,
   CheckCircle2,
@@ -10,31 +11,31 @@ import {
 import Link from "next/link";
 import ApplicationActions from "@/components/applications/application-actions";
 
-const STATUS_CONFIG = {
-  pending: {
-    label: "En attente",
-    icon: Clock,
-    color: "text-amber-400",
-    bg: "bg-amber-500/10",
-    border: "border-amber-500/20",
-  },
-  accepted: {
-    label: "Acceptée",
-    icon: CheckCircle2,
-    color: "text-green-400",
-    bg: "bg-green-500/10",
-    border: "border-green-500/20",
-  },
-  rejected: {
-    label: "Refusée",
-    icon: XCircle,
-    color: "text-red-400",
-    bg: "bg-red-500/10",
-    border: "border-red-500/20",
-  },
-};
-
 export default async function ApplicationsPage() {
+  const t = await getTranslations("applications");
+  const STATUS_CONFIG = {
+    pending: {
+      label: t("pending"),
+      icon: Clock,
+      color: "text-amber-400",
+      bg: "bg-amber-500/10",
+      border: "border-amber-500/20",
+    },
+    accepted: {
+      label: t("accepted"),
+      icon: CheckCircle2,
+      color: "text-green-400",
+      bg: "bg-green-500/10",
+      border: "border-green-500/20",
+    },
+    rejected: {
+      label: t("rejected"),
+      icon: XCircle,
+      color: "text-red-400",
+      bg: "bg-red-500/10",
+      border: "border-red-500/20",
+    },
+  };
   const supabase = await createClient();
 
   const {
@@ -100,10 +101,10 @@ export default async function ApplicationsPage() {
       {/* Header */}
       <div className="mb-8">
         <h2 className="text-2xl font-semibold text-[#111827] mb-1">
-          Mes candidatures
+          {t("myApplications")}
         </h2>
         <p className="text-[#64748B] text-sm">
-          Suivez l&apos;état de vos candidatures auprès des entreprises SaaS
+          {t("trackStatus")}
         </p>
       </div>
 
@@ -181,7 +182,7 @@ export default async function ApplicationsPage() {
                 {/* Footer */}
                 <div className="mt-4 flex items-center justify-between gap-4 pt-4 border-t border-gray-100">
                   <span className="text-xs text-[#94A3B8]">
-                    Candidature envoyée le {formatDate(application.created_at)}
+                    {t("sentOn", { date: formatDate(application.created_at) })}
                   </span>
 
                   <div className="flex items-center gap-3">
@@ -196,7 +197,7 @@ export default async function ApplicationsPage() {
                         href="/dashboard/collaborations"
                         className="text-sm text-[#3B82F6] hover:text-[#1D4ED8] transition-colors"
                       >
-                        Voir la collaboration →
+                        {t("viewCollaboration")}
                       </Link>
                     )}
                   </div>
@@ -211,16 +212,16 @@ export default async function ApplicationsPage() {
             <Building2 className="w-8 h-8 text-[#94A3B8]" />
           </div>
           <h3 className="text-lg font-semibold text-[#111827] mb-2">
-            Aucune candidature
+            {t("noApplications")}
           </h3>
           <p className="text-[#64748B] text-sm max-w-md mx-auto mb-6">
-            Vous n&apos;avez pas encore postulé auprès d&apos;entreprises SaaS.
+            {t("noApplicationsDesc")}
           </p>
           <Link
             href="/dashboard/marketplace"
             className="inline-flex items-center gap-2 px-4 py-2 bg-[#0F172A] hover:bg-[#020617] text-white rounded-lg text-sm font-medium transition-colors"
           >
-            Explorer la Marketplace
+            {t("exploreMarketplace")}
           </Link>
         </div>
       )}

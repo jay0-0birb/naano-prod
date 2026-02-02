@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { Send, Loader2 } from "lucide-react";
 import {
   sendMessage,
@@ -38,6 +39,8 @@ export default function ChatView({
   partnerName,
   partnerAvatar,
 }: ChatViewProps) {
+  const t = useTranslations("messages");
+  const locale = useLocale();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -155,11 +158,11 @@ export default function ChatView({
     yesterday.setDate(yesterday.getDate() - 1);
 
     if (date.toDateString() === today.toDateString()) {
-      return "Aujourd'hui";
+      return t("today");
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return "Hier";
+      return t("yesterday");
     }
-    return date.toLocaleDateString("fr-FR", {
+    return date.toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US", {
       day: "numeric",
       month: "long",
     });
@@ -190,7 +193,7 @@ export default function ChatView({
         ) : messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <p className="text-[#64748B] text-sm">
-              Aucun message. Commencez la conversation !
+              {t("noMessages")}
             </p>
           </div>
         ) : (
@@ -284,7 +287,7 @@ export default function ChatView({
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Écrivez votre message..."
+            placeholder={t("typeMessage")}
             className="flex-1 bg-white border border-gray-300 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/40 transition-all"
           />
           <button
