@@ -16,6 +16,9 @@ export const FAQSection = () => {
     { question: tBrands("q1"), answer: tBrands("a1") },
     { question: tBrands("q2"), answer: tBrands("a2") },
     { question: tBrands("q3"), answer: tBrands("a3") },
+    { question: tBrands("q4"), answer: tBrands("a4") },
+    { question: tBrands("q5"), answer: tBrands("a5") },
+    { question: tBrands("q6"), answer: tBrands("a6") },
   ];
 
   const creatorsFaqs = [

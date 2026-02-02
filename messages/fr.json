@@ -131,12 +131,18 @@
     "forBrands": "Pour les marques",
     "forCreators": "Pour les créateurs",
     "brands": {
-      "q1": "Comment suivre les résultats ?",
-      "a1": "Chaque créateur est vérifié manuellement. On examine leurs contributions GitHub, profil LinkedIn, métriques d'engagement et qualité du contenu. Seuls le top 1% est retenu.",
-      "q2": "Qui détient les droits du contenu ?",
-      "a2": "Les marques obtiennent les droits commerciaux complets pour utiliser le contenu en pub, landing pages et réseaux sociaux. Les créateurs conservent les droits portfolio.",
-      "q3": "Comment fonctionne la tarification ?",
-      "a3": "Les marques paient selon la performance, pas les métriques de vanité. Le prix dépend du périmètre de campagne et des résultats, vous ne payez que pour la vraie valeur livrée."
+      "q1": "Qu'est-ce que Naano ?",
+      "a1": "Naano est une marketplace UGC B2B qui connecte les entreprises tech avec des nano-créateurs vérifiés (1–30k abonnés) pour publier du contenu LinkedIn qui génère du trafic et des leads mesurables.",
+      "q2": "Comment fonctionne la tarification ?",
+      "a2": "Naano fonctionne avec des crédits mensuels : 1 crédit = 1 clic qualifié vers le lien de votre choix. Vous choisissez un pack de crédits mensuels et ne payez jamais plus que votre quota mensuel.",
+      "q3": "Qu'est-ce qui compte comme « clic qualifié » ?",
+      "a3": "Pour protéger la qualité, Naano filtre les bots et crawlers, déduplique les visites (une visite comptée par IP) et applique une règle de temps minimum sur la page (ex. 3 secondes). Nous examinons aussi les ratios clics/impressions anormaux.",
+      "q4": "Les crédits non utilisés sont-ils reportés ? Et si un post devient viral ?",
+      "a4": "Les crédits non utilisés sont automatiquement reportés au mois suivant. Si un post génère plus de clics que votre quota mensuel, ces clics supplémentaires sont gratuits.",
+      "q5": "Comment choisir les créateurs ?",
+      "a5": "Vous pouvez sélectionner les créateurs selon le profil, la géographie et les thématiques—ou demander à Naano de recommander et matcher les meilleurs créateurs pour votre campagne. Nous pouvons aussi faire la sélection ensemble pendant l'onboarding.",
+      "q6": "Comment suivre la performance et le ROI ?",
+      "a6": "Vous disposez d'un dashboard unifié pour suivre les posts et résultats en temps réel (clics, visites, leads, et revenus le cas échéant). Vous pouvez aussi lancer du retargeting et de l'outbound chaud sur les interactions des posts (likes, commentaires, partages) pour améliorer la conversion."
     },
     "creators": {
       "q1": "C'est vraiment gratuit pour les créateurs ?",

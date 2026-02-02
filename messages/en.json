@@ -131,12 +131,18 @@
     "forBrands": "For Brands",
     "forCreators": "For Creators",
     "brands": {
-      "q1": "How do I track results?",
-      "a1": "Every creator is manually verified. We review their GitHub contributions, LinkedIn profile, audience engagement metrics, and content quality. Only the top 1% make it through.",
-      "q2": "Who owns the content rights?",
-      "a2": "Brands get full commercial rights to use the content for ads, landing pages, and organic social media. Creators retain portfolio rights.",
-      "q3": "How does pricing work?",
-      "a3": "Brands pay based on performance, not vanity metrics. Pricing depends on the campaign scope and outcomes, so you only pay for real value delivered."
+      "q1": "What is Naano?",
+      "a1": "Naano is a B2B UGC marketplace that connects tech companies with vetted nano-creators (1–30k followers) to publish LinkedIn content that drives measurable traffic and leads.",
+      "q2": "How does pricing work?",
+      "a2": "Naano runs on monthly credits: 1 credit = 1 qualified click to your chosen link. You select a monthly credit pack, and you never pay more than your monthly quota.",
+      "q3": "What counts as a \"qualified click\"?",
+      "a3": "To protect quality, Naano filters out bots and crawlers, deduplicates visits (one counted visit per IP), and applies a minimum time-on-page rule (e.g., 3 seconds). We also review abnormal click-to-impression ratios.",
+      "q4": "Can unused credits roll over? What if a post goes viral?",
+      "a4": "Unused credits automatically roll over to the next month. If a post generates clicks beyond your monthly credit quota, those extra clicks are free.",
+      "q5": "How do we choose creators?",
+      "a5": "You can select creators based on profile, geography, and topics—or ask Naano to recommend and match the best creators for your campaign. We can also do creator selection together during onboarding.",
+      "q6": "How do you track performance and ROI?",
+      "a6": "You get a unified dashboard to monitor posts and results in real time (clicks, visits, leads, and revenue when applicable). You can also run retargeting and warm outbound on post interactions (likes, comments, shares) to improve conversion."
     },
     "creators": {
       "q1": "Is it really free for creators?",
