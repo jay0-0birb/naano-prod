@@ -2,29 +2,33 @@
 
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
+import { LocaleToggle } from "@/components/ui/locale-toggle";
 
 interface HeaderProps {
   userName: string;
   avatarUrl?: string | null;
 }
 
-const PAGE_TITLES: Record<string, string> = {
-  "/dashboard": "Overview",
-  "/dashboard/onboarding": "Complete your profile",
-  "/dashboard/marketplace": "Marketplace",
-  "/dashboard/applications": "My Applications",
-  "/dashboard/candidates": "Applications Received",
-  "/dashboard/collaborations": "Collaborations",
-  "/dashboard/messages": "Messages",
-  "/dashboard/settings": "Settings",
-  "/dashboard/finances": "Finances",
-  "/dashboard/academy": "Academy",
-  "/dashboard/analytics": "Analytics & Leads",
+const PAGE_KEYS: Record<string, string> = {
+  "/dashboard": "overview",
+  "/dashboard/onboarding": "completeProfile",
+  "/dashboard/marketplace": "marketplace",
+  "/dashboard/applications": "myApplications",
+  "/dashboard/candidates": "applicationsReceived",
+  "/dashboard/collaborations": "collaborations",
+  "/dashboard/messages": "messages",
+  "/dashboard/settings": "settings",
+  "/dashboard/finances": "finances",
+  "/dashboard/academy": "academy",
+  "/dashboard/analytics": "analyticsLeads",
 };
 
 export default function DashboardHeader({ userName, avatarUrl }: HeaderProps) {
   const pathname = usePathname();
-  const title = PAGE_TITLES[pathname] || "Dashboard";
+  const t = useTranslations("header");
+  const key = PAGE_KEYS[pathname] || "dashboard";
+  const title = t(key);
 
   // Get initials from name
   const initials = userName
@@ -41,6 +45,7 @@ export default function DashboardHeader({ userName, avatarUrl }: HeaderProps) {
     >
       <h1 className="text-lg font-semibold text-[#111827]">{title}</h1>
       <div className="flex items-center gap-4">
+        <LocaleToggle />
         <span className="text-sm text-[#64748B]">{userName}</span>
         {avatarUrl ? (
           <Image

@@ -1,0 +1,157 @@
+{
+  "common": {
+    "getStarted": "Get started",
+    "signIn": "Sign in",
+    "features": "Features",
+    "pricing": "Pricing",
+    "faqs": "FAQs",
+    "about": "About",
+    "product": "Product",
+    "resources": "Resources",
+    "company": "Company",
+    "documentation": "Documentation",
+    "helpCenter": "Help Center",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "noSpam": "No spam, ever.",
+    "enterEmail": "Enter your email",
+    "allRightsReserved": "© 2026 naano. All rights reserved."
+  },
+  "nav": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "faqs": "FAQs",
+    "about": "About"
+  },
+  "sidebar": {
+    "menu": "Menu",
+    "overview": "Overview",
+    "marketplace": "Marketplace",
+    "creators": "Creators",
+    "myApplications": "My Applications",
+    "applications": "Applications",
+    "collaborations": "Collaborations",
+    "messages": "Messages",
+    "finances": "Finances",
+    "analyticsLeads": "Analytics & Leads",
+    "academy": "Academy",
+    "settings": "Settings",
+    "signOut": "Sign out",
+    "completeProfile": "Complete your profile"
+  },
+  "header": {
+    "overview": "Overview",
+    "completeProfile": "Complete your profile",
+    "marketplace": "Marketplace",
+    "myApplications": "My Applications",
+    "applicationsReceived": "Applications Received",
+    "collaborations": "Collaborations",
+    "messages": "Messages",
+    "settings": "Settings",
+    "finances": "Finances",
+    "academy": "Academy",
+    "analyticsLeads": "Analytics & Leads",
+    "dashboard": "Dashboard"
+  },
+  "hero": {
+    "scale": "Scale",
+    "boost": "Boost",
+    "grow": "Grow",
+    "line1Suffix": "your SaaS",
+    "line2Prefix": "with ",
+    "nanoCreators": "nano-creators",
+    "subtitle": "Access a curated network of vetted nano-influencers (1-50k). The first performance-based B2B marketplace.",
+    "getStarted": "Get started",
+    "signIn": "Sign in",
+    "trustedBy": "Trusted by growth teams at"
+  },
+  "demo": {
+    "watchDemo": "Watch 1-minute demo"
+  },
+  "howItWorks": {
+    "badge": "FEATURES",
+    "title": "How It Works",
+    "subtitle": "Three simple steps from match to measurable growth.",
+    "step1Title": "Match with Creators",
+    "step1Desc": "Find verified creators who understand your tech stack.",
+    "step2Title": "Creators Talk About You",
+    "step2Desc": "Authentic content shared across social platforms.",
+    "step3Title": "Track & Scale",
+    "step3Desc": "Monitor performance and grow what works.",
+    "viewProfile": "View Profile",
+    "campaignResults": "Campaign Results",
+    "growth": "+24% Growth"
+  },
+  "caseStudy": {
+    "badge": "FEATURES",
+    "title": "The naano Framework:",
+    "subtitle": "Consistency meets Virality.",
+    "description": "We don't just match you with creators.",
+    "descriptionBold": "We train them to write posts that convert specifically for brands.",
+    "viralHooks": "Viral-Ready Hooks",
+    "viralHooksDesc": "Our creators know how to stop the scroll with proven frameworks.",
+    "authenticStorytelling": "Authentic Storytelling",
+    "authenticStorytellingDesc": "Real experiences, real results. No generic ad copy.",
+    "massiveReach": "Massive Reach",
+    "massiveReachDesc": "100K+ impressions from accounts with just 2K followers."
+  },
+  "creatorShowcase": {
+    "badge": "FEATURES",
+    "title": "Find your perfect match",
+    "subtitle": "Browse through hundreds of vetted B2B creators ready to showcase your product.",
+    "audience": "Audience"
+  },
+  "pricing": {
+    "badge": "PRICING",
+    "title": "Simple, transparent pricing",
+    "subtitle": "Pay per qualified click. Volume discounts included.",
+    "forBrands": "For Brands",
+    "forCreators": "For Creators",
+    "monthlyCredits": "Monthly credits",
+    "credits": "credits",
+    "unitPrice": "Unit price",
+    "perCredit": "/ credit",
+    "totalMonthly": "Total monthly (excl. VAT)",
+    "unlimitedCreators": "Unlimited creators",
+    "multiBrandDashboard": "Multi-brand dashboard",
+    "qualifiedLinksAnalytics": "Qualified links analytics",
+    "freeToJoin": "Free to join",
+    "zeroToStart": "$0 to get started",
+    "creatorSubtitle": "We take a small commission on your earnings — only when you get paid.",
+    "noUpfrontCosts": "No upfront costs",
+    "accessToBrands": "Access to premium SaaS brands",
+    "naanoPro": "Naano Pro",
+    "naanoProDesc": "Post about Naano on LinkedIn and unlock 6 months of Pro — earn €1.10 per qualified click instead of €0.90. No payment required.",
+    "createProfile": "Create your profile",
+    "getStarted": "Get started"
+  },
+  "faq": {
+    "badge": "FAQs",
+    "title": "Frequently Asked Questions",
+    "forBrands": "For Brands",
+    "forCreators": "For Creators",
+    "brands": {
+      "q1": "How do I track results?",
+      "a1": "Every creator is manually verified. We review their GitHub contributions, LinkedIn profile, audience engagement metrics, and content quality. Only the top 1% make it through.",
+      "q2": "Who owns the content rights?",
+      "a2": "Brands get full commercial rights to use the content for ads, landing pages, and organic social media. Creators retain portfolio rights.",
+      "q3": "How does pricing work?",
+      "a3": "Brands pay based on performance, not vanity metrics. Pricing depends on the campaign scope and outcomes, so you only pay for real value delivered."
+    },
+    "creators": {
+      "q1": "Is it really free for creators?",
+      "a1": "Yes, absolutely. We charge a service fee to the brands, not the talent. You keep 100% of your negotiated rate.",
+      "q2": "What is Naano Pro?",
+      "a2": "Naano Pro lets you earn €1.10 per qualified click instead of €0.90. Post about Naano on LinkedIn (with your unique link), submit the post URL in your dashboard, and Pro unlocks automatically for 6 months. No payment required.",
+      "q3": "How do I get started?",
+      "a3": "Sign up as a creator, complete your profile, and start applying to campaigns that match your expertise. Once approved, you'll receive tracked links and can start creating content.",
+      "q4": "When do I get paid?",
+      "a4": "Payment is released instantly once the brand validates your deliverable. Funds are secured upfront when a campaign is approved, so you're guaranteed payment for completed work."
+    }
+  },
+  "footer": {
+    "readyToScale": "Ready to scale with",
+    "naano": "naano",
+    "tagline": "The first B2B marketplace connecting SaaS brands with vetted nano-influencers."
+  }
+}

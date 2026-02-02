@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   LayoutDashboard,
   MessageSquare,
@@ -31,6 +32,7 @@ export default function DashboardSidebar({
   userId,
 }: SidebarProps) {
   const pathname = usePathname();
+  const t = useTranslations("sidebar");
   const isCreator = role === "influencer";
 
   const handleSignOut = async () => {
@@ -47,7 +49,10 @@ export default function DashboardSidebar({
     }`;
 
   return (
-    <aside className="w-64 border-r border-gray-200 bg-white flex flex-col fixed h-full" style={{ fontFamily: 'Satoshi, sans-serif' }}>
+    <aside
+      className="w-64 border-r border-gray-200 bg-white flex flex-col fixed h-full"
+      style={{ fontFamily: "Satoshi, sans-serif" }}
+    >
       <div className="h-16 flex items-center px-6 border-b border-gray-200">
         <Link href="/dashboard" className="flex items-center gap-2">
           <span className="text-xl font-bold tracking-tight text-[#0F172A]">
@@ -64,19 +69,19 @@ export default function DashboardSidebar({
         >
           <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
           <span className="text-xs text-amber-700 font-medium">
-            Complete your profile
+            {t("completeProfile")}
           </span>
         </Link>
       )}
 
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         <div className="px-2 py-2 text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">
-          Menu
+          {t("menu")}
         </div>
 
         <Link href="/dashboard" className={linkClass("/dashboard")}>
           <LayoutDashboard className="w-5 h-5" />
-          <span>Overview</span>
+          <span>{t("overview")}</span>
         </Link>
 
         {/* Creator-specific menu */}
@@ -87,14 +92,14 @@ export default function DashboardSidebar({
               className={linkClass("/dashboard/marketplace")}
             >
               <ShoppingBag className="w-5 h-5" />
-              <span>Marketplace</span>
+              <span>{t("marketplace")}</span>
             </Link>
             <Link
               href="/dashboard/applications"
               className={linkClass("/dashboard/applications")}
             >
               <FileText className="w-5 h-5" />
-              <span>My Applications</span>
+              <span>{t("myApplications")}</span>
             </Link>
           </>
         ) : (
@@ -105,14 +110,14 @@ export default function DashboardSidebar({
               className={linkClass("/dashboard/marketplace")}
             >
               <ShoppingBag className="w-5 h-5" />
-              <span>Creators</span>
+              <span>{t("creators")}</span>
             </Link>
             <Link
               href="/dashboard/candidates"
               className={linkClass("/dashboard/candidates")}
             >
               <Users className="w-5 h-5" />
-              <span>Applications</span>
+              <span>{t("applications")}</span>
             </Link>
           </>
         )}
@@ -123,7 +128,7 @@ export default function DashboardSidebar({
           className={linkClass("/dashboard/collaborations")}
         >
           <Handshake className="w-5 h-5" />
-          <span>Collaborations</span>
+          <span>{t("collaborations")}</span>
         </Link>
 
         <Link
@@ -132,7 +137,7 @@ export default function DashboardSidebar({
         >
           <div className="flex items-center gap-3">
             <MessageSquare className="w-5 h-5" />
-            <span>Messages</span>
+            <span>{t("messages")}</span>
           </div>
           <UnreadBadge userId={userId} />
         </Link>
@@ -142,7 +147,7 @@ export default function DashboardSidebar({
           className={linkClass("/dashboard/finances")}
         >
           <Wallet className="w-5 h-5" />
-          <span>Finances</span>
+          <span>{t("finances")}</span>
         </Link>
 
         {/* SaaS-only: Global Analytics & Leads */}
@@ -152,7 +157,7 @@ export default function DashboardSidebar({
             className={linkClass("/dashboard/analytics")}
           >
             <BarChart3 className="w-5 h-5" />
-            <span>Analytics & Leads</span>
+            <span>{t("analyticsLeads")}</span>
           </Link>
         )}
 
@@ -163,7 +168,7 @@ export default function DashboardSidebar({
             className={linkClass("/dashboard/academy")}
           >
             <GraduationCap className="w-5 h-5" />
-            <span>Academy</span>
+            <span>{t("academy")}</span>
           </Link>
         )}
       </nav>
@@ -174,14 +179,14 @@ export default function DashboardSidebar({
           className={linkClass("/dashboard/settings")}
         >
           <Settings className="w-5 h-5" />
-          <span>Settings</span>
+          <span>{t("settings")}</span>
         </Link>
         <button
           onClick={handleSignOut}
           className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors mt-1 text-sm"
         >
           <LogOut className="w-5 h-5" />
-          <span>Sign out</span>
+          <span>{t("signOut")}</span>
         </button>
       </div>
     </aside>

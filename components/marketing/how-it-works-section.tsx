@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useInView } from "framer-motion";
+import { useTranslations } from "next-intl";
 import {
   ArrowRight,
   Heart,
@@ -14,7 +15,7 @@ import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 
 // Step 1: Match Card
-const MatchCard = () => (
+const MatchCard = ({ t }: { t: (key: string) => string }) => (
   <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5 max-w-[260px] mx-auto relative shadow-[0_4px_24px_-4px_rgba(0,0,0,0.08)] min-h-[280px]">
     {/* Verified Badge */}
     <div className="absolute top-4 right-4">
@@ -72,7 +73,7 @@ const MatchCard = () => (
 
     {/* CTA Button */}
     <button className="w-full bg-[#0F172A] text-white text-[13px] font-medium h-[38px] rounded-lg hover:bg-[#1E293B] transition-colors">
-      View Profile
+      {t("viewProfile")}
     </button>
   </div>
 );
@@ -215,7 +216,7 @@ const SocialPostsMockup = () => {
 };
 
 // Step 3: Revenue Display
-const RevenueDisplay = () => {
+const RevenueDisplay = ({ t }: { t: (key: string) => string }) => {
   const [revenue, setRevenue] = useState(0);
   const [hasAnimated, setHasAnimated] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -262,12 +263,12 @@ const RevenueDisplay = () => {
       ref={ref}
       className="bg-white rounded-2xl border border-[#E5E7EB] p-5 max-w-[260px] mx-auto text-center shadow-[0_4px_24px_-4px_rgba(0,0,0,0.08)] min-h-[280px] flex flex-col justify-center"
     >
-      <p className="text-xs text-[#6B7280] mb-4">Campaign Results</p>
+      <p className="text-xs text-[#6B7280] mb-4">{t("campaignResults")}</p>
       <p className="text-3xl font-bold text-[#3B82F6] mb-4">
         ${revenue.toFixed(1)}k
       </p>
       <span className="bg-blue-50 text-[#3B82F6] text-xs px-2 py-0.5 rounded-full inline-block">
-        +24% Growth
+        {t("growth")}
       </span>
     </div>
   );
@@ -276,22 +277,23 @@ const RevenueDisplay = () => {
 export const HowItWorksSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
+  const t = useTranslations("howItWorks");
 
   const steps = [
     {
-      title: "Match with Creators",
-      description: "Find verified creators who understand your tech stack.",
-      component: <MatchCard />,
+      title: t("step1Title"),
+      description: t("step1Desc"),
+      component: <MatchCard t={t} />,
     },
     {
-      title: "Creators Talk About You",
-      description: "Authentic content shared across social platforms.",
+      title: t("step2Title"),
+      description: t("step2Desc"),
       component: <SocialPostsMockup />,
     },
     {
-      title: "Track & Scale",
-      description: "Monitor performance and grow what works.",
-      component: <RevenueDisplay />,
+      title: t("step3Title"),
+      description: t("step3Desc"),
+      component: <RevenueDisplay t={t} />,
     },
   ];
 
@@ -315,19 +317,19 @@ export const HowItWorksSection = () => {
         {/* Header */}
         <div className="flex flex-col text-center mb-16">
           <span className="inline-block bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-semibold mb-4 border border-blue-100 w-fit mx-auto">
-            FEATURES
+            {t("badge")}
           </span>
           <h2
             className="text-[32px] md:text-[44px] font-bold text-[#111827] tracking-[-0.03em] leading-[1.1] mb-3"
             style={{ fontFamily: "Satoshi, sans-serif" }}
           >
-            How It Works
+            {t("title")}
           </h2>
           <p
             className="text-lg text-[#6B7280] max-w-[600px] mx-auto"
             style={{ fontFamily: "Satoshi, sans-serif" }}
           >
-            Three simple steps from match to measurable growth.
+            {t("subtitle")}
           </p>
         </div>
 

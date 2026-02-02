@@ -3,6 +3,7 @@
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { useRef, useState } from "react";
 import { Zap, BarChart3, Target, Linkedin } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 // Add your LinkedIn post URLs here (from any profile)
 // Format: https://www.linkedin.com/posts/username_activity-1234567890-xxxx
@@ -39,29 +40,29 @@ function extractLinkedInPostId(url: string): string {
   }
 }
 
-const features = [
-  {
-    icon: Zap,
-    title: "Viral-Ready Hooks",
-    description:
-      "Our creators know how to stop the scroll with proven frameworks.",
-  },
-  {
-    icon: BarChart3,
-    title: "Authentic Storytelling",
-    description: "Real experiences, real results. No generic ad copy.",
-  },
-  {
-    icon: Target,
-    title: "Massive Reach",
-    description: "100K+ impressions from accounts with just 2K followers.",
-  },
-];
-
 export const CaseStudySection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
   const [currentPostIndex, setCurrentPostIndex] = useState(0);
+  const t = useTranslations("caseStudy");
+
+  const features = [
+    {
+      icon: Zap,
+      title: t("viralHooks"),
+      description: t("viralHooksDesc"),
+    },
+    {
+      icon: BarChart3,
+      title: t("authenticStorytelling"),
+      description: t("authenticStorytellingDesc"),
+    },
+    {
+      icon: Target,
+      title: t("massiveReach"),
+      description: t("massiveReachDesc"),
+    },
+  ];
 
   const validPosts = FEATURED_LINKEDIN_POSTS.filter((url) =>
     extractLinkedInPostId(url)
@@ -97,17 +98,17 @@ export const CaseStudySection = () => {
           >
             {/* Badge */}
             <span className="inline-block bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-semibold mb-4 border border-blue-100 w-fit">
-              FEATURES
+              {t("badge")}
             </span>
             {/* Heading */}
             <h2
               className="text-[28px] sm:text-[36px] md:text-[44px] font-bold text-[#0F172A] tracking-[-0.03em] leading-[1.1] mb-4 sm:mb-5"
               style={{ fontFamily: "Satoshi, sans-serif" }}
             >
-              The naano Framework:
+              {t("title")}
               <br />
               <span className="text-[#3B82F6]">
-                Consistency meets Virality.
+                {t("subtitle")}
               </span>
             </h2>
 
@@ -116,10 +117,9 @@ export const CaseStudySection = () => {
               className="text-lg text-[#64748B] leading-relaxed font-normal mb-10"
               style={{ fontFamily: "Satoshi, sans-serif" }}
             >
-              We don't just match you with creators.{" "}
+              {t("description")}{" "}
               <span className="font-semibold text-[#64748B]">
-                We train them to write posts that convert specifically for
-                brands.
+                {t("descriptionBold")}
               </span>
             </p>
 

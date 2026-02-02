@@ -3,51 +3,27 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
-const brandsFaqs = [
-  {
-    question: "How do I track results?",
-    answer:
-      "Every creator is manually verified. We review their GitHub contributions, LinkedIn profile, audience engagement metrics, and content quality. Only the top 1% make it through.",
-  },
-  {
-    question: "Who owns the content rights?",
-    answer:
-      "Brands get full commercial rights to use the content for ads, landing pages, and organic social media. Creators retain portfolio rights.",
-  },
-  {
-    question: "How does pricing work?",
-    answer:
-      "Brands pay based on performance, not vanity metrics. Pricing depends on the campaign scope and outcomes, so you only pay for real value delivered.",
-  },
-];
-
-const creatorsFaqs = [
-  {
-    question: "Is it really free for creators?",
-    answer:
-      "Yes, absolutely. We charge a service fee to the brands, not the talent. You keep 100% of your negotiated rate.",
-  },
-  {
-    question: "What is Naano Pro?",
-    answer:
-      "Naano Pro lets you earn €1.10 per qualified click instead of €0.90. Post about Naano on LinkedIn (with your unique link), submit the post URL in your dashboard, and Pro unlocks automatically for 6 months. No payment required.",
-  },
-  {
-    question: "How do I get started?",
-    answer:
-      "Sign up as a creator, complete your profile, and start applying to campaigns that match your expertise. Once approved, you'll receive tracked links and can start creating content.",
-  },
-  {
-    question: "When do I get paid?",
-    answer:
-      "Payment is released instantly once the brand validates your deliverable. Funds are secured upfront when a campaign is approved, so you're guaranteed payment for completed work.",
-  },
-];
+import { useTranslations } from "next-intl";
 
 export const FAQSection = () => {
   const [activeTab, setActiveTab] = useState<"brands" | "creators">("brands");
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const t = useTranslations("faq");
+  const tBrands = useTranslations("faq.brands");
+  const tCreators = useTranslations("faq.creators");
+
+  const brandsFaqs = [
+    { question: tBrands("q1"), answer: tBrands("a1") },
+    { question: tBrands("q2"), answer: tBrands("a2") },
+    { question: tBrands("q3"), answer: tBrands("a3") },
+  ];
+
+  const creatorsFaqs = [
+    { question: tCreators("q1"), answer: tCreators("a1") },
+    { question: tCreators("q2"), answer: tCreators("a2") },
+    { question: tCreators("q3"), answer: tCreators("a3") },
+    { question: tCreators("q4"), answer: tCreators("a4") },
+  ];
 
   const currentFaqs = activeTab === "brands" ? brandsFaqs : creatorsFaqs;
 
@@ -57,13 +33,13 @@ export const FAQSection = () => {
         {/* FAQ Header */}
         <div className="flex flex-col text-center mb-8 sm:mb-10">
           <span className="inline-block bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-semibold mb-4 border border-blue-100 w-fit mx-auto">
-            FAQs
+            {t("badge")}
           </span>
           <h3
             className="text-[28px] sm:text-[36px] md:text-[44px] font-bold text-[#111827] tracking-[-0.03em] leading-[1.1]"
             style={{ fontFamily: "Satoshi, sans-serif" }}
           >
-            Frequently Asked Questions
+            {t("title")}
           </h3>
 
           {/* Toggle */}
@@ -84,7 +60,7 @@ export const FAQSection = () => {
                   } hover:text-[#0F172A]`}
                   style={{ fontFamily: "Satoshi, sans-serif" }}
                 >
-                  {tab === "brands" ? "For Brands" : "For Creators"}
+                  {tab === "brands" ? t("forBrands") : t("forCreators")}
                 </button>
               );
             })}

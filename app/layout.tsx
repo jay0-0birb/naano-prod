@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, GFS_Didot, Plus_Jakarta_Sans } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale } from "next-intl/server";
 import "./globals.css";
 
 const inter = Inter({
@@ -36,23 +38,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
   return (
-    <html lang="fr" className={plusJakarta.variable}>
+    <html lang={locale} className={plusJakarta.variable}>
       <head>
         <link
           href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap"
           rel="stylesheet"
         />
-        <link
-          rel="icon"
-          href="/logo.svg?v=2"
-          type="image/svg+xml"
-        />
+        <link rel="icon" href="/logo.svg?v=2" type="image/svg+xml" />
       </head>
       <body
         className={`${inter.variable} ${didot.variable} ${plusJakarta.variable} antialiased bg-[#020408] text-slate-300 font-sans selection:bg-blue-500/30 selection:text-blue-200`}
@@ -61,7 +60,9 @@ export default function RootLayout({
         }
       >
         <div className="bg-noise"></div>
-        {children}
+        <NextIntlClientProvider>
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   );

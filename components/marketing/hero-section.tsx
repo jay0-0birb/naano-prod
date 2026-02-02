@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { ParticleFace } from "./particle-face";
 
 interface HeroSectionProps {
@@ -14,7 +15,8 @@ export const HeroSection = ({
   onContentShow,
   showContent,
 }: HeroSectionProps) => {
-  const words = ["Scale", "Boost", "Grow"];
+  const t = useTranslations("hero");
+  const words = [t("scale"), t("boost"), t("grow")];
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
 
   useEffect(() => {
@@ -62,13 +64,13 @@ export const HeroSection = ({
                 >
                   {words[currentWordIndex]}
                 </motion.span>
-              </AnimatePresence>{" "}
-              your SaaS
+              </AnimatePresence>
+              {t("line1Suffix") && <> {t("line1Suffix")}</>}
               <br />
               <span>
-                with{" "}
+                {t("line2Prefix")}
                 <span className="text-[#3B82F6] relative">
-                  nano-creators
+                  {t("nanoCreators")}
                   <span className="absolute bottom-[-2px] left-0 right-0 h-[3px] bg-[#3B82F6] opacity-30 rounded-full" />
                 </span>
                 .
@@ -89,8 +91,7 @@ export const HeroSection = ({
               className="text-base sm:text-lg font-normal text-[#4B5563] leading-relaxed max-w-[600px]"
               style={{ fontFamily: "Satoshi, sans-serif" }}
             >
-              Access a curated network of vetted nano-influencers (1-50k). The
-              first performance-based B2B marketplace.
+              {t("subtitle")}
             </p>
           </motion.div>
 
@@ -109,7 +110,7 @@ export const HeroSection = ({
                 className="h-12 sm:h-14 px-8 sm:px-10 bg-[#0F172A] text-white rounded-full font-bold text-sm sm:text-[15px] hover:bg-[#1E293B] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_0_rgba(17,24,39,0.25)] transition-all duration-200 flex items-center justify-center"
                 style={{ fontFamily: "Satoshi, sans-serif" }}
               >
-                Get started
+                {t("getStarted")}
               </Link>
               {/* Sign in button - Position B (white) */}
               <Link
@@ -117,7 +118,7 @@ export const HeroSection = ({
                 className="h-12 sm:h-14 px-8 sm:px-10 bg-white text-[#111827] rounded-full border border-[#E5E7EB] font-bold text-sm sm:text-[15px] hover:border-[#111827] hover:bg-[#F9FAFB] transition-all duration-200 flex items-center justify-center"
                 style={{ fontFamily: "Satoshi, sans-serif" }}
               >
-                Sign in
+                {t("signIn")}
               </Link>
             </div>
           </motion.div>
@@ -134,7 +135,7 @@ export const HeroSection = ({
             className="text-xs font-bold tracking-[0.1em] text-[#9CA3AF] uppercase text-center mb-6 sm:mb-8 md:mb-10"
             style={{ fontFamily: "Satoshi, sans-serif" }}
           >
-            Trusted by growth teams at
+            {t("trustedBy")}
           </p>
 
           <div className="flex justify-center items-center gap-6 sm:gap-8 md:gap-12 lg:gap-16 xl:gap-20 flex-wrap max-w-[1000px] mx-auto px-4">

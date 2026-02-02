@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { CheckCircle2, Users } from "lucide-react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 // Mock Data for Creator Cards
 const creators = [
@@ -56,7 +57,13 @@ const creators = [
   },
 ];
 
-const CreatorCard = ({ creator }: { creator: (typeof creators)[0] }) => (
+const CreatorCard = ({
+  creator,
+  t,
+}: {
+  creator: (typeof creators)[0];
+  t: (key: string) => string;
+}) => (
   <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-5 w-[280px] sm:w-[300px] flex-shrink-0 relative transition-all duration-200 hover:border-blue-400 hover:-translate-y-1 hover:shadow-[0_12px_24px_-8px_rgba(59,130,246,0.15)]">
     {/* Verified Badge */}
     <div className="absolute top-5 right-5">
@@ -99,7 +106,7 @@ const CreatorCard = ({ creator }: { creator: (typeof creators)[0] }) => (
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <Users className="w-3.5 h-3.5 text-gray-400" />
-          <p className="text-[11px] text-gray-500 font-medium">Audience</p>
+          <p className="text-[11px] text-gray-500 font-medium">{t("audience")}</p>
         </div>
         <p className="text-[13px] font-semibold text-gray-900">
           {creator.audience}
@@ -110,18 +117,18 @@ const CreatorCard = ({ creator }: { creator: (typeof creators)[0] }) => (
 );
 
 export const CreatorShowcaseSection = () => {
+  const t = useTranslations("creatorShowcase");
   return (
     <section id="creators" className="py-16 sm:py-20 md:py-24 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-10 sm:mb-12 text-center">
         <span className="inline-block bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-semibold mb-4 border border-blue-100 w-fit mx-auto">
-          FEATURES
+          {t("badge")}
         </span>
         <h2 className="text-[28px] sm:text-[36px] md:text-[44px] font-bold text-gray-900 tracking-[-0.03em] leading-[1.1] mb-3 sm:mb-4">
-          Find your perfect match
+          {t("title")}
         </h2>
         <p className="text-base sm:text-lg text-gray-500 max-w-[600px] mx-auto px-4">
-          Browse through hundreds of vetted B2B creators ready to showcase your
-          product.
+          {t("subtitle")}
         </p>
       </div>
 
@@ -141,7 +148,7 @@ export const CreatorShowcaseSection = () => {
           className="flex gap-6 pl-6 w-max"
         >
           {[...creators, ...creators, ...creators].map((creator, i) => (
-            <CreatorCard key={i} creator={creator} />
+            <CreatorCard key={i} creator={creator} t={t} />
           ))}
         </motion.div>
       </div>
@@ -165,7 +172,7 @@ export const CreatorShowcaseSection = () => {
             ...[...creators].reverse(),
             ...[...creators].reverse(),
           ].map((creator, i) => (
-            <CreatorCard key={i} creator={creator} />
+            <CreatorCard key={i} creator={creator} t={t} />
           ))}
         </motion.div>
       </div>

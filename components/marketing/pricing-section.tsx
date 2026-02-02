@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 // Volume pricing tiers (matches credit system)
 function getCreditUnitPrice(volume: number): number {
@@ -22,13 +23,13 @@ function getCreditUnitPrice(volume: number): number {
   return 2.6;
 }
 
-const brandFeatures = [
-  "Unlimited creators",
-  "Multi-brand dashboard",
-  "Qualified links analytics",
-];
-
 export const PricingSection = () => {
+  const t = useTranslations("pricing");
+  const brandFeatures = [
+    t("unlimitedCreators"),
+    t("multiBrandDashboard"),
+    t("qualifiedLinksAnalytics"),
+  ];
   const [activeTab, setActiveTab] = useState<"saas" | "creators">("saas");
   const [creditVolume, setCreditVolume] = useState(1000);
   const [unitPrice, setUnitPrice] = useState(2.25);
@@ -63,19 +64,19 @@ export const PricingSection = () => {
         {/* Header */}
         <div className="flex flex-col text-center mb-10 sm:mb-12">
           <span className="inline-block bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-semibold mb-4 border border-blue-100 w-fit mx-auto">
-            PRICING
+            {t("badge")}
           </span>
           <h2
             className="text-[28px] sm:text-[36px] md:text-[44px] font-bold text-[#0F172A] tracking-[-0.03em] leading-[1.1] mb-3 sm:mb-4"
             style={{ fontFamily: "Satoshi, sans-serif" }}
           >
-            Simple, transparent pricing
+            {t("title")}
           </h2>
           <p
             className="text-lg text-[#64748B] max-w-[600px] mx-auto"
             style={{ fontFamily: "Satoshi, sans-serif" }}
           >
-            Pay per qualified click. Volume discounts included.
+            {t("subtitle")}
           </p>
 
           {/* Toggle */}
@@ -92,7 +93,7 @@ export const PricingSection = () => {
                       : "text-[#64748B] bg-transparent"
                   } hover:text-[#0F172A]`}
                 >
-                  {tab === "saas" ? "For Brands" : "For Creators"}
+                  {tab === "saas" ? t("forBrands") : t("forCreators")}
                 </button>
               );
             })}
@@ -114,10 +115,10 @@ export const PricingSection = () => {
                 <div className="mb-6">
                   <div className="flex justify-between items-center mb-4">
                     <label className="text-sm font-semibold text-[#0F172A]">
-                      Monthly credits
+                      {t("monthlyCredits")}
                     </label>
                     <span className="text-xl font-bold text-[#0F172A]">
-                      {creditVolume.toLocaleString()} credits
+                      {creditVolume.toLocaleString()} {t("credits")}
                     </span>
                   </div>
 
@@ -141,14 +142,14 @@ export const PricingSection = () => {
                 {/* Price display */}
                 <div className="bg-[#F8FAFC] rounded-xl p-4 mb-6">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-[#64748B]">Unit price</span>
+                    <span className="text-sm text-[#64748B]">{t("unitPrice")}</span>
                     <span className="text-sm font-semibold text-[#0F172A]">
-                      €{unitPrice.toFixed(2)} / credit
+                      €{unitPrice.toFixed(2)} {t("perCredit")}
                     </span>
                   </div>
                   <div className="flex justify-between items-center pt-2 border-t border-[#E5E7EB]">
                     <span className="text-base font-semibold text-[#0F172A]">
-                      Total monthly (excl. VAT)
+                      {t("totalMonthly")}
                     </span>
                     <span className="text-2xl font-bold text-[#0F172A]">
                       €{totalPrice.toFixed(2)}
@@ -173,7 +174,7 @@ export const PricingSection = () => {
                   href="/register"
                   className="w-full h-12 rounded-[10px] bg-[#0F172A] text-white text-sm font-semibold flex items-center justify-center hover:bg-[#1E293B] transition-colors"
                 >
-                  Get started
+                  {t("getStarted")}
                 </Link>
               </div>
             </motion.div>
@@ -189,21 +190,20 @@ export const PricingSection = () => {
               <div className="bg-[#F8FAFC] rounded-[20px] p-8 md:p-12 text-center border border-[#E5E7EB]">
                 {/* Free Badge */}
                 <span className="inline-block bg-[#ECFDF5] text-[#059669] px-4 py-1.5 rounded-full text-sm font-semibold mb-6">
-                  Free to join
+                  {t("freeToJoin")}
                 </span>
 
                 <h3 className="text-2xl md:text-3xl font-bold text-[#0F172A] mb-4">
-                  $0 to get started
+                  {t("zeroToStart")}
                 </h3>
 
                 <p className="text-[#64748B] text-lg mb-8 leading-relaxed">
-                  We take a small commission on your earnings — only when you
-                  get paid.
+                  {t("creatorSubtitle")}
                 </p>
 
                 {/* Simple benefits */}
                 <div className="flex flex-col gap-3 mb-6">
-                  {["No upfront costs", "Access to premium SaaS brands"].map(
+                  {[t("noUpfrontCosts"), t("accessToBrands")].map(
                     (item) => (
                       <div
                         key={item}
@@ -224,13 +224,11 @@ export const PricingSection = () => {
                   <div className="flex items-center gap-2 mb-1">
                     <Sparkles className="w-4 h-4 text-[#3B82F6]" />
                     <span className="text-sm font-semibold text-[#1E40AF]">
-                      Naano Pro
+                      {t("naanoPro")}
                     </span>
                   </div>
                   <p className="text-xs text-[#475569] leading-relaxed">
-                    Post about Naano on LinkedIn and unlock 6 months of Pro — earn
-                    €1.10 per qualified click instead of €0.90. No payment
-                    required.
+                    {t("naanoProDesc")}
                   </p>
                 </div>
 
@@ -238,7 +236,7 @@ export const PricingSection = () => {
                   href="/register"
                   className="inline-flex items-center gap-2 text-[#0F172A] text-[15px] font-semibold hover:text-[#3B82F6] transition-colors duration-200"
                 >
-                  Create your profile
+                  {t("createProfile")}
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>

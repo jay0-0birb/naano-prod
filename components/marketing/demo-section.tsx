@@ -2,8 +2,10 @@
 
 import { motion } from 'framer-motion'
 import { Play } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 export const DemoSection = () => {
+  const t = useTranslations('demo')
   return (
     <section className="py-12 sm:py-16 md:py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -40,7 +42,7 @@ export const DemoSection = () => {
                 </div>
 
                 <p className="absolute bottom-8 text-white font-medium opacity-80">
-                  Watch 1-minute demo
+                  {t('watchDemo')}
                 </p>
               </div>
             </div>

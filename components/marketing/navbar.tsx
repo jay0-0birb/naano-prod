@@ -4,6 +4,8 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { LocaleToggle } from "@/components/ui/locale-toggle";
 
 const scrollToSection = (id: string) => {
   const element = document.getElementById(id);
@@ -18,12 +20,13 @@ interface NavbarProps {
 
 export const Navbar = ({ showContent }: NavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const t = useTranslations("nav");
 
   const navItems = [
-    { label: "Features", action: () => scrollToSection("how-it-works") },
-    { label: "Pricing", action: () => scrollToSection("pricing") },
-    { label: "FAQs", action: () => scrollToSection("faq") },
-    { label: "About", href: "/about" },
+    { label: t("features"), action: () => scrollToSection("how-it-works") },
+    { label: t("pricing"), action: () => scrollToSection("pricing") },
+    { label: t("faqs"), action: () => scrollToSection("faq") },
+    { label: t("about"), href: "/about" },
   ];
 
   return (
@@ -49,16 +52,16 @@ export const Navbar = ({ showContent }: NavbarProps) => {
           </span>
         </Link>
 
-        <div className="flex items-center">
-          {/* Menu Items - Slide in from right */}
+        <div className="flex items-center gap-3 sm:gap-4">
+          {/* Menu Items - to the left of hamburger & toggle when open */}
           <AnimatePresence>
             {isMenuOpen && (
               <motion.div
-                initial={{ opacity: 0, x: 50 }}
+                initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 50 }}
+                exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-                className="flex flex-col sm:flex-row items-end sm:items-center gap-3 sm:gap-4 md:gap-6 lg:gap-8 mr-10 sm:mr-12 absolute right-0 bg-white sm:bg-transparent p-4 sm:p-0 rounded-lg sm:rounded-none shadow-lg sm:shadow-none border sm:border-0 border-gray-200 sm:border-0"
+                className="flex flex-col sm:flex-row items-end sm:items-center gap-3 sm:gap-4 md:gap-6 lg:gap-8 bg-white sm:bg-transparent p-4 sm:p-0 rounded-lg sm:rounded-none shadow-lg sm:shadow-none border sm:border-0 border-gray-200 sm:border-0"
               >
                 {navItems.map((item, index) => {
                   const baseClasses =
@@ -117,7 +120,7 @@ export const Navbar = ({ showContent }: NavbarProps) => {
             )}
           </AnimatePresence>
 
-          {/* Menu Toggle Button - Fixed position */}
+          {/* Menu Toggle Button */}
           <motion.button
             initial={{ opacity: 0 }}
             animate={showContent ? { opacity: 1 } : { opacity: 0 }}
@@ -132,6 +135,8 @@ export const Navbar = ({ showContent }: NavbarProps) => {
               <Menu className="w-5 h-5 text-[#4B5563]" />
             )}
           </motion.button>
+          {/* Locale Toggle - far right, after hamburger */}
+          <LocaleToggle />
         </div>
       </div>
     </nav>

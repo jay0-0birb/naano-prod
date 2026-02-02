@@ -1,0 +1,157 @@
+{
+  "common": {
+    "getStarted": "Commencer",
+    "signIn": "Connexion",
+    "features": "Fonctionnalités",
+    "pricing": "Tarifs",
+    "faqs": "FAQ",
+    "about": "À propos",
+    "product": "Produit",
+    "resources": "Ressources",
+    "company": "Entreprise",
+    "documentation": "Documentation",
+    "helpCenter": "Centre d'aide",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "noSpam": "Jamais de spam.",
+    "enterEmail": "Entrez votre email",
+    "allRightsReserved": "© 2026 naano. Tous droits réservés."
+  },
+  "nav": {
+    "features": "Fonctionnalités",
+    "pricing": "Tarifs",
+    "faqs": "FAQ",
+    "about": "À propos"
+  },
+  "sidebar": {
+    "menu": "Menu",
+    "overview": "Aperçu",
+    "marketplace": "Marketplace",
+    "creators": "Créateurs",
+    "myApplications": "Mes candidatures",
+    "applications": "Candidatures",
+    "collaborations": "Collaborations",
+    "messages": "Messages",
+    "finances": "Finances",
+    "analyticsLeads": "Analytiques & Leads",
+    "academy": "Académie",
+    "settings": "Paramètres",
+    "signOut": "Déconnexion",
+    "completeProfile": "Complétez votre profil"
+  },
+  "header": {
+    "overview": "Aperçu",
+    "completeProfile": "Complétez votre profil",
+    "marketplace": "Marketplace",
+    "myApplications": "Mes candidatures",
+    "applicationsReceived": "Candidatures reçues",
+    "collaborations": "Collaborations",
+    "messages": "Messages",
+    "settings": "Paramètres",
+    "finances": "Finances",
+    "academy": "Académie",
+    "analyticsLeads": "Analytiques & Leads",
+    "dashboard": "Tableau de bord"
+  },
+  "hero": {
+    "scale": "Scale",
+    "boost": "Boost",
+    "grow": "Grow",
+    "line1Suffix": "avec des",
+    "line2Prefix": "",
+    "nanoCreators": "nano-créateurs",
+    "subtitle": "Accédez à un réseau de nano-influenceurs vérifiés (1-50k). La première marketplace B2B basée sur la performance.",
+    "getStarted": "Commencer",
+    "signIn": "Connexion",
+    "trustedBy": "Approuvé par les équipes growth de"
+  },
+  "demo": {
+    "watchDemo": "Voir la démo 1 min"
+  },
+  "howItWorks": {
+    "badge": "FONCTIONNALITÉS",
+    "title": "Comment ça marche",
+    "subtitle": "Trois étapes simples du matching à la croissance mesurable.",
+    "step1Title": "Match avec des créateurs",
+    "step1Desc": "Trouvez des créateurs vérifiés qui comprennent votre stack technique.",
+    "step2Title": "Les créateurs parlent de vous",
+    "step2Desc": "Contenu authentique partagé sur les réseaux sociaux.",
+    "step3Title": "Suivez & scalez",
+    "step3Desc": "Surveillez les performances et développez ce qui fonctionne.",
+    "viewProfile": "Voir le profil",
+    "campaignResults": "Résultats campagne",
+    "growth": "+24% Croissance"
+  },
+  "caseStudy": {
+    "badge": "FONCTIONNALITÉS",
+    "title": "Le Framework naano :",
+    "subtitle": "La cohérence rencontre la viralité.",
+    "description": "On ne vous met pas juste en relation avec des créateurs.",
+    "descriptionBold": "On les forme à écrire des posts qui convertissent spécifiquement pour les marques.",
+    "viralHooks": "Accroches virales",
+    "viralHooksDesc": "Nos créateurs savent capter l'attention avec des frameworks éprouvés.",
+    "authenticStorytelling": "Storytelling authentique",
+    "authenticStorytellingDesc": "Vraies expériences, vrais résultats. Pas de copy publicitaire générique.",
+    "massiveReach": "Portée massive",
+    "massiveReachDesc": "100K+ impressions avec des comptes à seulement 2K abonnés."
+  },
+  "creatorShowcase": {
+    "badge": "FONCTIONNALITÉS",
+    "title": "Trouvez votre match parfait",
+    "subtitle": "Parcourez des centaines de créateurs B2B vérifiés prêts à mettre en avant votre produit.",
+    "audience": "Audience"
+  },
+  "pricing": {
+    "badge": "TARIFS",
+    "title": "Tarification simple et transparente",
+    "subtitle": "Payez au clic qualifié. Remises volume incluses.",
+    "forBrands": "Pour les marques",
+    "forCreators": "Pour les créateurs",
+    "monthlyCredits": "Crédits mensuels",
+    "credits": "crédits",
+    "unitPrice": "Prix unitaire",
+    "perCredit": "/ crédit",
+    "totalMonthly": "Total mensuel (HT)",
+    "unlimitedCreators": "Créateurs illimités",
+    "multiBrandDashboard": "Dashboard multi-marques",
+    "qualifiedLinksAnalytics": "Analytiques liens qualifiés",
+    "freeToJoin": "Gratuit",
+    "zeroToStart": "0€ pour commencer",
+    "creatorSubtitle": "On prend une petite commission sur vos revenus — uniquement quand vous êtes payé.",
+    "noUpfrontCosts": "Aucun coût initial",
+    "accessToBrands": "Accès aux marques SaaS premium",
+    "naanoPro": "Naano Pro",
+    "naanoProDesc": "Postez sur Naano sur LinkedIn et débloquez 6 mois de Pro — gagnez 1,10€ par clic qualifié au lieu de 0,90€. Aucun paiement requis.",
+    "createProfile": "Créer votre profil",
+    "getStarted": "Commencer"
+  },
+  "faq": {
+    "badge": "FAQ",
+    "title": "Questions fréquentes",
+    "forBrands": "Pour les marques",
+    "forCreators": "Pour les créateurs",
+    "brands": {
+      "q1": "Comment suivre les résultats ?",
+      "a1": "Chaque créateur est vérifié manuellement. On examine leurs contributions GitHub, profil LinkedIn, métriques d'engagement et qualité du contenu. Seuls le top 1% est retenu.",
+      "q2": "Qui détient les droits du contenu ?",
+      "a2": "Les marques obtiennent les droits commerciaux complets pour utiliser le contenu en pub, landing pages et réseaux sociaux. Les créateurs conservent les droits portfolio.",
+      "q3": "Comment fonctionne la tarification ?",
+      "a3": "Les marques paient selon la performance, pas les métriques de vanité. Le prix dépend du périmètre de campagne et des résultats, vous ne payez que pour la vraie valeur livrée."
+    },
+    "creators": {
+      "q1": "C'est vraiment gratuit pour les créateurs ?",
+      "a1": "Oui, absolument. On facture une commission aux marques, pas aux talents. Vous gardez 100% de votre taux négocié.",
+      "q2": "Qu'est-ce que Naano Pro ?",
+      "a2": "Naano Pro vous permet de gagner 1,10€ par clic qualifié au lieu de 0,90€. Postez sur Naano sur LinkedIn (avec votre lien unique), soumettez l'URL du post dans votre dashboard, et Pro se débloque automatiquement pour 6 mois. Aucun paiement requis.",
+      "q3": "Comment commencer ?",
+      "a3": "Inscrivez-vous en tant que créateur, complétez votre profil et postulez aux campagnes qui correspondent à votre expertise. Une fois approuvé, vous recevrez des liens trackés et pourrez créer du contenu.",
+      "q4": "Quand suis-je payé ?",
+      "a4": "Le paiement est libéré instantanément une fois que la marque valide votre livrable. Les fonds sont sécurisés à l'avance quand une campagne est approuvée, vous êtes garanti d'être payé pour le travail complété."
+    }
+  },
+  "footer": {
+    "readyToScale": "Prêt à scaler avec",
+    "naano": "naano",
+    "tagline": "La première marketplace B2B connectant les marques SaaS avec des nano-influenceurs vérifiés."
+  }
+}
