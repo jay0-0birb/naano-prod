@@ -1,17 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { getCollaborationLeads } from "./actions-v2";
-import { maskIPAddress, formatConfidence, formatDaysAgo, getLeadTypeLabel } from "@/lib/utils";
 import {
-  HelpCircle,
-  Filter,
+  maskIPAddress,
+  formatConfidence,
+  getLeadTypeLabel,
+} from "@/lib/utils";
+import {
   ArrowUpDown,
   CheckCircle2,
   AlertTriangle,
-  XCircle,
   Download,
+  Search,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 
 interface Lead {
@@ -72,16 +76,36 @@ interface LeadFeedTabProps {
 
 export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
   const t = useTranslations("leadFeed");
-  const tDetail = useTranslations("leadFeedDetail");
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<
     "date" | "confidence" | "intent" | "company_intent"
   >("company_intent");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [filterConfirmed, setFilterConfirmed] = useState(false);
   const [filterHighConfidence, setFilterHighConfidence] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [columnFilters, setColumnFilters] = useState<Record<string, string>>(
+    {},
+  );
+  const tableScrollRef = useRef<HTMLDivElement>(null);
+  const tableCardRef = useRef<HTMLDivElement>(null);
+
+  // Force scroll container width so overflow-x works (match global lead feed)
+  useEffect(() => {
+    const card = tableCardRef.current;
+    const scrollEl = tableScrollRef.current;
+    if (!card || !scrollEl) return;
+    const setWidth = () => {
+      scrollEl.style.width = `${card.offsetWidth}px`;
+      scrollEl.style.maxWidth = `${card.offsetWidth}px`;
+    };
+    setWidth();
+    const ro = new ResizeObserver(setWidth);
+    ro.observe(card);
+    return () => ro.disconnect();
+  }, [loading, leads.length]);
 
   useEffect(() => {
     async function fetchLeads() {
@@ -108,7 +132,7 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
     fetchLeads();
   }, [collaborationId, sortBy, filterConfirmed, filterHighConfidence]);
 
-  // Calculate effective confidence with decay (Issue 1.1)
+  // Calculate effective confidence with decay
   const getEffectiveConfidence = (lead: Lead): number => {
     if (!lead.company) return 0;
     if (lead.company.attributionState === "confirmed") {
@@ -124,6 +148,79 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
     const decay = Math.min(daysOld * 0.001, 0.3);
     return Math.max(lead.company.confidenceScore - decay, 0.3);
   };
+
+  // Filter and sort leads (match global lead feed behavior)
+  const filteredAndSortedLeads = useMemo(() => {
+    let filtered = [...leads];
+
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((lead) => {
+        const companyName = lead.company?.name?.toLowerCase() || "";
+        const domain = lead.company?.domain?.toLowerCase() || "";
+        const creator = lead.creatorName.toLowerCase();
+        const country = lead.session.country?.toLowerCase() || "";
+        const city = lead.session.city?.toLowerCase() || "";
+        const industry = lead.company?.industry?.toLowerCase() || "";
+        return (
+          companyName.includes(query) ||
+          domain.includes(query) ||
+          creator.includes(query) ||
+          country.includes(query) ||
+          city.includes(query) ||
+          industry.includes(query)
+        );
+      });
+    }
+
+    Object.entries(columnFilters).forEach(([column, value]) => {
+      if (!value) return;
+      const filterValue = value.toLowerCase();
+      filtered = filtered.filter((lead) => {
+        switch (column) {
+          case "company":
+            return lead.company?.name?.toLowerCase().includes(filterValue);
+          case "country":
+            return lead.session.country?.toLowerCase().includes(filterValue);
+          case "industry":
+            return lead.company?.industry?.toLowerCase().includes(filterValue);
+          case "creator":
+            return lead.creatorName.toLowerCase().includes(filterValue);
+          default:
+            return true;
+        }
+      });
+    });
+
+    filtered.sort((a, b) => {
+      let aValue: number | string;
+      let bValue: number | string;
+      switch (sortBy) {
+        case "date":
+          aValue = new Date(a.occurredAt).getTime();
+          bValue = new Date(b.occurredAt).getTime();
+          break;
+        case "confidence":
+          aValue = getEffectiveConfidence(a);
+          bValue = getEffectiveConfidence(b);
+          break;
+        case "intent":
+          aValue = a.intent?.score ?? 0;
+          bValue = b.intent?.score ?? 0;
+          break;
+        case "company_intent":
+          aValue = a.company?.aggregatedIntent?.avg_intent_score ?? 0;
+          bValue = b.company?.aggregatedIntent?.avg_intent_score ?? 0;
+          break;
+        default:
+          return 0;
+      }
+      if (sortDirection === "asc") return aValue > bValue ? 1 : -1;
+      return aValue < bValue ? 1 : -1;
+    });
+
+    return filtered;
+  }, [leads, searchQuery, columnFilters, sortBy, sortDirection]);
 
   // Download CSV with all fields (English)
   const handleDownloadCSV = () => {
@@ -309,30 +406,38 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
       <div className="p-8 text-center text-gray-500">
         <p>{t("noLeads")}</p>
         <p className="text-sm mt-2">{t("noLeadsDesc")}</p>
-        <p className="text-xs mt-1 text-gray-400">{tDetail("onlyCompanyClicks")}</p>
       </div>
     );
   }
 
+  const handleSort = (column: typeof sortBy) => {
+    if (sortBy === column) {
+      setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortBy(column);
+      setSortDirection("desc");
+    }
+  };
+
+  const SortIcon = ({ column }: { column: typeof sortBy }) => {
+    if (sortBy !== column) {
+      return <ArrowUpDown className="w-3 h-3 text-gray-400" />;
+    }
+    return sortDirection === "asc" ? (
+      <ChevronUp className="w-3 h-3 text-blue-600" />
+    ) : (
+      <ChevronDown className="w-3 h-3 text-blue-600" />
+    );
+  };
+
   return (
-    <div className="space-y-4">
-      {/* Header with filters */}
+    <div className="space-y-4 w-full min-w-0 overflow-x-hidden">
+      {/* Header (match global lead feed) */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-xl font-semibold mb-2">{t("leadFeedTitle")}</h2>
-            <p className="text-sm text-gray-600">
-              {tDetail("enrichedVisitors")}
-              <span className="ml-2 inline-flex items-center gap-1 text-xs text-gray-500">
-                <span
-                  className="inline-flex items-center"
-                  title={tDetail("dataProbabilistic")}
-                >
-                  <HelpCircle className="w-3 h-3" />
-                </span>
-                <span>{tDetail("dataProbabilistic")}</span>
-              </span>
-            </p>
+            <p className="text-sm text-gray-600">{t("allLeadsDesc")}</p>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -342,417 +447,323 @@ export function LeadFeedTab({ collaborationId }: LeadFeedTabProps) {
               <Download className="w-4 h-4" />
               {t("downloadCsv")}
             </button>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              <Filter className="w-4 h-4" />
-              {t("filters")}
-            </button>
           </div>
         </div>
 
-        {/* Filters panel */}
-        {showFilters && (
-          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 mb-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {tDetail("sortBy")}
-                </label>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                >
-                  <option value="company_intent">{tDetail("sortCompanyIntent")}</option>
-                  <option value="intent">{tDetail("sortIntent")}</option>
-                  <option value="confidence">{tDetail("sortConfidence")}</option>
-                  <option value="date">{tDetail("sortDate")}</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm">
+        {/* Search (match global) */}
+        <div className="mb-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder={t("searchPlaceholder")}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Table card with horizontal scroll (match global) */}
+      <div
+        ref={tableCardRef}
+        className="bg-white border border-gray-200 rounded-lg w-full overflow-hidden"
+        style={{ maxWidth: "min(100%, calc(100vw - 18rem))" }}
+      >
+        <div
+          ref={tableScrollRef}
+          className="overflow-x-auto overflow-y-visible"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
+          <table
+            className="text-sm table-auto"
+            style={{ minWidth: "max-content" }}
+          >
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 sticky left-0 bg-gray-50 z-10">
+                  <div className="flex items-center gap-2">
+                    {t("date")}
+                    <button
+                      onClick={() => handleSort("date")}
+                      className="hover:text-blue-600"
+                    >
+                      <SortIcon column="date" />
+                    </button>
+                  </div>
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  <div className="flex items-center gap-2">
+                    {t("company")}
+                    <button
+                      onClick={() => handleSort("company_intent")}
+                      className="hover:text-blue-600"
+                    >
+                      <SortIcon column="company_intent" />
+                    </button>
+                  </div>
                   <input
-                    type="checkbox"
-                    checked={filterConfirmed}
-                    onChange={(e) => setFilterConfirmed(e.target.checked)}
-                    className="rounded"
+                    type="text"
+                    placeholder={t("filter")}
+                    value={columnFilters.company || ""}
+                    onChange={(e) =>
+                      setColumnFilters({
+                        ...columnFilters,
+                        company: e.target.value,
+                      })
+                    }
+                    className="mt-1 w-full px-2 py-1 text-xs border border-gray-300 rounded"
                   />
-                  {tDetail("showConfirmedOnly")}
-                </label>
-                <label className="flex items-center gap-2 text-sm">
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  {t("domain")}
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  <div className="flex items-center gap-2">
+                    {t("confidence")}
+                    <button
+                      onClick={() => handleSort("confidence")}
+                      className="hover:text-blue-600"
+                    >
+                      <SortIcon column="confidence" />
+                    </button>
+                  </div>
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  {t("state")}
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  <div className="flex items-center gap-2">
+                    {t("intent")}
+                    <button
+                      onClick={() => handleSort("intent")}
+                      className="hover:text-blue-600"
+                    >
+                      <SortIcon column="intent" />
+                    </button>
+                  </div>
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
                   <input
-                    type="checkbox"
-                    checked={filterHighConfidence}
-                    onChange={(e) => setFilterHighConfidence(e.target.checked)}
-                    className="rounded"
+                    type="text"
+                    placeholder={t("filter")}
+                    value={columnFilters.country || ""}
+                    onChange={(e) =>
+                      setColumnFilters({
+                        ...columnFilters,
+                        country: e.target.value,
+                      })
+                    }
+                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded"
                   />
-                  {tDetail("highConfidenceOnly")}
-                </label>
-              </div>
-            </div>
+                  {t("country")}
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  {t("city")}
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  <input
+                    type="text"
+                    placeholder={t("filter")}
+                    value={columnFilters.industry || ""}
+                    onChange={(e) =>
+                      setColumnFilters({
+                        ...columnFilters,
+                        industry: e.target.value,
+                      })
+                    }
+                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded"
+                  />
+                  {t("industry")}
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  {t("size")}
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  <input
+                    type="text"
+                    placeholder={t("filter")}
+                    value={columnFilters.creator || ""}
+                    onChange={(e) =>
+                      setColumnFilters({
+                        ...columnFilters,
+                        creator: e.target.value,
+                      })
+                    }
+                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded"
+                  />
+                  {t("creator")}
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  {t("device")}
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  {t("os")}
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  {t("browser")}
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  {t("network")}
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  {t("timeSec")}
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  {t("source")}
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  {t("repeated")}
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  {t("visits")}
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {filteredAndSortedLeads.map((lead) => {
+                const effectiveConfidence = getEffectiveConfidence(lead);
+                const companyIntent = lead.company?.aggregatedIntent;
+
+                return (
+                  <tr
+                    key={lead.id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-4 py-3 text-gray-900 sticky left-0 bg-white z-10 border-r border-gray-200">
+                      {new Date(lead.occurredAt).toLocaleDateString("fr-FR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}
+                      <br />
+                      <span className="text-xs text-gray-500">
+                        {new Date(lead.occurredAt).toLocaleTimeString("fr-FR", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        {lead.company ? (
+                          <>
+                            {lead.company.attributionState === "confirmed" ? (
+                              <CheckCircle2 className="w-4 h-4 text-green-600" />
+                            ) : lead.company.isAmbiguous ? (
+                              <AlertTriangle className="w-4 h-4 text-orange-600" />
+                            ) : (
+                              <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                            )}
+                            <span className="font-medium text-gray-900">
+                              {lead.company.name}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-gray-400">{t("unknown")}</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {lead.company?.domain || "-"}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="font-medium">
+                        {formatConfidence(effectiveConfidence)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      {lead.company?.attributionState === "confirmed" ? (
+                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                          {t("confirmed")}
+                        </span>
+                      ) : lead.company?.isAmbiguous ? (
+                        <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">
+                          {t("ambiguous")}
+                        </span>
+                      ) : (
+                        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                          {t("probable")}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="font-semibold text-blue-600">
+                        {companyIntent
+                          ? Math.round(companyIntent.avg_intent_score)
+                          : lead.intent?.score ?? "-"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {lead.session.country || "-"}
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {lead.session.city || "-"}
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {lead.company?.industry || "-"}
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {lead.company?.size || "-"}
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {lead.creatorName}
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {lead.session.deviceType || "-"}
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {lead.session.os || "-"}
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {lead.session.browser || "-"}
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {lead.session.networkType || "-"}
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {lead.session.timeOnSite ?? "-"}
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {lead.session.referrer
+                        ? lead.session.referrer.includes("linkedin.com")
+                          ? "LinkedIn"
+                          : lead.session.referrer.includes("twitter.com")
+                            ? "Twitter"
+                            : lead.session.referrer
+                        : "Direct"}
+                    </td>
+                    <td className="px-4 py-3">
+                      {lead.intent?.isRepeatVisit ? (
+                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                          {t("yes")}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">{t("no")}</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {lead.intent?.visitCount ?? "-"}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        {filteredAndSortedLeads.length === 0 && (
+          <div className="p-8 text-center text-gray-500">
+            {t("noResults")}
           </div>
         )}
       </div>
 
-      {/* Leads list */}
-      <div className="space-y-4">
-        {leads.map((lead) => {
-          const effectiveConfidence = getEffectiveConfidence(lead);
-          const companyIntent = lead.company?.aggregatedIntent;
-          const daysOld = lead.company
-            ? Math.floor(
-                (Date.now() - new Date(lead.company.createdAt).getTime()) /
-                  (1000 * 60 * 60 * 24),
-              )
-            : null;
-
-          return (
-            <div
-              key={lead.id}
-              className="border border-gray-200 rounded-lg p-6 bg-white hover:shadow-md transition-shadow"
-            >
-              {/* Header: Company Name with prominent uncertainty indicators (Issue 5.1) */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  {lead.company ? (
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        {lead.company.attributionState === "confirmed" ? (
-                          <>
-                            <h3 className="text-lg font-semibold text-gray-900">
-                              {lead.company.name}
-                            </h3>
-                            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded flex items-center gap-1">
-                              <CheckCircle2 className="w-3 h-3" />
-                              {t("confirmed")}
-                            </span>
-                          </>
-                        ) : lead.company.attributionState === "mismatch" ? (
-                          <>
-                            <h3 className="text-lg font-semibold text-gray-900">
-                              {lead.company.name}
-                            </h3>
-                            <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded flex items-center gap-1">
-                              <XCircle className="w-3 h-3" />
-                              {tDetail("mismatch")}
-                            </span>
-                          </>
-                        ) : lead.company.isAmbiguous ? (
-                          <>
-                            <h3 className="text-lg font-semibold text-gray-700">
-                              <span className="text-gray-500">Possible: </span>
-                              {lead.company.name}
-                            </h3>
-                            <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded flex items-center gap-1">
-                              <AlertTriangle className="w-3 h-3" />
-                              Ambigu
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <h3 className="text-lg font-semibold text-gray-700">
-                              <span className="text-gray-500">{tDetail("probable")}: </span>
-                              {lead.company.name}
-                            </h3>
-                            <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded flex items-center gap-1">
-                              <AlertTriangle className="w-3 h-3" />
-                              {tDetail("probable")} ({formatConfidence(effectiveConfidence)})
-                            </span>
-                          </>
-                        )}
-                      </div>
-                      {lead.company.domain && (
-                        <p className="text-sm text-gray-600 mt-1">
-                          {lead.company.domain}
-                        </p>
-                      )}
-                      {daysOld !== null && daysOld > 0 && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          {tDetail("identifiedAgo", {
-                            days: formatDaysAgo(daysOld),
-                            confidence: formatConfidence(effectiveConfidence),
-                          })}
-                        </p>
-                      )}
-                    </div>
-                  ) : (
-                    <h3 className="text-lg font-semibold text-gray-500">
-                      {tDetail("unknownCompany")}
-                    </h3>
-                  )}
-                </div>
-
-                {/* Intent scores - Company-level prominently displayed (Issue 3.2) */}
-                <div className="text-right">
-                  {companyIntent ? (
-                    <div>
-                      <div className="text-2xl font-bold text-blue-600">
-                        {Math.round(companyIntent.avg_intent_score)}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {tDetail("companyIntent")}
-                        <span
-                          className="inline-flex items-center ml-1"
-                          title={tDetail("companyIntentTooltip")}
-                        >
-                          <HelpCircle className="w-3 h-3" />
-                        </span>
-                      </div>
-                      <div className="text-xs text-gray-400 mt-1">
-                        {companyIntent.total_sessions} session
-                        {companyIntent.total_sessions > 1 ? "s" : ""}
-                      </div>
-                    </div>
-                  ) : lead.intent ? (
-                    <div>
-                      <div className="text-2xl font-bold text-blue-600">
-                        {lead.intent.score}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        Intention session
-                        <span
-                          className="inline-flex items-center ml-1"
-                          title={tDetail("sessionIntentTooltip")}
-                        >
-                          <HelpCircle className="w-3 h-3" />
-                        </span>
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-
-              {/* Layer 2: Company Details */}
-              {lead.company && (
-                <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    {lead.company.industry && (
-                      <div>
-                        <span className="text-gray-500">{tDetail("industry")}:</span>{" "}
-                        <span className="font-medium">
-                          {lead.company.industry}
-                        </span>
-                      </div>
-                    )}
-                    {lead.company.size && (
-                      <div>
-                        <span className="text-gray-500">{tDetail("size")}:</span>{" "}
-                        <span className="font-medium">{lead.company.size}</span>
-                      </div>
-                    )}
-                    {lead.company.location && (
-                      <div>
-                        <span className="text-gray-500">{tDetail("location")}:</span>{" "}
-                        <span className="font-medium">
-                          {lead.company.location}
-                        </span>
-                      </div>
-                    )}
-                    <div>
-                      <span className="text-gray-500">{tDetail("confidence")}:</span>{" "}
-                      <span className="font-medium">
-                        {formatConfidence(effectiveConfidence)}
-                        {effectiveConfidence < lead.company.confidenceScore && (
-                          <span className="text-xs text-orange-600 ml-1">
-                            ({tDetail("decay")}:{" "}
-                            {formatConfidence(lead.company.confidenceScore)} →{" "}
-                            {formatConfidence(effectiveConfidence)})
-                          </span>
-                        )}
-                      </span>
-                    </div>
-                  </div>
-
-                  {lead.company.confidenceReasons.length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-gray-200">
-                      <div className="text-xs text-gray-500 mb-1">
-                        Raisons de la confiance:
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {lead.company.confidenceReasons.map((reason, idx) => (
-                          <span
-                            key={idx}
-                            className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded"
-                          >
-                            {reason}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Layer 1: Session Intelligence with masked IP (Issue 6.1) */}
-              <div className="mb-4 p-4 bg-blue-50 rounded-lg">
-                <div className="text-sm font-medium text-gray-700 mb-2">
-                  {tDetail("sessionIntelligence")}
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                  <div>
-                    <span className="text-gray-500">{tDetail("country")}:</span>{" "}
-                    <span className="font-medium">
-                      {lead.session.country || tDetail("unknown")}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">{tDetail("city")}:</span>{" "}
-                    <span className="font-medium">
-                      {lead.session.city || tDetail("unknown")}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">{tDetail("ip")}:</span>{" "}
-                    <span className="font-medium">
-                      {maskIPAddress(lead.session.ipAddress)}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">{tDetail("device")}:</span>{" "}
-                    <span className="font-medium">
-                      {lead.session.deviceType || tDetail("unknown")}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">OS:</span>{" "}
-                    <span className="font-medium">
-                      {lead.session.os || tDetail("unknown")}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">{tDetail("browser")}:</span>{" "}
-                    <span className="font-medium">
-                      {lead.session.browser || tDetail("unknown")}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">{tDetail("network")}:</span>{" "}
-                    <span className="font-medium">
-                      {lead.session.networkType || tDetail("unknown")}
-                    </span>
-                  </div>
-                  {lead.session.timeOnSite && (
-                    <div>
-                      <span className="text-gray-500">{tDetail("timeOnSite")}:</span>{" "}
-                      <span className="font-medium">
-                        {lead.session.timeOnSite}s
-                      </span>
-                    </div>
-                  )}
-                  {lead.session.referrer && (
-                    <div>
-                      <span className="text-gray-500">{tDetail("source")}:</span>{" "}
-                      <span className="font-medium">
-                        {lead.session.referrer.includes("linkedin.com")
-                          ? "LinkedIn"
-                          : lead.session.referrer}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Layer 3: Intent Details */}
-              {lead.intent && (
-                <div className="mb-4 p-4 bg-green-50 rounded-lg">
-                  <div className="text-sm font-medium text-gray-700 mb-2">
-                    {tDetail("intentSignals")}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {lead.intent.isRepeatVisit && (
-                      <span className="text-xs bg-green-200 text-green-800 px-2 py-1 rounded">
-                        {tDetail("repeatVisit", { count: lead.intent.visitCount })}
-                      </span>
-                    )}
-                    {lead.intent.viewedPricing && (
-                      <span className="text-xs bg-green-200 text-green-800 px-2 py-1 rounded">
-                        {tDetail("pricingPage")}
-                      </span>
-                    )}
-                    {lead.intent.viewedSecurity && (
-                      <span className="text-xs bg-green-200 text-green-800 px-2 py-1 rounded">
-                        {tDetail("securityPage")}
-                      </span>
-                    )}
-                    {lead.intent.viewedIntegrations && (
-                      <span className="text-xs bg-green-200 text-green-800 px-2 py-1 rounded">
-                        {tDetail("integrationsPage")}
-                      </span>
-                    )}
-                    {lead.intent.recencyWeight < 1.0 && (
-                      <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded">
-                        {tDetail("recencyWeight")}:{" "}
-                        {Math.round(lead.intent.recencyWeight * 100)}%
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Company-level intent trend (Issue 3.2) */}
-              {companyIntent && (
-                <div className="mb-4 p-4 bg-purple-50 rounded-lg">
-                  <div className="text-sm font-medium text-gray-700 mb-2">
-                    {tDetail("companyIntentAggregated")}
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                    <div>
-                      <span className="text-gray-500">Score moyen:</span>{" "}
-                      <span className="font-medium">
-                        {Math.round(companyIntent.avg_intent_score)}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">{tDetail("maxScore")}:</span>{" "}
-                      <span className="font-medium">
-                        {companyIntent.max_intent_score}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">{tDetail("trend")}:</span>{" "}
-                      <span
-                        className={`font-medium ${
-                          companyIntent.intent_trend === "increasing"
-                            ? "text-green-600"
-                            : companyIntent.intent_trend === "decreasing"
-                              ? "text-red-600"
-                              : "text-gray-600"
-                        }`}
-                      >
-                        {companyIntent.intent_trend === "increasing"
-                          ? tDetail("trendIncreasing")
-                          : companyIntent.intent_trend === "decreasing"
-                            ? tDetail("trendDecreasing")
-                            : tDetail("trendStable")}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">{tDetail("repeatVisits")}:</span>{" "}
-                      <span className="font-medium">
-                        {companyIntent.repeat_visits}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Footer: Metadata */}
-              <div className="flex items-center justify-between text-xs text-gray-500 pt-4 border-t border-gray-200">
-                <div>
-                  <span>{tDetail("creator")}:</span>{" "}
-                  <span className="font-medium">{lead.creatorName}</span>
-                </div>
-                <div>
-                  {new Date(lead.occurredAt).toLocaleString("fr-FR", {
-                    dateStyle: "short",
-                    timeStyle: "short",
-                  })}
-                </div>
-              </div>
-            </div>
-          );
+      {/* Results count (match global) */}
+      <div className="text-sm text-gray-600">
+        {t("showingCount", {
+          filtered: filteredAndSortedLeads.length,
+          total: leads.length,
         })}
       </div>
     </div>
