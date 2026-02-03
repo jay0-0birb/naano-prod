@@ -65,10 +65,10 @@ export default function DashboardSidebar({
       {!onboardingCompleted && (
         <Link
           href="/dashboard/onboarding"
-          className="mx-4 mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-2 hover:bg-amber-100 transition-colors"
+          className="mx-4 mt-4 p-3 bg-slate-100 border border-slate-200 rounded-lg flex items-center gap-2 hover:bg-slate-200 transition-colors"
         >
-          <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-          <span className="text-xs text-amber-700 font-medium">
+          <AlertCircle className="w-4 h-4 text-slate-600 shrink-0" />
+          <span className="text-xs text-slate-700 font-medium">
             {t("completeProfile")}
           </span>
         </Link>

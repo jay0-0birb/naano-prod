@@ -32,8 +32,8 @@ export default function CreditBalanceWidget({
     if (credits > 50) {
       return {
         status: "risky",
-        color: "text-orange-600 bg-orange-50 border-orange-200",
-        icon: <AlertCircle className="w-5 h-5 text-orange-600" />,
+        color: "text-slate-600 bg-slate-50 border-slate-200",
+        icon: <AlertCircle className="w-5 h-5 text-slate-600" />,
         label: t("risky"),
       };
     }
@@ -47,8 +47,8 @@ export default function CreditBalanceWidget({
     }
     return {
       status: "empty",
-      color: "text-red-700 bg-red-100 border-red-300",
-      icon: <AlertCircle className="w-5 h-5 text-red-700" />,
+      color: "text-slate-700 bg-slate-100 border-slate-300",
+      icon: <AlertCircle className="w-5 h-5 text-slate-700" />,
       label: t("empty"),
     };
   };
@@ -106,9 +106,9 @@ export default function CreditBalanceWidget({
       )}
 
       {walletCredits === 0 && (
-        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-sm text-red-700">
-            ⚠️ {t("noCredits")}
+        <div className="mt-4 p-3 bg-slate-100 border border-slate-200 rounded-lg">
+          <p className="text-sm text-slate-700">
+            {t("noCredits")}
           </p>
         </div>
       )}

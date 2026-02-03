@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { loadStripe, StripeElementsOptions } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { Loader2, Check, AlertCircle, X } from 'lucide-react';
+import { Loader2, Check, AlertCircle } from 'lucide-react';
 
 // Get publishable key from environment
 const getStripePublishableKey = () => {
@@ -29,6 +30,7 @@ function CardSetupForm({ setupIntentId, clientSecret }: { setupIntentId: string;
   const stripe = useStripe();
   const elements = useElements();
   const router = useRouter();
+  const t = useTranslations('cardSetup');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -46,7 +48,7 @@ function CardSetupForm({ setupIntentId, clientSecret }: { setupIntentId: string;
     const cardElement = elements.getElement(CardElement);
 
     if (!cardElement) {
-      setError('Élément de carte non trouvé');
+      setError(t('errorCardElement'));
       setIsLoading(false);
       return;
     }
@@ -77,9 +79,9 @@ function CardSetupForm({ setupIntentId, clientSecret }: { setupIntentId: string;
         
         // Handle specific error codes
         if (result.error.code === 'setup_intent_unexpected_state') {
-          setError('Cette session a expiré. Veuillez réessayer.');
+          setError(t('errorSessionExpired'));
         } else {
-          setError(result.error.message || 'Erreur lors de la confirmation de la carte');
+          setError(result.error.message || t('errorConfirm'));
         }
         setIsLoading(false);
         return;
@@ -87,7 +89,7 @@ function CardSetupForm({ setupIntentId, clientSecret }: { setupIntentId: string;
 
       if (!result.setupIntent) {
         console.error('No setup intent returned from confirmCardSetup');
-        setError('Erreur: aucune réponse de Stripe');
+        setError(t('errorNoResponse'));
         setIsLoading(false);
         return;
       }
@@ -97,7 +99,7 @@ function CardSetupForm({ setupIntentId, clientSecret }: { setupIntentId: string;
       // Check if setup intent succeeded
       if (result.setupIntent.status !== 'succeeded') {
         console.warn('Setup intent not succeeded, status:', result.setupIntent.status);
-        setError(`Le statut de la carte est: ${result.setupIntent.status}. Veuillez réessayer.`);
+        setError(t('errorStatus', { status: result.setupIntent.status }));
         setIsLoading(false);
         return;
       }
@@ -118,7 +120,7 @@ function CardSetupForm({ setupIntentId, clientSecret }: { setupIntentId: string;
 
       if (!validateResponse.ok || validateData.error) {
         console.error('Validation error:', validateData);
-        setError(validateData.error || validateData.message || 'Erreur lors de la validation de la carte');
+        setError(validateData.error || validateData.message || t('errorValidation'));
         setIsLoading(false);
         return;
       }
@@ -129,9 +131,10 @@ function CardSetupForm({ setupIntentId, clientSecret }: { setupIntentId: string;
         router.push('/dashboard/settings');
         router.refresh();
       }, 2000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Card setup error:', err);
-      setError('Une erreur est survenue: ' + (err.message || 'Erreur inconnue'));
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      setError(t('errorGeneric', { message }));
       setIsLoading(false);
     }
   };
@@ -142,8 +145,8 @@ function CardSetupForm({ setupIntentId, clientSecret }: { setupIntentId: string;
         <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
           <Check className="w-8 h-8 text-green-400" />
         </div>
-        <h3 className="text-xl font-semibold text-white mb-2">Carte enregistrée !</h3>
-        <p className="text-slate-400">Redirection en cours...</p>
+        <h3 className="text-xl font-semibold text-[#111827] mb-2">{t('cardSaved')}</h3>
+        <p className="text-sm text-[#64748B]">{t('redirecting')}</p>
       </div>
     );
   }
@@ -151,22 +154,22 @@ function CardSetupForm({ setupIntentId, clientSecret }: { setupIntentId: string;
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label className="block text-sm font-medium text-white mb-2">
-          Informations de la carte
+        <label className="block text-sm font-medium text-[#111827] mb-2">
+          {t('cardInfoLabel')}
         </label>
-        <div className="p-4 bg-white/5 border border-white/10 rounded-xl">
+        <div className="p-4 bg-white border border-gray-200 rounded-xl">
           <CardElement
             options={{
               style: {
                 base: {
                   fontSize: '16px',
-                  color: '#ffffff',
+                  color: '#020617',
                   '::placeholder': {
                     color: '#9ca3af',
                   },
                 },
                 invalid: {
-                  color: '#ef4444',
+                  color: '#dc2626',
                 },
               },
               // Disable "Save with link" feature
@@ -177,9 +180,9 @@ function CardSetupForm({ setupIntentId, clientSecret }: { setupIntentId: string;
       </div>
 
       {error && (
-        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 text-red-400" />
-          <p className="text-red-400 text-sm">{error}</p>
+        <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-red-500" />
+          <p className="text-red-700 text-sm">{error}</p>
         </div>
       )}
 
@@ -192,29 +195,31 @@ function CardSetupForm({ setupIntentId, clientSecret }: { setupIntentId: string;
           {isLoading ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              Enregistrement...
+              {t('saving')}
             </>
           ) : (
-            'Enregistrer la carte'
+            t('saveCard')
           )}
         </button>
         <button
           type="button"
           onClick={() => router.push('/dashboard/settings')}
-          className="px-4 py-3 bg-white/5 hover:bg-white/10 text-slate-300 rounded-xl font-medium transition-colors"
+          className="px-4 py-3 bg-white border border-gray-300 hover:bg-gray-50 text-[#111827] rounded-xl font-medium transition-colors"
         >
-          Annuler
+          {t('cancel')}
         </button>
       </div>
 
-      <p className="text-xs text-slate-500 text-center">
-        Votre carte sera validée avec une autorisation de 1€ qui sera immédiatement annulée.
+      <p className="text-xs text-[#64748B] text-center">
+        {t('validationDisclaimer')}
       </p>
     </form>
   );
 }
 
 export default function CardSetupClient({ setupIntentId, clientSecret }: CardSetupClientProps) {
+  const t = useTranslations('cardSetup');
+  const tSettings = useTranslations('settings');
   const [stripeLoaded, setStripeLoaded] = useState(false);
 
   useEffect(() => {
@@ -226,14 +231,14 @@ export default function CardSetupClient({ setupIntentId, clientSecret }: CardSet
   if (!getStripePublishableKey()) {
     return (
       <div className="max-w-2xl mx-auto">
-        <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-8 text-center">
-          <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-white mb-2">Configuration manquante</h3>
-          <p className="text-slate-400 text-sm mb-4">
-            La clé publique Stripe n'est pas configurée. Veuillez ajouter <code className="bg-white/10 px-2 py-1 rounded">NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY</code> dans votre fichier <code className="bg-white/10 px-2 py-1 rounded">.env.local</code>.
+        <div className="bg-white border border-red-200 rounded-2xl p-8 text-center shadow-sm">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-[#111827] mb-2">{t('configMissing')}</h3>
+          <p className="text-sm text-[#64748B] mb-4">
+            {t('configMissingDesc')}
           </p>
-          <p className="text-xs text-slate-500">
-            Vous pouvez la trouver dans votre tableau de bord Stripe → Developers → API keys
+          <p className="text-xs text-[#64748B]">
+            {t('configMissingHint')}
           </p>
         </div>
       </div>
@@ -243,12 +248,12 @@ export default function CardSetupClient({ setupIntentId, clientSecret }: CardSet
   const options: StripeElementsOptions = {
     clientSecret,
     appearance: {
-      theme: 'night',
+      theme: 'stripe',
       variables: {
-        colorPrimary: '#3b82f6',
-        colorBackground: '#0A0C10',
-        colorText: '#ffffff',
-        colorDanger: '#ef4444',
+        colorPrimary: '#2563eb',
+        colorBackground: '#ffffff',
+        colorText: '#020617',
+        colorDanger: '#dc2626',
         fontFamily: 'system-ui, sans-serif',
         spacingUnit: '4px',
         borderRadius: '8px',
@@ -259,9 +264,9 @@ export default function CardSetupClient({ setupIntentId, clientSecret }: CardSet
   if (!stripeLoaded) {
     return (
       <div className="max-w-2xl mx-auto">
-        <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-8 text-center">
-          <Loader2 className="w-8 h-8 text-blue-400 animate-spin mx-auto mb-4" />
-          <p className="text-slate-400">Chargement de Stripe...</p>
+        <div className="bg-white border border-gray-200 rounded-2xl p-8 text-center shadow-sm">
+          <Loader2 className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-4" />
+          <p className="text-sm text-[#64748B]">{t('loadingStripe')}</p>
         </div>
       </div>
     );
@@ -270,28 +275,33 @@ export default function CardSetupClient({ setupIntentId, clientSecret }: CardSet
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-8">
-        <h2 className="text-2xl font-normal text-white mb-1">Enregistrer une carte</h2>
-        <p className="text-slate-400 text-sm">
-          Ajoutez une carte bancaire pour payer les leads générés
+        <h2 className="text-2xl font-semibold text-[#111827] mb-1">{t('title')}</h2>
+        <p className="text-sm text-[#64748B]">
+          {t('subtitle')}
+        </p>
+        <p className="text-sm text-[#64748B] mt-1">
+          {tSettings('cardUsage')}
         </p>
       </div>
 
       {/* Security notice */}
-      <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+      <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-xl">
         <div className="flex items-start gap-3">
-          <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0 mt-0.5">
-            <Check className="w-3 h-3 text-blue-400" />
+          <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center shrink-0 mt-0.5">
+            <Check className="w-3 h-3 text-[#1D4ED8]" />
           </div>
           <div>
-            <p className="text-sm text-blue-400 font-medium mb-1">Sécurisé par Stripe</p>
-            <p className="text-xs text-slate-400">
-              Vos informations de carte sont traitées directement par Stripe. Nous ne stockons jamais vos détails de carte.
+            <p className="text-sm text-[#1D4ED8] font-medium mb-1">
+              {t('securedByStripe')}
+            </p>
+            <p className="text-xs text-[#64748B]">
+              {t('stripeDisclaimer')}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="bg-[#0A0C10] border border-white/10 rounded-2xl p-8">
+      <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
         {stripePromise && (
           <Elements options={options} stripe={stripePromise}>
             <CardSetupForm setupIntentId={setupIntentId} clientSecret={clientSecret} />

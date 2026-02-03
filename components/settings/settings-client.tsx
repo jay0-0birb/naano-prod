@@ -724,7 +724,7 @@ export default function SettingsClient({
             </div>
 
             <p className="text-xs text-[#64748B]">
-              Cette carte sera utilisée pour vos abonnements crédits et les paiements aux créateurs.
+              {t("cardUsage")}
             </p>
           </div>
         )}

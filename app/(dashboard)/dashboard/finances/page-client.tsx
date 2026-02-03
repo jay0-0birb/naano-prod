@@ -380,14 +380,14 @@ export default function FinancesPageClient({
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+              <div className="p-4 bg-slate-100 border border-slate-200 rounded-xl">
                 <div className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                  <AlertCircle className="w-5 h-5 text-slate-600 shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <p className="text-sm text-amber-400 font-medium">
+                    <p className="text-sm text-slate-600 font-medium">
                       {t("stripeNotConnected")}
                     </p>
-                    <p className="text-xs text-amber-400/70 mt-1">
+                    <p className="text-xs text-slate-600/70 mt-1">
                       {t("connectStripeDesc")}
                     </p>
                   </div>
@@ -448,11 +448,11 @@ export default function FinancesPageClient({
           !hasSiret &&
           creatorData.totalEarned >= 400 &&
           creatorData.totalEarned < 500 && (
-          <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200">
-            <p className="text-sm text-amber-800 font-medium">
+          <div className="mb-6 p-4 rounded-xl bg-slate-100 border border-slate-200">
+            <p className="text-sm text-slate-800 font-medium">
               {t("euro400Banner", { amount: Math.ceil(500 - creatorData.totalEarned).toString() })}
             </p>
-            <p className="text-xs text-amber-700 mt-1">
+            <p className="text-xs text-slate-700 mt-1">
               {t("microEntrepriseBanner")}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -460,7 +460,7 @@ export default function FinancesPageClient({
                 href={CALENDLY_EXPERT_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-800 text-sm font-medium transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-800 text-sm font-medium transition-colors"
               >
                 <Calendar className="w-4 h-4" />
                 {t("bookCall")}
@@ -468,7 +468,7 @@ export default function FinancesPageClient({
               <button
                 type="button"
                 onClick={() => setShowSiretForm(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-200 hover:bg-amber-300 text-amber-900 text-sm font-medium transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0F172A] hover:bg-[#1E293B] text-white text-sm font-medium transition-colors"
               >
                 {t("enterSiret")}
               </button>
@@ -607,8 +607,8 @@ export default function FinancesPageClient({
                   </button>
                 ) : (
                   <div className="space-y-4">
-                    <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                      <p className="text-sm text-amber-800 font-medium">
+                    <div className="p-4 bg-slate-100 border border-slate-200 rounded-xl">
+                      <p className="text-sm text-slate-800 font-medium">
                         {creatorData.withdrawBlockReason ||
                           t("unlockWithdrawSiret")}
                       </p>
@@ -634,8 +634,8 @@ export default function FinancesPageClient({
                   </div>
                 )
               ) : (
-                <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                  <p className="text-sm text-amber-700">
+                <div className="p-4 bg-slate-100 border border-slate-200 rounded-xl">
+                  <p className="text-sm text-slate-700">
                     {t("minRequired", {
                       min: creatorData.minPayout,
                       missing: (creatorData.minPayout - creatorData.availableBalance).toFixed(2),
@@ -644,8 +644,8 @@ export default function FinancesPageClient({
                 </div>
               )
             ) : (
-              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                <p className="text-sm text-amber-700">
+              <div className="p-4 bg-slate-100 border border-slate-200 rounded-xl">
+                <p className="text-sm text-slate-700">
                   {t("connectStripeToReceive")}
                 </p>
               </div>
@@ -848,22 +848,22 @@ export default function FinancesPageClient({
 
         {/* Card Registration Section - Show first if no card */}
         {!saasData.cardOnFile && (
-          <div className="mb-6 bg-amber-500/10 border border-amber-500/20 rounded-2xl p-6">
+          <div className="mb-6 bg-slate-100 border border-slate-200 rounded-2xl p-6">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0">
-                <CreditCard className="w-6 h-6 text-amber-400" />
+              <div className="w-12 h-12 rounded-xl bg-slate-200 flex items-center justify-center shrink-0">
+                <CreditCard className="w-6 h-6 text-slate-600" />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-white mb-2">
+                <h3 className="text-lg font-semibold text-slate-900 mb-2">
                   {t("cardRequired")}
                 </h3>
-                <p className="text-slate-400 text-sm mb-4">
+                <p className="text-slate-600 text-sm mb-4">
                   {t("cardRequiredDesc")}
                 </p>
                 <button
                   onClick={handleAddCard}
                   disabled={stripeLoading}
-                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
+                  className="px-4 py-2 bg-[#0F172A] hover:bg-[#1E293B] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
                 >
                   {stripeLoading ? (
                     <>
@@ -958,7 +958,7 @@ export default function FinancesPageClient({
                       saasData.subscriptionStatus === "active"
                         ? "text-emerald-600"
                         : saasData.subscriptionStatus === "past_due"
-                          ? "text-amber-600"
+                          ? "text-red-600"
                           : "text-[#111827]"
                     }`}
                   >
