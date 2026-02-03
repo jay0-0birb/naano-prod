@@ -367,7 +367,12 @@ function parseIPApiResponse(data: any): CompanyEnrichmentResult {
   if (confidenceScore < 0.3 || !companyName) {
     return getUnknownResult();
   }
-  
+
+  const isAmbiguous =
+    confidenceScore < 0.5 ||
+    networkType === 'hosting' ||
+    networkType === 'proxy';
+
   return {
     companyName,
     companyDomain: null, // ip-api.com doesn't provide domain
