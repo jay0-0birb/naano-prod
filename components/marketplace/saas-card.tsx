@@ -27,7 +27,8 @@ export default function SaasCard({
   return (
     <>
       <div
-        className={`flex flex-col justify-between h-full min-h-[420px] bg-white border border-gray-200 rounded-2xl p-6 transition-all shadow-sm ${
+        style={{ width: 360, height: 600, minHeight: 600, maxHeight: 600 }}
+        className={`flex flex-col shrink-0 grow-0 bg-white border border-gray-200 rounded-2xl p-6 transition-all shadow-sm overflow-hidden ${
           isFull
             ? "opacity-60 border-dashed cursor-not-allowed"
             : "hover:border-gray-300 hover:shadow-md"
@@ -72,18 +73,28 @@ export default function SaasCard({
           </div>
         </div>
 
-        {/* Middle section: budget info, warnings, details - fixed height so all cards align */}
-        <div className="flex-1 min-h-0 flex flex-col">
-          <p className="text-[#64748B] text-sm mb-4 line-clamp-3 shrink-0">
-            {company.description || t("noDescription")}
-          </p>
-          {/* Always reserve space for budget area - same height on every card */}
+        {/* Middle section: description + budget; padding-bottom = gap above Terms */}
+        <div
+          className="flex-1 min-h-0 flex flex-col shrink-0"
+          style={{ paddingBottom: 48 }}
+        >
+          {/* Description: max 56px — scrolls when content exceeds it */}
+          <div
+            style={{ height: 40, maxHeight: 40 }}
+            className="shrink-0 overflow-y-auto overflow-x-hidden rounded overscroll-contain"
+          >
+            <p className="text-[#64748B] text-sm break-words pr-1">
+              {company.description || t("noDescription")}
+            </p>
+          </div>
+          <div className="h-5 shrink-0" aria-hidden />
+          {/* Budget area */}
           <div
             className="shrink-0 flex flex-col"
             style={{ minHeight: "220px" }}
           >
-            {(company.wallet_credits !== undefined ||
-              company.credit_renewal_date) ? (
+            {company.wallet_credits !== undefined ||
+            company.credit_renewal_date ? (
               <BudgetWidget
                 walletCredits={company.wallet_credits ?? 0}
                 renewalDate={company.credit_renewal_date ?? null}
@@ -95,13 +106,15 @@ export default function SaasCard({
           </div>
         </div>
 
-        {/* Bottom section: Terms + Apply button - always at same vertical position */}
-        <div className="shrink-0 pt-4 space-y-4">
+        {/* Bottom section: Terms + Apply button */}
+        <div className="shrink-0 space-y-4">
           {company.conditions && (
-            <div className="text-xs text-[#64748B] p-3 bg-gray-50 rounded-lg border border-gray-100">
+            <div
+              style={{ height: 56, maxHeight: 56 }}
+              className="text-xs text-[#64748B] p-3 bg-gray-50 rounded-lg border border-gray-100 overflow-y-auto overflow-x-hidden break-words overscroll-contain"
+            >
               <span className="font-medium text-[#475569]">{t("terms")}:</span>{" "}
-              {company.conditions.slice(0, 100)}
-              {company.conditions.length > 100 && "..."}
+              {company.conditions}
             </div>
           )}
           {creatorProfileId ? (

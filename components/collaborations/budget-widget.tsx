@@ -16,7 +16,9 @@ export default function BudgetWidget({
 }: BudgetWidgetProps) {
   const t = useTranslations("collaboration");
   const tCredits = useTranslations("credits");
-  const getHealthStatus = (credits: number): {
+  const getHealthStatus = (
+    credits: number,
+  ): {
     status: "safe" | "risky" | "low" | "empty";
     color: string;
     icon: React.ReactNode;
@@ -65,7 +67,9 @@ export default function BudgetWidget({
     return diffDays > 0 ? diffDays : 0;
   };
 
-  const daysUntilRenewal = renewalDate ? getDaysUntilRenewal(renewalDate) : null;
+  const daysUntilRenewal = renewalDate
+    ? getDaysUntilRenewal(renewalDate)
+    : null;
 
   return (
     <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
@@ -73,7 +77,9 @@ export default function BudgetWidget({
         <h4 className="text-sm font-semibold text-slate-900">
           Budget {saasCompanyName}
         </h4>
-        <div className={`px-2 py-1 rounded-full border ${health.color} flex items-center gap-1.5`}>
+        <div
+          className={`px-2 py-1 rounded-full border ${health.color} flex items-center gap-1.5`}
+        >
           {health.icon}
           <span className="text-xs font-medium">{health.label}</span>
         </div>
@@ -105,9 +111,7 @@ export default function BudgetWidget({
 
       <div className="flex items-start gap-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
         <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-        <p className="text-xs text-blue-800">
-          {t("sharedBudget")}
-        </p>
+        <p className="text-xs text-blue-800">{t("sharedBudget")}</p>
       </div>
 
       {/* Budget exhausted - always reserve space so cards align */}

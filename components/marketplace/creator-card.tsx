@@ -2,13 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import {
-  Users,
-  Mail,
-  CheckCircle2,
-  Loader2,
-  Crown,
-} from "lucide-react";
+import { Users, Mail, CheckCircle2, Loader2, Crown } from "lucide-react";
 import { inviteCreator } from "@/app/(dashboard)/dashboard/marketplace/actions";
 
 interface CreatorCardProps {
@@ -91,7 +85,9 @@ export default function CreatorCard({
             </div>
             <div className="flex items-center gap-2 text-[#64748B] text-sm">
               <Users className="w-4 h-4" />
-              <span>{creator.followers_count.toLocaleString()} {t("followers")}</span>
+              <span>
+                {creator.followers_count.toLocaleString()} {t("followers")}
+              </span>
             </div>
           </div>
         </div>
@@ -153,7 +149,9 @@ export default function CreatorCard({
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white border border-gray-200 rounded-2xl p-6 max-w-md w-full shadow-xl">
             <h3 className="text-xl font-semibold text-[#111827] mb-2">
-              {t("inviteCreator", { name: creator.profiles.full_name || "Creator" })}
+              {t("inviteCreator", {
+                name: creator.profiles.full_name || "Creator",
+              })}
             </h3>
             <p className="text-[#64748B] text-sm mb-6">
               {t("inviteMessageDesc")}
