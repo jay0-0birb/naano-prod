@@ -26,6 +26,8 @@ export const FAQSection = () => {
     { question: tCreators("q2"), answer: tCreators("a2") },
     { question: tCreators("q3"), answer: tCreators("a3") },
     { question: tCreators("q4"), answer: tCreators("a4") },
+    { question: tCreators("q5"), answer: tCreators("a5") },
+    { question: tCreators("q6"), answer: tCreators("a6") },
   ];
 
   const currentFaqs = activeTab === "brands" ? brandsFaqs : creatorsFaqs;

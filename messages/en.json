@@ -145,14 +145,18 @@
       "a6": "You get a unified dashboard to monitor posts and results in real time (clicks, visits, leads, and revenue when applicable). You can also run retargeting and warm outbound on post interactions (likes, comments, shares) to improve conversion."
     },
     "creators": {
-      "q1": "Is it really free for creators?",
-      "a1": "Yes, absolutely. We charge a service fee to the brands, not the talent. You keep 100% of your negotiated rate.",
-      "q2": "What is Naano Pro?",
-      "a2": "Naano Pro lets you earn €1.10 per qualified click instead of €0.90. Post about Naano on LinkedIn (with your unique link), submit the post URL in your dashboard, and Pro unlocks automatically for 6 months. No payment required.",
-      "q3": "How do I get started?",
-      "a3": "Sign up as a creator, complete your profile, and start applying to campaigns that match your expertise. Once approved, you'll receive tracked links and can start creating content.",
-      "q4": "When do I get paid?",
-      "a4": "Payment is released instantly once the brand validates your deliverable. Funds are secured upfront when a campaign is approved, so you're guaranteed payment for completed work."
+      "q1": "How do I earn money on Naano?",
+      "a1": "You earn €0.90 per click generated on your promotional posts for partner companies. If you publish a promotional post for Naano during registration, you unlock a premium rate of €1.10 per click, which is a 22% earnings boost on all your future clicks.",
+      "q2": "What are the withdrawal limits?",
+      "a2": "Without a business structure, you can withdraw between €50 minimum and €500 maximum, with a limit of 25 paid posts per year. With a registered business structure (sole trader, company), there are no limits on withdrawal amounts or number of paid posts, unlocking unlimited earning potential.",
+      "q3": "How does the credit system work?",
+      "a3": "1 credit = 1 paid click. Each company purchases credits in advance representing their maximum budget. If a company has 500 available credits and you generate 600 clicks, you'll only be remunerated for 500 clicks. It's crucial to verify available credits before applying or publishing content.",
+      "q4": "Does my profile need to be validated by Naano before I start?",
+      "a4": "No, your profile is not validated by Naano. You can begin applying to companies immediately after registration, giving you instant access to collaboration opportunities.",
+      "q5": "What are the two main content formats to maximize clicks?",
+      "a5": "The Lead Magnet format (DM strategy) is the most effective: you publish a high-value post, offer a free company resource, invite your audience to comment a specific word, then send the tracked link via DM to each person who comments. The direct link format is simpler: you naturally integrate the link in your post or first comment with authentic analysis.",
+      "q6": "Am I free to choose what I post on Naano?",
+      "a6": "Yes, you are completely free on the platform. We provide a brief for informational purposes to help you understand the company's expectations, but there is no contractual commitment. You're free to post when you want, for the companies you want, and choose the content format that suits you best. You maintain full control over your collaborations and can select only companies aligned with your values and audience."
     }
   },
   "about": {

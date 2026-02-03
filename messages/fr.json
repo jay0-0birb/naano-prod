@@ -145,14 +145,18 @@
       "a6": "Vous disposez d'un dashboard unifié pour suivre les posts et résultats en temps réel (clics, visites, leads, et revenus le cas échéant). Vous pouvez aussi lancer du retargeting et de l'outbound chaud sur les interactions des posts (likes, commentaires, partages) pour améliorer la conversion."
     },
     "creators": {
-      "q1": "C'est vraiment gratuit pour les créateurs ?",
-      "a1": "Oui, absolument. On facture une commission aux marques, pas aux talents. Vous gardez 100% de votre taux négocié.",
-      "q2": "Qu'est-ce que Naano Pro ?",
-      "a2": "Naano Pro vous permet de gagner 1,10€ par clic qualifié au lieu de 0,90€. Postez sur Naano sur LinkedIn (avec votre lien unique), soumettez l'URL du post dans votre dashboard, et Pro se débloque automatiquement pour 6 mois. Aucun paiement requis.",
-      "q3": "Comment commencer ?",
-      "a3": "Inscrivez-vous en tant que créateur, complétez votre profil et postulez aux campagnes qui correspondent à votre expertise. Une fois approuvé, vous recevrez des liens trackés et pourrez créer du contenu.",
-      "q4": "Quand suis-je payé ?",
-      "a4": "Le paiement est libéré instantanément une fois que la marque valide votre livrable. Les fonds sont sécurisés à l'avance quand une campagne est approuvée, vous êtes garanti d'être payé pour le travail complété."
+      "q1": "Comment je gagne de l'argent sur Naano ?",
+      "a1": "Vous gagnez 0,90€ par clic généré sur vos publications promotionnelles pour les entreprises partenaires. Si vous publiez un post promotionnel pour Naano lors de votre inscription, vous débloquez un tarif premium de 1,10€ par clic, soit une hausse de 22% de vos revenus sur tous vos futurs clics.",
+      "q2": "Quelles sont les limites de retrait ?",
+      "a2": "Sans structure juridique, vous pouvez retirer entre 50€ minimum et 500€ maximum, avec une limite de 25 posts rémunérés par an. Avec une structure déclarée (micro-entreprise, société, etc.), il n'y a plus de limite de montant ni de nombre de posts rémunérés : votre potentiel de gains devient illimité.",
+      "q3": "Comment fonctionne le système de crédits ?",
+      "a3": "1 crédit = 1 clic payé. Chaque entreprise achète à l'avance des crédits qui représentent son budget maximum. Si une entreprise dispose de 500 crédits et que vous générez 600 clics, vous ne serez rémunéré que pour 500 clics. Il est donc crucial de vérifier les crédits disponibles avant de postuler ou de publier du contenu.",
+      "q4": "Mon profil doit-il être validé par Naano avant de commencer ?",
+      "a4": "Non, votre profil n'est pas validé par Naano. Vous pouvez commencer à postuler auprès des entreprises immédiatement après votre inscription et accéder instantanément aux opportunités de collaboration.",
+      "q5": "Quels sont les deux formats de contenu principaux pour maximiser les clics ?",
+      "a5": "Le format Lead Magnet (stratégie en DM) est le plus efficace : vous publiez un post à forte valeur, proposez une ressource gratuite de l'entreprise, invitez votre audience à commenter un mot-clé, puis envoyez le lien tracké en message privé à chaque personne qui commente. Le format lien direct est plus simple : vous intégrez naturellement le lien dans votre post ou dans le premier commentaire avec une analyse authentique.",
+      "q6": "Suis-je libre de choisir ce que je publie sur Naano ?",
+      "a6": "Oui, vous êtes complètement libre sur la plateforme. Nous fournissons un brief à titre informatif pour vous aider à comprendre les attentes de l'entreprise, mais il n'y a aucun engagement contractuel. Vous êtes libre de publier quand vous le souhaitez, pour les entreprises que vous choisissez, et avec le format de contenu qui vous convient le mieux. Vous gardez le contrôle total sur vos collaborations et pouvez sélectionner uniquement les entreprises alignées avec vos valeurs et votre audience."
     }
   },
   "about": {
