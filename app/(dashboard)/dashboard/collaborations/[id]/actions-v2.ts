@@ -318,6 +318,7 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
     const metricsData = metrics as {
       impressions?: number;
       clicks?: number;
+      qualified_clicks?: number;
       revenue?: number;
     } | null;
 
@@ -326,6 +327,7 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
       link: finalLink,
       impressions: metricsData?.impressions || 0,
       clicks: metricsData?.clicks || 0,
+      qualifiedClicks: metricsData?.qualified_clicks ?? 0,
       revenue: metricsData?.revenue || 0,
     };
   }
@@ -401,6 +403,7 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
     link: newLink,
     impressions: 0,
     clicks: 0,
+    qualifiedClicks: 0,
     revenue: 0,
   };
 }

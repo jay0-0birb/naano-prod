@@ -15,7 +15,9 @@ export default function CreditBalanceWidget({
   renewalDate,
 }: CreditBalanceWidgetProps) {
   const t = useTranslations("credits");
-  const getHealthStatus = (credits: number): {
+  const getHealthStatus = (
+    credits: number,
+  ): {
     status: "safe" | "risky" | "low" | "empty";
     color: string;
     icon: React.ReactNode;
@@ -64,15 +66,17 @@ export default function CreditBalanceWidget({
     return diffDays > 0 ? diffDays : 0;
   };
 
-  const daysUntilRenewal = renewalDate ? getDaysUntilRenewal(renewalDate) : null;
+  const daysUntilRenewal = renewalDate
+    ? getDaysUntilRenewal(renewalDate)
+    : null;
 
   return (
     <div className="bg-white rounded-2xl p-6 border border-slate-200">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-slate-900">
-          {t("balance")}
-        </h3>
-        <div className={`px-3 py-1 rounded-full border ${health.color} flex items-center gap-2`}>
+        <h3 className="text-lg font-semibold text-slate-900">{t("balance")}</h3>
+        <div
+          className={`px-3 py-1 rounded-full border ${health.color} flex items-center gap-2`}
+        >
           {health.icon}
           <span className="text-sm font-medium">{health.label}</span>
         </div>
@@ -87,7 +91,9 @@ export default function CreditBalanceWidget({
 
       {monthlySubscription && (
         <div className="mb-4 pb-4 border-b border-slate-200">
-          <div className="text-sm text-slate-600 mb-1">{t("monthlySubscription")}</div>
+          <div className="text-sm text-slate-600 mb-1">
+            {t("monthlySubscription")}
+          </div>
           <div className="text-lg font-semibold text-slate-900">
             {monthlySubscription.toLocaleString()} {t("creditsPerMonth")}
           </div>
@@ -107,9 +113,7 @@ export default function CreditBalanceWidget({
 
       {walletCredits === 0 && (
         <div className="mt-4 p-3 bg-slate-100 border border-slate-200 rounded-lg">
-          <p className="text-sm text-slate-700">
-            {t("noCredits")}
-          </p>
+          <p className="text-sm text-slate-700">{t("noCredits")}</p>
         </div>
       )}
     </div>

@@ -79,7 +79,7 @@ export default function SettingsClient({
 
   const handleNotificationChange = async (
     key: keyof NotificationPreferences,
-    value: boolean
+    value: boolean,
   ) => {
     const newPrefs = { ...notifPrefs, [key]: value };
     setNotifPrefs(newPrefs);
@@ -96,7 +96,7 @@ export default function SettingsClient({
       },
       {
         onConflict: "user_id",
-      }
+      },
     );
 
     if (error) {
@@ -240,10 +240,7 @@ export default function SettingsClient({
       const data = await response.json();
 
       if (!response.ok) {
-        alert(
-          data.error ||
-            tFinances("disconnectStripeError"),
-        );
+        alert(data.error || tFinances("disconnectStripeError"));
         return;
       }
 
@@ -264,19 +261,13 @@ export default function SettingsClient({
       const data = await response.json();
 
       if (!response.ok) {
-        alert(
-          data.error ||
-            tFinances("removeCardError"),
-        );
+        alert(data.error || tFinances("removeCardError"));
         return;
       }
 
       router.refresh();
     } catch (error: any) {
-      alert(
-        error?.message ||
-          tFinances("removeCardError"),
-      );
+      alert(error?.message || tFinances("removeCardError"));
     }
   };
 
@@ -287,9 +278,7 @@ export default function SettingsClient({
         <h2 className="text-2xl font-semibold text-[#111827] mb-1">
           {t("title")}
         </h2>
-        <p className="text-[#64748B] text-sm">
-          {t("subtitle")}
-        </p>
+        <p className="text-[#64748B] text-sm">{t("subtitle")}</p>
       </div>
 
       {/* Stripe Status Messages */}
@@ -297,9 +286,7 @@ export default function SettingsClient({
         <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
           <CheckCircle2 className="w-5 h-5 text-green-600" />
           <p className="text-green-700 text-sm">
-            {isCreator
-              ? t("stripeSuccessCreator")
-              : t("stripeSuccessSaas")}
+            {isCreator ? t("stripeSuccessCreator") : t("stripeSuccessSaas")}
           </p>
         </div>
       )}
@@ -335,9 +322,7 @@ export default function SettingsClient({
               )}
               <div>
                 <h3 className="font-medium text-[#111827]">{t("profile")}</h3>
-                <p className="text-xs text-[#64748B]">
-                  {t("personalInfo")}
-                </p>
+                <p className="text-xs text-[#64748B]">{t("personalInfo")}</p>
               </div>
             </div>
             <button
@@ -415,7 +400,9 @@ export default function SettingsClient({
 
             <div className="space-y-4">
               <div className="py-3 border-b border-gray-200">
-                <span className="text-sm text-[#6B7280] block mb-1">{t("bio")}</span>
+                <span className="text-sm text-[#6B7280] block mb-1">
+                  {t("bio")}
+                </span>
                 <span className="text-sm text-[#111827]">
                   {creatorProfile.bio || "-"}
                 </span>
@@ -460,9 +447,7 @@ export default function SettingsClient({
                   <h3 className="font-medium text-[#111827]">
                     {t("companyProfile")}
                   </h3>
-                  <p className="text-xs text-[#64748B]">
-                    {t("companyInfo")}
-                  </p>
+                  <p className="text-xs text-[#64748B]">{t("companyInfo")}</p>
                 </div>
               </div>
               <button
@@ -519,10 +504,10 @@ export default function SettingsClient({
                   <CreditCard className="w-5 h-5 text-[#1D4ED8]" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-[#111827]">{t("brandsUrls")}</h3>
-                  <p className="text-xs text-[#64748B]">
-                    {t("brandsDesc")}
-                  </p>
+                  <h3 className="font-medium text-[#111827]">
+                    {t("brandsUrls")}
+                  </h3>
+                  <p className="text-xs text-[#64748B]">{t("brandsDesc")}</p>
                 </div>
               </div>
               {loadingBrands && (
@@ -592,9 +577,7 @@ export default function SettingsClient({
                 <button
                   type="button"
                   onClick={handleAddBrand}
-                  disabled={
-                    loadingBrands || !newBrandName || !newBrandUrl
-                  }
+                  disabled={loadingBrands || !newBrandName || !newBrandUrl}
                   className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 bg-[#0F172A] hover:bg-[#020617] text-white rounded-lg text-xs font-medium disabled:opacity-50"
                 >
                   {loadingBrands ? (
@@ -620,16 +603,16 @@ export default function SettingsClient({
               </div>
               <div>
                 <h3 className="font-medium text-[#111827]">{t("payments")}</h3>
-                <p className="text-xs text-[#64748B]">
-                  {t("stripeConnect")}
-                </p>
+                <p className="text-xs text-[#64748B]">{t("stripeConnect")}</p>
               </div>
             </div>
 
             <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 mb-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-[#111827] mb-1">{t("stripeAccount")}</p>
+                  <p className="text-sm text-[#111827] mb-1">
+                    {t("stripeAccount")}
+                  </p>
                   <p className="text-xs text-[#64748B]">
                     {stripeConnected
                       ? t("stripeConfigured")
@@ -656,9 +639,7 @@ export default function SettingsClient({
               </div>
             </div>
 
-            <p className="text-xs text-[#64748B]">
-              {t("stripeConnectDesc")}
-            </p>
+            <p className="text-xs text-[#64748B]">{t("stripeConnectDesc")}</p>
           </div>
         )}
 
@@ -670,12 +651,8 @@ export default function SettingsClient({
                 <CreditCard className="w-5 h-5 text-[#1D4ED8]" />
               </div>
               <div>
-                <h3 className="font-medium text-[#111827]">
-                  {t("card")}
-                </h3>
-                <p className="text-xs text-[#64748B]">
-                  {t("cardDesc")}
-                </p>
+                <h3 className="font-medium text-[#111827]">{t("card")}</h3>
+                <p className="text-xs text-[#64748B]">{t("cardDesc")}</p>
               </div>
             </div>
 
@@ -711,21 +688,15 @@ export default function SettingsClient({
               ) : (
                 <div className="space-y-4">
                   <div>
-                    <p className="text-sm text-[#111827] mb-1">
-                      {t("noCard")}
-                    </p>
-                    <p className="text-xs text-[#64748B]">
-                      {t("noCardDesc")}
-                    </p>
+                    <p className="text-sm text-[#111827] mb-1">{t("noCard")}</p>
+                    <p className="text-xs text-[#64748B]">{t("noCardDesc")}</p>
                   </div>
                   <CardRegistrationButton />
                 </div>
               )}
             </div>
 
-            <p className="text-xs text-[#64748B]">
-              {t("cardUsage")}
-            </p>
+            <p className="text-xs text-[#64748B]">{t("cardUsage")}</p>
           </div>
         )}
 
@@ -740,9 +711,7 @@ export default function SettingsClient({
                 <h3 className="font-medium text-[#111827]">
                   {t("emailNotifications")}
                 </h3>
-                <p className="text-xs text-[#64748B]">
-                  {t("receiveEmails")}
-                </p>
+                <p className="text-xs text-[#64748B]">{t("receiveEmails")}</p>
               </div>
             </div>
             {savingNotifs && (
@@ -768,7 +737,7 @@ export default function SettingsClient({
                 onChange={(e) =>
                   handleNotificationChange(
                     "email_new_applications",
-                    e.target.checked
+                    e.target.checked,
                   )
                 }
                 className="w-5 h-5 accent-blue-500 cursor-pointer"
@@ -789,7 +758,7 @@ export default function SettingsClient({
                 onChange={(e) =>
                   handleNotificationChange(
                     "email_new_messages",
-                    e.target.checked
+                    e.target.checked,
                   )
                 }
                 className="w-5 h-5 accent-blue-500 cursor-pointer"
@@ -801,9 +770,7 @@ export default function SettingsClient({
                   {t("collaborationUpdates")}
                 </span>
                 <span className="text-xs text-[#64748B]">
-                  {isCreator
-                    ? t("creatorUpdates")
-                    : t("saasUpdates")}
+                  {isCreator ? t("creatorUpdates") : t("saasUpdates")}
                 </span>
               </div>
               <input
@@ -812,7 +779,7 @@ export default function SettingsClient({
                 onChange={(e) =>
                   handleNotificationChange(
                     "email_collaboration_updates",
-                    e.target.checked
+                    e.target.checked,
                   )
                 }
                 className="w-5 h-5 accent-blue-500 cursor-pointer"
@@ -829,9 +796,7 @@ export default function SettingsClient({
             </div>
             <div>
               <h3 className="font-medium text-[#111827]">{t("security")}</h3>
-              <p className="text-xs text-[#64748B]">
-                {t("passwordLogin")}
-              </p>
+              <p className="text-xs text-[#64748B]">{t("passwordLogin")}</p>
             </div>
           </div>
 

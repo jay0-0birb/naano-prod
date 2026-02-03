@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Crown, Check, Loader2, Sparkles, Link as LinkIcon, Send } from "lucide-react";
+import {
+  Crown,
+  Check,
+  Loader2,
+  Sparkles,
+  Link as LinkIcon,
+  Send,
+} from "lucide-react";
 import { submitProUnlockPost } from "@/app/(dashboard)/dashboard/finances/actions";
 
 const NAANO_LINK = "https://naano.vercel.app/";
@@ -87,7 +94,9 @@ export default function ProUpgradeBanner({
             <Crown className="w-6 h-6 text-[#1D4ED8]" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-slate-900">{t("memberPro")}</h3>
+            <h3 className="text-lg font-semibold text-slate-900">
+              {t("memberPro")}
+            </h3>
             <p className="text-sm text-slate-600">
               {proExpirationDate && (
                 <span className="text-slate-500">
@@ -166,9 +175,7 @@ export default function ProUpgradeBanner({
 
       {/* Instructions */}
       <div className="mb-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
-        <p className="text-sm font-medium text-slate-800 mb-2">
-          {t("howTo")}
-        </p>
+        <p className="text-sm font-medium text-slate-800 mb-2">{t("howTo")}</p>
         <ol className="text-xs text-slate-600 space-y-2 list-decimal list-inside">
           <li>
             {t("step1")}

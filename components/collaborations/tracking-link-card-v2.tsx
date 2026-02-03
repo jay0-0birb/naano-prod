@@ -8,6 +8,7 @@ interface TrackingLinkCardProps {
   hash: string;
   impressions: number;
   clicks: number;
+  qualifiedClicks: number;
   revenue: number;
   isCreator: boolean;
   trackImpressions: boolean;
@@ -19,6 +20,7 @@ export default function TrackingLinkCardV2({
   hash, 
   impressions, 
   clicks, 
+  qualifiedClicks,
   revenue,
   isCreator,
   trackImpressions,
@@ -47,9 +49,10 @@ export default function TrackingLinkCardV2({
     }
   };
 
-  // Calculate active metrics count for grid layout
-  const activeMetrics = [trackImpressions, trackClicks, trackRevenue].filter(Boolean).length;
-  const gridCols = activeMetrics === 3 ? 'grid-cols-3' : activeMetrics === 2 ? 'grid-cols-2' : 'grid-cols-1';
+  // Calculate active metrics count for grid layout (impressions, clicks, qualified clicks, revenue)
+  const showQualifiedClicks = trackClicks; // qualified clicks = lead count; revenue accumulates with this
+  const activeMetrics = [trackImpressions, trackClicks, showQualifiedClicks, trackRevenue].filter(Boolean).length;
+  const gridCols = activeMetrics >= 4 ? 'grid-cols-4' : activeMetrics === 3 ? 'grid-cols-3' : activeMetrics === 2 ? 'grid-cols-2' : 'grid-cols-1';
 
   return (
     <div className={`border rounded-2xl p-6 bg-white shadow-sm ${isCreator ? 'border-blue-100' : 'border-gray-200'}`}>
@@ -104,6 +107,19 @@ export default function TrackingLinkCardV2({
             </div>
             <div className="text-2xl font-semibold text-[#1D4ED8]">
               {clicks.toLocaleString()}
+            </div>
+          </div>
+        )}
+
+        {/* Qualified clicks (billable) — revenue accumulates with this */}
+        {showQualifiedClicks && (
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+            <div className="flex items-center gap-2 text-[#64748B] mb-1">
+              <MousePointerClick className="w-4 h-4" />
+              <span className="text-xs font-medium">{t('qualifiedClicks')}</span>
+            </div>
+            <div className="text-2xl font-semibold text-[#111827]">
+              {qualifiedClicks.toLocaleString()}
             </div>
           </div>
         )}

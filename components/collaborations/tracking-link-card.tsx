@@ -58,9 +58,7 @@ export default function TrackingLinkCard({
               {isCreator ? t("yourLink") : t("creatorLink")}
             </h3>
             <p className="text-xs text-slate-400">
-              {isCreator
-                ? t("useInPosts")
-                : t("uniqueForTraffic")}
+              {isCreator ? t("useInPosts") : t("uniqueForTraffic")}
             </p>
           </div>
         </div>

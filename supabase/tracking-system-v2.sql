@@ -248,6 +248,7 @@ CREATE OR REPLACE FUNCTION get_collaboration_metrics(collab_id UUID)
 RETURNS TABLE(
   impressions BIGINT,
   clicks BIGINT,
+  qualified_clicks BIGINT,
   revenue DECIMAL
 ) AS $$
 BEGIN
@@ -260,11 +261,12 @@ BEGIN
     JOIN tracked_links tl ON tl.id = le.tracked_link_id
     WHERE tl.collaboration_id = collab_id
   ),
-  lead_revenue AS (
-    -- CA généré on collaboration page = lifetime creator earnings for this collab
-    -- We include both 'validated' (not yet billed) and 'billed' (already paid by SaaS)
-    -- so influencers always see the TOTAL CA generated, even after invoicing.
-    SELECT COALESCE(SUM(creator_earnings), 0) as revenue
+  lead_metrics AS (
+    -- Qualified clicks = lead count; revenue = sum of creator payout per lead (€0.90 or €1.10 each).
+    -- Revenue accumulates with qualified clicks.
+    SELECT 
+      COUNT(*)::BIGINT as qualified_clicks,
+      COALESCE(SUM(COALESCE(l.creator_payout_amount, l.creator_earnings)), 0)::DECIMAL as revenue
     FROM leads l
     JOIN tracked_links tl ON tl.id = l.tracked_link_id
     WHERE tl.collaboration_id = collab_id
@@ -273,9 +275,10 @@ BEGIN
   SELECT 
     lm.impressions,
     lm.clicks,
-    lr.revenue
+    COALESCE(llead.qualified_clicks, 0),
+    COALESCE(llead.revenue, 0)
   FROM link_metrics lm
-  CROSS JOIN lead_revenue lr;
+  CROSS JOIN lead_metrics llead;
 END;
 $$ LANGUAGE plpgsql;
 

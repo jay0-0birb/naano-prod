@@ -168,6 +168,9 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
   const clicks = trackingLinkResult.success
     ? (trackingLinkResult.clicks as number)
     : 0;
+  const qualifiedClicks = trackingLinkResult.success
+    ? (trackingLinkResult.qualifiedClicks as number)
+    : 0;
   const revenue = trackingLinkResult.success
     ? (trackingLinkResult.revenue as number)
     : 0;
@@ -332,6 +335,7 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
               hash={trackingLink.hash}
               impressions={impressions}
               clicks={clicks}
+              qualifiedClicks={qualifiedClicks}
               revenue={revenue}
               isCreator={isCreator}
               trackImpressions={trackingLink.track_impressions ?? true}

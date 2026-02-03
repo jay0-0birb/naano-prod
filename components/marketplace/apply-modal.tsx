@@ -52,9 +52,9 @@ export default function ApplyModal({
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-lg bg-[#0A0C10] border border-white/10 rounded-2xl shadow-2xl">
+      <div className="relative w-full max-w-lg bg-white border border-gray-200 rounded-2xl shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/10">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center gap-3">
             {company.logo_url ? (
               <img
@@ -63,20 +63,20 @@ export default function ApplyModal({
                 className="w-10 h-10 rounded-full object-contain"
               />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-blue-500/20 border border-white/10 flex items-center justify-center">
-                <Building2 className="w-5 h-5 text-blue-400" />
+              <div className="w-10 h-10 rounded-full bg-blue-50 border border-gray-200 flex items-center justify-center">
+                <Building2 className="w-5 h-5 text-[#3B82F6]" />
               </div>
             )}
             <div>
-              <h3 className="font-medium text-white">
+              <h3 className="font-medium text-[#111827]">
                 {t("applyTo", { company: company.company_name })}
               </h3>
-              <p className="text-xs text-slate-500">{company.industry}</p>
+              <p className="text-xs text-[#64748B]">{company.industry}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-500 hover:text-white transition-colors"
+            className="text-gray-500 hover:text-gray-900 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -85,13 +85,13 @@ export default function ApplyModal({
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
               {error}
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               {t("applicationMessage")}
             </label>
             <textarea
@@ -99,9 +99,9 @@ export default function ApplyModal({
               onChange={(e) => setMessage(e.target.value)}
               rows={5}
               placeholder={t("applicationPlaceholder")}
-              className="w-full bg-[#020408] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all resize-none"
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all resize-none"
             />
-            <p className="text-xs text-slate-500 mt-1.5">
+            <p className="text-xs text-gray-500 mt-1.5">
               {t("applicationTip")}
             </p>
           </div>
@@ -110,7 +110,7 @@ export default function ApplyModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 text-slate-300 rounded-xl text-sm font-medium transition-colors"
+              className="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-medium transition-colors"
             >
               {t("cancel")}
             </button>

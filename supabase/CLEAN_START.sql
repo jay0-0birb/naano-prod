@@ -27,23 +27,35 @@ BEGIN
     total_earned = 0.00;
   RAISE NOTICE '✅ Reset all creator wallets';
   
-  -- 4. Reset all SaaS billing debt
-  UPDATE public.saas_billing_debt
-  SET
-    current_debt = 0.00,
-    last_billed_at = NULL,
-    next_billing_date = (date_trunc('month', NOW()) + interval '1 month')::date;
-  RAISE NOTICE '✅ Reset all SaaS billing debt';
+  -- 4. Reset all SaaS billing debt (table may not exist in credit-system-only setups)
+  BEGIN
+    UPDATE public.saas_billing_debt
+    SET
+      current_debt = 0.00,
+      last_billed_at = NULL,
+      next_billing_date = (date_trunc('month', NOW()) + interval '1 month')::date;
+    RAISE NOTICE '✅ Reset all SaaS billing debt';
+  EXCEPTION WHEN undefined_table THEN
+    RAISE NOTICE '⏭️ saas_billing_debt does not exist (skipped)';
+  END;
   
-  -- 5. Delete all billing invoices and line items
-  DELETE FROM public.invoice_line_items;
-  DELETE FROM public.billing_invoices;
-  RAISE NOTICE '✅ Deleted all billing invoices';
+  -- 5. Delete all billing invoices and line items (tables may not exist)
+  BEGIN
+    DELETE FROM public.invoice_line_items;
+    DELETE FROM public.billing_invoices;
+    RAISE NOTICE '✅ Deleted all billing invoices';
+  EXCEPTION WHEN undefined_table THEN
+    RAISE NOTICE '⏭️ billing_invoices/invoice_line_items do not exist (skipped)';
+  END;
   
-  -- 6. Delete all creator payouts and invoices
-  DELETE FROM public.creator_invoices;
-  DELETE FROM public.creator_payouts;
-  RAISE NOTICE '✅ Deleted all creator payouts';
+  -- 6. Delete all creator payouts and invoices (tables may not exist)
+  BEGIN
+    DELETE FROM public.creator_invoices;
+    DELETE FROM public.creator_payouts;
+    RAISE NOTICE '✅ Deleted all creator payouts';
+  EXCEPTION WHEN undefined_table THEN
+    RAISE NOTICE '⏭️ creator_payouts/creator_invoices do not exist (skipped)';
+  END;
   
   -- 7. Reset tracked_links (optional - comment out if you want to keep links)
   -- DELETE FROM public.tracked_links;
@@ -57,7 +69,7 @@ BEGIN
   RAISE NOTICE '========================================';
 END $$;
 
--- Verify cleanup
+-- Verify cleanup (only tables that always exist in current schema)
 SELECT 
   '=== VERIFICATION ===' as info;
 
@@ -86,23 +98,9 @@ UNION ALL
 SELECT 
   'Total Available Balance' as metric,
   COALESCE(SUM(available_balance), 0)::text || '€' as count
-FROM creator_wallets
+FROM creator_wallets;
 
-UNION ALL
-
-SELECT 
-  'Total SaaS Debt' as metric,
-  COALESCE(SUM(current_debt), 0)::text || '€' as count
-FROM saas_billing_debt
-
-UNION ALL
-
-SELECT 
-  'Total Billing Invoices' as metric,
-  COUNT(*)::text as count
-FROM billing_invoices;
-
--- Show that tables still exist (structure is intact)
+-- Show that core tables still exist (structure is intact)
 SELECT 
   '=== TABLES STILL EXIST ===' as info;
 
@@ -115,11 +113,6 @@ WHERE table_schema = 'public'
     'leads',
     'link_events',
     'creator_wallets',
-    'saas_billing_debt',
-    'billing_invoices',
-    'invoice_line_items',
-    'creator_payouts',
-    'creator_invoices',
     'tracked_links'
   )
 ORDER BY table_name;

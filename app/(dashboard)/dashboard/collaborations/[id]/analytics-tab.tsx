@@ -1,50 +1,57 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useTranslations } from 'next-intl'
-import { BarChart3, MousePointerClick, Target, Users, TrendingUp, TrendingDown } from 'lucide-react'
-import { getCollaborationAnalytics } from './actions-v2'
+import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import {
+  BarChart3,
+  MousePointerClick,
+  Target,
+  Users,
+  TrendingUp,
+  TrendingDown,
+} from "lucide-react";
+import { getCollaborationAnalytics } from "./actions-v2";
 
 interface AnalyticsTabProps {
-  collaborationId: string
+  collaborationId: string;
 }
 
 interface AnalyticsData {
-  totalImpressions: number
-  totalClicks: number
-  qualifiedClicks: number
-  leadsCount: number
-  totalLeadCost: number
-  savingsVsLinkedIn: number
+  totalImpressions: number;
+  totalClicks: number;
+  qualifiedClicks: number;
+  leadsCount: number;
+  totalLeadCost: number;
+  savingsVsLinkedIn: number;
 }
 
 export default function AnalyticsTab({ collaborationId }: AnalyticsTabProps) {
-  const t = useTranslations('collaborationAnalytics')
-  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const t = useTranslations("collaborationAnalytics");
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchAnalytics() {
       try {
-        setLoading(true)
-        const result = await getCollaborationAnalytics(collaborationId)
-        
+        setLoading(true);
+        const result = await getCollaborationAnalytics(collaborationId);
+
         if (result.error) {
-          setError(result.error)
+          setError(result.error);
         } else if (result.success && result.analytics) {
-          setAnalytics(result.analytics)
+          setAnalytics(result.analytics);
         }
       } catch (err) {
-        setError(t('loadingError'))
-        console.error(err)
+        setError(t("loadingError"));
+        console.error(err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
-    fetchAnalytics()
-  }, [collaborationId])
+    fetchAnalytics();
+  }, [collaborationId]);
 
   if (loading) {
     return (
@@ -58,7 +65,7 @@ export default function AnalyticsTab({ collaborationId }: AnalyticsTabProps) {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -66,93 +73,91 @@ export default function AnalyticsTab({ collaborationId }: AnalyticsTabProps) {
       <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
         <p className="text-sm text-red-700">⚠️ {error}</p>
       </div>
-    )
+    );
   }
 
   if (!analytics) {
     return (
       <div className="bg-white border border-gray-200 rounded-2xl p-6 text-center">
-        <p className="text-[#64748B] text-sm">{t('noData')}</p>
+        <p className="text-[#64748B] text-sm">{t("noData")}</p>
       </div>
-    )
+    );
   }
 
   const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('fr-FR').format(num)
-  }
+    return new Intl.NumberFormat("fr-FR").format(num);
+  };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR',
+    return new Intl.NumberFormat("fr-FR", {
+      style: "currency",
+      currency: "EUR",
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(amount)
-  }
+    }).format(amount);
+  };
 
   const kpiCards = [
     {
-      label: t('totalImpressions'),
+      label: t("totalImpressions"),
       value: formatNumber(analytics.totalImpressions),
       icon: BarChart3,
-      color: 'text-[#1D4ED8]',
-      bgColor: 'bg-blue-50',
+      color: "text-[#1D4ED8]",
+      bgColor: "bg-blue-50",
     },
     {
-      label: t('totalClicksRaw'),
+      label: t("totalClicksRaw"),
       value: formatNumber(analytics.totalClicks),
       icon: MousePointerClick,
-      color: 'text-[#1D4ED8]',
-      bgColor: 'bg-blue-50',
+      color: "text-[#1D4ED8]",
+      bgColor: "bg-blue-50",
     },
     {
-      label: t('qualifiedClicksBillable'),
+      label: t("qualifiedClicksBillable"),
       value: formatNumber(analytics.qualifiedClicks),
       icon: Target,
-      color: 'text-[#1D4ED8]',
-      bgColor: 'bg-blue-50',
-      description: t('qualifiedClicksDesc'),
+      color: "text-[#1D4ED8]",
+      bgColor: "bg-blue-50",
+      description: t("qualifiedClicksDesc"),
     },
     {
-      label: t('conversionsLeads'),
+      label: t("conversionsLeads"),
       value: formatNumber(analytics.leadsCount),
       icon: Users,
-      color: 'text-[#1D4ED8]',
-      bgColor: 'bg-blue-50',
+      color: "text-[#1D4ED8]",
+      bgColor: "bg-blue-50",
     },
     {
-      label: t('totalNaanoCost'),
+      label: t("totalNaanoCost"),
       value: formatCurrency(analytics.totalLeadCost),
       icon: TrendingDown,
-      color: 'text-[#1D4ED8]',
-      bgColor: 'bg-blue-50',
+      color: "text-[#1D4ED8]",
+      bgColor: "bg-blue-50",
     },
     {
-      label: t('savingsVsLinkedIn'),
+      label: t("savingsVsLinkedIn"),
       value: formatCurrency(analytics.savingsVsLinkedIn),
       icon: TrendingUp,
-      color: 'text-[#1D4ED8]',
-      bgColor: 'bg-blue-50',
-      description: t('savingsFormula'),
+      color: "text-[#1D4ED8]",
+      bgColor: "bg-blue-50",
+      description: t("savingsFormula"),
     },
-  ]
+  ];
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
         <h2 className="text-lg font-semibold text-[#111827] mb-2">
-          {t('performanceTitle')}
+          {t("performanceTitle")}
         </h2>
-        <p className="text-sm text-[#64748B]">
-          {t('performanceDesc')}
-        </p>
+        <p className="text-sm text-[#64748B]">{t("performanceDesc")}</p>
       </div>
 
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {kpiCards.map((kpi, index) => {
-          const Icon = kpi.icon
+          const Icon = kpi.icon;
           return (
             <div
               key={index}
@@ -175,17 +180,16 @@ export default function AnalyticsTab({ collaborationId }: AnalyticsTabProps) {
                 )}
               </div>
             </div>
-          )
+          );
         })}
       </div>
 
       {/* Info Note */}
       <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
         <p className="text-sm text-[#1D4ED8]">
-          <strong>{t('note')}</strong> {t('noteQualifiedClicks')}
+          <strong>{t("note")}</strong> {t("noteQualifiedClicks")}
         </p>
       </div>
     </div>
-  )
+  );
 }
-

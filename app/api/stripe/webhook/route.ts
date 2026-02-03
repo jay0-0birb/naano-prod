@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   if (!stripe || !supabaseAdmin) {
     return NextResponse.json(
       { error: "Service non configuré" },
-      { status: 503 }
+      { status: 503 },
     );
   }
 
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     event = stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      process.env.STRIPE_WEBHOOK_SECRET!,
     );
   } catch (err: any) {
     console.error("Webhook signature verification failed:", err.message);
@@ -62,16 +62,20 @@ export async function POST(request: Request) {
 
           if (saasId && creditVolume > 0) {
             // Get subscription (needed for subscription metadata / renewal)
-            const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+            const subscription =
+              await stripe.subscriptions.retrieve(subscriptionId);
 
             // Optional: price adjustment only when we undercharged (no tax). When Stripe Tax
             // is used, amount_paid > metadata total_price (subtotal), so we must not adjust.
-            const correctTotalPrice = parseFloat(session.metadata.total_price || "0");
+            const correctTotalPrice = parseFloat(
+              session.metadata.total_price || "0",
+            );
             const correctTotalCents = Math.round(correctTotalPrice * 100);
             const latestInvoiceId = subscription.latest_invoice as string;
             if (latestInvoiceId && correctTotalCents > 0) {
               try {
-                const latestInvoice = await stripe.invoices.retrieve(latestInvoiceId);
+                const latestInvoice =
+                  await stripe.invoices.retrieve(latestInvoiceId);
                 const amountCharged = latestInvoice.amount_paid;
                 // Only adjust if we charged *less* than subtotal (e.g. no tax case). If
                 // amountCharged > correctTotalCents, the difference is tax — do not touch.
@@ -81,28 +85,34 @@ export async function POST(request: Request) {
                     customer: subscription.customer as string,
                     subscription: subscriptionId,
                     amount: difference,
-                    currency: 'eur',
+                    currency: "eur",
                     description: `Volume pricing adjustment for ${creditVolume} credits`,
                   });
                   await stripe.invoices.finalizeInvoice(latestInvoice.id);
                   console.log(
-                    `Price adjustment applied: Charged ${amountCharged/100}€, Correct ${correctTotalPrice}€, Adjustment +${difference/100}€`
+                    `Price adjustment applied: Charged ${amountCharged / 100}€, Correct ${correctTotalPrice}€, Adjustment +${difference / 100}€`,
                   );
                 }
               } catch (adjustErr: unknown) {
-                console.warn('Credit subscription: price adjustment skipped (e.g. invoice already finalized or tax in use):', adjustErr);
+                console.warn(
+                  "Credit subscription: price adjustment skipped (e.g. invoice already finalized or tax in use):",
+                  adjustErr,
+                );
               }
             }
 
             // Add credits to SaaS wallet (initial purchase)
-            const { error: creditError } = await supabaseAdmin.rpc('add_saas_credits', {
-              p_saas_id: saasId,
-              p_credits_to_add: creditVolume,
-              p_stripe_subscription_id: subscriptionId,
-            });
+            const { error: creditError } = await supabaseAdmin.rpc(
+              "add_saas_credits",
+              {
+                p_saas_id: saasId,
+                p_credits_to_add: creditVolume,
+                p_stripe_subscription_id: subscriptionId,
+              },
+            );
 
             if (creditError) {
-              console.error('Error adding credits:', creditError);
+              console.error("Error adding credits:", creditError);
             }
 
             // Update SaaS company with subscription info
@@ -114,12 +124,12 @@ export async function POST(request: Request) {
               .update({
                 stripe_subscription_id_credits: subscriptionId,
                 monthly_credit_subscription: creditVolume,
-                credit_renewal_date: renewalDate.toISOString().split('T')[0],
+                credit_renewal_date: renewalDate.toISOString().split("T")[0],
               })
               .eq("id", saasId);
 
             console.log(
-              `Credit subscription created for SaaS ${saasId}: ${creditVolume} credits`
+              `Credit subscription created for SaaS ${saasId}: ${creditVolume} credits`,
             );
           }
         }
@@ -136,7 +146,7 @@ export async function POST(request: Request) {
           if (creatorId) {
             // Calculate expiration date
             const expirationDate = new Date();
-            if (plan === 'monthly') {
+            if (plan === "monthly") {
               expirationDate.setMonth(expirationDate.getMonth() + 1);
             } else {
               expirationDate.setFullYear(expirationDate.getFullYear() + 1);
@@ -146,14 +156,14 @@ export async function POST(request: Request) {
               .from("creator_profiles")
               .update({
                 is_pro: true,
-                pro_status_source: 'PAYMENT',
+                pro_status_source: "PAYMENT",
                 pro_expiration_date: expirationDate.toISOString(),
                 stripe_subscription_id_pro: subscriptionId,
               })
               .eq("id", creatorId);
 
             console.log(
-              `Creator Pro subscription activated for creator ${creatorId}: ${plan}`
+              `Creator Pro subscription activated for creator ${creatorId}: ${plan}`,
             );
           }
         }
@@ -175,12 +185,12 @@ export async function POST(request: Request) {
               try {
                 await stripe.subscriptions.cancel(oldSubscriptionId);
                 console.log(
-                  `Cancelled old subscription ${oldSubscriptionId} for SaaS ${saasId}`
+                  `Cancelled old subscription ${oldSubscriptionId} for SaaS ${saasId}`,
                 );
               } catch (err) {
                 console.error(
                   `Error cancelling old subscription ${oldSubscriptionId}:`,
-                  err
+                  err,
                 );
                 // Continue anyway - new subscription is created
               }
@@ -198,7 +208,7 @@ export async function POST(request: Request) {
             console.log(
               `Subscription ${
                 isUpgrade ? "upgraded" : "created"
-              } for SaaS ${saasId}: ${tier}`
+              } for SaaS ${saasId}: ${tier}`,
             );
           }
         }
@@ -229,7 +239,7 @@ export async function POST(request: Request) {
         await handleConnectedAccountPayment(
           event.account,
           paymentIntent,
-          "payment_intent"
+          "payment_intent",
         );
       }
       break;
@@ -280,11 +290,13 @@ export async function POST(request: Request) {
     case "customer.subscription.created":
     case "customer.subscription.updated": {
       const subscription = event.data.object as any;
-      
+
       // Handle credit subscription updates
       if (subscription.metadata?.type === "credit_subscription") {
         const saasId = subscription.metadata.saas_id;
-        const creditVolume = parseInt(subscription.metadata.credit_volume || "0");
+        const creditVolume = parseInt(
+          subscription.metadata.credit_volume || "0",
+        );
 
         if (saasId && creditVolume > 0) {
           await supabaseAdmin
@@ -292,7 +304,11 @@ export async function POST(request: Request) {
             .update({
               stripe_subscription_id_credits: subscription.id,
               monthly_credit_subscription: creditVolume,
-              credit_renewal_date: new Date((subscription as any).current_period_end * 1000).toISOString().split('T')[0],
+              credit_renewal_date: new Date(
+                (subscription as any).current_period_end * 1000,
+              )
+                .toISOString()
+                .split("T")[0],
             })
             .eq("id", saasId);
 
@@ -305,7 +321,9 @@ export async function POST(request: Request) {
         const plan = subscription.metadata.plan;
 
         if (creatorId) {
-          const expirationDate = new Date((subscription as any).current_period_end * 1000);
+          const expirationDate = new Date(
+            (subscription as any).current_period_end * 1000,
+          );
 
           await supabaseAdmin
             .from("creator_profiles")
@@ -316,7 +334,9 @@ export async function POST(request: Request) {
             })
             .eq("id", creatorId);
 
-          console.log(`Creator Pro subscription ${event.type} for creator ${creatorId}`);
+          console.log(
+            `Creator Pro subscription ${event.type} for creator ${creatorId}`,
+          );
         }
       }
       // Handle old SaaS tier subscriptions
@@ -334,12 +354,12 @@ export async function POST(request: Request) {
             try {
               await stripe.subscriptions.cancel(oldSubscriptionId);
               console.log(
-                `Cancelled old subscription ${oldSubscriptionId} for SaaS ${saasId}`
+                `Cancelled old subscription ${oldSubscriptionId} for SaaS ${saasId}`,
               );
             } catch (err) {
               console.error(
                 `Error cancelling old subscription ${oldSubscriptionId}:`,
-                err
+                err,
               );
               // Continue anyway - new subscription is created
             }
@@ -354,8 +374,8 @@ export async function POST(request: Request) {
                 subscription.status === "active"
                   ? "active"
                   : subscription.status === "past_due"
-                  ? "past_due"
-                  : "active",
+                    ? "past_due"
+                    : "active",
             })
             .eq("id", saasId);
 
@@ -367,7 +387,7 @@ export async function POST(request: Request) {
 
     case "customer.subscription.deleted": {
       const subscription = event.data.object as any;
-      
+
       // Handle credit subscription cancellation
       if (subscription.metadata?.type === "credit_subscription") {
         const saasId = subscription.metadata.saas_id;
@@ -385,7 +405,7 @@ export async function POST(request: Request) {
             .eq("id", saasId);
 
           console.log(
-            `Credit subscription cancelled for SaaS ${saasId} (credits remain until renewal)`
+            `Credit subscription cancelled for SaaS ${saasId} (credits remain until renewal)`,
           );
         }
       }
@@ -396,7 +416,9 @@ export async function POST(request: Request) {
         if (creatorId) {
           // Keep Pro until end of billing period (as per decision)
           // Set expiration to end of current period
-          const expirationDate = new Date((subscription as any).current_period_end * 1000);
+          const expirationDate = new Date(
+            (subscription as any).current_period_end * 1000,
+          );
 
           await supabaseAdmin
             .from("creator_profiles")
@@ -408,7 +430,7 @@ export async function POST(request: Request) {
             .eq("id", creatorId);
 
           console.log(
-            `Creator Pro subscription cancelled for creator ${creatorId} (Pro until ${expirationDate})`
+            `Creator Pro subscription cancelled for creator ${creatorId} (Pro until ${expirationDate})`,
           );
         }
       }
@@ -427,7 +449,7 @@ export async function POST(request: Request) {
             .eq("id", saasId);
 
           console.log(
-            `Subscription cancelled for SaaS ${saasId}, reverted to starter`
+            `Subscription cancelled for SaaS ${saasId}, reverted to starter`,
           );
         }
       }
@@ -440,35 +462,44 @@ export async function POST(request: Request) {
 
       if (subscriptionId) {
         // Get subscription to check type
-        const subscription = await stripe.subscriptions.retrieve(subscriptionId) as Stripe.Subscription;
-        
+        const subscription = (await stripe.subscriptions.retrieve(
+          subscriptionId,
+        )) as Stripe.Subscription;
+
         // Handle credit subscription renewal
         if (subscription.metadata?.type === "credit_subscription") {
           const saasId = subscription.metadata.saas_id;
-          const creditVolume = parseInt(subscription.metadata.credit_volume || "0");
+          const creditVolume = parseInt(
+            subscription.metadata.credit_volume || "0",
+          );
 
           if (saasId && creditVolume > 0) {
             // Add credits with roll-over (current balance + new credits)
-            const { error: creditError } = await supabaseAdmin.rpc('add_saas_credits', {
-              p_saas_id: saasId,
-              p_credits_to_add: creditVolume,
-              p_stripe_subscription_id: subscriptionId,
-            });
+            const { error: creditError } = await supabaseAdmin.rpc(
+              "add_saas_credits",
+              {
+                p_saas_id: saasId,
+                p_credits_to_add: creditVolume,
+                p_stripe_subscription_id: subscriptionId,
+              },
+            );
 
             if (creditError) {
-              console.error('Error adding credits on renewal:', creditError);
+              console.error("Error adding credits on renewal:", creditError);
             } else {
               // Update renewal date
-              const renewalDate = new Date((subscription as any).current_period_end * 1000);
+              const renewalDate = new Date(
+                (subscription as any).current_period_end * 1000,
+              );
               await supabaseAdmin
                 .from("saas_companies")
                 .update({
-                  credit_renewal_date: renewalDate.toISOString().split('T')[0],
+                  credit_renewal_date: renewalDate.toISOString().split("T")[0],
                 })
                 .eq("id", saasId);
 
               console.log(
-                `Credit subscription renewed for SaaS ${saasId}: +${creditVolume} credits (with roll-over)`
+                `Credit subscription renewed for SaaS ${saasId}: +${creditVolume} credits (with roll-over)`,
               );
             }
           }
@@ -479,7 +510,9 @@ export async function POST(request: Request) {
           const plan = subscription.metadata.plan;
 
           if (creatorId) {
-            const expirationDate = new Date((subscription as any).current_period_end * 1000);
+            const expirationDate = new Date(
+              (subscription as any).current_period_end * 1000,
+            );
 
             await supabaseAdmin
               .from("creator_profiles")
@@ -489,7 +522,9 @@ export async function POST(request: Request) {
               })
               .eq("id", creatorId);
 
-            console.log(`Creator Pro renewed for creator ${creatorId}: ${plan}`);
+            console.log(
+              `Creator Pro renewed for creator ${creatorId}: ${plan}`,
+            );
           }
         }
       }
@@ -502,8 +537,9 @@ export async function POST(request: Request) {
 
       if (subscriptionId) {
         // Get subscription to check type
-        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-        
+        const subscription =
+          await stripe.subscriptions.retrieve(subscriptionId);
+
         if (subscription.metadata?.type === "credit_subscription") {
           const saasId = subscription.metadata.saas_id;
           // Log failure but don't remove credits (they remain until renewal date)
@@ -544,7 +580,7 @@ export async function POST(request: Request) {
               })
               .eq("id", transfer.metadata.payout_id);
             console.log(
-              `Transfer created for payout ${transfer.metadata.payout_id}`
+              `Transfer created for payout ${transfer.metadata.payout_id}`,
             );
           } else if (eventType === "transfer.paid") {
             await supabaseAdmin
@@ -555,7 +591,7 @@ export async function POST(request: Request) {
               })
               .eq("id", transfer.metadata.payout_id);
             console.log(
-              `Transfer completed for payout ${transfer.metadata.payout_id}`
+              `Transfer completed for payout ${transfer.metadata.payout_id}`,
             );
           } else if (
             eventType === "transfer.failed" ||
@@ -585,7 +621,7 @@ export async function POST(request: Request) {
             }
 
             console.log(
-              `Transfer failed for payout ${transfer.metadata.payout_id}`
+              `Transfer failed for payout ${transfer.metadata.payout_id}`,
             );
           }
         }
@@ -608,9 +644,8 @@ export async function POST(request: Request) {
         const paymentMethodId = setupIntent.payment_method as string;
 
         if (paymentMethodId) {
-          const paymentMethod = await stripe.paymentMethods.retrieve(
-            paymentMethodId
-          );
+          const paymentMethod =
+            await stripe.paymentMethods.retrieve(paymentMethodId);
 
           await supabaseAdmin
             .from("saas_companies")
@@ -623,7 +658,7 @@ export async function POST(request: Request) {
             .eq("id", setupIntent.metadata.saas_id);
 
           console.log(
-            `Card validated for SaaS ${setupIntent.metadata.saas_id}`
+            `Card validated for SaaS ${setupIntent.metadata.saas_id}`,
           );
         }
       }
@@ -641,7 +676,7 @@ export async function POST(request: Request) {
 async function handleConnectedAccountPayment(
   stripeAccountId: string,
   paymentData: any,
-  eventType: string
+  eventType: string,
 ) {
   if (!supabaseAdmin) return;
 
@@ -683,7 +718,7 @@ async function handleConnectedAccountPayment(
         // Fetch balance transaction to get actual fees
         const balanceTransaction = await stripe.balanceTransactions.retrieve(
           balanceTransactionId,
-          { stripeAccount: stripeAccountId }
+          { stripeAccount: stripeAccountId },
         );
 
         // Fee is in cents, convert to euros
@@ -691,7 +726,7 @@ async function handleConnectedAccountPayment(
         netRevenue = grossRevenue - stripeFee;
       } catch (error) {
         console.warn(
-          `Could not fetch balance transaction ${balanceTransactionId}, using estimated fees`
+          `Could not fetch balance transaction ${balanceTransactionId}, using estimated fees`,
         );
         // Fall back to estimated fees
         const isEU =
@@ -773,7 +808,7 @@ async function handleConnectedAccountPayment(
               )
             )
           )
-        `
+        `,
         )
         .eq("event_type", "click")
         .gte("occurred_at", thirtyDaysAgo.toISOString())
@@ -784,14 +819,14 @@ async function handleConnectedAccountPayment(
       const matchingClick = recentClicks?.find(
         (click: any) =>
           click.tracked_links?.collaborations?.applications?.saas_id ===
-          saasCompany.id
+          saasCompany.id,
       );
 
       if (matchingClick) {
         trackedLinkId = matchingClick.tracked_link_id;
         sessionId = matchingClick.session_id;
         console.log(
-          `Found attribution via recent click for ${saasCompany.company_name}`
+          `Found attribution via recent click for ${saasCompany.company_name}`,
         );
       }
     }
@@ -821,14 +856,14 @@ async function handleConnectedAccountPayment(
         });
 
         console.log(
-          `✅ Revenue attributed: €${grossRevenue} gross (€${netRevenue} net after €${stripeFee} fees) for ${saasCompany.company_name} via Stripe Connect`
+          `✅ Revenue attributed: €${grossRevenue} gross (€${netRevenue} net after €${stripeFee} fees) for ${saasCompany.company_name} via Stripe Connect`,
         );
       } else {
         console.log(`Duplicate conversion skipped: ${paymentData.id}`);
       }
     } else {
       console.log(
-        `No attribution found for payment ${paymentData.id} from ${saasCompany.company_name}`
+        `No attribution found for payment ${paymentData.id} from ${saasCompany.company_name}`,
       );
     }
   } catch (error) {

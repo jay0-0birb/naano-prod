@@ -292,9 +292,7 @@ export default function FinancesPageClient({
           <h1 className="text-2xl font-semibold text-[#111827] mb-1">
             {t("title")}
           </h1>
-          <p className="text-[#64748B] text-sm">
-            {t("subtitle")}
-          </p>
+          <p className="text-[#64748B] text-sm">{t("subtitle")}</p>
         </div>
 
         {/* Error message */}
@@ -328,7 +326,9 @@ export default function FinancesPageClient({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <p className="text-[#64748B] text-sm mb-1">{t("activePartnerships")}</p>
+              <p className="text-[#64748B] text-sm mb-1">
+                {t("activePartnerships")}
+              </p>
               <p className="text-2xl font-bold text-[#111827]">
                 {creatorData.activeSaas}
               </p>
@@ -357,8 +357,12 @@ export default function FinancesPageClient({
               <CreditCard className="w-5 h-5 text-[#3B82F6]" />
             </div>
             <div>
-              <h3 className="font-semibold text-[#111827]">{t("stripePayments")}</h3>
-              <p className="text-xs text-[#64748B]">{t("receiveCommissions")}</p>
+              <h3 className="font-semibold text-[#111827]">
+                {t("stripePayments")}
+              </h3>
+              <p className="text-xs text-[#64748B]">
+                {t("receiveCommissions")}
+              </p>
             </div>
           </div>
 
@@ -448,33 +452,35 @@ export default function FinancesPageClient({
           !hasSiret &&
           creatorData.totalEarned >= 400 &&
           creatorData.totalEarned < 500 && (
-          <div className="mb-6 p-4 rounded-xl bg-slate-100 border border-slate-200">
-            <p className="text-sm text-slate-800 font-medium">
-              {t("euro400Banner", { amount: Math.ceil(500 - creatorData.totalEarned).toString() })}
-            </p>
-            <p className="text-xs text-slate-700 mt-1">
-              {t("microEntrepriseBanner")}
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <a
-                href={CALENDLY_EXPERT_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-800 text-sm font-medium transition-colors"
-              >
-                <Calendar className="w-4 h-4" />
-                {t("bookCall")}
-              </a>
-              <button
-                type="button"
-                onClick={() => setShowSiretForm(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0F172A] hover:bg-[#1E293B] text-white text-sm font-medium transition-colors"
-              >
-                {t("enterSiret")}
-              </button>
+            <div className="mb-6 p-4 rounded-xl bg-slate-100 border border-slate-200">
+              <p className="text-sm text-slate-800 font-medium">
+                {t("euro400Banner", {
+                  amount: Math.ceil(500 - creatorData.totalEarned).toString(),
+                })}
+              </p>
+              <p className="text-xs text-slate-700 mt-1">
+                {t("microEntrepriseBanner")}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <a
+                  href={CALENDLY_EXPERT_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-800 text-sm font-medium transition-colors"
+                >
+                  <Calendar className="w-4 h-4" />
+                  {t("bookCall")}
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setShowSiretForm(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0F172A] hover:bg-[#1E293B] text-white text-sm font-medium transition-colors"
+                >
+                  {t("enterSiret")}
+                </button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* Wallet Overview - Simplified */}
         <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-6 shadow-sm">
@@ -485,13 +491,13 @@ export default function FinancesPageClient({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
-              <p className="text-xs text-[#6B7280] mb-1 font-medium">{t("pending")}</p>
+              <p className="text-xs text-[#6B7280] mb-1 font-medium">
+                {t("pending")}
+              </p>
               <p className="text-2xl font-bold text-[#111827]">
                 {creatorData.pendingBalance.toFixed(2)}€
               </p>
-              <p className="text-xs text-[#64748B] mt-1">
-                {t("pendingDesc")}
-              </p>
+              <p className="text-xs text-[#64748B] mt-1">{t("pendingDesc")}</p>
             </div>
             <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
               <p className="text-xs text-green-700 mb-1 font-medium">
@@ -534,7 +540,9 @@ export default function FinancesPageClient({
                     {t("step1Title")}
                   </p>
                   <p className="text-xs text-[#64748B] mt-0.5">
-                    {t("step1Desc", { amount: creatorData.isPro ? "1,10€" : "0,90€" })}
+                    {t("step1Desc", {
+                      amount: creatorData.isPro ? "1,10€" : "0,90€",
+                    })}
                   </p>
                 </div>
               </div>
@@ -601,7 +609,9 @@ export default function FinancesPageClient({
                     ) : (
                       <>
                         <Wallet className="w-4 h-4" />
-                        {t("requestTransfer", { amount: creatorData.availableBalance.toFixed(2) })}
+                        {t("requestTransfer", {
+                          amount: creatorData.availableBalance.toFixed(2),
+                        })}
                       </>
                     )}
                   </button>
@@ -638,7 +648,9 @@ export default function FinancesPageClient({
                   <p className="text-sm text-slate-700">
                     {t("minRequired", {
                       min: creatorData.minPayout,
-                      missing: (creatorData.minPayout - creatorData.availableBalance).toFixed(2),
+                      missing: (
+                        creatorData.minPayout - creatorData.availableBalance
+                      ).toFixed(2),
                     })}
                   </p>
                 </div>
@@ -782,9 +794,7 @@ export default function FinancesPageClient({
             <h1 className="text-2xl font-normal text-white mb-1">
               {t("financesPlans")}
             </h1>
-            <p className="text-slate-400 text-sm">
-              {t("saasSubtitle")}
-            </p>
+            <p className="text-slate-400 text-sm">{t("saasSubtitle")}</p>
           </div>
           <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6">
             <p className="text-red-400">{t("saasError")}</p>
@@ -804,9 +814,7 @@ export default function FinancesPageClient({
           <h1 className="text-2xl font-semibold text-[#111827] mb-1">
             {t("financesPlans")}
           </h1>
-          <p className="text-[#64748B] text-sm">
-            {t("saasSubtitle")}
-          </p>
+          <p className="text-[#64748B] text-sm">{t("saasSubtitle")}</p>
         </div>
 
         {/* Success/Error messages */}
@@ -1053,9 +1061,7 @@ export default function FinancesPageClient({
                               {invoice.invoice_number ||
                                 `Facture #${invoice.id.slice(0, 8)}`}
                             </p>
-                            <p className="text-xs text-[#6B7280]">
-                              {period}
-                            </p>
+                            <p className="text-xs text-[#6B7280]">{period}</p>
                           </div>
                           <div className="text-right">
                             <p className="text-sm font-medium text-[#111827]">
@@ -1079,9 +1085,7 @@ export default function FinancesPageClient({
               </div>
             ) : (
               <div className="bg-white border border-gray-200 rounded-2xl p-6 text-center shadow-sm">
-                <p className="text-[#64748B] text-sm">
-                  {t("noInvoices")}
-                </p>
+                <p className="text-[#64748B] text-sm">{t("noInvoices")}</p>
               </div>
             )}
           </div>
