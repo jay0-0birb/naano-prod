@@ -550,7 +550,23 @@ export async function getCollaborationLeads(
     return { success: true, leads: [] };
   }
 
-  // Build base query
+  // Lead Feed = qualified leads only (leads table), regardless of confidence/company inference
+  const { data: leadRows } = await supabase
+    .from("leads")
+    .select("link_event_id")
+    .eq("tracked_link_id", trackedLink.id)
+    .in("status", ["validated", "billed"])
+    .not("link_event_id", "is", null);
+
+  const linkEventIds = (leadRows || [])
+    .map((r: { link_event_id: string }) => r.link_event_id)
+    .filter(Boolean) as string[];
+
+  if (linkEventIds.length === 0) {
+    return { success: true, leads: [] };
+  }
+
+  // Fetch link_events for qualified leads only (with optional company_inferences and intent_scores)
   let query = supabase
     .from("link_events")
     .select(
@@ -597,35 +613,11 @@ export async function getCollaborationLeads(
       )
     `
     )
-    .eq("tracked_link_id", trackedLink.id)
-    .eq("event_type", "click");
-    // Note: We filter out clicks without company inference in the mapping step below
+    .in("id", linkEventIds)
+    .order("occurred_at", { ascending: false })
+    .limit(100);
 
-  // Apply filters
-  if (filterConfirmed) {
-    query = query.eq("company_inferences.attribution_state", "confirmed");
-  }
-
-  if (filterHighConfidence) {
-    query = query.gte("company_inferences.confidence_score", 0.7);
-  }
-
-  // Apply sorting
-  if (sortBy === "confidence") {
-    query = query.order("company_inferences.confidence_score", {
-      ascending: false,
-      foreignTable: "company_inferences",
-    });
-  } else if (sortBy === "intent") {
-    query = query.order("session_intent_score", {
-      ascending: false,
-      foreignTable: "intent_scores",
-    });
-  } else {
-    query = query.order("occurred_at", { ascending: false });
-  }
-
-  const { data: clickEvents, error } = await query.limit(100);
+  const { data: clickEvents, error } = await query;
 
   if (error) {
     console.error("Error fetching leads:", error);
@@ -634,6 +626,34 @@ export async function getCollaborationLeads(
       error: "Erreur lors de la récupération des leads",
       details: error.message 
     };
+  }
+
+  // Apply optional filters in JS (qualified leads only; then filter by confidence/attribution if requested)
+  let filteredEvents = clickEvents || [];
+  if (filterConfirmed) {
+    filteredEvents = filteredEvents.filter((e: any) => {
+      const ci = e.company_inferences?.[0] || e.company_inferences;
+      return ci?.attribution_state === "confirmed";
+    });
+  }
+  if (filterHighConfidence) {
+    filteredEvents = filteredEvents.filter((e: any) => {
+      const ci = e.company_inferences?.[0] || e.company_inferences;
+      return (ci?.confidence_score ?? 0) >= 0.7;
+    });
+  }
+  if (sortBy === "confidence") {
+    filteredEvents = [...filteredEvents].sort((a: any, b: any) => {
+      const ca = (a.company_inferences?.[0] || a.company_inferences)?.confidence_score ?? 0;
+      const cb = (b.company_inferences?.[0] || b.company_inferences)?.confidence_score ?? 0;
+      return cb - ca;
+    });
+  } else if (sortBy === "intent") {
+    filteredEvents = [...filteredEvents].sort((a: any, b: any) => {
+      const sa = (a.intent_scores?.[0] || a.intent_scores)?.session_intent_score ?? 0;
+      const sb = (b.intent_scores?.[0] || b.intent_scores)?.session_intent_score ?? 0;
+      return sb - sa;
+    });
   }
 
   // Get creator name for each lead
@@ -661,9 +681,9 @@ export async function getCollaborationLeads(
   // Get company-level aggregated intent for each unique company (Issue 3.2)
   const companyAggregates = new Map<string, any>();
 
-  if (clickEvents && clickEvents.length > 0) {
+  if (filteredEvents.length > 0) {
     const uniqueCompanies = new Set(
-      clickEvents
+      filteredEvents
         .map((e: any) => {
           const ci = e.company_inferences?.[0] || e.company_inferences;
           return ci?.inferred_company_name;
@@ -689,14 +709,8 @@ export async function getCollaborationLeads(
     }
   }
 
-  // Format leads data - only include clicks with company inference (confidence >= 0.3)
-  const leads = (clickEvents || [])
-    .filter((event: any) => {
-      const companyInference = event.company_inferences?.[0] || event.company_inferences;
-      // Only show clicks with company inference (confidence >= 0.3 requirement)
-      return companyInference && companyInference.inferred_company_name;
-    })
-    .map((event: any) => {
+  // Format leads data - show all qualified leads (company and intent optional)
+  const leads = filteredEvents.map((event: any) => {
     const companyInference =
       event.company_inferences?.[0] || event.company_inferences;
     const intentScore = event.intent_scores?.[0] || event.intent_scores;

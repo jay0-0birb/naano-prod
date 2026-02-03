@@ -176,9 +176,19 @@ function parseIPinfoResponse(data: any): CompanyEnrichmentResult {
   } else if (org && !org.toLowerCase().includes('hosting') && 
              !org.toLowerCase().includes('cloud') &&
              !org.toLowerCase().includes('datacenter')) {
-    networkType = 'corporate';
-    reasons.push('corporate ASN');
-    confidenceScore += 0.3;
+    // Only treat as corporate if org looks like a business (Inc, LLC, etc.), not consumer ISPs (Telecom, Cable, etc.)
+    const lower = org.toLowerCase();
+    const looksLikeIsp = /\b(telecom|communications?|cable|broadband|network|internet|wireless|adsl|ftth|isp|sas|sa)\b/.test(lower) ||
+      /^(orange|free|sfr|bouygues|vodafone|bt\b|sky|virgin|comcast|att|verizon|cox|charter)\b/i.test(org);
+    const looksLikeCorporate = /\b(inc\.?|llc\.?|ltd\.?|corp\.?|corporation|gmbh|ag\b|plc\.?)\b/.test(lower);
+    if (looksLikeCorporate && !looksLikeIsp) {
+      networkType = 'corporate';
+      reasons.push('corporate ASN');
+      confidenceScore += 0.3;
+    } else {
+      networkType = 'residential';
+      reasons.push('residential or consumer ISP');
+    }
   } else {
     networkType = 'residential';
   }
@@ -216,6 +226,27 @@ function parseIPinfoResponse(data: any): CompanyEnrichmentResult {
   const location = [data.city, data.region, data.country]
     .filter(Boolean)
     .join(', ') || null;
+  
+  // Residential / home ISP: return early so we don't overwrite with getUnknownResult() (which has networkType 'unknown')
+  if (networkType === 'residential') {
+    return {
+      companyName: null,
+      companyDomain: null,
+      industry: null,
+      companySize: null,
+      location,
+      networkType: 'residential',
+      asnNumber: asn,
+      asnOrganization: asnOrg,
+      isHosting: false,
+      isVpn: false,
+      isProxy: false,
+      isMobileIsp: false,
+      confidenceScore: 0,
+      confidenceReasons: reasons,
+      isAmbiguous: true,
+    };
+  }
   
   // Cap confidence at 1.0
   confidenceScore = Math.min(confidenceScore, 1.0);
@@ -271,18 +302,27 @@ function parseIPApiResponse(data: any): CompanyEnrichmentResult {
     reasons.push('mobile ISP');
   } else if (data.org && !data.org.toLowerCase().includes('hosting') &&
              !data.org.toLowerCase().includes('cloud')) {
-    networkType = 'corporate';
-    reasons.push('corporate ASN');
-    confidenceScore += 0.3;
+    const lower = data.org.toLowerCase();
+    const looksLikeIsp = /\b(telecom|communications?|cable|broadband|network|internet|wireless|adsl|ftth|isp|sas|sa)\b/.test(lower) ||
+      /^(orange|free|sfr|bouygues|vodafone|bt\b|sky|virgin|comcast|att|verizon|cox|charter)\b/i.test(data.org);
+    const looksLikeCorporate = /\b(inc\.?|llc\.?|ltd\.?|corp\.?|corporation|gmbh|ag\b|plc\.?)\b/.test(lower);
+    if (looksLikeCorporate && !looksLikeIsp) {
+      networkType = 'corporate';
+      reasons.push('corporate ASN');
+      confidenceScore += 0.3;
+    } else {
+      networkType = 'residential';
+      reasons.push('residential or consumer ISP');
+    }
     
-    // Extract company name
+    // Extract company name (for corporate we use org; for residential ISP we still store org as "company" for display but don't boost confidence as much)
     companyName = data.org
       .replace(/Inc\.?/gi, '')
       .replace(/LLC\.?/gi, '')
       .replace(/Ltd\.?/gi, '')
       .trim();
     
-    if (companyName) {
+    if (companyName && networkType === 'corporate') {
       confidenceScore += 0.4;
       reasons.push('corporate organization name');
     }
@@ -302,10 +342,26 @@ function parseIPApiResponse(data: any): CompanyEnrichmentResult {
   
   confidenceScore = Math.min(confidenceScore, 1.0);
   
-  // Determine ambiguity (Issue 1.2)
-  const isAmbiguous = confidenceScore < 0.5 || 
-                      networkType === 'hosting' || 
-                      networkType === 'proxy';
+  // Residential / home ISP: return early so network_type stays 'residential' (not overwritten by getUnknownResult)
+  if (networkType === 'residential') {
+    return {
+      companyName: null,
+      companyDomain: null,
+      industry: null,
+      companySize: null,
+      location,
+      networkType: 'residential',
+      asnNumber,
+      asnOrganization,
+      isHosting: false,
+      isVpn: false,
+      isProxy: false,
+      isMobileIsp: false,
+      confidenceScore: 0,
+      confidenceReasons: reasons,
+      isAmbiguous: true,
+    };
+  }
   
   // If confidence is too low, return unknown
   if (confidenceScore < 0.3 || !companyName) {
