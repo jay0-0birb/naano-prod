@@ -102,41 +102,24 @@ export default function TrackingLinkCard({
       {isCreator && (
         <div className="space-y-2">
           <p className="text-sm text-slate-400 font-medium">
-            💡 Comment l'utiliser :
+            💡 {t("howToUse")}
           </p>
           <ul className="space-y-1.5 text-xs text-slate-500">
             <li className="flex items-start gap-2">
               <span className="text-blue-400 mt-0.5">•</span>
-              <span>
-                Ajoute-le en{" "}
-                <strong className="text-slate-400">premier commentaire</strong>{" "}
-                de tes posts LinkedIn
-              </span>
+              <span>{t("howToUseBullet1")}</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-blue-400 mt-0.5">•</span>
-              <span>
-                Mets-le dans ta{" "}
-                <strong className="text-slate-400">bio LinkedIn</strong>{" "}
-                (section "À propos")
-              </span>
+              <span>{t("howToUseBullet2")}</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-blue-400 mt-0.5">•</span>
-              <span>
-                Partage-le en <strong className="text-slate-400">DM</strong>{" "}
-                quand on te demande le produit
-              </span>
+              <span>{t("shareDM")}</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-blue-400 mt-0.5">•</span>
-              <span>
-                Chaque clic est{" "}
-                <strong className="text-slate-400">
-                  automatiquement tracké
-                </strong>{" "}
-                📊
-              </span>
+              <span>{t("howToUseBullet4")} 📊</span>
             </li>
           </ul>
         </div>

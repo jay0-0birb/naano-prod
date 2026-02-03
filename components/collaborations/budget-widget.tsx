@@ -43,7 +43,7 @@ export default function BudgetWidget({
         status: "low",
         color: "text-red-600 bg-red-50 border-red-200",
         icon: <AlertCircle className="w-4 h-4 text-red-600" />,
-        label: "Low",
+        label: tCredits("low"),
       };
     }
     return {
@@ -106,7 +106,7 @@ export default function BudgetWidget({
       <div className="flex items-start gap-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
         <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
         <p className="text-xs text-blue-800">
-          Budget partagé. Premier arrivé, premier servi.
+          {t("sharedBudget")}
         </p>
       </div>
 

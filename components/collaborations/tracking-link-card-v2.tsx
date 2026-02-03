@@ -174,24 +174,15 @@ export default function TrackingLinkCardV2({
             <ul className="space-y-1.5 text-xs text-[#4B5563]">
               <li className="flex items-start gap-2">
                 <span className="text-[#3B82F6] mt-0.5">•</span>
-                <span>
-                  Ajoute-le en{" "}
-                  <strong className="text-[#111827]">{t('firstComment')}</strong>{" "}
-                  de tes posts LinkedIn
-                </span>
+                <span>{t('howToUseBullet1')}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-[#3B82F6] mt-0.5">•</span>
-                <span>
-                  Mets-le dans ta <strong className="text-[#111827]">{t('bioLinkedIn')}</strong>{" "}
-                  ({t('aboutSection')})
-                </span>
+                <span>{t('howToUseBullet2')}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-[#3B82F6] mt-0.5">•</span>
-                <span>
-                  {t('shareDM')}
-                </span>
+                <span>{t('shareDM')}</span>
               </li>
             </ul>
           </div>
