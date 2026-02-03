@@ -17,6 +17,7 @@ STRIPE_CLIENT_ID=ca_...  # For Stripe Connect OAuth
 
 # Credit subscription (SaaS buys credits)
 STRIPE_PRICE_CREDITS_BASE=price_...
+# In Stripe Dashboard, set this Price's Tax behavior to "Exclusive" so TVA is added to the total (Settings → Products → [credits product] → Price → Tax behavior).
 
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=...
@@ -33,7 +34,7 @@ IPINFO_API_KEY=...  # Optional, ip-api fallback works without
 npm run dev
 
 # Terminal 2: Forward webhooks
-stripe listen --forward-to localhost:3002/api/stripe/webhook
+stripe listen --forward-to localhost:3002c/api/stripe/webhook
 # Copy the whsec_... to .env.local as STRIPE_WEBHOOK_SECRET
 ```
 

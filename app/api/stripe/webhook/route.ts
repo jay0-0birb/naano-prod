@@ -61,40 +61,39 @@ export async function POST(request: Request) {
           const subscriptionId = session.subscription as string;
 
           if (saasId && creditVolume > 0) {
-            // Get subscription to get the actual invoice
+            // Get subscription (needed for subscription metadata / renewal)
             const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-            
-            // Calculate correct price vs what Stripe charged
+
+            // Optional: price adjustment only when we undercharged (no tax). When Stripe Tax
+            // is used, amount_paid > metadata total_price (subtotal), so we must not adjust.
             const correctTotalPrice = parseFloat(session.metadata.total_price || "0");
             const correctTotalCents = Math.round(correctTotalPrice * 100);
-            
-            // Get the latest invoice to see what was actually charged
-            const latestInvoice = await stripe.invoices.retrieve(subscription.latest_invoice as string);
-            const amountCharged = latestInvoice.amount_paid; // in cents
-            
-            // If there's a difference, create an invoice item to adjust
-            if (amountCharged !== correctTotalCents && correctTotalCents > 0) {
-              const difference = correctTotalCents - amountCharged;
-              
-              if (difference !== 0) {
-                // Create invoice item to adjust the price
-                await stripe.invoiceItems.create({
-                  customer: subscription.customer as string,
-                  subscription: subscriptionId,
-                  amount: difference, // Positive = credit, Negative = additional charge
-                  currency: 'eur',
-                  description: `Volume pricing adjustment for ${creditVolume} credits`,
-                });
-                
-                // Finalize the invoice with the adjustment
-                await stripe.invoices.finalizeInvoice(latestInvoice.id);
-                
-                console.log(
-                  `Price adjustment applied: Charged ${amountCharged/100}€, Correct ${correctTotalPrice}€, Adjustment ${difference/100}€`
-                );
+            const latestInvoiceId = subscription.latest_invoice as string;
+            if (latestInvoiceId && correctTotalCents > 0) {
+              try {
+                const latestInvoice = await stripe.invoices.retrieve(latestInvoiceId);
+                const amountCharged = latestInvoice.amount_paid;
+                // Only adjust if we charged *less* than subtotal (e.g. no tax case). If
+                // amountCharged > correctTotalCents, the difference is tax — do not touch.
+                if (amountCharged < correctTotalCents) {
+                  const difference = correctTotalCents - amountCharged;
+                  await stripe.invoiceItems.create({
+                    customer: subscription.customer as string,
+                    subscription: subscriptionId,
+                    amount: difference,
+                    currency: 'eur',
+                    description: `Volume pricing adjustment for ${creditVolume} credits`,
+                  });
+                  await stripe.invoices.finalizeInvoice(latestInvoice.id);
+                  console.log(
+                    `Price adjustment applied: Charged ${amountCharged/100}€, Correct ${correctTotalPrice}€, Adjustment +${difference/100}€`
+                  );
+                }
+              } catch (adjustErr: unknown) {
+                console.warn('Credit subscription: price adjustment skipped (e.g. invoice already finalized or tax in use):', adjustErr);
               }
             }
-            
+
             // Add credits to SaaS wallet (initial purchase)
             const { error: creditError } = await supabaseAdmin.rpc('add_saas_credits', {
               p_saas_id: saasId,

@@ -101,7 +101,9 @@ export async function POST(request: Request) {
       customerId = customer.id;
     }
 
-    // Get base price ID from env
+    // Get base price ID from env.
+    // For TVA to be added to "Total due today", the Price in Stripe Dashboard must have
+    // Tax behavior set to "Exclusive" (Settings → Products → [your credits price] → Tax behavior).
     const basePriceId = process.env.STRIPE_PRICE_CREDITS_BASE;
     if (!basePriceId) {
       return NextResponse.json(
@@ -129,8 +131,11 @@ export async function POST(request: Request) {
       automatic_tax: {
         enabled: true,
       },
-      // Collect billing address for tax calculation
-      billing_address_collection: 'auto',
+      // Collect billing address and save it to the Customer (required for automatic tax)
+      billing_address_collection: 'required',
+      customer_update: {
+        address: 'auto',
+      },
       subscription_data: {
         metadata: {
           credit_volume: creditVolume.toString(),

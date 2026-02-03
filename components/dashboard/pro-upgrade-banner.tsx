@@ -87,12 +87,11 @@ export default function ProUpgradeBanner({
             <Crown className="w-6 h-6 text-[#1D4ED8]" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-slate-900">Membre Pro</h3>
+            <h3 className="text-lg font-semibold text-slate-900">{t("memberPro")}</h3>
             <p className="text-sm text-slate-600">
-              {t("memberPro")}
               {proExpirationDate && (
-                <span className="ml-1 text-slate-500">
-                  · {getExpirationText(proExpirationDate)}
+                <span className="text-slate-500">
+                  {getExpirationText(proExpirationDate)}
                 </span>
               )}
             </p>
@@ -100,10 +99,7 @@ export default function ProUpgradeBanner({
         </div>
         <div className="flex items-center gap-2 text-sm text-slate-700">
           <Check className="w-4 h-4 text-green-600" />
-          <span>
-            Vous gagnez <strong>1,10€</strong> par clic qualifié (au lieu de 0,90€){" "}
-            <span className="text-xs text-slate-500">(HT)</span>
-          </span>
+          <span>{t("earnPerClickLegacy")}</span>
         </div>
       </div>
     );
@@ -119,13 +115,12 @@ export default function ProUpgradeBanner({
           </div>
           <div>
             <h3 className="text-lg font-semibold text-slate-900">
-              Membre Pro (Offert) 🎁
+              {t("memberProFree")}
             </h3>
             <p className="text-sm text-slate-600">
-              {t("memberProFree")}
               {proExpirationDate && (
-                <span className="ml-1 text-slate-500">
-                  · {getExpirationText(proExpirationDate)}
+                <span className="text-slate-500">
+                  {getExpirationText(proExpirationDate)}
                 </span>
               )}
             </p>
@@ -133,10 +128,7 @@ export default function ProUpgradeBanner({
         </div>
         <div className="flex items-center gap-2 text-sm text-slate-700">
           <Check className="w-4 h-4 text-green-600" />
-          <span>
-            Vous gagnez <strong>1,10€</strong> par clic qualifié{" "}
-            <span className="text-xs text-slate-500">(HT)</span>
-          </span>
+          <span>{t("earnPerClickProShort")}</span>
         </div>
       </div>
     );
@@ -154,7 +146,7 @@ export default function ProUpgradeBanner({
           </div>
           <div>
             <h3 className="text-lg font-semibold text-slate-900">
-              Débloquez Naano Pro
+              {t("unlockPro")}
             </h3>
             <p className="text-sm text-slate-600">{t("unlockProDesc")}</p>
           </div>
@@ -164,10 +156,7 @@ export default function ProUpgradeBanner({
       <div className="mb-4 space-y-2">
         <div className="flex items-center gap-2 text-sm text-slate-700">
           <Check className="w-4 h-4 text-green-600" />
-          <span>
-            <strong>1,10€</strong> par clic (au lieu de 0,90€) pendant 6 mois{" "}
-            <span className="text-xs text-slate-500">(HT)</span>
-          </span>
+          <span>{t("proEarnBullet")}</span>
         </div>
         <div className="flex items-center gap-2 text-sm text-slate-700">
           <Check className="w-4 h-4 text-green-600" />
