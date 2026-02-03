@@ -26,21 +26,18 @@ export default async function GlobalAnalyticsPage() {
   }
 
   return (
-    <div className="max-w-7xl">
+    <div className="max-w-7xl w-full overflow-x-hidden">
       <div className="mb-8">
         <h1 className="text-2xl font-semibold text-[#111827] mb-2">
           {t("title")}
         </h1>
-        <p className="text-[#64748B] text-sm">
-          {t("subtitle")}
-        </p>
+        <p className="text-[#64748B] text-sm">{t("subtitle")}</p>
       </div>
 
       <GlobalAnalyticsTab />
-      <div className="mt-8">
+      <div className="mt-8 w-full min-w-0 overflow-x-hidden">
         <GlobalLeadFeedTab />
       </div>
     </div>
   );
 }
-

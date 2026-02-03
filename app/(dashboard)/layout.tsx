@@ -50,12 +50,12 @@ export default async function DashboardLayout({
         onboardingCompleted={profile?.onboarding_completed || false}
         userId={user.id}
       />
-      <main className="flex-1 ml-64">
+      <main className="flex-1 min-w-0 ml-64 overflow-x-hidden">
         <DashboardHeader 
           userName={profile?.full_name || user.email || 'User'}
           avatarUrl={profile?.avatar_url}
         />
-        <div className="p-8">
+        <div className="p-8 min-w-0 overflow-x-hidden">
           {children}
         </div>
       </main>

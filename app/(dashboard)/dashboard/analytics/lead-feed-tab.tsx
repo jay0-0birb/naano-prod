@@ -1,9 +1,14 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { getGlobalLeads } from "./actions";
-import { maskIPAddress, formatConfidence, formatDaysAgo, getLeadTypeLabel } from "@/lib/utils";
+import {
+  maskIPAddress,
+  formatConfidence,
+  formatDaysAgo,
+  getLeadTypeLabel,
+} from "@/lib/utils";
 import {
   HelpCircle,
   Filter,
@@ -84,7 +89,26 @@ export default function GlobalLeadFeedTab() {
   const [filterHighConfidence, setFilterHighConfidence] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [columnFilters, setColumnFilters] = useState<Record<string, string>>({});
+  const [columnFilters, setColumnFilters] = useState<Record<string, string>>(
+    {},
+  );
+  const tableScrollRef = useRef<HTMLDivElement>(null);
+  const tableCardRef = useRef<HTMLDivElement>(null);
+
+  // Force scroll container to have a fixed width (parent's width) so overflow-x works when table loads
+  useEffect(() => {
+    const card = tableCardRef.current;
+    const scrollEl = tableScrollRef.current;
+    if (!card || !scrollEl) return;
+    const setWidth = () => {
+      scrollEl.style.width = `${card.offsetWidth}px`;
+      scrollEl.style.maxWidth = `${card.offsetWidth}px`;
+    };
+    setWidth();
+    const ro = new ResizeObserver(setWidth);
+    ro.observe(card);
+    return () => ro.disconnect();
+  }, [loading, leads.length]);
 
   useEffect(() => {
     async function fetchLeads() {
@@ -94,7 +118,7 @@ export default function GlobalLeadFeedTab() {
       const result = await getGlobalLeads(
         sortBy,
         filterConfirmed,
-        filterHighConfidence
+        filterHighConfidence,
       );
 
       if (result.error) {
@@ -119,12 +143,12 @@ export default function GlobalLeadFeedTab() {
 
     const createdAt = new Date(lead.company.createdAt);
     const daysOld = Math.floor(
-      (Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24)
+      (Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24),
     );
 
     // Decay: -0.1% per day, max -30%, min 30%
-    const decay = Math.min(daysOld * 0.001, 0.30);
-    return Math.max(lead.company.confidenceScore - decay, 0.30);
+    const decay = Math.min(daysOld * 0.001, 0.3);
+    return Math.max(lead.company.confidenceScore - decay, 0.3);
   };
 
   // Filter and sort leads - MUST be called before any early returns
@@ -342,7 +366,7 @@ export default function GlobalLeadFeedTab() {
             }
             return cellStr;
           })
-          .join(",")
+          .join(","),
       ),
     ].join("\n");
 
@@ -354,7 +378,7 @@ export default function GlobalLeadFeedTab() {
     link.setAttribute("href", url);
     link.setAttribute(
       "download",
-      `leads-global-${new Date().toISOString().split("T")[0]}.csv`
+      `leads-global-${new Date().toISOString().split("T")[0]}.csv`,
     );
     link.style.visibility = "hidden";
     document.body.appendChild(link);
@@ -408,12 +432,14 @@ export default function GlobalLeadFeedTab() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full min-w-0 overflow-x-hidden">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-semibold mb-2">{t("leadFeedGlobal")}</h2>
+            <h2 className="text-xl font-semibold mb-2">
+              {t("leadFeedGlobal")}
+            </h2>
             <p className="text-sm text-gray-600">{t("allLeadsDesc")}</p>
           </div>
           <div className="flex items-center gap-2">
@@ -442,10 +468,18 @@ export default function GlobalLeadFeedTab() {
         </div>
       </div>
 
-      {/* Spreadsheet Table */}
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+      {/* Spreadsheet Table: card capped to viewport so it never stretches; scroll div gets explicit width via ref */}
+      <div
+        ref={tableCardRef}
+        className="bg-white border border-gray-200 rounded-lg w-full overflow-hidden"
+        style={{ maxWidth: "min(100%, calc(100vw - 18rem))" }}
+      >
+        <div
+          ref={tableScrollRef}
+          className="overflow-x-auto overflow-y-visible"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
+          <table className="text-sm table-auto" style={{ minWidth: "max-content" }}>
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700 sticky left-0 bg-gray-50 z-10">
@@ -682,7 +716,9 @@ export default function GlobalLeadFeedTab() {
                           {lead.creatorName}
                         </Link>
                       ) : (
-                        <span className="text-gray-700">{lead.creatorName}</span>
+                        <span className="text-gray-700">
+                          {lead.creatorName}
+                        </span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-gray-700">
@@ -705,8 +741,8 @@ export default function GlobalLeadFeedTab() {
                         ? lead.session.referrer.includes("linkedin.com")
                           ? "LinkedIn"
                           : lead.session.referrer.includes("twitter.com")
-                          ? "Twitter"
-                          : lead.session.referrer
+                            ? "Twitter"
+                            : lead.session.referrer
                         : "Direct"}
                     </td>
                     <td className="px-4 py-3">
@@ -744,4 +780,3 @@ export default function GlobalLeadFeedTab() {
     </div>
   );
 }
-
