@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { BarChart3, MousePointerClick, Target, Users, TrendingUp, TrendingDown } from 'lucide-react'
 import { getCollaborationAnalytics } from './actions-v2'
 

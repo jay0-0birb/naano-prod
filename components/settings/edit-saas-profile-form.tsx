@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { updateSaasProfile, fetchLogoFromWebsite } from '@/app/(dashboard)/dashboard/settings/actions';
 import { Loader2, Save, X, Building2, Globe, Camera, Sparkles, Trash2 } from 'lucide-react';

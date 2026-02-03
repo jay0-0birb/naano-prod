@@ -66,17 +66,20 @@ export async function POST(request: NextRequest) {
 
     // Create lead only if click is qualified (bot filter, 3-sec rule, dedup)
     if (timeOnSite >= 3) {
-      supabase
-        .rpc('create_qualified_lead_from_event', { p_link_event_id: eventId })
-        .then(({ data: leadId, error: leadError }) => {
+      void (async () => {
+        try {
+          const { data: leadId, error: leadError } = await supabase
+            .rpc('create_qualified_lead_from_event', { p_link_event_id: eventId });
           if (leadError) {
             console.error('[3SEC] Lead creation:', leadError.message);
           } else if (leadId) {
             console.log('[3SEC] Qualified lead created:', leadId);
           }
           // leadId null + no error = skipped (bot, duplicate, no credits)
-        })
-        .catch((err) => console.error('[3SEC] Lead creation error:', err));
+        } catch (err) {
+          console.error('[3SEC] Lead creation error:', err);
+        }
+      })();
     }
 
     return NextResponse.json({ success: true });
