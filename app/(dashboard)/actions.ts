@@ -112,7 +112,29 @@ export async function completeCreatorOnboarding(formData: FormData) {
   const recentPostsLinkedin = formData.get("recentPostsLinkedin") as
     | string
     | null;
-  const siretNumber = formData.get("siretNumber") as string | null;
+  const companyLegalName = formData.get("companyLegalName") as string | null;
+  const companyRegistrationCountry = formData.get(
+    "companyRegistrationCountry",
+  ) as string | null;
+  const companyTaxId = formData.get("companyTaxId") as string | null;
+  const companyVatNumber = formData.get("companyVatNumber") as string | null;
+  const companyRegisteredAddress = formData.get(
+    "companyRegisteredAddress",
+  ) as string | null;
+
+  if (legalStatus === "professionnel") {
+    if (
+      !companyLegalName ||
+      !companyRegistrationCountry ||
+      !companyTaxId ||
+      !companyRegisteredAddress
+    ) {
+      return {
+        error:
+          "Informations d'entreprise manquantes. Merci de compléter tous les champs obligatoires.",
+      };
+    }
+  }
 
   const updateData: Record<string, unknown> = {
     first_name: firstName,
@@ -129,8 +151,28 @@ export async function completeCreatorOnboarding(formData: FormData) {
     mandate_accepted_at: new Date().toISOString(),
   };
 
-  if (legalStatus === "professionnel" && siretNumber) {
-    updateData.siret_number = siretNumber;
+  if (legalStatus === "professionnel") {
+    if (companyLegalName) {
+      updateData.company_legal_name = companyLegalName;
+    }
+    if (companyRegistrationCountry) {
+      updateData.company_registration_country = companyRegistrationCountry;
+    }
+    if (companyTaxId) {
+      updateData.company_tax_id = companyTaxId;
+
+      // For French companies, also map to legacy siret_number for compatibility
+      if (companyRegistrationCountry === "FR") {
+        const normalizedSiret = companyTaxId.replace(/\s+/g, "");
+        updateData.siret_number = normalizedSiret;
+      }
+    }
+    if (companyVatNumber) {
+      updateData.company_vat_number = companyVatNumber;
+    }
+    if (companyRegisteredAddress) {
+      updateData.company_registered_address = companyRegisteredAddress;
+    }
   }
 
   if (recentPostsLinkedin) {

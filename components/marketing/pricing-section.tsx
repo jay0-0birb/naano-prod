@@ -240,7 +240,7 @@ export const PricingSection = () => {
 
                   <div className="mt-auto space-y-3">
                     <Link
-                      href="/register"
+                      href="/register?role=influencer"
                       className="inline-flex w-full items-center justify-center gap-2 rounded-[10px] bg-[#0F172A] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1E293B] transition-colors"
                     >
                       {t("createProfile")}
@@ -302,7 +302,7 @@ export const PricingSection = () => {
 
                   <div className="mt-auto space-y-3">
                     <Link
-                      href="/register"
+                      href="/register?role=influencer"
                       className="inline-flex w-full items-center justify-center gap-2 rounded-[10px] bg-[#0F172A] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#020617] transition-colors"
                     >
                       {t("createProfile")}
@@ -310,7 +310,7 @@ export const PricingSection = () => {
                     </Link>
 
                     <Link
-                      href="/founding-creators-program.pdf"
+                      href="https://docs.google.com/document/d/1QDktyPL9Mmi7H9bWObv0lGwRwVaJFk8AWWhLfeJ5yLA/edit?tab=t.0#heading=h.fa4ipmtnz0o3"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center justify-center gap-1 text-xs font-semibold text-[#1D4ED8] hover:text-[#1E40AF] underline decoration-[#BFDBFE] decoration-1 underline-offset-4"

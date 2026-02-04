@@ -5,10 +5,16 @@ import { useTranslations } from 'next-intl';
 import { signup } from '@/app/(auth)/actions';
 import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 
-export default function SignUpForm() {
+type Role = 'saas' | 'influencer';
+
+interface SignUpFormProps {
+  defaultRole?: Role;
+}
+
+export default function SignUpForm({ defaultRole = 'saas' }: SignUpFormProps) {
   const t = useTranslations('auth');
   const [isLoading, setIsLoading] = useState(false);
-  const [role, setRole] = useState<'saas' | 'influencer'>('saas');
+  const [role, setRole] = useState<Role>(defaultRole);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
