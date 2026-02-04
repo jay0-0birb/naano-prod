@@ -1,10 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { Search, Filter, Building2, Users as UsersIcon } from "lucide-react";
+import { Search, Filter, Building2 } from "lucide-react";
 import SaasCard from "@/components/marketplace/saas-card";
-import CreatorCard from "@/components/marketplace/creator-card";
 import { SAAS_TIERS, SaasTier } from "@/lib/subscription-config";
+import CreatorMarketplaceClient, {
+  CreatorMarketplaceCreator,
+} from "@/components/marketplace/creator-marketplace-client";
 
 export default async function MarketplacePage() {
   const t = await getTranslations("dashboard");
@@ -198,7 +200,8 @@ export default async function MarketplacePage() {
     ]);
 
     const saasCompany = saasCompanyResult.data;
-    const creators = creatorsResult.data;
+    const creators = (creatorsResult.data ||
+      []) as CreatorMarketplaceCreator[];
 
     // Get existing applications/invites if saas company exists
     let invitedCreatorIds: string[] = [];
@@ -225,47 +228,11 @@ export default async function MarketplacePage() {
           </div>
         </div>
 
-        {/* Search & Filters */}
-        <div className="flex gap-4 mb-8">
-          <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#94A3B8]" />
-            <input
-              type="text"
-              placeholder={t("searchCreator")}
-              className="w-full bg-white border border-gray-200 rounded-xl pl-12 pr-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
-            />
-          </div>
-          <button className="flex items-center gap-2 px-4 py-3 bg-white border border-gray-200 rounded-xl text-[#64748B] hover:text-[#111827] hover:border-gray-300 transition-all">
-            <Filter className="w-5 h-5" />
-            <span className="text-sm">{t("filters")}</span>
-          </button>
-        </div>
-
-        {/* Creators Grid */}
-        {creators && creators.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {creators.map((creator) => (
-              <CreatorCard
-                key={creator.id}
-                creator={creator as any}
-                hasInvited={invitedCreatorIds.includes(creator.id)}
-                saasCompanyId={saasCompany?.id || null}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-16 bg-white border border-gray-200 rounded-2xl shadow-sm">
-            <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-4">
-              <UsersIcon className="w-8 h-8 text-[#94A3B8]" />
-            </div>
-            <h3 className="text-lg font-semibold text-[#111827] mb-2">
-              {t("noCreators")}
-            </h3>
-            <p className="text-[#64748B] text-sm max-w-md mx-auto">
-              {t("noCreatorsDesc")}
-            </p>
-          </div>
-        )}
+        <CreatorMarketplaceClient
+          creators={creators}
+          invitedCreatorIds={invitedCreatorIds}
+          saasCompanyId={saasCompany?.id || null}
+        />
       </div>
     );
   }
