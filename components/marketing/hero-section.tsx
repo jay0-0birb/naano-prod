@@ -139,17 +139,21 @@ export const HeroSection = ({
           </p>
 
           <div className="flex justify-center items-center gap-6 sm:gap-8 md:gap-12 lg:gap-16 xl:gap-20 flex-wrap max-w-[1000px] mx-auto px-4">
-            {["Vercel", "Linear", "Notion", "Stripe", "Loom", "Figma"].map(
-              (brand) => (
-                <p
-                  key={brand}
-                  className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-[#CBD5E1] hover:text-[#64748B] transition-colors duration-300 cursor-default"
-                  style={{ fontFamily: "Satoshi, sans-serif" }}
-                >
-                  {brand}
-                </p>
-              ),
-            )}
+            {[
+              { name: "TryLoops", url: "https://tryloops.ai/" },
+              { name: "Pletor", url: "https://www.pletor.ai/" },
+            ].map((brand) => (
+              <a
+                key={brand.name}
+                href={brand.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-[#CBD5E1] hover:text-[#64748B] transition-colors duration-300"
+                style={{ fontFamily: "Satoshi, sans-serif" }}
+              >
+                {brand.name}
+              </a>
+            ))}
           </div>
         </motion.div>
       </div>

@@ -479,7 +479,10 @@ export default function GlobalLeadFeedTab() {
           className="overflow-x-auto overflow-y-visible"
           style={{ WebkitOverflowScrolling: "touch" }}
         >
-          <table className="text-sm table-auto" style={{ minWidth: "max-content" }}>
+          <table
+            className="text-sm table-auto"
+            style={{ minWidth: "max-content" }}
+          >
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700 sticky left-0 bg-gray-50 z-10">

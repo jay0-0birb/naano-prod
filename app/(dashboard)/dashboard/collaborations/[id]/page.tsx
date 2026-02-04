@@ -156,7 +156,6 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
     });
   };
 
-
   // Get or create tracking link for this collaboration
   const trackingLinkResult = await getOrCreateTrackingLink(collaboration.id);
   const trackingLink = trackingLinkResult.success
@@ -232,7 +231,9 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
             <div>
               <h1 className="text-xl font-semibold text-[#111827] mb-1">
                 {t("collaborationWith", {
-                  name: isCreator ? partner?.company_name : partnerProfile?.full_name,
+                  name: isCreator
+                    ? partner?.company_name
+                    : partnerProfile?.full_name,
                 })}
               </h1>
               <div className="flex items-center gap-3">

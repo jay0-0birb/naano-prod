@@ -94,7 +94,9 @@ export async function getGlobalAnalytics() {
   // Get all clicks and impressions
   const { data: allEvents } = await supabase
     .from("link_events")
-    .select("event_type, time_on_site, occurred_at, ip_address, user_agent, country")
+    .select(
+      "event_type, time_on_site, occurred_at, ip_address, user_agent, country",
+    )
     .in("tracked_link_id", trackedLinkIds);
 
   // Calculate totals
@@ -112,8 +114,7 @@ export async function getGlobalAnalytics() {
         (e.time_on_site >= 3 ||
           (e.time_on_site === null &&
             e.occurred_at &&
-            new Date(e.occurred_at) >
-              new Date(Date.now() - 5 * 60 * 1000)))
+            new Date(e.occurred_at) > new Date(Date.now() - 5 * 60 * 1000))),
     ).length || 0;
 
   // Get leads count
@@ -149,7 +150,7 @@ export async function getGlobalAnalytics() {
 export async function getGlobalLeads(
   sortBy: "date" | "confidence" | "intent" | "company_intent" = "date",
   filterConfirmed: boolean = false,
-  filterHighConfidence: boolean = false
+  filterHighConfidence: boolean = false,
 ) {
   const supabase = await createClient();
 
@@ -272,7 +273,7 @@ export async function getGlobalLeads(
       tracked_links:tracked_link_id (
         collaboration_id
       )
-    `
+    `,
     )
     .in("id", linkEventIds)
     .order("occurred_at", { ascending: false })
@@ -302,14 +303,20 @@ export async function getGlobalLeads(
   }
   if (sortBy === "confidence") {
     filteredEvents = [...filteredEvents].sort((a: any, b: any) => {
-      const ca = (a.company_inferences?.[0] || a.company_inferences)?.confidence_score ?? 0;
-      const cb = (b.company_inferences?.[0] || b.company_inferences)?.confidence_score ?? 0;
+      const ca =
+        (a.company_inferences?.[0] || a.company_inferences)?.confidence_score ??
+        0;
+      const cb =
+        (b.company_inferences?.[0] || b.company_inferences)?.confidence_score ??
+        0;
       return cb - ca;
     });
   } else if (sortBy === "intent") {
     filteredEvents = [...filteredEvents].sort((a: any, b: any) => {
-      const sa = (a.intent_scores?.[0] || a.intent_scores)?.session_intent_score ?? 0;
-      const sb = (b.intent_scores?.[0] || b.intent_scores)?.session_intent_score ?? 0;
+      const sa =
+        (a.intent_scores?.[0] || a.intent_scores)?.session_intent_score ?? 0;
+      const sb =
+        (b.intent_scores?.[0] || b.intent_scores)?.session_intent_score ?? 0;
       return sb - sa;
     });
   }
@@ -324,17 +331,19 @@ export async function getGlobalLeads(
           const ci = e.company_inferences?.[0] || e.company_inferences;
           return ci?.inferred_company_name;
         })
-        .filter(Boolean)
+        .filter(Boolean),
     );
 
     for (const companyName of uniqueCompanies) {
       try {
         // Get aggregate across all tracked links for this company
-        const { data: aggregates } = await supabase
-          .rpc("get_company_aggregated_intent", {
+        const { data: aggregates } = await supabase.rpc(
+          "get_company_aggregated_intent",
+          {
             company_name: companyName,
             tracked_link_id: trackedLinkIds[0], // We'll need to aggregate across all links
-          });
+          },
+        );
 
         // For now, use the first result (we can improve this later)
         if (aggregates) {
@@ -354,7 +363,7 @@ export async function getGlobalLeads(
           const trackedLink = e.tracked_links;
           return (trackedLink as any)?.collaboration_id;
         })
-        .filter(Boolean)
+        .filter(Boolean),
     ),
   ];
 
@@ -373,7 +382,7 @@ export async function getGlobalLeads(
             )
           )
         )
-      `
+      `,
       )
       .in("id", collaborationIdsForCreatorNames);
 
@@ -389,76 +398,75 @@ export async function getGlobalLeads(
 
   // Format leads data - show all qualified leads (company and intent optional)
   const leads = filteredEvents.map((event: any) => {
-      const companyInference =
-        event.company_inferences?.[0] || event.company_inferences;
-      const intentScore = event.intent_scores?.[0] || event.intent_scores;
-      const trackedLink = event.tracked_links;
-      const collaborationId = (trackedLink as any)?.collaboration_id || null;
-      const creatorName =
-        collaborationId && creatorNamesMap.has(collaborationId)
-          ? creatorNamesMap.get(collaborationId)!
-          : "Unknown";
+    const companyInference =
+      event.company_inferences?.[0] || event.company_inferences;
+    const intentScore = event.intent_scores?.[0] || event.intent_scores;
+    const trackedLink = event.tracked_links;
+    const collaborationId = (trackedLink as any)?.collaboration_id || null;
+    const creatorName =
+      collaborationId && creatorNamesMap.has(collaborationId)
+        ? creatorNamesMap.get(collaborationId)!
+        : "Unknown";
 
-      return {
-        id: event.id,
-        occurredAt: event.occurred_at,
-        collaborationId: collaborationId,
-        // Layer 1: Session Intelligence
-        session: {
-          sessionId: event.session_id,
-          ipAddress: event.ip_address,
-          country: event.country,
-          city: event.city,
-          deviceType: event.device_type,
-          os: event.os,
-          browser: event.browser,
-          referrer: event.referrer,
-          timeOnSite: event.time_on_site,
-          networkType: event.network_type,
-        },
-        // Layer 2: Company Inference
-        company: companyInference
-          ? {
-              name: companyInference.inferred_company_name,
-              domain: companyInference.inferred_company_domain,
-              industry: companyInference.inferred_industry,
-              size: companyInference.inferred_company_size,
-              location: companyInference.inferred_location,
-              confidenceScore: companyInference.confidence_score,
-              effectiveConfidenceScore: null,
-              confidenceReasons: companyInference.confidence_reasons || [],
-              attributionState: companyInference.attribution_state,
-              asnOrganization: companyInference.asn_organization,
-              isAmbiguous: companyInference.is_ambiguous || false,
-              createdAt: companyInference.created_at,
-              confirmedAt: companyInference.confirmed_at,
-              aggregatedIntent:
-                companyAggregates.get(companyInference.inferred_company_name) ||
-                null,
-            }
-          : null,
-        // Layer 3: Intent Score
-        intent: intentScore
-          ? {
-              score: intentScore.session_intent_score,
-              isRepeatVisit: intentScore.is_repeat_visit,
-              visitCount: intentScore.visit_count,
-              viewedPricing: intentScore.viewed_pricing,
-              viewedSecurity: intentScore.viewed_security,
-              viewedIntegrations: intentScore.viewed_integrations,
-              signals: intentScore.intent_signals,
-              recencyWeight: intentScore.recency_weight || 1.0,
-              daysSinceSession: intentScore.days_since_session,
-            }
-          : null,
-        // Creator source
-        creatorName,
-      };
-    });
+    return {
+      id: event.id,
+      occurredAt: event.occurred_at,
+      collaborationId: collaborationId,
+      // Layer 1: Session Intelligence
+      session: {
+        sessionId: event.session_id,
+        ipAddress: event.ip_address,
+        country: event.country,
+        city: event.city,
+        deviceType: event.device_type,
+        os: event.os,
+        browser: event.browser,
+        referrer: event.referrer,
+        timeOnSite: event.time_on_site,
+        networkType: event.network_type,
+      },
+      // Layer 2: Company Inference
+      company: companyInference
+        ? {
+            name: companyInference.inferred_company_name,
+            domain: companyInference.inferred_company_domain,
+            industry: companyInference.inferred_industry,
+            size: companyInference.inferred_company_size,
+            location: companyInference.inferred_location,
+            confidenceScore: companyInference.confidence_score,
+            effectiveConfidenceScore: null,
+            confidenceReasons: companyInference.confidence_reasons || [],
+            attributionState: companyInference.attribution_state,
+            asnOrganization: companyInference.asn_organization,
+            isAmbiguous: companyInference.is_ambiguous || false,
+            createdAt: companyInference.created_at,
+            confirmedAt: companyInference.confirmed_at,
+            aggregatedIntent:
+              companyAggregates.get(companyInference.inferred_company_name) ||
+              null,
+          }
+        : null,
+      // Layer 3: Intent Score
+      intent: intentScore
+        ? {
+            score: intentScore.session_intent_score,
+            isRepeatVisit: intentScore.is_repeat_visit,
+            visitCount: intentScore.visit_count,
+            viewedPricing: intentScore.viewed_pricing,
+            viewedSecurity: intentScore.viewed_security,
+            viewedIntegrations: intentScore.viewed_integrations,
+            signals: intentScore.intent_signals,
+            recencyWeight: intentScore.recency_weight || 1.0,
+            daysSinceSession: intentScore.days_since_session,
+          }
+        : null,
+      // Creator source
+      creatorName,
+    };
+  });
 
   return {
     success: true,
     leads,
   };
 }
-

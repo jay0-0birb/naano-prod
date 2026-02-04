@@ -6,10 +6,10 @@ import { notifyPostSubmitted } from "@/lib/notifications";
 
 export async function submitPost(
   collaborationId: string,
-  linkedinPostUrl: string
+  linkedinPostUrl: string,
 ) {
   const supabase = await createClient();
-  
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -30,7 +30,7 @@ export async function submitPost(
           profile_id
         )
       )
-    `
+    `,
     )
     .eq("id", collaborationId)
     .single();
@@ -102,7 +102,8 @@ export async function submitPost(
   // CREDIT SYSTEM: Check if SaaS has credits available
   const { data: saasCompany } = await supabase
     .from("collaborations")
-    .select(`
+    .select(
+      `
       applications:application_id (
         saas_companies:saas_id (
           id,
@@ -110,7 +111,8 @@ export async function submitPost(
           company_name
         )
       )
-    `)
+    `,
+    )
     .eq("id", collaborationId)
     .single();
 
@@ -118,17 +120,17 @@ export async function submitPost(
   const walletCredits = saas?.wallet_credits || 0;
 
   if (walletCredits <= 0) {
-    return { 
-      error: `Budget épuisé. ${saas?.company_name || "Le SaaS"} n'a plus de crédits disponibles. Les posts ne peuvent pas être soumis jusqu'à ce que le budget soit renouvelé.` 
+    return {
+      error: `Budget épuisé. ${saas?.company_name || "Le SaaS"} n'a plus de crédits disponibles. Les posts ne peuvent pas être soumis jusqu'à ce que le budget soit renouvelé.`,
     };
   }
 
   // Create the proof (no validation step - posts are auto-confirmed)
   const { error } = await supabase.from("publication_proofs").insert({
-      collaboration_id: collaborationId,
-      linkedin_post_url: linkedinPostUrl,
-      validated: true,
-      validated_at: new Date().toISOString(),
+    collaboration_id: collaborationId,
+    linkedin_post_url: linkedinPostUrl,
+    validated: true,
+    validated_at: new Date().toISOString(),
   });
 
   if (error) {
@@ -148,7 +150,7 @@ export async function submitPost(
  */
 export async function getOrCreateTrackingLink(collaborationId: string) {
   const supabase = await createClient();
-  
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -185,7 +187,7 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
         name,
         main_url
       )
-    `
+    `,
     )
     .eq("id", collaborationId)
     .single();
@@ -234,7 +236,7 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
   const { data: existingLink } = await supabase
     .from("tracked_links")
     .select(
-      "id, hash, destination_url, track_impressions, track_clicks, track_revenue"
+      "id, hash, destination_url, track_impressions, track_clicks, track_revenue",
     )
     .eq("collaboration_id", collaborationId)
     .single();
@@ -272,7 +274,10 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
       const maxAttempts = 10;
 
       while (!isUnique && attempts < maxAttempts) {
-        const randomPart = Math.random().toString(36).substring(2, 8).toLowerCase();
+        const randomPart = Math.random()
+          .toString(36)
+          .substring(2, 8)
+          .toLowerCase();
         hash = `${creatorSlug}-${saasSlug}-${randomPart}`;
 
         const { data: existing } = await supabase
@@ -299,7 +304,7 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
         })
         .eq("id", existingLink.id)
         .select(
-          "id, hash, destination_url, track_impressions, track_clicks, track_revenue"
+          "id, hash, destination_url, track_impressions, track_clicks, track_revenue",
         )
         .single();
 
@@ -339,8 +344,8 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "") // Remove accents
     .replace(/[^a-z0-9]+/g, "-") // Replace non-alphanumeric with dashes
-      .replace(/^-|-$/g, "") // Remove leading/trailing dashes
-      .substring(0, 20); // Max 20 chars
+    .replace(/^-|-$/g, "") // Remove leading/trailing dashes
+    .substring(0, 20); // Max 20 chars
 
   const saasSlug = saasName
     .toLowerCase()
@@ -348,7 +353,7 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "")
-      .substring(0, 20);
+    .substring(0, 20);
 
   // Generate unique hash with format: creator-name-saas-name-randomhash
   let hash = "";
@@ -360,7 +365,7 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
     // Generate 6-character random hash
     const randomPart = Math.random().toString(36).substring(2, 8).toLowerCase();
     hash = `${creatorSlug}-${saasSlug}-${randomPart}`;
-    
+
     // Check if hash already exists
     const { data: existing } = await supabase
       .from("tracked_links")
@@ -380,17 +385,17 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
 
   // Create tracking link - ALWAYS track everything
   const { data: newLink, error } = await supabase
-      .from("tracked_links")
-      .insert({
-        collaboration_id: collaborationId,
-        hash: hash,
-        destination_url: destinationUrl,
-        track_impressions: true, // Always ON
-        track_clicks: true, // Always ON
-        track_revenue: true, // Always ON
-      })
+    .from("tracked_links")
+    .insert({
+      collaboration_id: collaborationId,
+      hash: hash,
+      destination_url: destinationUrl,
+      track_impressions: true, // Always ON
+      track_clicks: true, // Always ON
+      track_revenue: true, // Always ON
+    })
     .select(
-      "id, hash, destination_url, track_impressions, track_clicks, track_revenue"
+      "id, hash, destination_url, track_impressions, track_clicks, track_revenue",
     )
     .single();
 
@@ -398,8 +403,8 @@ export async function getOrCreateTrackingLink(collaborationId: string) {
     return { error: error.message };
   }
 
-  return { 
-    success: true, 
+  return {
+    success: true,
     link: newLink,
     impressions: 0,
     clicks: 0,
@@ -434,7 +439,7 @@ export async function getCollaborationAnalytics(collaborationId: string) {
           subscription_tier
         )
       )
-    `
+    `,
     )
     .eq("id", collaborationId)
     .single();
@@ -496,7 +501,7 @@ export async function getCollaborationLeads(
   collaborationId: string,
   sortBy: "date" | "confidence" | "intent" | "company_intent" = "date",
   filterConfirmed: boolean = false,
-  filterHighConfidence: boolean = false
+  filterHighConfidence: boolean = false,
 ) {
   const supabase = await createClient();
 
@@ -519,7 +524,7 @@ export async function getCollaborationLeads(
           subscription_tier
         )
       )
-    `
+    `,
     )
     .eq("id", collaborationId)
     .single();
@@ -611,7 +616,7 @@ export async function getCollaborationLeads(
         recency_weight,
         days_since_session
       )
-    `
+    `,
     )
     .in("id", linkEventIds)
     .order("occurred_at", { ascending: false })
@@ -622,9 +627,9 @@ export async function getCollaborationLeads(
   if (error) {
     console.error("Error fetching leads:", error);
     console.error("Error details:", JSON.stringify(error, null, 2));
-    return { 
+    return {
       error: "Erreur lors de la récupération des leads",
-      details: error.message 
+      details: error.message,
     };
   }
 
@@ -644,14 +649,20 @@ export async function getCollaborationLeads(
   }
   if (sortBy === "confidence") {
     filteredEvents = [...filteredEvents].sort((a: any, b: any) => {
-      const ca = (a.company_inferences?.[0] || a.company_inferences)?.confidence_score ?? 0;
-      const cb = (b.company_inferences?.[0] || b.company_inferences)?.confidence_score ?? 0;
+      const ca =
+        (a.company_inferences?.[0] || a.company_inferences)?.confidence_score ??
+        0;
+      const cb =
+        (b.company_inferences?.[0] || b.company_inferences)?.confidence_score ??
+        0;
       return cb - ca;
     });
   } else if (sortBy === "intent") {
     filteredEvents = [...filteredEvents].sort((a: any, b: any) => {
-      const sa = (a.intent_scores?.[0] || a.intent_scores)?.session_intent_score ?? 0;
-      const sb = (b.intent_scores?.[0] || b.intent_scores)?.session_intent_score ?? 0;
+      const sa =
+        (a.intent_scores?.[0] || a.intent_scores)?.session_intent_score ?? 0;
+      const sb =
+        (b.intent_scores?.[0] || b.intent_scores)?.session_intent_score ?? 0;
       return sb - sa;
     });
   }
@@ -669,7 +680,7 @@ export async function getCollaborationLeads(
           )
         )
       )
-    `
+    `,
     )
     .eq("id", collaborationId)
     .single();
@@ -688,7 +699,7 @@ export async function getCollaborationLeads(
           const ci = e.company_inferences?.[0] || e.company_inferences;
           return ci?.inferred_company_name;
         })
-        .filter(Boolean)
+        .filter(Boolean),
     );
 
     for (const companyName of uniqueCompanies) {
