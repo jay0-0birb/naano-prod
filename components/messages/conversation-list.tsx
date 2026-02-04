@@ -156,12 +156,12 @@ export default function ConversationList({
   };
 
   return (
-    <div className="h-full bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
-      <div className="p-4 border-b border-gray-200">
+    <div className="h-full min-h-0 flex flex-col bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+      <div className="p-3 sm:p-4 border-b border-gray-200 shrink-0">
         <h3 className="font-semibold text-[#111827] text-sm">{t("conversations")}</h3>
       </div>
 
-      <div className="overflow-y-auto h-[calc(100%-60px)]">
+      <div className="flex-1 overflow-y-auto min-h-0">
         {conversations.length > 0 ? (
           <div className="divide-y divide-gray-100">
             {conversations.map((conversation) => {
@@ -174,7 +174,7 @@ export default function ConversationList({
                 <Link
                   key={conversation.id}
                   href={`/dashboard/messages?conversation=${conversation.id}`}
-                  className={`flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors ${
+                  className={`flex items-center gap-3 p-3 sm:p-4 hover:bg-gray-50 active:bg-gray-100 transition-colors min-h-[56px] sm:min-h-0 ${
                     isActive ? "bg-gray-50" : ""
                   }`}
                 >
@@ -183,11 +183,11 @@ export default function ConversationList({
                     <img
                       src={partner.avatar}
                       alt={partner.name}
-                      className="w-10 h-10 rounded-full object-contain"
+                      className="w-10 h-10 rounded-full object-contain shrink-0"
                     />
                   ) : (
                     <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
                         partner?.type === "saas"
                           ? "bg-blue-50 border border-blue-200"
                           : currentUserRole === "saas"
@@ -226,7 +226,7 @@ export default function ConversationList({
             })}
           </div>
         ) : (
-          <div className="flex items-center justify-center h-full p-4">
+          <div className="flex items-center justify-center h-full min-h-[200px] p-4">
             <p className="text-sm text-[#64748B] text-center">
               {t("noConversationYet")}
               <br />

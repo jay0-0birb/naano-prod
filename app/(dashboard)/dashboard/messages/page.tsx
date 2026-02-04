@@ -101,21 +101,25 @@ export default async function MessagesPage({ searchParams }: PageProps) {
   const partnerInfo = activeConversation ? getPartnerInfo(activeConversation) : { name: null, avatar: null };
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex gap-6">
-      {/* Conversations List */}
-      <div className="w-80 shrink-0">
-        <ConversationList 
+    <div className="h-[calc(100vh-5rem)] sm:h-[calc(100vh-6rem)] md:h-[calc(100vh-8rem)] flex flex-col md:flex-row gap-4 md:gap-6 min-h-0">
+      {/* Conversations List - hidden on mobile when a conversation is open */}
+      <div
+        className={`w-full md:w-80 shrink-0 min-h-0 flex flex-col ${
+          activeConversationId ? "hidden md:flex" : "flex"
+        }`}
+      >
+        <ConversationList
           conversations={conversations}
           activeConversationId={activeConversationId}
           currentUserId={user.id}
-          currentUserRole={profile?.role as 'saas' | 'influencer' | undefined}
+          currentUserRole={profile?.role as "saas" | "influencer" | undefined}
         />
       </div>
 
-      {/* Chat View */}
-      <div className="flex-1">
+      {/* Chat View - full width on mobile when conversation selected */}
+      <div className="flex-1 min-w-0 min-h-0 flex flex-col">
         {activeConversationId && activeConversation ? (
-          <ChatView 
+          <ChatView
             conversationId={activeConversationId}
             currentUser={{
               id: user.id,
@@ -126,16 +130,16 @@ export default async function MessagesPage({ searchParams }: PageProps) {
             partnerAvatar={partnerInfo.avatar}
           />
         ) : (
-          <div className="h-full flex items-center justify-center bg-white border border-gray-200 rounded-2xl shadow-sm">
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-4">
-                <MessageSquare className="w-8 h-8 text-[#94A3B8]" />
+          <div className="h-full hidden md:flex items-center justify-center bg-white border border-gray-200 rounded-2xl shadow-sm">
+            <div className="text-center px-4">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <MessageSquare className="w-7 h-7 sm:w-8 sm:h-8 text-[#94A3B8]" />
               </div>
-              <h3 className="text-lg font-semibold text-[#111827] mb-2">
-                {t('selectConversation')}
+              <h3 className="text-base sm:text-lg font-semibold text-[#111827] mb-2">
+                {t("selectConversation")}
               </h3>
               <p className="text-[#64748B] text-sm max-w-xs mx-auto">
-                {t('selectConversationDesc')}
+                {t("selectConversationDesc")}
               </p>
             </div>
           </div>
