@@ -123,9 +123,9 @@ export async function completeCreatorOnboarding(formData: FormData) {
   ) as string | null;
   const companyTaxId = formData.get("companyTaxId") as string | null;
   const companyVatNumber = formData.get("companyVatNumber") as string | null;
-  const companyRegisteredAddress = formData.get(
-    "companyRegisteredAddress",
-  ) as string | null;
+  const companyRegisteredAddress = formData.get("companyRegisteredAddress") as
+    | string
+    | null;
 
   if (legalStatus === "professionnel") {
     if (

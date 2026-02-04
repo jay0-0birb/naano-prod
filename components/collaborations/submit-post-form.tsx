@@ -105,17 +105,14 @@ export default function SubmitPostForm({ collaborationId }: SubmitPostFormProps)
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">
-            {t('linkLabel')}
-          </label>
           <div className="relative">
-            <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+            <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
             <input
               type="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder={tCredits('placeholder')}
-              className="w-full bg-[#020408] border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+              className="w-full bg-white border border-slate-200 rounded-xl pl-12 pr-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
             />
           </div>
           <p className="text-xs text-slate-500 mt-1.5">
