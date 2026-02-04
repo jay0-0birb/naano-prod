@@ -65,9 +65,9 @@ export default function CreditSubscriptionSlider({
   };
 
   return (
-    <div className="bg-white rounded-2xl p-6 border border-slate-200">
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-slate-900 mb-2">
+    <div className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 min-w-0">
+      <div className="mb-4 sm:mb-6">
+        <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-2">
           {t("subscription")}
         </h3>
         <p className="text-sm text-slate-600">
@@ -76,12 +76,12 @@ export default function CreditSubscriptionSlider({
       </div>
 
       {/* Slider */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 sm:mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
           <label className="text-sm font-medium text-slate-700">
             {t("monthlyVolume")}
           </label>
-          <span className="text-lg font-semibold text-slate-900">
+          <span className="text-base sm:text-lg font-semibold text-slate-900">
             {creditVolume.toLocaleString()} {t("creditsAvailable")}
           </span>
         </div>
@@ -104,7 +104,7 @@ export default function CreditSubscriptionSlider({
       </div>
 
       {/* Pricing Display */}
-      <div className="bg-slate-50 rounded-xl p-4 mb-6">
+      <div className="bg-slate-50 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6">
         <div className="flex justify-between items-center mb-2">
           <span className="text-sm text-slate-600">{t("unitPrice")}</span>
           <span className="text-sm font-medium text-slate-900">
@@ -122,7 +122,7 @@ export default function CreditSubscriptionSlider({
             <span className="text-base font-semibold text-slate-900">
               {t("totalMonthly")}
             </span>
-            <span className="text-xl font-bold text-blue-600">
+            <span className="text-lg sm:text-xl font-bold text-blue-600">
               {totalPrice.toFixed(2)}€
             </span>
           </div>

@@ -17,6 +17,7 @@ import {
   Wallet,
   BarChart3,
   ExternalLink,
+  X,
 } from "lucide-react";
 import { forceLogout } from "@/lib/auth-utils";
 import UnreadBadge from "./unread-badge";
@@ -25,12 +26,16 @@ interface SidebarProps {
   role: string;
   onboardingCompleted: boolean;
   userId: string;
+  mobileOpen?: boolean;
+  onClose?: () => void;
 }
 
 export default function DashboardSidebar({
   role,
   onboardingCompleted,
   userId,
+  mobileOpen = false,
+  onClose,
 }: SidebarProps) {
   const pathname = usePathname();
   const t = useTranslations("sidebar");
@@ -49,17 +54,35 @@ export default function DashboardSidebar({
         : "text-[#64748B] hover:bg-gray-50 hover:text-[#111827]"
     }`;
 
+  const handleNav = () => {
+    onClose?.();
+  };
+
   return (
     <aside
-      className="w-64 border-r border-gray-200 bg-white flex flex-col fixed h-full"
+      className={`
+        w-64 border-r border-gray-200 bg-white flex flex-col fixed h-full z-40
+        transform transition-transform duration-200 ease-out
+        -translate-x-full md:translate-x-0
+        ${mobileOpen ? "translate-x-0" : ""}
+      `}
       style={{ fontFamily: "Satoshi, sans-serif" }}
+      aria-hidden={!mobileOpen}
     >
-      <div className="h-16 flex items-center px-6 border-b border-gray-200">
-        <Link href="/dashboard" className="flex items-center gap-2">
+      <div className="h-16 flex items-center justify-between px-4 sm:px-6 border-b border-gray-200 shrink-0">
+        <Link href="/dashboard" className="flex items-center gap-2" onClick={handleNav}>
           <span className="text-xl font-bold tracking-tight text-[#0F172A]">
             Naano
           </span>
         </Link>
+        <button
+          type="button"
+          aria-label="Close menu"
+          className="md:hidden p-2 rounded-lg text-[#64748B] hover:bg-gray-100 hover:text-[#111827]"
+          onClick={onClose}
+        >
+          <X className="w-5 h-5" />
+        </button>
       </div>
 
       {/* Onboarding Alert */}
@@ -80,7 +103,7 @@ export default function DashboardSidebar({
           {t("menu")}
         </div>
 
-        <Link href="/dashboard" className={linkClass("/dashboard")}>
+        <Link href="/dashboard" className={linkClass("/dashboard")} onClick={handleNav}>
           <LayoutDashboard className="w-5 h-5" />
           <span>{t("overview")}</span>
         </Link>
@@ -91,6 +114,7 @@ export default function DashboardSidebar({
             <Link
               href="/dashboard/marketplace"
               className={linkClass("/dashboard/marketplace")}
+              onClick={handleNav}
             >
               <ShoppingBag className="w-5 h-5" />
               <span>{t("marketplace")}</span>
@@ -98,6 +122,7 @@ export default function DashboardSidebar({
             <Link
               href="/dashboard/applications"
               className={linkClass("/dashboard/applications")}
+              onClick={handleNav}
             >
               <FileText className="w-5 h-5" />
               <span>{t("myApplications")}</span>
@@ -109,6 +134,7 @@ export default function DashboardSidebar({
             <Link
               href="/dashboard/marketplace"
               className={linkClass("/dashboard/marketplace")}
+              onClick={handleNav}
             >
               <ShoppingBag className="w-5 h-5" />
               <span>{t("creators")}</span>
@@ -116,6 +142,7 @@ export default function DashboardSidebar({
             <Link
               href="/dashboard/candidates"
               className={linkClass("/dashboard/candidates")}
+              onClick={handleNav}
             >
               <Users className="w-5 h-5" />
               <span>{t("applications")}</span>
@@ -127,6 +154,7 @@ export default function DashboardSidebar({
         <Link
           href="/dashboard/collaborations"
           className={linkClass("/dashboard/collaborations")}
+          onClick={handleNav}
         >
           <Handshake className="w-5 h-5" />
           <span>{t("collaborations")}</span>
@@ -135,6 +163,7 @@ export default function DashboardSidebar({
         <Link
           href="/dashboard/messages"
           className={`${linkClass("/dashboard/messages")} justify-between`}
+          onClick={handleNav}
         >
           <div className="flex items-center gap-3">
             <MessageSquare className="w-5 h-5" />
@@ -146,6 +175,7 @@ export default function DashboardSidebar({
         <Link
           href="/dashboard/finances"
           className={linkClass("/dashboard/finances")}
+          onClick={handleNav}
         >
           <Wallet className="w-5 h-5" />
           <span>{t("finances")}</span>
@@ -156,6 +186,7 @@ export default function DashboardSidebar({
           <Link
             href="/dashboard/analytics"
             className={linkClass("/dashboard/analytics")}
+            onClick={handleNav}
           >
             <BarChart3 className="w-5 h-5" />
             <span>{t("analyticsLeads")}</span>
@@ -167,6 +198,7 @@ export default function DashboardSidebar({
           <Link
             href="/dashboard/academy"
             className={linkClass("/dashboard/academy")}
+            onClick={handleNav}
           >
             <GraduationCap className="w-5 h-5" />
             <span className="flex items-center gap-1">
@@ -181,6 +213,7 @@ export default function DashboardSidebar({
         <Link
           href="/dashboard/settings"
           className={linkClass("/dashboard/settings")}
+          onClick={handleNav}
         >
           <Settings className="w-5 h-5" />
           <span>{t("settings")}</span>

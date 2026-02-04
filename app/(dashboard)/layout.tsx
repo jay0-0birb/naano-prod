@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import DashboardSidebar from '@/components/dashboard/sidebar';
-import DashboardHeader from '@/components/dashboard/header';
+import DashboardShell from '@/components/dashboard/dashboard-shell';
 import SessionValidator from '@/components/dashboard/session-validator';
 import CardValidator from '@/components/dashboard/card-validator';
 
@@ -45,20 +44,15 @@ export default async function DashboardLayout({
         isSaaS={profile?.role === 'saas'}
         onboardingCompleted={profile?.onboarding_completed || false}
       />
-      <DashboardSidebar 
-        role={profile?.role || 'saas'} 
+      <DashboardShell
+        role={profile?.role || 'saas'}
         onboardingCompleted={profile?.onboarding_completed || false}
         userId={user.id}
-      />
-      <main className="flex-1 min-w-0 ml-64 overflow-x-hidden">
-        <DashboardHeader 
-          userName={profile?.full_name || user.email || 'User'}
-          avatarUrl={profile?.avatar_url}
-        />
-        <div className="p-8 min-w-0 overflow-x-hidden">
-          {children}
-        </div>
-      </main>
+        userName={profile?.full_name || user.email || 'User'}
+        avatarUrl={profile?.avatar_url}
+      >
+        {children}
+      </DashboardShell>
     </div>
   );
 }

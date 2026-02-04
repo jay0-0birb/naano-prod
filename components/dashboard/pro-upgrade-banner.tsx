@@ -88,7 +88,7 @@ export default function ProUpgradeBanner({
   // If Pro (legacy paid - no longer offered)
   if (isPro && proStatusSource === "PAYMENT") {
     return (
-      <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+      <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm">
         <div className="flex items-center gap-3 mb-4">
           <div className="p-2 bg-blue-50 rounded-lg">
             <Crown className="w-6 h-6 text-[#1D4ED8]" />
@@ -117,7 +117,7 @@ export default function ProUpgradeBanner({
   // If Pro (promo/free)
   if (isPro && proStatusSource === "PROMO") {
     return (
-      <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+      <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm">
         <div className="flex items-center gap-3 mb-4">
           <div className="p-2 bg-blue-50 rounded-lg">
             <Sparkles className="w-6 h-6 text-[#1D4ED8]" />
@@ -147,7 +147,7 @@ export default function ProUpgradeBanner({
   const naanoLink = `${NAANO_LINK}?ref=${creatorId}`;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+    <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-blue-50 rounded-lg">
@@ -174,14 +174,14 @@ export default function ProUpgradeBanner({
       </div>
 
       {/* Instructions */}
-      <div className="mb-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+      <div className="mb-4 p-3 sm:p-4 bg-slate-50 rounded-xl border border-slate-200">
         <p className="text-sm font-medium text-slate-800 mb-2">{t("howTo")}</p>
         <ol className="text-xs text-slate-600 space-y-2 list-decimal list-inside">
           <li>
             {t("step1")}
-            <div className="mt-1 flex items-center gap-2">
+            <div className="mt-1 flex flex-col sm:flex-row sm:items-center gap-2">
               <LinkIcon className="w-4 h-4 text-slate-500 shrink-0" />
-              <code className="text-xs bg-white px-2 py-1 rounded border border-slate-200 break-all">
+              <code className="text-xs bg-white px-2 py-1 rounded border border-slate-200 break-all min-w-0">
                 {naanoLink}
               </code>
               <button

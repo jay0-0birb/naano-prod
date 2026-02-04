@@ -71,11 +71,11 @@ export default function CreditBalanceWidget({
     : null;
 
   return (
-    <div className="bg-white rounded-2xl p-6 border border-slate-200">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-slate-900">{t("balance")}</h3>
+    <div className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 min-w-0">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+        <h3 className="text-base sm:text-lg font-semibold text-slate-900">{t("balance")}</h3>
         <div
-          className={`px-3 py-1 rounded-full border ${health.color} flex items-center gap-2`}
+          className={`px-3 py-1 rounded-full border ${health.color} flex items-center gap-2 shrink-0 w-fit`}
         >
           {health.icon}
           <span className="text-sm font-medium">{health.label}</span>
@@ -83,7 +83,7 @@ export default function CreditBalanceWidget({
       </div>
 
       <div className="mb-4">
-        <div className="text-4xl font-bold text-slate-900 mb-1">
+        <div className="text-3xl sm:text-4xl font-bold text-slate-900 mb-1">
           {walletCredits.toLocaleString()}
         </div>
         <div className="text-sm text-slate-600">{t("creditsAvailable")}</div>
