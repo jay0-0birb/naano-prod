@@ -88,8 +88,7 @@ export default async function FinancesPage({ searchParams }: PageProps) {
           activeSaas,
           stripeConnected: creatorProfile.stripe_onboarding_completed || false,
           minPayout: 50,
-          pendingBalance: walletSummary.pendingBalance, // Waiting for SaaS payment
-          availableBalance: walletSummary.availableBalance, // Ready for payout
+          availableBalance: walletSummary.availableBalance,
           totalEarned: walletSummary.totalEarned,
           payoutHistory: payoutHistory.payouts,
           // Pro status

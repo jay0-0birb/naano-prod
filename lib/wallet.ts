@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 
 /**
  * Wallet system functions
- * Get creator wallet balance (pending/available)
+ * Get creator wallet balance (available for payout)
  */
 
 /**
@@ -28,7 +28,6 @@ export async function getCreatorWalletSummary() {
 
   if (!creatorProfile) {
     return {
-      pendingBalance: 0,
       availableBalance: 0,
       totalEarned: 0,
     };
@@ -37,20 +36,18 @@ export async function getCreatorWalletSummary() {
   // Get wallet
   const { data: wallet, error } = await supabase
     .from('creator_wallets')
-    .select('pending_balance, available_balance, total_earned')
+    .select('available_balance, total_earned')
     .eq('creator_id', creatorProfile.id)
     .single();
 
   if (error || !wallet) {
     return {
-      pendingBalance: 0,
       availableBalance: 0,
       totalEarned: 0,
     };
   }
 
   return {
-    pendingBalance: Number(wallet.pending_balance || 0),
     availableBalance: Number(wallet.available_balance || 0),
     totalEarned: Number(wallet.total_earned || 0),
   };

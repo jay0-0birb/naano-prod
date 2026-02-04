@@ -27,17 +27,16 @@ export async function POST() {
       );
     }
 
-    // Load wallet balances to ensure no money is pending/available
+    // Load wallet balance to ensure no money is available for payout
     const { data: wallet } = await supabase
       .from('creator_wallets')
-      .select('pending_balance, available_balance')
+      .select('available_balance')
       .eq('creator_id', creatorProfile.id)
       .single();
 
-    const pending = Number(wallet?.pending_balance || 0);
     const available = Number(wallet?.available_balance || 0);
 
-    if (pending > 0 || available > 0) {
+    if (available > 0) {
       return NextResponse.json(
         {
           error:

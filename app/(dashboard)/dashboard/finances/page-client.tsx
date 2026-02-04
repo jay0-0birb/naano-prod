@@ -29,7 +29,6 @@ interface CreatorData {
   activeSaas: number;
   stripeConnected: boolean;
   minPayout: number;
-  pendingBalance: number;
   availableBalance: number;
   totalEarned: number; // Lifetime total
   payoutHistory: any[];
@@ -490,15 +489,6 @@ export default function FinancesPageClient({
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
-              <p className="text-xs text-[#6B7280] mb-1 font-medium">
-                {t("pending")}
-              </p>
-              <p className="text-2xl font-bold text-[#111827]">
-                {creatorData.pendingBalance.toFixed(2)}€
-              </p>
-              <p className="text-xs text-[#64748B] mt-1">{t("pendingDesc")}</p>
-            </div>
             <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
               <p className="text-xs text-green-700 mb-1 font-medium">
                 {t("available")}
@@ -510,18 +500,17 @@ export default function FinancesPageClient({
                 {t("availableDesc")}
               </p>
             </div>
-          </div>
-
-          <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
-            <p className="text-xs text-[#6B7280] mb-1 font-medium">
-              {t("totalEarnedLifetime")}
-            </p>
-            <p className="text-2xl font-bold text-[#111827]">
-              {creatorData.totalEarned.toFixed(2)}€
-            </p>
-            <p className="text-xs text-[#64748B] mt-1">
-              {t("totalEarnedDesc")}
-            </p>
+            <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
+              <p className="text-xs text-[#6B7280] mb-1 font-medium">
+                {t("totalEarnedLifetime")}
+              </p>
+              <p className="text-2xl font-bold text-[#111827]">
+                {creatorData.totalEarned.toFixed(2)}€
+              </p>
+              <p className="text-xs text-[#64748B] mt-1">
+                {t("totalEarnedDesc")}
+              </p>
+            </div>
           </div>
 
           {/* How it works */}
