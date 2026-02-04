@@ -414,8 +414,8 @@ export default function SettingsClient({
                 </span>
               </div>
               <div className="flex items-center justify-between py-3">
-                <span className="text-sm text-[#6B7280]">{t("theme")}</span>
-                <span className="text-sm text-[#111827] capitalize">
+                <span className="text-sm text-[#6B7280]">{t("industry")}</span>
+                <span className="text-sm text-[#111827]">
                   {creatorProfile.theme || "-"}
                 </span>
               </div>

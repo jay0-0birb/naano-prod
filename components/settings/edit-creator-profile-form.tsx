@@ -5,10 +5,18 @@ import { useTranslations } from "next-intl";
 import { updateCreatorProfile } from "@/app/(dashboard)/dashboard/settings/actions";
 import { Loader2, Save, X, Linkedin } from "lucide-react";
 
-const THEMES = [
-  { value: "tech", label: "Tech" },
-  { value: "business", label: "Business" },
-  { value: "lifestyle", label: "Lifestyle" },
+const INDUSTRIES = [
+  "SaaS / Software",
+  "Fintech",
+  "E-commerce",
+  "Marketing",
+  "Human Resources",
+  "Productivity",
+  "Cybersecurity",
+  "AI / Machine Learning",
+  "EdTech",
+  "HealthTech",
+  "Other",
 ];
 
 interface EditCreatorProfileFormProps {
@@ -125,24 +133,21 @@ export default function EditCreatorProfileForm({
           {/* Theme */}
           <div>
             <label className="block text-sm font-medium text-[#374151] mb-2">
-              Thématique
+              {tSettings("industry")}
             </label>
-            <div className="flex flex-wrap gap-2">
-              {THEMES.map((themeOpt) => (
-                <button
-                  key={themeOpt.value}
-                  type="button"
-                  onClick={() => setTheme(themeOpt.value)}
-                  className={`px-3 py-1.5 rounded-full text-sm transition-all ${
-                    theme === themeOpt.value
-                      ? "bg-[#0F172A] text-white"
-                      : "bg-gray-100 text-[#64748B] hover:bg-gray-200 hover:text-[#111827] border border-gray-200"
-                  }`}
-                >
-                  {themeOpt.label}
-                </button>
+            <select
+              name="theme"
+              value={theme}
+              onChange={(e) => setTheme(e.target.value)}
+              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
+            >
+              <option value="">{t("selectIndustry")}</option>
+              {INDUSTRIES.map((industry) => (
+                <option key={industry} value={industry}>
+                  {industry}
+                </option>
               ))}
-            </div>
+            </select>
           </div>
 
           <div className="flex gap-3 pt-4">
