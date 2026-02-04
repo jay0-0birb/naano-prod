@@ -28,6 +28,7 @@ export interface SaasCompany {
   commission_rate: number | null;
   media_pack_url: string | null;
   conditions: string | null;
+  subscription_tier?: string | null;
   wallet_credits?: number;
   credit_renewal_date?: string | null;
   created_at: string;
