@@ -16,6 +16,7 @@ import {
   GraduationCap,
   Wallet,
   BarChart3,
+  ExternalLink,
 } from "lucide-react";
 import { forceLogout } from "@/lib/auth-utils";
 import UnreadBadge from "./unread-badge";
@@ -168,7 +169,10 @@ export default function DashboardSidebar({
             className={linkClass("/dashboard/academy")}
           >
             <GraduationCap className="w-5 h-5" />
-            <span>{t("academy")}</span>
+            <span className="flex items-center gap-1">
+              {t("academy")}
+              <ExternalLink className="w-3 h-3 text-[#9CA3AF]" />
+            </span>
           </Link>
         )}
       </nav>
