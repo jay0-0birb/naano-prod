@@ -117,10 +117,6 @@ export default function TrackingLinkCard({
               <span className="text-blue-400 mt-0.5">•</span>
               <span>{t("shareDM")}</span>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="text-blue-400 mt-0.5">•</span>
-              <span>{t("howToUseBullet4")} 📊</span>
-            </li>
           </ul>
         </div>
       )}
