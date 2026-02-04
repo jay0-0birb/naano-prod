@@ -1,7 +1,7 @@
-'use server';
+"use server";
 
-import { createClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
 /**
  * Wallet system functions
@@ -13,17 +13,19 @@ import { redirect } from 'next/navigation';
  */
 export async function getCreatorWalletSummary() {
   const supabase = await createClient();
-  
-  const { data: { user } } = await supabase.auth.getUser();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
-    redirect('/login');
+    redirect("/login");
   }
 
   // Get creator profile
   const { data: creatorProfile } = await supabase
-    .from('creator_profiles')
-    .select('id')
-    .eq('profile_id', user.id)
+    .from("creator_profiles")
+    .select("id")
+    .eq("profile_id", user.id)
     .single();
 
   if (!creatorProfile) {
@@ -35,9 +37,9 @@ export async function getCreatorWalletSummary() {
 
   // Get wallet
   const { data: wallet, error } = await supabase
-    .from('creator_wallets')
-    .select('available_balance, total_earned')
-    .eq('creator_id', creatorProfile.id)
+    .from("creator_wallets")
+    .select("available_balance, total_earned")
+    .eq("creator_id", creatorProfile.id)
     .single();
 
   if (error || !wallet) {
@@ -58,17 +60,19 @@ export async function getCreatorWalletSummary() {
  */
 export async function getCreatorPayoutHistory() {
   const supabase = await createClient();
-  
-  const { data: { user } } = await supabase.auth.getUser();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
-    redirect('/login');
+    redirect("/login");
   }
 
   // Get creator profile
   const { data: creatorProfile } = await supabase
-    .from('creator_profiles')
-    .select('id')
-    .eq('profile_id', user.id)
+    .from("creator_profiles")
+    .select("id")
+    .eq("profile_id", user.id)
     .single();
 
   if (!creatorProfile) {
@@ -77,18 +81,16 @@ export async function getCreatorPayoutHistory() {
 
   // Get payout history
   const { data: payouts, error } = await supabase
-    .from('creator_payouts')
-    .select('*')
-    .eq('creator_id', creatorProfile.id)
-    .order('created_at', { ascending: false })
+    .from("creator_payouts")
+    .select("*")
+    .eq("creator_id", creatorProfile.id)
+    .order("created_at", { ascending: false })
     .limit(50);
 
   if (error) {
-    console.error('Error fetching payout history:', error);
+    console.error("Error fetching payout history:", error);
     return { payouts: [] };
   }
 
   return { payouts: payouts || [] };
 }
-
-

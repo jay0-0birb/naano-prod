@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function POST() {
   try {
@@ -10,14 +10,14 @@ export async function POST() {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
     // Load creator profile for this user
     const { data: creatorProfile, error: creatorError } = await supabase
-      .from('creator_profiles')
-      .select('id, stripe_account_id, stripe_onboarding_completed')
-      .eq('profile_id', user.id)
+      .from("creator_profiles")
+      .select("id, stripe_account_id, stripe_onboarding_completed")
+      .eq("profile_id", user.id)
       .single();
 
     if (creatorError || !creatorProfile) {
@@ -29,9 +29,9 @@ export async function POST() {
 
     // Load wallet balance to ensure no money is available for payout
     const { data: wallet } = await supabase
-      .from('creator_wallets')
-      .select('available_balance')
-      .eq('creator_id', creatorProfile.id)
+      .from("creator_wallets")
+      .select("available_balance")
+      .eq("creator_id", creatorProfile.id)
       .single();
 
     const available = Number(wallet?.available_balance || 0);
@@ -49,24 +49,20 @@ export async function POST() {
 
     // Soft-disconnect: clear Stripe flags so the app requires reconnection
     const { error: updateError } = await supabase
-      .from('creator_profiles')
+      .from("creator_profiles")
       .update({
         stripe_onboarding_completed: false,
         stripe_account_id: null,
       })
-      .eq('id', creatorProfile.id);
+      .eq("id", creatorProfile.id);
 
     if (updateError) {
-      return NextResponse.json(
-        { error: updateError.message },
-        { status: 500 },
-      );
+      return NextResponse.json({ error: updateError.message }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('disconnect-creator error:', error);
+    console.error("disconnect-creator error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-
