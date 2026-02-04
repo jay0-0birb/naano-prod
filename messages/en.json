@@ -317,6 +317,7 @@
     "followersCountPlaceholder": "e.g. 2350",
     "followersCountHint": "An approximate number is fine.",
     "theme": "Theme",
+    "selectTheme": "Select a theme",
     "themeTech": "Tech",
     "themeBusiness": "Business",
     "themeLifestyle": "Lifestyle",

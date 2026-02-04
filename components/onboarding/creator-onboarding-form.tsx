@@ -65,9 +65,17 @@ export default function CreatorOnboardingForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const THEMES = [
-    { value: "tech", label: t("themeTech") },
-    { value: "business", label: t("themeBusiness") },
-    { value: "lifestyle", label: t("themeLifestyle") },
+    "SaaS / Software",
+    "Fintech",
+    "E-commerce",
+    "Marketing",
+    "Human Resources",
+    "Productivity",
+    "Cybersecurity",
+    "AI / Machine Learning",
+    "EdTech",
+    "HealthTech",
+    "Other",
   ];
   const [error, setError] = useState<string | null>(null);
   const [legalStatus, setLegalStatus] = useState<"particulier" | "professionnel">(
@@ -323,25 +331,22 @@ export default function CreatorOnboardingForm() {
 
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            {t("theme")}
+            {t("industry")}
           </label>
-          <div className="flex flex-wrap gap-2">
-            {THEMES.map((t) => (
-              <button
-                key={t.value}
-                type="button"
-                onClick={() => setTheme(t.value)}
-                className={`px-4 py-2 rounded-full text-sm transition-all border ${
-                  theme === t.value
-                    ? "bg-[#0F172A] text-white border-[#0F172A]"
-                    : "bg-gray-50 border-gray-200 text-[#64748B] hover:bg-gray-100"
-                }`}
-              >
-                {t.label}
-              </button>
+          <select
+            name="theme"
+            required
+            value={theme}
+            onChange={(e) => setTheme(e.target.value)}
+            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
+          >
+            <option value="">{t("selectIndustry")}</option>
+            {THEMES.map((themeOption) => (
+              <option key={themeOption} value={themeOption}>
+                {themeOption}
+              </option>
             ))}
-          </div>
-          <input type="hidden" name="theme" value={theme} />
+          </select>
         </div>
 
         <div>
