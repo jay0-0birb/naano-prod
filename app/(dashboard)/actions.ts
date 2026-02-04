@@ -107,6 +107,11 @@ export async function completeCreatorOnboarding(formData: FormData) {
   const city = formData.get("city") as string;
   const country = formData.get("country") as string;
   const linkedinUrl = formData.get("linkedinUrl") as string;
+  const followersCountRaw = formData.get("followersCount") as string | null;
+  const followersCount =
+    followersCountRaw && followersCountRaw.trim() !== ""
+      ? Number.parseInt(followersCountRaw, 10) || 0
+      : 0;
   const theme = formData.get("theme") as string | null;
   const bio = formData.get("bio") as string | null;
   const recentPostsLinkedin = formData.get("recentPostsLinkedin") as
@@ -145,6 +150,7 @@ export async function completeCreatorOnboarding(formData: FormData) {
     city,
     country,
     linkedin_url: linkedinUrl,
+    followers_count: followersCount,
     theme: theme || null,
     bio: bio || null,
     legal_status: legalStatus || "particulier",

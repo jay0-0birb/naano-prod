@@ -306,6 +306,23 @@ export default function CreatorOnboardingForm() {
 
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
+            {t("followersCount")}
+          </label>
+          <input
+            name="followersCount"
+            type="number"
+            required
+            min={0}
+            placeholder={t("followersCountPlaceholder")}
+            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
+          />
+          <p className="mt-1 text-xs text-[#64748B]">
+            {t("followersCountHint")}
+          </p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-[#475569] mb-2">
             {t("theme")}
           </label>
           <div className="flex flex-wrap gap-2">
