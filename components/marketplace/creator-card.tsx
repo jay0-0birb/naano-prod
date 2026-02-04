@@ -57,59 +57,61 @@ export default function CreatorCard({
 
   return (
     <>
-      <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:border-gray-300 hover:shadow-md transition-all shadow-sm">
-        {/* Avatar & Name */}
-        <div className="flex items-start gap-4 mb-4">
-          {creator.profiles.avatar_url ? (
-            <img
-              src={creator.profiles.avatar_url}
-              alt={creator.profiles.full_name || "Creator"}
-              className="w-14 h-14 rounded-full object-contain shrink-0"
-            />
-          ) : (
-            <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-semibold text-lg shrink-0">
-              {creator.profiles.full_name?.charAt(0).toUpperCase() || "C"}
-            </div>
-          )}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-semibold text-[#111827] text-lg truncate">
-                {creator.profiles.full_name || "Creator"}
-              </h3>
-              {creator.is_pro && (
-                <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs font-semibold rounded-full flex items-center gap-1 border border-blue-200">
-                  <Crown className="w-3 h-3" />
-                  Pro
+      <div className="flex flex-col bg-white border border-gray-200 rounded-2xl p-6 hover:border-gray-300 hover:shadow-md transition-all shadow-sm h-[260px]">
+        <div className="flex-1">
+          {/* Avatar & Name */}
+          <div className="flex items-start gap-4 mb-4">
+            {creator.profiles.avatar_url ? (
+              <img
+                src={creator.profiles.avatar_url}
+                alt={creator.profiles.full_name || "Creator"}
+                className="w-14 h-14 rounded-full object-contain shrink-0"
+              />
+            ) : (
+              <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-semibold text-lg shrink-0">
+                {creator.profiles.full_name?.charAt(0).toUpperCase() || "C"}
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-semibold text-[#111827] text-lg truncate">
+                  {creator.profiles.full_name || "Creator"}
+                </h3>
+                {creator.is_pro && (
+                  <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs font-semibold rounded-full flex items-center gap-1 border border-blue-200">
+                    <Crown className="w-3 h-3" />
+                    Pro
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2 text-[#64748B] text-sm">
+                <Users className="w-4 h-4" />
+                <span>
+                  {creator.followers_count.toLocaleString()} {t("followers")}
                 </span>
-              )}
+              </div>
             </div>
-            <div className="flex items-center gap-2 text-[#64748B] text-sm">
-              <Users className="w-4 h-4" />
-              <span>
-                {creator.followers_count.toLocaleString()} {t("followers")}
+          </div>
+
+          {/* Bio */}
+          {creator.bio && (
+            <p className="text-[#64748B] text-sm mb-4 line-clamp-3">
+              {creator.bio}
+            </p>
+          )}
+
+          {/* Theme */}
+          {creator.theme && (
+            <div className="mb-4">
+              <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md border border-blue-100 capitalize">
+                {creator.theme}
               </span>
             </div>
-          </div>
+          )}
         </div>
 
-        {/* Bio */}
-        {creator.bio && (
-          <p className="text-[#64748B] text-sm mb-4 line-clamp-3">
-            {creator.bio}
-          </p>
-        )}
-
-        {/* Theme */}
-        {creator.theme && (
-          <div className="mb-4">
-            <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md border border-blue-100 capitalize">
-              {creator.theme}
-            </span>
-          </div>
-        )}
-
         {/* Actions */}
-        <div className="flex gap-2">
+        <div className="mt-2 flex gap-2">
           {creator.linkedin_url && (
             <a
               href={creator.linkedin_url}
