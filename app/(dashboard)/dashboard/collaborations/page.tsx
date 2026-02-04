@@ -158,9 +158,14 @@ export default async function CollaborationsPage() {
           {isCreator ? t("creatorSubtitle") : t("saasSubtitle")}
         </p>
         {isCreator && (
-          <p className="text-xs text-[#64748B] mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 inline-block">
-            {t("postLimit")}
-          </p>
+          <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2">
+            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-amber-100 text-[11px] font-semibold text-amber-700">
+              25
+            </span>
+            <p className="text-xs text-[#92400E]">
+              {t("postLimit")}
+            </p>
+          </div>
         )}
       </div>
 

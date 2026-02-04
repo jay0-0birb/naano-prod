@@ -415,7 +415,7 @@
     "title": "Collaborations",
     "creatorSubtitle": "Gérez vos partenariats avec les entreprises SaaS",
     "saasSubtitle": "Gérez vos partenariats avec les créateurs",
-    "postLimit": "Limite : 25 posts au total (toutes collaborations confondues).",
+    "postLimit": "Créateurs individuels : 25 posts maximum au total (toutes collaborations confondues).",
     "active": "Active",
     "completed": "Terminée",
     "cancelled": "Annulée",
