@@ -61,22 +61,15 @@ export async function updateSession(request: NextRequest) {
     user = null
   }
 
-  // Require verified email for dashboard access
-  const isVerified = user?.email_confirmed_at != null
-
-  if (request.nextUrl.pathname.startsWith('/dashboard')) {
-    if (!user) return NextResponse.redirect(new URL('/login', request.url))
-    if (!isVerified) {
-      return NextResponse.redirect(new URL('/login?message=verify_email', request.url))
-    }
+  if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // Only redirect to dashboard if user is verified (so unverified users see the login form)
-  if (request.nextUrl.pathname === '/login' && user && isVerified) {
+  if (request.nextUrl.pathname === '/login' && user) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  if (request.nextUrl.pathname === '/register' && user && isVerified) {
+  if (request.nextUrl.pathname === '/register' && user) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
