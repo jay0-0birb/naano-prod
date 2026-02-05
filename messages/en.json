@@ -196,6 +196,16 @@
     "section5P1": "Traditional advertising is losing impact.",
     "section5P2": "Collaboration is the future."
   },
+  "help": {
+    "title": "Help Center",
+    "subtitle": "Have a question or feedback? We're here to help.",
+    "contactHeading": "Contact us",
+    "contactBeforeEmail": "Send an email to ",
+    "contactAfterEmail": ", or reach out to one of us on ",
+
+    "linkedin": "LinkedIn",
+    "backToHome": "Back to home"
+  },
   "legal": {
     "privacyPolicy": "Privacy Policy",
     "termsOfService": "Terms of Service",

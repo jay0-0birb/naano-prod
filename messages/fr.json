@@ -196,6 +196,16 @@
     "section5P1": "La publicité traditionnelle perd en impact.",
     "section5P2": "La collaboration est l'avenir."
   },
+  "help": {
+    "title": "Centre d'aide",
+    "subtitle": "Une question ou un retour ? Nous sommes là pour vous aider.",
+    "contactHeading": "Nous contacter",
+    "contactBeforeEmail": "Envoyez un email à ",
+    "contactAfterEmail": ", ou contactez-nous sur ",
+
+    "linkedin": "LinkedIn",
+    "backToHome": "Retour à l'accueil"
+  },
   "legal": {
     "privacyPolicy": "Politique de confidentialité",
     "termsOfService": "Conditions d'utilisation",

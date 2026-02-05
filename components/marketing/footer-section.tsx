@@ -120,7 +120,7 @@ export const FooterSection = ({ compact = false }: FooterSectionProps) => {
                 {tCommon("documentation")}
               </Link>
               <Link
-                href="#"
+                href="/help"
                 className="text-sm text-white/50 hover:text-white transition-colors duration-150"
               >
                 {tCommon("helpCenter")}
