@@ -2,11 +2,18 @@
 -- RESET ALL DATA - Clean Slate for Testing
 -- =====================================================
 -- WARNING: This deletes ALL app data! Run only in dev/test.
--- Keeps: auth.users (you keep your login accounts)
--- Resets: profiles (onboarding_completed = false) so you go through onboarding again
+-- Deletes: ALL auth.users accounts + all app data
+-- You will need to sign up again after running this.
+-- Deletes: all profile data so you re-onboard from scratch
 -- =====================================================
 
 BEGIN;
+
+-- 0. Auth - remove all Supabase auth accounts and related data
+DO $$ BEGIN TRUNCATE TABLE auth.sessions CASCADE; EXCEPTION WHEN undefined_table THEN NULL; END $$;
+DO $$ BEGIN TRUNCATE TABLE auth.refresh_tokens CASCADE; EXCEPTION WHEN undefined_table THEN NULL; END $$;
+DO $$ BEGIN TRUNCATE TABLE auth.identities CASCADE; EXCEPTION WHEN undefined_table THEN NULL; END $$;
+DO $$ BEGIN TRUNCATE TABLE auth.users CASCADE; EXCEPTION WHEN undefined_table THEN NULL; END $$;
 
 -- 1. Truncate in dependency order (children before parents)
 -- Collaboration flow
@@ -33,7 +40,7 @@ TRUNCATE TABLE public.applications CASCADE;
 
 -- Wallets & debt
 TRUNCATE TABLE public.creator_wallets CASCADE;
-TRUNCATE TABLE public.saas_billing_debt CASCADE;
+DO $$ BEGIN TRUNCATE TABLE public.saas_billing_debt CASCADE; EXCEPTION WHEN undefined_table THEN NULL; END $$;
 
 -- Other tables (may not exist - comment out if you get "relation does not exist")
 DO $$ BEGIN TRUNCATE TABLE public.notification_preferences CASCADE; EXCEPTION WHEN undefined_table THEN NULL; END $$;
@@ -47,29 +54,6 @@ DO $$ BEGIN TRUNCATE TABLE public.company_inferences CASCADE; TRUNCATE TABLE pub
 -- Creator & SaaS profiles (this deletes all onboarding data)
 TRUNCATE TABLE public.creator_profiles CASCADE;
 TRUNCATE TABLE public.saas_companies CASCADE;
-
--- 2. Reset profiles so users go through onboarding again (keep auth accounts)
-UPDATE public.profiles
-SET
-  onboarding_completed = false,
-  full_name = NULL,
-  avatar_url = NULL,
-  role = 'saas';
+TRUNCATE TABLE public.profiles CASCADE;
 
 COMMIT;
-
--- Verification
-SELECT '=== RESET COMPLETE ===' AS info;
-SELECT 'Profiles (onboarding reset)' AS table_name, COUNT(*) AS rows FROM public.profiles
-UNION ALL
-SELECT 'Creator profiles', COUNT(*) FROM public.creator_profiles
-UNION ALL
-SELECT 'SaaS companies', COUNT(*) FROM public.saas_companies
-UNION ALL
-SELECT 'Applications', COUNT(*) FROM public.applications
-UNION ALL
-SELECT 'Collaborations', COUNT(*) FROM public.collaborations
-UNION ALL
-SELECT 'Leads', COUNT(*) FROM public.leads
-UNION ALL
-SELECT 'Link events', COUNT(*) FROM public.link_events;

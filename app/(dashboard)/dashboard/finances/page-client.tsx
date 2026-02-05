@@ -81,6 +81,7 @@ export default function FinancesPageClient({
     "plan",
   );
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [stripeLoading, setStripeLoading] = useState(false);
   const [payoutLoading, setPayoutLoading] = useState(false);
   const [siretLoading, setSiretLoading] = useState(false);
@@ -99,6 +100,7 @@ export default function FinancesPageClient({
       hasSaasData: !!saasData,
       selectedTab,
       saasDataKeys: saasData ? Object.keys(saasData) : null,
+      saasInvoiceCount: saasData?.invoices ? saasData.invoices.length : 0,
     });
   }, [isCreator, creatorData, saasData, selectedTab]);
 
@@ -206,6 +208,7 @@ export default function FinancesPageClient({
   const handleCancelCreditSubscription = async () => {
     setStripeLoading(true);
     setError(null);
+    setSuccess(null);
 
     try {
       const response = await fetch("/api/stripe/cancel-credit-subscription", {
@@ -221,6 +224,16 @@ export default function FinancesPageClient({
 
       if (data.url) {
         window.location.href = data.url;
+        return;
+      }
+
+      if (data.success) {
+        setSuccess(data.message || t("subscriptionCancelled"));
+        setStripeLoading(false);
+        // Refresh after a short delay so the UI reflects the cancelled subscription
+        setTimeout(() => {
+          router.refresh();
+        }, 800);
       } else {
         setStripeLoading(false);
       }
@@ -834,10 +847,12 @@ export default function FinancesPageClient({
         </div>
 
         {/* Success/Error messages */}
-        {subscriptionMessage && (
+        {(subscriptionMessage || success) && (
           <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-500/10 border border-green-500/20 rounded-xl flex items-start sm:items-center gap-3">
             <Check className="w-5 h-5 text-green-400 shrink-0" />
-            <p className="text-green-400 text-sm break-words">{subscriptionMessage}</p>
+            <p className="text-green-400 text-sm break-words">
+              {success || subscriptionMessage}
+            </p>
           </div>
         )}
 

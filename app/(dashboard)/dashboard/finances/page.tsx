@@ -204,6 +204,11 @@ export default async function FinancesPage({ searchParams }: PageProps) {
         console.error("Error fetching billing invoices:", billingError);
       } else {
         invoices = billingInvoices || [];
+        console.log("Loaded SaaS billing invoices for finances page:", {
+          saasId: saasCompany.id,
+          invoiceCount: invoices.length,
+          firstInvoice: invoices[0] || null,
+        });
       }
     } catch (err) {
       console.error("Unexpected error fetching billing invoices:", err);
