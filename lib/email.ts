@@ -2,7 +2,7 @@
 // You'll need to add RESEND_API_KEY to your .env.local
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const FROM_EMAIL = process.env.FROM_EMAIL || 'Naano <notifications@naano.xyz>';
+const FROM_EMAIL = process.env.FROM_EMAIL || 'Naano <info@naano.xyz>';
 
 interface EmailOptions {
   to: string;
