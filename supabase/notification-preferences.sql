@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS public.notification_preferences (
   email_new_applications BOOLEAN DEFAULT TRUE,
   email_new_messages BOOLEAN DEFAULT TRUE,
   email_collaboration_updates BOOLEAN DEFAULT TRUE,
+  email_collaboration_stopped BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

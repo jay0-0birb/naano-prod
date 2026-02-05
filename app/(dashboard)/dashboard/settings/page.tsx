@@ -55,7 +55,7 @@ export default async function SettingsPage({ searchParams }: PageProps) {
   // Get notification preferences
   const { data: notificationPrefs } = await supabase
     .from('notification_preferences')
-    .select('email_new_applications, email_new_messages, email_collaboration_updates')
+    .select('email_new_applications, email_new_messages, email_collaboration_updates, email_collaboration_stopped')
     .eq('user_id', user.id)
     .single();
 

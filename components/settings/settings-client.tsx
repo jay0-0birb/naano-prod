@@ -29,6 +29,7 @@ interface NotificationPreferences {
   email_new_applications: boolean;
   email_new_messages: boolean;
   email_collaboration_updates: boolean;
+  email_collaboration_stopped: boolean;
 }
 
 interface SettingsClientProps {
@@ -76,6 +77,8 @@ export default function SettingsClient({
     email_new_messages: initialNotificationPrefs?.email_new_messages ?? true,
     email_collaboration_updates:
       initialNotificationPrefs?.email_collaboration_updates ?? true,
+    email_collaboration_stopped:
+      initialNotificationPrefs?.email_collaboration_stopped ?? true,
   });
   const [savingNotifs, setSavingNotifs] = useState(false);
 
@@ -828,7 +831,7 @@ export default function SettingsClient({
                 className="w-5 h-5 accent-blue-500 cursor-pointer"
               />
             </label>
-            <label className="flex items-center justify-between py-3 cursor-pointer group">
+            <label className="flex items-center justify-between py-3 border-b border-gray-200 cursor-pointer group">
               <div>
                 <span className="text-sm text-[#111827] block">
                   {t("collaborationUpdates")}
@@ -843,6 +846,27 @@ export default function SettingsClient({
                 onChange={(e) =>
                   handleNotificationChange(
                     "email_collaboration_updates",
+                    e.target.checked,
+                  )
+                }
+                className="w-5 h-5 accent-blue-500 cursor-pointer"
+              />
+            </label>
+            <label className="flex items-center justify-between py-3 cursor-pointer group">
+              <div>
+                <span className="text-sm text-[#111827] block">
+                  {t("collaborationStopped")}
+                </span>
+                <span className="text-xs text-[#64748B]">
+                  {t("collaborationStoppedDesc")}
+                </span>
+              </div>
+              <input
+                type="checkbox"
+                checked={notifPrefs.email_collaboration_stopped}
+                onChange={(e) =>
+                  handleNotificationChange(
+                    "email_collaboration_stopped",
                     e.target.checked,
                   )
                 }

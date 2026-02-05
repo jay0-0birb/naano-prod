@@ -54,3 +54,7 @@ export async function notifyCollaborationCompleted(collaborationId: string, targ
   });
 }
 
+export async function notifyCollaborationStopped(collaborationId: string, stoppedByUserId: string) {
+  await triggerNotification('collaboration_stopped', { collaborationId, stoppedByUserId });
+}
+

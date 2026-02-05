@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { notifyCollaborationStopped } from '@/lib/notifications';
 
 type CancelAction = 'request' | 'confirm' | 'reject';
 
@@ -89,6 +90,9 @@ export async function POST(request: Request) {
         { status: 404 },
       );
     }
+
+    // Notify the other party (respects their email_collaboration_stopped preference)
+    notifyCollaborationStopped(data.id, user.id).catch(console.error);
 
     return NextResponse.json({ success: true });
   } catch (err: any) {

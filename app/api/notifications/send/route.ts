@@ -34,6 +34,9 @@ export async function POST(request: Request) {
       case 'collaboration_update':
         await handleCollaborationUpdate(data);
         break;
+      case 'collaboration_stopped':
+        await handleCollaborationStopped(data);
+        break;
       default:
         return NextResponse.json({ error: 'Unknown notification type' }, { status: 400 });
     }
@@ -250,6 +253,67 @@ async function handleCollaborationUpdate(data: {
     recipientName: recipientProfile.full_name || 'there',
     partnerName,
     updateType: data.updateType,
+    collaborationUrl: `${APP_URL}/dashboard/collaborations/${data.collaborationId}`,
+  });
+
+  await sendEmail({
+    to: recipientProfile.email,
+    ...template,
+  });
+}
+
+async function handleCollaborationStopped(data: { collaborationId: string; stoppedByUserId: string }) {
+  const { data: collaboration } = await supabase
+    .from('collaborations')
+    .select(`
+      id,
+      applications:application_id (
+        creator_profiles:creator_id (
+          profiles:profile_id (
+            id,
+            full_name,
+            email
+          )
+        ),
+        saas_companies:saas_id (
+          company_name,
+          profiles:profile_id (
+            id,
+            full_name,
+            email
+          )
+        )
+      )
+    `)
+    .eq('id', data.collaborationId)
+    .single();
+
+  if (!collaboration) return;
+
+  const app = (collaboration.applications as any);
+  const creatorProfile = app?.creator_profiles?.profiles;
+  const saasProfile = app?.saas_companies?.profiles;
+  const companyName = app?.saas_companies?.company_name;
+
+  // Notify the other party (the one who did NOT stop it)
+  const recipientProfile = creatorProfile?.id === data.stoppedByUserId ? saasProfile : creatorProfile;
+  const partnerName = creatorProfile?.id === data.stoppedByUserId
+    ? (creatorProfile?.full_name || 'The creator')
+    : (companyName || 'The company');
+
+  if (!recipientProfile?.email) return;
+
+  const { data: prefs } = await supabase
+    .from('notification_preferences')
+    .select('email_collaboration_stopped')
+    .eq('user_id', recipientProfile.id)
+    .single();
+
+  if (prefs?.email_collaboration_stopped === false) return;
+
+  const template = emailTemplates.collaborationStopped({
+    recipientName: recipientProfile.full_name || 'there',
+    partnerName,
     collaborationUrl: `${APP_URL}/dashboard/collaborations/${data.collaborationId}`,
   });
 
