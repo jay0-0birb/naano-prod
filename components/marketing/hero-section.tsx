@@ -140,19 +140,39 @@ export const HeroSection = ({
 
           <div className="flex justify-center items-center gap-6 sm:gap-8 md:gap-12 lg:gap-16 xl:gap-20 flex-wrap max-w-[1000px] mx-auto px-4">
             {[
-              { name: "TryLoops", url: "https://tryloops.ai/" },
-              { name: "Pletor", url: "https://www.pletor.ai/" },
+              { name: "TryLoops", url: "https://tryloops.ai/", hoverColor: "#38BDF8" },
+              { name: "Pletor", url: "https://www.pletor.ai/", hoverColor: "#F97316" },
+              { name: "Zmirov", url: "https://zmirov.com/", hoverColor: "#0F172A" },
+              { name: "We are founders", url: "https://wearefounders.com/", hoverColor: "#EF4444" },
             ].map((brand) => (
-              <a
+              <motion.a
                 key={brand.name}
                 href={brand.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-[#CBD5E1] hover:text-[#64748B] transition-colors duration-300"
+                className="relative inline-block text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-[#CBD5E1] rounded-lg px-3 py-1.5 -mx-1 -my-0.5"
                 style={{ fontFamily: "Satoshi, sans-serif" }}
+                initial={false}
+                whileHover={{
+                  color: brand.hoverColor,
+                  scale: 1.1,
+                  transition: { type: "spring", stiffness: 400, damping: 25 },
+                }}
+                whileTap={{ scale: 0.96 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
               >
-                {brand.name}
-              </a>
+                <span className="relative">
+                  {brand.name}
+                  <motion.span
+                    className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full origin-left"
+                    style={{ backgroundColor: brand.hoverColor }}
+                    initial={{ scaleX: 0 }}
+                    whileHover={{ scaleX: 1 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                    aria-hidden
+                  />
+                </span>
+              </motion.a>
             ))}
           </div>
         </motion.div>
