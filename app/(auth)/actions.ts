@@ -74,3 +74,21 @@ export async function resendConfirmationEmail(email: string) {
   if (error) return { error: error.message };
   return { success: true };
 }
+
+export async function sendPasswordResetEmail(email: string) {
+  const { createClient } = await import("@/lib/supabase/server");
+  const { headers } = await import("next/headers");
+
+  const headersList = await headers();
+  const origin = headersList.get("origin") || "http://localhost:3002";
+  const supabase = await createClient();
+
+  const redirectTo = `${origin}/auth/callback?next=${encodeURIComponent("/dashboard/settings/change-password")}`;
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo,
+  });
+
+  if (error) return { error: error.message };
+  return { success: true };
+}

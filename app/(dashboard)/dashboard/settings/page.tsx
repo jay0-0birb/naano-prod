@@ -4,11 +4,11 @@ import SettingsClient from '@/components/settings/settings-client';
 import { verifyStripeConnectStatus } from '@/lib/stripe-status';
 
 interface PageProps {
-  searchParams: Promise<{ stripe?: string; stripe_success?: string; stripe_error?: string }>;
+  searchParams: Promise<{ stripe?: string; stripe_success?: string; stripe_error?: string; password_updated?: string }>;
 }
 
 export default async function SettingsPage({ searchParams }: PageProps) {
-  const { stripe: stripeStatus, stripe_success, stripe_error } = await searchParams;
+  const { stripe: stripeStatus, stripe_success, stripe_error, password_updated } = await searchParams;
   const supabase = await createClient();
   
   const { data: { user } } = await supabase.auth.getUser();
@@ -71,6 +71,7 @@ export default async function SettingsPage({ searchParams }: PageProps) {
       stripeConnected={stripeConnected}
       stripeStatus={finalStripeStatus}
       stripeError={stripeError}
+      passwordUpdated={password_updated === "1"}
       initialNotificationPrefs={notificationPrefs || undefined}
     />
   );

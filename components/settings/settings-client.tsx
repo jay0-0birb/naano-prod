@@ -23,6 +23,7 @@ import EditSaasProfileForm from "@/components/settings/edit-saas-profile-form";
 import { createClient } from "@/lib/supabase/client";
 import { refreshStripeStatus } from "@/lib/stripe-status";
 import { createClient as createSupabaseClient } from "@/lib/supabase/client";
+import { sendPasswordResetEmail } from "@/app/(auth)/actions";
 
 interface NotificationPreferences {
   email_new_applications: boolean;
@@ -37,6 +38,7 @@ interface SettingsClientProps {
   stripeConnected: boolean;
   stripeStatus: string | undefined;
   stripeError?: string;
+  passwordUpdated?: boolean;
   initialNotificationPrefs?: NotificationPreferences;
 }
 
@@ -47,6 +49,7 @@ export default function SettingsClient({
   stripeConnected,
   stripeStatus,
   stripeError,
+  passwordUpdated,
   initialNotificationPrefs,
 }: SettingsClientProps) {
   const router = useRouter();
@@ -84,8 +87,26 @@ export default function SettingsClient({
   const [brandError, setBrandError] = useState<string | null>(null);
   const [newBrandName, setNewBrandName] = useState("");
   const [newBrandUrl, setNewBrandUrl] = useState("");
+  const [passwordResetSent, setPasswordResetSent] = useState(false);
+  const [passwordResetError, setPasswordResetError] = useState<string | null>(null);
+  const [passwordResetLoading, setPasswordResetLoading] = useState(false);
 
   const isCreator = profile?.role === "influencer";
+
+  const handleChangePassword = async () => {
+    const email = profile?.email;
+    if (!email) return;
+    setPasswordResetLoading(true);
+    setPasswordResetError(null);
+    setPasswordResetSent(false);
+    const result = await sendPasswordResetEmail(email);
+    setPasswordResetLoading(false);
+    if (result?.error) {
+      setPasswordResetError(result.error);
+    } else {
+      setPasswordResetSent(true);
+    }
+  };
 
   const handleNotificationChange = async (
     key: keyof NotificationPreferences,
@@ -324,6 +345,13 @@ export default function SettingsClient({
           <p className="text-red-700 text-sm">
             {t("stripeError", { error: stripeError })}
           </p>
+        </div>
+      )}
+
+      {passwordUpdated && (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
+          <CheckCircle2 className="w-5 h-5 text-green-600" />
+          <p className="text-green-700 text-sm">{t("passwordUpdated")}</p>
         </div>
       )}
 
@@ -836,8 +864,33 @@ export default function SettingsClient({
             </div>
           </div>
 
-          <button className="w-full py-2.5 bg-[#0F172A] hover:bg-[#020617] text-white rounded-xl text-sm font-medium transition-colors">
-            {t("changePassword")}
+          {passwordResetSent && (
+            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
+              <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0" />
+              <p className="text-green-700 text-sm">{t("changePasswordSent")}</p>
+            </div>
+          )}
+          {passwordResetError && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+              <p className="text-red-700 text-sm">{t("changePasswordError")}</p>
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={handleChangePassword}
+            disabled={passwordResetLoading}
+            className="w-full py-2.5 bg-[#0F172A] hover:bg-[#020617] text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {passwordResetLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                {t("changePassword")}
+              </>
+            ) : (
+              t("changePassword")
+            )}
           </button>
         </div>
       </div>
