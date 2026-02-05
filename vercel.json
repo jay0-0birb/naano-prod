@@ -1,0 +1,15 @@
+{
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "naano.xyz"
+        }
+      ],
+      "destination": "https://www.naano.xyz/:path*",
+      "permanent": true
+    }
+  ]
+}
