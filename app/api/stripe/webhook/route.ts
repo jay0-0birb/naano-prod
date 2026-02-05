@@ -20,6 +20,16 @@ function toISODate(unixSeconds: number | undefined | null): string | null {
   return Number.isNaN(d.getTime()) ? null : d.toISOString();
 }
 
+/** Safe .toISOString() that never throws; returns null on invalid date. */
+function safeISOString(d: Date): string | null {
+  try {
+    if (!(d instanceof Date) || Number.isNaN(d.getTime())) return null;
+    return d.toISOString();
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(request: Request) {
   if (!stripe || !supabaseAdmin) {
     return NextResponse.json(
@@ -45,6 +55,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
+  try {
   switch (event.type) {
     // =====================================================
     // REVENUE TRACKING: Handle successful payments from connected SaaS accounts
@@ -125,15 +136,18 @@ export async function POST(request: Request) {
             // Update SaaS company with subscription info
             const renewalDate = new Date();
             renewalDate.setMonth(renewalDate.getMonth() + 1);
+            const renewalStr = safeISOString(renewalDate)?.split("T")[0];
 
-            await supabaseAdmin
-              .from("saas_companies")
-              .update({
-                stripe_subscription_id_credits: subscriptionId,
-                monthly_credit_subscription: creditVolume,
-                credit_renewal_date: renewalDate.toISOString().split("T")[0],
-              })
-              .eq("id", saasId);
+            if (renewalStr) {
+              await supabaseAdmin
+                .from("saas_companies")
+                .update({
+                  stripe_subscription_id_credits: subscriptionId,
+                  monthly_credit_subscription: creditVolume,
+                  credit_renewal_date: renewalStr,
+                })
+                .eq("id", saasId);
+            }
 
             console.log(
               `Credit subscription created for SaaS ${saasId}: ${creditVolume} credits`,
@@ -151,23 +165,24 @@ export async function POST(request: Request) {
           const subscriptionId = session.subscription as string;
 
           if (creatorId) {
-            // Calculate expiration date
             const expirationDate = new Date();
             if (plan === "monthly") {
               expirationDate.setMonth(expirationDate.getMonth() + 1);
             } else {
               expirationDate.setFullYear(expirationDate.getFullYear() + 1);
             }
-
-            await supabaseAdmin
-              .from("creator_profiles")
-              .update({
-                is_pro: true,
-                pro_status_source: "PAYMENT",
-                pro_expiration_date: expirationDate.toISOString(),
-                stripe_subscription_id_pro: subscriptionId,
-              })
-              .eq("id", creatorId);
+            const expirationStr = safeISOString(expirationDate);
+            if (expirationStr) {
+              await supabaseAdmin
+                .from("creator_profiles")
+                .update({
+                  is_pro: true,
+                  pro_status_source: "PAYMENT",
+                  pro_expiration_date: expirationStr,
+                  stripe_subscription_id_pro: subscriptionId,
+                })
+                .eq("id", creatorId);
+            }
 
             console.log(
               `Creator Pro subscription activated for creator ${creatorId}: ${plan}`,
@@ -225,11 +240,12 @@ export async function POST(request: Request) {
         const paymentIntentId = session.payment_intent as string;
 
         if (collaborationId) {
+          const paidAt = safeISOString(new Date());
           await supabaseAdmin
             .from("payments")
             .update({
               status: "completed",
-              paid_at: new Date().toISOString(),
+              ...(paidAt && { paid_at: paidAt }),
             })
             .eq("stripe_payment_intent_id", paymentIntentId);
 
@@ -578,11 +594,12 @@ export async function POST(request: Request) {
               `Transfer created for payout ${transfer.metadata.payout_id}`,
             );
           } else if (eventType === "transfer.paid") {
+            const completedAt = safeISOString(new Date());
             await supabaseAdmin
               .from("creator_payouts")
               .update({
                 status: "completed",
-                completed_at: new Date().toISOString(),
+                ...(completedAt && { completed_at: completedAt }),
               })
               .eq("id", transfer.metadata.payout_id);
             console.log(
@@ -592,11 +609,12 @@ export async function POST(request: Request) {
             eventType === "transfer.failed" ||
             eventType === "transfer.reversed"
           ) {
+            const failedAt = safeISOString(new Date());
             await supabaseAdmin
               .from("creator_payouts")
               .update({
                 status: "failed",
-                failed_at: new Date().toISOString(),
+                ...(failedAt && { failed_at: failedAt }),
                 error_message: transfer.failure_message || "Transfer failed",
               })
               .eq("id", transfer.metadata.payout_id);
@@ -659,6 +677,12 @@ export async function POST(request: Request) {
       }
       break;
     }
+  }
+
+  } catch (err) {
+    console.error("[stripe-webhook] Error processing event:", event?.type, err);
+    // Return 200 so Stripe does not retry; we've logged the error.
+    return NextResponse.json({ received: true });
   }
 
   return NextResponse.json({ received: true });
@@ -786,14 +810,15 @@ async function handleConnectedAccountPayment(
 
     // If no direct session, try to find recent click for this SaaS
     if (!trackedLinkId) {
-      // Look for any click in the last 30 days for this SaaS
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const thirtyDaysAgoIso = safeISOString(thirtyDaysAgo);
 
-      const { data: recentClicks } = await supabaseAdmin
-        .from("link_events")
-        .select(
-          `
+      if (thirtyDaysAgoIso) {
+        const { data: recentClicks } = await supabaseAdmin
+          .from("link_events")
+          .select(
+            `
           tracked_link_id,
           session_id,
           tracked_links!inner (
@@ -804,9 +829,9 @@ async function handleConnectedAccountPayment(
             )
           )
         `,
-        )
-        .eq("event_type", "click")
-        .gte("occurred_at", thirtyDaysAgo.toISOString())
+          )
+          .eq("event_type", "click")
+          .gte("occurred_at", thirtyDaysAgoIso)
         .order("occurred_at", { ascending: false })
         .limit(100);
 
@@ -823,6 +848,7 @@ async function handleConnectedAccountPayment(
         console.log(
           `Found attribution via recent click for ${saasCompany.company_name}`,
         );
+      }
       }
     }
 

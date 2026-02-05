@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import DashboardShell from '@/components/dashboard/dashboard-shell';
 import SessionValidator from '@/components/dashboard/session-validator';
 import CardValidator from '@/components/dashboard/card-validator';
+import OnboardingGuard from '@/components/dashboard/onboarding-guard';
 
 export default async function DashboardLayout({
   children,
@@ -51,7 +52,9 @@ export default async function DashboardLayout({
         userName={profile?.full_name || user.email || 'User'}
         avatarUrl={profile?.avatar_url}
       >
-        {children}
+        <OnboardingGuard onboardingCompleted={profile?.onboarding_completed ?? false}>
+          {children}
+        </OnboardingGuard>
       </DashboardShell>
     </div>
   );
