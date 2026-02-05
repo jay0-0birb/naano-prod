@@ -612,12 +612,14 @@
     "savingsDesc": "(Clics qualifiés × 8€) - Coût Naano"
   },
   "academy": {
-    "title": "Naano Onboarding",
-    "subtitle": "La stratégie complète pour générer un reach massif sur LinkedIn et Instagram",
+    "title": "Académie",
+    "subtitle": "Ressources de formation pour créateurs. Nous ajouterons de nouveaux modules ici au fil du temps.",
     "linkedIn": "LinkedIn",
     "instagram": "Instagram",
     "welcome": "Bienvenue",
-    "readyToLaunch": "Prêt à lancer ? Allez dans l'onglet « Campagnes », choisissez un SaaS et rédigez votre premier post viral avec cette recette."
+    "readyToLaunch": "Prêt à lancer ? Allez dans l'onglet « Campagnes », choisissez un SaaS et rédigez votre premier post viral avec cette recette.",
+    "linkedInTraining": "Formation LinkedIn",
+    "opensInNewTab": "Ouvrir dans un nouvel onglet \u2192"
   },
   "settings": {
     "title": "Paramètres",
