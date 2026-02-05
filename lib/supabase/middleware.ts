@@ -33,12 +33,27 @@ export async function updateSession(request: NextRequest) {
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
 
+  const pathname = request.nextUrl.pathname;
+  const isRscFetch =
+    request.nextUrl.searchParams.has("_rsc") || request.headers.get("RSC") === "1";
+  const sbCookies = request.cookies.getAll().filter((c) => c.name.startsWith("sb-"));
+  console.log("[auth-middleware] request", {
+    pathname,
+    isRscFetch,
+    sbCookieCount: sbCookies.length,
+    search: request.nextUrl.search.slice(0, 50),
+  });
+
   let user = null;
   try {
     const { data, error } = await supabase.auth.getUser();
 
-    // If there's an error or no user, clear any stale cookies
     if (error || !data.user) {
+      console.log("[auth-middleware] getUser: no user", {
+        pathname,
+        error: error?.message ?? null,
+        hasDataUser: !!data?.user,
+      });
       const allCookies = request.cookies.getAll();
       allCookies.forEach((cookie) => {
         if (cookie.name.startsWith("sb-")) {
@@ -48,10 +63,13 @@ export async function updateSession(request: NextRequest) {
       user = null;
     } else {
       user = data.user;
+      console.log("[auth-middleware] getUser: ok", {
+        pathname,
+        userId: user.id.slice(0, 8) + "...",
+      });
     }
   } catch (error) {
-    console.error("Middleware Auth Error:", error);
-    // Clear cookies on error
+    console.error("[auth-middleware] getUser threw", { pathname, error });
     const allCookies = request.cookies.getAll();
     allCookies.forEach((cookie) => {
       if (cookie.name.startsWith("sb-")) {
@@ -62,22 +80,28 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Only redirect full page loads to /dashboard, never RSC fetches (?_rsc=).
-  // Redirecting a fetch() causes "access control checks" / Load failed in the browser.
-  if (request.nextUrl.pathname.startsWith("/dashboard") && !user) {
-    const isRscFetch =
-      request.nextUrl.searchParams.has("_rsc") || request.headers.get("RSC") === "1";
+  if (pathname.startsWith("/dashboard") && !user) {
     if (!isRscFetch) {
+      console.log("[auth-middleware] redirect to /login (full page, no user)", {
+        pathname,
+      });
       return NextResponse.redirect(new URL("/login", request.url));
     }
+    console.log("[auth-middleware] dashboard but no user, allowing (RSC fetch)", {
+      pathname,
+    });
   }
 
-  if (request.nextUrl.pathname === "/login" && user) {
+  if (pathname === "/login" && user) {
+    console.log("[auth-middleware] redirect to /dashboard (logged in)", { pathname });
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  if (request.nextUrl.pathname === "/register" && user) {
+  if (pathname === "/register" && user) {
+    console.log("[auth-middleware] redirect to /dashboard (logged in)", { pathname });
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
+  console.log("[auth-middleware] pass through", { pathname, hasUser: !!user });
   return supabaseResponse;
 }
