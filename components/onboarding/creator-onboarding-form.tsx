@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { completeCreatorOnboarding } from "@/app/(dashboard)/actions";
 import {
@@ -10,6 +10,7 @@ import {
   Users,
   FileText,
   Calendar,
+  ChevronDown,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -78,24 +79,24 @@ export default function CreatorOnboardingForm() {
     "Other",
   ];
   const [error, setError] = useState<string | null>(null);
-  const [legalStatus, setLegalStatus] = useState<"particulier" | "professionnel">(
-    "particulier",
-  );
+  const [legalStatus, setLegalStatus] = useState<
+    "particulier" | "professionnel"
+  >("particulier");
   const [theme, setTheme] = useState<string>("");
   const [companyCountry, setCompanyCountry] = useState<string>("");
-  const [companyTaxIdError, setCompanyTaxIdError] = useState<string | null>(null);
-  const [companyVatError, setCompanyVatError] = useState<string | null>(null);
-  const [streetAddress, setStreetAddress] = useState("");
-  const [postalCode, setPostalCode] = useState("");
-  const [city, setCity] = useState("");
-  const [country, setCountry] = useState("");
-  const [detectingAddress, setDetectingAddress] = useState(false);
-  const [addressDetectError, setAddressDetectError] = useState<string | null>(
+  const [country, setCountry] = useState<string>("");
+  const [city, setCity] = useState<string>("");
+  const postalCodeRef = useRef<HTMLInputElement | null>(null);
+  const [companyTaxIdError, setCompanyTaxIdError] = useState<string | null>(
     null,
   );
+  const [companyVatError, setCompanyVatError] = useState<string | null>(null);
 
   const isEuCompany =
-    companyCountry !== "" && EU_COUNTRY_CODES.includes(companyCountry as (typeof EU_COUNTRY_CODES)[number]);
+    companyCountry !== "" &&
+    EU_COUNTRY_CODES.includes(
+      companyCountry as (typeof EU_COUNTRY_CODES)[number],
+    );
 
   function getCompanyTaxIdLabel() {
     if (companyCountry === "FR") {
@@ -123,35 +124,6 @@ export default function CreatorOnboardingForm() {
     return t("companyTaxIdPlaceholderOther");
   }
 
-  async function handleDetectAddress() {
-    setDetectingAddress(true);
-    setAddressDetectError(null);
-
-    try {
-      const response = await fetch("/api/geo/detect-address");
-      const data = await response.json();
-
-      if (!response.ok || !data?.success) {
-        setAddressDetectError(t("detectAddressError"));
-        return;
-      }
-
-      if (data.postalCode && !postalCode) {
-        setPostalCode(data.postalCode);
-      }
-      if (data.city && !city) {
-        setCity(data.city);
-      }
-      if (data.country && !country) {
-        setCountry(data.country);
-      }
-    } catch (err) {
-      setAddressDetectError(t("detectAddressError"));
-    } finally {
-      setDetectingAddress(false);
-    }
-  }
-
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsLoading(true);
@@ -167,15 +139,21 @@ export default function CreatorOnboardingForm() {
 
     // Additional validation for professional/company creators
     if (legalStatus === "professionnel") {
-      const companyLegalName = (formData.get("companyLegalName") as string | null)?.trim();
-      const registrationCountry = (formData.get(
-        "companyRegistrationCountry",
-      ) as string | null)?.trim();
-      const companyTaxId = (formData.get("companyTaxId") as string | null)?.trim();
-      const companyVatNumber = (formData.get("companyVatNumber") as string | null)?.trim();
-      const companyRegisteredAddress = (formData.get(
-        "companyRegisteredAddress",
-      ) as string | null)?.trim();
+      const companyLegalName = (
+        formData.get("companyLegalName") as string | null
+      )?.trim();
+      const registrationCountry = (
+        formData.get("companyRegistrationCountry") as string | null
+      )?.trim();
+      const companyTaxId = (
+        formData.get("companyTaxId") as string | null
+      )?.trim();
+      const companyVatNumber = (
+        formData.get("companyVatNumber") as string | null
+      )?.trim();
+      const companyRegisteredAddress = (
+        formData.get("companyRegisteredAddress") as string | null
+      )?.trim();
 
       if (
         !companyLegalName ||
@@ -216,7 +194,11 @@ export default function CreatorOnboardingForm() {
       }
 
       // VAT required for European companies and must start with 2-letter country code
-      if (EU_COUNTRY_CODES.includes(registrationCountry as (typeof EU_COUNTRY_CODES)[number])) {
+      if (
+        EU_COUNTRY_CODES.includes(
+          registrationCountry as (typeof EU_COUNTRY_CODES)[number],
+        )
+      ) {
         if (!companyVatNumber) {
           setIsLoading(false);
           setCompanyVatError(t("companyVatRequired"));
@@ -256,9 +238,7 @@ export default function CreatorOnboardingForm() {
         <h3 className="text-sm font-semibold text-[#0F172A]">
           {t("personalInfo")}
         </h3>
-        <p className="text-xs text-[#64748B]">
-          {t("contractData")}
-        </p>
+        <p className="text-xs text-[#64748B]">{t("contractData")}</p>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -298,33 +278,20 @@ export default function CreatorOnboardingForm() {
         </div>
 
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <label className="block text-sm font-medium text-[#475569]">
-              {t("fullAddress")}
-            </label>
-            <button
-              type="button"
-              onClick={handleDetectAddress}
-              disabled={detectingAddress}
-              className="text-[11px] font-medium text-[#4F46E5] hover:text-[#4338CA] disabled:opacity-60"
-            >
-              {detectingAddress ? t("detectAddressLoading") : t("detectAddress")}
-            </button>
-          </div>
+          <label className="block text-sm font-medium text-[#475569] mb-2">
+            {t("fullAddress")}
+          </label>
           <input
             name="streetAddress"
             required
-            value={streetAddress}
-            onChange={(e) => setStreetAddress(e.target.value)}
             placeholder={t("addressPlaceholder")}
             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all mb-3"
           />
           <div className="grid grid-cols-3 gap-3">
             <input
+              ref={postalCodeRef}
               name="postalCode"
               required
-              value={postalCode}
-              onChange={(e) => setPostalCode(e.target.value)}
               placeholder={t("postalCode")}
               className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
             />
@@ -332,25 +299,42 @@ export default function CreatorOnboardingForm() {
               name="city"
               required
               value={city}
-              onChange={(e) => setCity(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                // Default: just mirror user input
+                setCity(value);
+
+                // Simple heuristic for France: if user types "75012 Paris",
+                // automatically extract "75012" as postal code and keep "Paris" as city.
+                if (country === "FR" && postalCodeRef.current) {
+                  const match = value.match(/^(\d{4,5})\s+(.+)$/);
+                  if (match) {
+                    postalCodeRef.current.value = match[1];
+                    setCity(match[2]);
+                  }
+                }
+              }}
               placeholder={t("city")}
               className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
             />
-            <input
-              name="country"
-              required
-              value={country}
-              onChange={(e) => setCountry(e.target.value)}
-              placeholder={t("country")}
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
-            />
+            <div className="relative">
+              <select
+                name="country"
+                required
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 pr-10 text-[#111827] focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all appearance-none"
+              >
+                <option value="">{t("selectCountry")}</option>
+                {COMPANY_COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8]" />
+            </div>
           </div>
-          {addressDetectError && (
-            <p className="mt-2 text-xs text-red-600 flex items-center gap-1">
-              <AlertCircle className="w-3 h-3" />
-              {addressDetectError}
-            </p>
-          )}
         </div>
 
         <h3 className="text-sm font-semibold text-[#0F172A] pt-4">
@@ -533,7 +517,9 @@ export default function CreatorOnboardingForm() {
                   className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
                 />
                 {companyTaxIdError && (
-                  <p className="mt-1 text-xs text-red-600">{companyTaxIdError}</p>
+                  <p className="mt-1 text-xs text-red-600">
+                    {companyTaxIdError}
+                  </p>
                 )}
               </div>
             </div>
@@ -625,9 +611,7 @@ export default function CreatorOnboardingForm() {
               required
               className="mt-1 rounded border-gray-300"
             />
-            <span className="text-sm text-[#475569]">
-              {t("acceptMandate")}
-            </span>
+            <span className="text-sm text-[#475569]">{t("acceptMandate")}</span>
           </label>
           <label className="flex items-start gap-3">
             <input

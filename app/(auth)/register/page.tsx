@@ -10,7 +10,9 @@ interface RegisterPageProps {
   };
 }
 
-export default async function RegisterPage({ searchParams }: RegisterPageProps) {
+export default async function RegisterPage({
+  searchParams,
+}: RegisterPageProps) {
   const t = await getTranslations("auth");
 
   const roleParam = searchParams?.role;
