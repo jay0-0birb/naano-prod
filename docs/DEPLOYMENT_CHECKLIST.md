@@ -120,6 +120,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE messages;
 - [ ] Add `RESEND_API_KEY` to environment
 - [ ] Add `FROM_EMAIL` (e.g., `notifications@naano.com`)
 - [ ] Add `NOTIFICATION_SECRET` (random string for internal auth)
+- [ ] **Auth emails:** In Supabase → Authentication → Email, enable Custom SMTP and use Resend (host `smtp.resend.com`, port 465, user `resend`, password = API key). See [docs/SUPABASE_AUTH_EMAIL.md](./SUPABASE_AUTH_EMAIL.md).
 
 ### 2. Subscription Limits (Free/Pro Tiers)
 

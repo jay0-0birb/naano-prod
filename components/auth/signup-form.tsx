@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { signup } from '@/app/(auth)/actions';
+import { signup, resendConfirmationEmail } from "@/app/(auth)/actions";
 import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 type Role = 'saas' | 'influencer';
@@ -17,37 +17,71 @@ export default function SignUpForm({ defaultRole = 'saas' }: SignUpFormProps) {
   const [role, setRole] = useState<Role>(defaultRole);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [successEmail, setSuccessEmail] = useState<string | null>(null);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsLoading(true);
     setError(null);
-    
+
     const formData = new FormData(event.currentTarget);
-    formData.append('role', role);
+    formData.append("role", role);
+    const email = (formData.get("email") as string) ?? "";
 
     const result = await signup(formData);
 
     if (result?.error) {
-        setError(result.error);
-        setIsLoading(false);
+      setError(result.error);
+      setIsLoading(false);
     } else {
-        setSuccess(true);
-        setIsLoading(false);
+      setSuccess(true);
+      setSuccessEmail(email);
+      setIsLoading(false);
     }
+  }
+
+  async function handleResend() {
+    if (!successEmail) return;
+    setResendLoading(true);
+    setError(null);
+    setResendSuccess(false);
+    const result = await resendConfirmationEmail(successEmail);
+    setResendLoading(false);
+    if (result?.error) setError(result.error);
+    else setResendSuccess(true);
   }
 
   if (success) {
     return (
-        <div className="text-center py-8 animate-in fade-in zoom-in duration-300">
-            <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-200">
-                <CheckCircle2 className="w-8 h-8 text-green-600" />
-            </div>
-            <h3 className="text-xl font-semibold text-[#111827] mb-2">{t('checkEmail')}</h3>
-            <p className="text-[#64748B] text-sm leading-relaxed max-w-xs mx-auto">
-                {t('confirmationSent')}
-            </p>
+      <div className="text-center py-8 animate-in fade-in zoom-in duration-300">
+        <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-200">
+          <CheckCircle2 className="w-8 h-8 text-green-600" />
         </div>
+        <h3 className="text-xl font-semibold text-[#111827] mb-2">{t("checkEmail")}</h3>
+        <p className="text-[#64748B] text-sm leading-relaxed max-w-xs mx-auto mb-4">
+          {t("confirmationSent")}
+        </p>
+        {successEmail && (
+          <div className="space-y-2">
+            {resendSuccess && (
+              <p className="text-sm text-green-600">{t("resendSuccess")}</p>
+            )}
+            {error && (
+              <p className="text-sm text-red-600">{error}</p>
+            )}
+            <button
+              type="button"
+              onClick={handleResend}
+              disabled={resendLoading}
+              className="text-sm text-[#3B82F6] hover:text-[#2563EB] font-medium disabled:opacity-50"
+            >
+              {resendLoading ? t("sending") : t("resendConfirmation")}
+            </button>
+          </div>
+        )}
+      </div>
     );
   }
 

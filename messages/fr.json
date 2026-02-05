@@ -292,6 +292,7 @@
     "password": "Mot de passe",
     "emailPlaceholder": "john@company.com",
     "invalidCredentials": "Email ou mot de passe incorrect",
+    "verifyEmailFirst": "Vérifiez votre email via le lien envoyé, puis connectez-vous.",
     "signingIn": "Connexion...",
     "fullName": "Nom complet",
     "fullNamePlaceholder": "Jean Dupont",
@@ -300,7 +301,10 @@
     "brand": "Marque",
     "creator": "Créateur",
     "checkEmail": "Vérifiez votre email",
-    "confirmationSent": "Un lien de confirmation a été envoyé à votre adresse email. Cliquez dessus pour activer votre compte."
+    "confirmationSent": "Un lien de confirmation a été envoyé à votre adresse email. Cliquez dessus pour activer votre compte.",
+    "resendConfirmation": "Renvoyer l'email de confirmation",
+    "resendSuccess": "Email renvoyé. Vérifiez votre boîte de réception.",
+    "sending": "Envoi…"
   },
   "onboarding": {
     "personalInfo": "Informations personnelles *",

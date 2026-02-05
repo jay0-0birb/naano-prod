@@ -292,6 +292,7 @@
     "password": "Password",
     "emailPlaceholder": "john@company.com",
     "invalidCredentials": "Invalid email or password",
+    "verifyEmailFirst": "Please verify your email using the link we sent you, then sign in.",
     "signingIn": "Signing in...",
     "fullName": "Full name",
     "fullNamePlaceholder": "John Doe",
@@ -300,7 +301,10 @@
     "brand": "Brand",
     "creator": "Creator",
     "checkEmail": "Check your email",
-    "confirmationSent": "A confirmation link has been sent to your email address. Click it to activate your account."
+    "confirmationSent": "A confirmation link has been sent to your email address. Click it to activate your account.",
+    "resendConfirmation": "Resend confirmation email",
+    "resendSuccess": "Email sent again. Check your inbox.",
+    "sending": "Sending…"
   },
   "onboarding": {
     "personalInfo": "Personal information *",
