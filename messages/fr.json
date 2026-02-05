@@ -506,6 +506,8 @@
     "addCard": "Ajouter une carte",
     "loading": "Chargement...",
     "cardRegistered": "Carte enregistrée",
+    "manageSubscription": "Gérer l'abonnement",
+    "cancelSubscription": "Annuler l'abonnement",
     "howBillingWorks": "Comment fonctionne la facturation",
     "buyCredits": "Achetez des crédits",
     "buyCreditsDesc": "Choisissez votre volume mensuel dans l'onglet Mon Plan.",

@@ -202,6 +202,35 @@ export default function FinancesPageClient({
     }
   };
 
+  // Handle cancelling SaaS credit subscription directly (no portal)
+  const handleCancelCreditSubscription = async () => {
+    setStripeLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/stripe/cancel-credit-subscription", {
+        method: "POST",
+      });
+      const data = await response.json();
+
+      if (data.error) {
+        setError(data.error);
+        setStripeLoading(false);
+        return;
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setStripeLoading(false);
+      }
+    } catch (err) {
+      console.error("Error opening subscription portal:", err);
+      setError(t("subscriptionError"));
+      setStripeLoading(false);
+    }
+  };
+
   // Handle credit subscription
   const handleCreditSubscription = async (creditVolume: number) => {
     setError(null);
@@ -929,6 +958,28 @@ export default function FinancesPageClient({
                 onSubscribe={handleCreditSubscription}
               />
             </div>
+
+            {saasData.hasCreditSubscription && (
+              <div className="flex justify-end mt-3">
+                <button
+                  onClick={handleCancelCreditSubscription}
+                  disabled={stripeLoading}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-red-200 bg-white text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {stripeLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>{t("loading")}</span>
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="w-4 h-4" />
+                      <span>{t("cancelSubscription")}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
 
             {/* Overview */}
             <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm">

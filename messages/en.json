@@ -506,6 +506,8 @@
     "addCard": "Add card",
     "loading": "Loading...",
     "cardRegistered": "Card registered",
+    "manageSubscription": "Manage subscription",
+    "cancelSubscription": "Cancel subscription",
     "howBillingWorks": "How billing works",
     "buyCredits": "Buy credits",
     "buyCreditsDesc": "Choose your monthly volume in the My Plan tab.",

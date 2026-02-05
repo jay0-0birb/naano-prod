@@ -168,18 +168,22 @@ export async function GET() {
 
     const { data: saasCompany } = await supabase
       .from('saas_companies')
-      .select('stripe_subscription_id')
+      .select('stripe_subscription_id, stripe_subscription_id_credits')
       .eq('profile_id', user.id)
       .single();
 
-    if (!saasCompany?.stripe_subscription_id) {
+    const activeSubscriptionId =
+      saasCompany?.stripe_subscription_id_credits ||
+      saasCompany?.stripe_subscription_id;
+
+    if (!activeSubscriptionId) {
       return NextResponse.json({ 
         error: 'Aucun abonnement actif trouvé. Cliquez sur le bouton de synchronisation pour mettre à jour votre statut.' 
       }, { status: 400 });
     }
 
     // Get customer ID from subscription
-    const subscription = await stripe.subscriptions.retrieve(saasCompany.stripe_subscription_id);
+    const subscription = await stripe.subscriptions.retrieve(activeSubscriptionId);
     const customerId = subscription.customer as string;
 
     // Create billing portal session
