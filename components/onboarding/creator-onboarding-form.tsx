@@ -85,6 +85,14 @@ export default function CreatorOnboardingForm() {
   const [companyCountry, setCompanyCountry] = useState<string>("");
   const [companyTaxIdError, setCompanyTaxIdError] = useState<string | null>(null);
   const [companyVatError, setCompanyVatError] = useState<string | null>(null);
+  const [streetAddress, setStreetAddress] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+  const [city, setCity] = useState("");
+  const [country, setCountry] = useState("");
+  const [detectingAddress, setDetectingAddress] = useState(false);
+  const [addressDetectError, setAddressDetectError] = useState<string | null>(
+    null,
+  );
 
   const isEuCompany =
     companyCountry !== "" && EU_COUNTRY_CODES.includes(companyCountry as (typeof EU_COUNTRY_CODES)[number]);
@@ -113,6 +121,35 @@ export default function CreatorOnboardingForm() {
       return t("companyTaxIdPlaceholderUk");
     }
     return t("companyTaxIdPlaceholderOther");
+  }
+
+  async function handleDetectAddress() {
+    setDetectingAddress(true);
+    setAddressDetectError(null);
+
+    try {
+      const response = await fetch("/api/geo/detect-address");
+      const data = await response.json();
+
+      if (!response.ok || !data?.success) {
+        setAddressDetectError(t("detectAddressError"));
+        return;
+      }
+
+      if (data.postalCode && !postalCode) {
+        setPostalCode(data.postalCode);
+      }
+      if (data.city && !city) {
+        setCity(data.city);
+      }
+      if (data.country && !country) {
+        setCountry(data.country);
+      }
+    } catch (err) {
+      setAddressDetectError(t("detectAddressError"));
+    } finally {
+      setDetectingAddress(false);
+    }
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -261,12 +298,24 @@ export default function CreatorOnboardingForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[#475569] mb-2">
-            {t("fullAddress")}
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-sm font-medium text-[#475569]">
+              {t("fullAddress")}
+            </label>
+            <button
+              type="button"
+              onClick={handleDetectAddress}
+              disabled={detectingAddress}
+              className="text-[11px] font-medium text-[#4F46E5] hover:text-[#4338CA] disabled:opacity-60"
+            >
+              {detectingAddress ? t("detectAddressLoading") : t("detectAddress")}
+            </button>
+          </div>
           <input
             name="streetAddress"
             required
+            value={streetAddress}
+            onChange={(e) => setStreetAddress(e.target.value)}
             placeholder={t("addressPlaceholder")}
             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all mb-3"
           />
@@ -274,22 +323,34 @@ export default function CreatorOnboardingForm() {
             <input
               name="postalCode"
               required
+              value={postalCode}
+              onChange={(e) => setPostalCode(e.target.value)}
               placeholder={t("postalCode")}
               className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
             />
             <input
               name="city"
               required
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
               placeholder={t("city")}
               className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
             />
             <input
               name="country"
               required
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
               placeholder={t("country")}
               className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
             />
           </div>
+          {addressDetectError && (
+            <p className="mt-2 text-xs text-red-600 flex items-center gap-1">
+              <AlertCircle className="w-3 h-3" />
+              {addressDetectError}
+            </p>
+          )}
         </div>
 
         <h3 className="text-sm font-semibold text-[#0F172A] pt-4">

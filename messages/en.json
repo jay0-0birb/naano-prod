@@ -390,7 +390,10 @@
     "uploading": "Uploading...",
     "fileUploaded": "File uploaded",
     "clickToUpload": "Click to upload (PDF, ZIP, images)",
-    "createCompanyProfile": "Create Company Profile"
+    "createCompanyProfile": "Create Company Profile",
+    "detectAddress": "Auto-detect city & country",
+    "detectAddressLoading": "Detecting...",
+    "detectAddressError": "We couldn't detect your location. Please fill these fields manually."
   },
   "applications": {
     "myApplications": "My Applications",
