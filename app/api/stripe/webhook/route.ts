@@ -13,6 +13,13 @@ const supabaseAdmin =
     ? createClient(supabaseUrl, supabaseServiceKey)
     : null;
 
+/** Safe ISO date from Unix timestamp; returns null if invalid (avoids RangeError). */
+function toISODate(unixSeconds: number | undefined | null): string | null {
+  if (unixSeconds == null || typeof unixSeconds !== "number") return null;
+  const d = new Date(unixSeconds * 1000);
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+}
+
 export async function POST(request: Request) {
   if (!stripe || !supabaseAdmin) {
     return NextResponse.json(
@@ -299,18 +306,17 @@ export async function POST(request: Request) {
         );
 
         if (saasId && creditVolume > 0) {
-          await supabaseAdmin
-            .from("saas_companies")
-            .update({
-              stripe_subscription_id_credits: subscription.id,
-              monthly_credit_subscription: creditVolume,
-              credit_renewal_date: new Date(
-                (subscription as any).current_period_end * 1000,
-              )
-                .toISOString()
-                .split("T")[0],
-            })
-            .eq("id", saasId);
+          const renewalIso = toISODate((subscription as any).current_period_end);
+          if (renewalIso) {
+            await supabaseAdmin
+              .from("saas_companies")
+              .update({
+                stripe_subscription_id_credits: subscription.id,
+                monthly_credit_subscription: creditVolume,
+                credit_renewal_date: renewalIso.split("T")[0],
+              })
+              .eq("id", saasId);
+          }
 
           console.log(`Credit subscription ${event.type} for SaaS ${saasId}`);
         }
@@ -321,19 +327,17 @@ export async function POST(request: Request) {
         const plan = subscription.metadata.plan;
 
         if (creatorId) {
-          const expirationDate = new Date(
-            (subscription as any).current_period_end * 1000,
-          );
-
-          await supabaseAdmin
-            .from("creator_profiles")
-            .update({
-              is_pro: subscription.status === "active",
-              stripe_subscription_id_pro: subscription.id,
-              pro_expiration_date: expirationDate.toISOString(),
-            })
-            .eq("id", creatorId);
-
+          const expirationIso = toISODate((subscription as any).current_period_end);
+          if (expirationIso) {
+            await supabaseAdmin
+              .from("creator_profiles")
+              .update({
+                is_pro: subscription.status === "active",
+                stripe_subscription_id_pro: subscription.id,
+                pro_expiration_date: expirationIso,
+              })
+              .eq("id", creatorId);
+          }
           console.log(
             `Creator Pro subscription ${event.type} for creator ${creatorId}`,
           );
@@ -414,23 +418,18 @@ export async function POST(request: Request) {
         const creatorId = subscription.metadata.creator_id;
 
         if (creatorId) {
-          // Keep Pro until end of billing period (as per decision)
-          // Set expiration to end of current period
-          const expirationDate = new Date(
-            (subscription as any).current_period_end * 1000,
-          );
-
-          await supabaseAdmin
-            .from("creator_profiles")
-            .update({
-              stripe_subscription_id_pro: null,
-              pro_expiration_date: expirationDate.toISOString(),
-              // Keep is_pro = true until expiration
-            })
-            .eq("id", creatorId);
-
+          const expirationIso = toISODate((subscription as any).current_period_end);
+          if (expirationIso) {
+            await supabaseAdmin
+              .from("creator_profiles")
+              .update({
+                stripe_subscription_id_pro: null,
+                pro_expiration_date: expirationIso,
+              })
+              .eq("id", creatorId);
+          }
           console.log(
-            `Creator Pro subscription cancelled for creator ${creatorId} (Pro until ${expirationDate})`,
+            `Creator Pro subscription cancelled for creator ${creatorId}`,
           );
         }
       }
@@ -487,17 +486,15 @@ export async function POST(request: Request) {
             if (creditError) {
               console.error("Error adding credits on renewal:", creditError);
             } else {
-              // Update renewal date
-              const renewalDate = new Date(
-                (subscription as any).current_period_end * 1000,
-              );
-              await supabaseAdmin
-                .from("saas_companies")
-                .update({
-                  credit_renewal_date: renewalDate.toISOString().split("T")[0],
-                })
-                .eq("id", saasId);
-
+              const renewalIso = toISODate((subscription as any).current_period_end);
+              if (renewalIso) {
+                await supabaseAdmin
+                  .from("saas_companies")
+                  .update({
+                    credit_renewal_date: renewalIso.split("T")[0],
+                  })
+                  .eq("id", saasId);
+              }
               console.log(
                 `Credit subscription renewed for SaaS ${saasId}: +${creditVolume} credits (with roll-over)`,
               );
@@ -510,18 +507,16 @@ export async function POST(request: Request) {
           const plan = subscription.metadata.plan;
 
           if (creatorId) {
-            const expirationDate = new Date(
-              (subscription as any).current_period_end * 1000,
-            );
-
-            await supabaseAdmin
-              .from("creator_profiles")
-              .update({
-                is_pro: true,
-                pro_expiration_date: expirationDate.toISOString(),
-              })
-              .eq("id", creatorId);
-
+            const expirationIso = toISODate((subscription as any).current_period_end);
+            if (expirationIso) {
+              await supabaseAdmin
+                .from("creator_profiles")
+                .update({
+                  is_pro: true,
+                  pro_expiration_date: expirationIso,
+                })
+                .eq("id", creatorId);
+            }
             console.log(
               `Creator Pro renewed for creator ${creatorId}: ${plan}`,
             );
