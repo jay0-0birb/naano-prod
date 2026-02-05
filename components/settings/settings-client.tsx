@@ -55,6 +55,16 @@ export default function SettingsClient({
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showEditCreatorProfile, setShowEditCreatorProfile] = useState(false);
   const [showEditSaasProfile, setShowEditSaasProfile] = useState(false);
+  const [cardSuccess, setCardSuccess] = useState<string | null>(null);
+  const [hasCardOnFile, setHasCardOnFile] = useState<boolean>(
+    !!saasCompany?.card_on_file,
+  );
+  const [cardBrand, setCardBrand] = useState<string | null>(
+    saasCompany?.card_brand ?? null,
+  );
+  const [cardLast4, setCardLast4] = useState<string | null>(
+    saasCompany?.card_last4 ?? null,
+  );
 
   // Notification preferences state
   const [notifPrefs, setNotifPrefs] = useState<NotificationPreferences>({
@@ -265,11 +275,28 @@ export default function SettingsClient({
         return;
       }
 
-      router.refresh();
+      setHasCardOnFile(false);
+      setCardBrand(null);
+      setCardLast4(null);
+      setCardSuccess(tFinances("cardRemovedSuccess"));
     } catch (error: any) {
       alert(error?.message || tFinances("removeCardError"));
     }
   };
+
+  // If URL has #card anchor (e.g. from finances page), auto-scroll to card section
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash === "#card") {
+      // Small delay to ensure layout is rendered
+      setTimeout(() => {
+        const el = document.getElementById("card");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 100);
+    }
+  }, []);
 
   return (
     <div className="max-w-5xl">
@@ -297,6 +324,13 @@ export default function SettingsClient({
           <p className="text-red-700 text-sm">
             {t("stripeError", { error: stripeError })}
           </p>
+        </div>
+      )}
+
+      {cardSuccess && (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
+          <CheckCircle2 className="w-5 h-5 text-green-600" />
+          <p className="text-green-700 text-sm">{cardSuccess}</p>
         </div>
       )}
 
@@ -645,7 +679,10 @@ export default function SettingsClient({
 
         {/* Card Registration Section (SaaS only) */}
         {!isCreator && saasCompany && (
-          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+          <div
+            id="card"
+            className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm"
+          >
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
                 <CreditCard className="w-5 h-5 text-[#1D4ED8]" />
@@ -657,18 +694,17 @@ export default function SettingsClient({
             </div>
 
             <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 mb-4">
-              {saasCompany.card_on_file ? (
+              {hasCardOnFile ? (
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="text-sm text-[#111827] mb-1">
                       {t("cardRegistered")}
                     </p>
                     <p className="text-xs text-[#64748B]">
-                      {saasCompany.card_brand &&
-                        saasCompany.card_brand.charAt(0).toUpperCase() +
-                          saasCompany.card_brand.slice(1)}
-                      {saasCompany.card_last4 &&
-                        ` •••• ${saasCompany.card_last4}`}
+                      {cardBrand &&
+                        cardBrand.charAt(0).toUpperCase() +
+                          cardBrand.slice(1)}
+                      {cardLast4 && ` •••• ${cardLast4}`}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">

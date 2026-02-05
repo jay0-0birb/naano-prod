@@ -317,7 +317,8 @@ export default function FinancesPageClient({
   // Handle card registration
   const handleAddCard = async () => {
     // Redirect to settings page where card setup will be handled
-    router.push("/dashboard/settings");
+    // Include hash so settings page can auto-scroll to card section
+    router.push("/dashboard/settings#card");
   };
 
   // Creator View

@@ -532,7 +532,8 @@
     "deleteBrandConfirm": "Delete this brand?",
     "disconnectStripeError": "Unable to disconnect Stripe. Please try again or contact Naano.",
     "removeCardError": "Unable to remove card. Please try again or contact Naano.",
-    "subscriptionCancelled": "Your subscription has been cancelled successfully."
+    "subscriptionCancelled": "Your subscription has been cancelled successfully.",
+    "cardRemovedSuccess": "Your card has been removed successfully."
   },
   "financesCreator": {
     "daysUntilPro": "Only {amount}€ left before the Pro threshold. Plan your business creation!",
