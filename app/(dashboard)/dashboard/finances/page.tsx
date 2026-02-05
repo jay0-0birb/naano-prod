@@ -188,6 +188,27 @@ export default async function FinancesPage({ searchParams }: PageProps) {
       }
     }
 
+    // Load SaaS billing history (subscription invoices)
+    let invoices: any[] = [];
+    try {
+      const { data: billingInvoices, error: billingError } = await supabase
+        .from("billing_invoices")
+        .select(
+          "id, invoice_number, amount_ht, status, period_start",
+        )
+        .eq("saas_id", saasCompany.id)
+        .order("created_at", { ascending: false })
+        .limit(50);
+
+      if (billingError) {
+        console.error("Error fetching billing invoices:", billingError);
+      } else {
+        invoices = billingInvoices || [];
+      }
+    } catch (err) {
+      console.error("Unexpected error fetching billing invoices:", err);
+    }
+
     // Generate subscription message if coming from Stripe (legacy - for credit subscriptions)
     const t = await getTranslations("finances");
     let subscriptionMessage: string | undefined;
@@ -204,7 +225,7 @@ export default async function FinancesPage({ searchParams }: PageProps) {
           companyName: saasCompany.company_name,
           subscriptionStatus: saasCompany.subscription_status || "active",
           activeCreators,
-          invoices: [],
+          invoices,
           cardOnFile: saasCompany.card_on_file || false,
           cardLast4: saasCompany.card_last4 || null,
           cardBrand: saasCompany.card_brand || null,
