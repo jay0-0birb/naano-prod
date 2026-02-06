@@ -18,6 +18,15 @@ export const HeroSection = ({
   const t = useTranslations("hero");
   const words = [t("scale"), t("boost"), t("grow")];
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [hoveredBrand, setHoveredBrand] = useState<string | null>(null);
+
+  const brandHoverFilters: Record<string, string> = {
+    Loops: "brightness(0) saturate(100%) invert(71%) sepia(52%) saturate(10000%) hue-rotate(185deg) brightness(1.1) contrast(101%)",
+    Pletor: "brightness(0) saturate(100%) invert(45%) sepia(98%) saturate(2000%) hue-rotate(360deg) brightness(1.05) contrast(101%)",
+    Zmirov: "brightness(0) saturate(100%) invert(0%)",
+    "We are founders": "brightness(0) saturate(100%) invert(25%) sepia(95%) saturate(5000%) hue-rotate(355deg) brightness(0.95) contrast(105%)",
+  };
+  const defaultFilter = "brightness(0) invert(0.84)";
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -40,7 +49,7 @@ export const HeroSection = ({
         className={`max-w-7xl mx-auto relative z-[2] pt-32 sm:pt-36 md:pt-44 lg:pt-52 pb-12 sm:pb-16 md:pb-20 lg:pb-24 px-4 sm:px-6 ${showContent ? "opacity-100" : "opacity-0"}`}
       >
         {/* Text Content - Aligned along pink line */}
-        <div className="text-left max-w-full sm:max-w-[600px] ml-0 md:ml-8 lg:ml-16 mb-12 sm:mb-16 md:mb-20 lg:mb-28">
+        <div className="text-left max-w-full sm:max-w-[600px] ml-0 md:ml-8 lg:ml-16 mb-[2.875rem] sm:mb-12 md:mb-16 lg:mb-24">
           {/* Main Heading */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -129,7 +138,7 @@ export const HeroSection = ({
           initial={{ opacity: 0, x: -30 }}
           animate={showContent ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="mt-8 sm:mt-10 md:mt-14 lg:mt-20"
+          className="mt-[1.875rem] sm:mt-8 md:mt-10 lg:mt-16"
         >
           <p
             className="text-xs font-bold tracking-[0.1em] text-[#9CA3AF] uppercase text-center mb-6 sm:mb-8 md:mb-10"
@@ -138,40 +147,60 @@ export const HeroSection = ({
             {t("trustedBy")}
           </p>
 
-          <div className="flex justify-center items-center gap-6 sm:gap-8 md:gap-12 lg:gap-16 xl:gap-20 flex-wrap max-w-[1000px] mx-auto px-4">
+          <div className="flex justify-between items-center w-full max-w-6xl mx-auto px-6 sm:px-8">
             {[
-              { name: "TryLoops", url: "https://tryloops.ai/", hoverColor: "#38BDF8" },
-              { name: "Pletor", url: "https://www.pletor.ai/", hoverColor: "#F97316" },
-              { name: "Zmirov", url: "https://zmirov.com/", hoverColor: "#0F172A" },
-              { name: "We are founders", url: "https://wearefounders.com/", hoverColor: "#EF4444" },
+              {
+                name: "Loops",
+                logo: "/logos/loops.svg",
+                url: "https://tryloops.ai/",
+              },
+              {
+                name: "Pletor",
+                logo: "/logos/pletor.svg",
+                url: "https://www.pletor.ai/",
+              },
+              {
+                name: "Zmirov",
+                logo: "/logos/zmirov.svg",
+                url: "https://zmirov.com/",
+              },
+              {
+                name: "We are founders",
+                logo: "/logos/wearefounders.svg",
+                url: "https://wearefounders.com/",
+              },
             ].map((brand) => (
               <motion.a
                 key={brand.name}
                 href={brand.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="relative inline-block text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-[#CBD5E1] rounded-lg px-3 py-1.5 -mx-1 -my-0.5"
-                style={{ fontFamily: "Satoshi, sans-serif" }}
+                className={`relative flex-1 flex items-center justify-center min-w-0 rounded-lg py-2 ${brand.name === "Loops" ? "px-6 sm:px-8 md:px-10" : "px-2 sm:px-4"}`}
                 initial={false}
                 whileHover={{
-                  color: brand.hoverColor,
-                  scale: 1.1,
+                  scale: 1.05,
                   transition: { type: "spring", stiffness: 400, damping: 25 },
                 }}
                 whileTap={{ scale: 0.96 }}
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                aria-label={brand.name}
+                onMouseEnter={() => setHoveredBrand(brand.name)}
+                onMouseLeave={() => setHoveredBrand(null)}
               >
-                <span className="relative">
-                  {brand.name}
-                  <motion.span
-                    className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full origin-left"
-                    style={{ backgroundColor: brand.hoverColor }}
-                    initial={{ scaleX: 0 }}
-                    whileHover={{ scaleX: 1 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                    aria-hidden
-                  />
-                </span>
+                <img
+                  src={brand.logo}
+                  alt=""
+                  className="w-auto object-contain h-12 sm:h-14 md:h-16 lg:h-20 transition-[filter] duration-200"
+                  style={{
+                    filter:
+                      hoveredBrand === brand.name
+                        ? brandHoverFilters[brand.name]
+                        : defaultFilter,
+                    transform:
+                      brand.name === "Loops" ? "scale(3.7)" : undefined,
+                    transformOrigin: "center",
+                  }}
+                />
               </motion.a>
             ))}
           </div>
