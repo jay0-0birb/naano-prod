@@ -33,6 +33,11 @@ export default async function MessagesPage({ searchParams }: PageProps) {
   const conversationIds = participations?.map(p => p.conversation_id) || [];
 
   let conversations: any[] = [];
+  const safeProfile = profile ?? {
+    role: undefined,
+    full_name: user.email ?? 'User',
+    avatar_url: null,
+  };
   
   if (conversationIds.length > 0) {
     const { data } = await supabase
@@ -108,7 +113,7 @@ export default async function MessagesPage({ searchParams }: PageProps) {
           conversations={conversations}
           activeConversationId={activeConversationId}
           currentUserId={user.id}
-          currentUserRole={profile?.role as "saas" | "influencer" | undefined}
+          currentUserRole={safeProfile.role as "saas" | "influencer" | undefined}
         />
       </div>
 
@@ -119,8 +124,8 @@ export default async function MessagesPage({ searchParams }: PageProps) {
             conversationId={activeConversationId}
             currentUser={{
               id: user.id,
-              full_name: profile.full_name,
-              avatar_url: profile.avatar_url,
+              full_name: safeProfile.full_name,
+              avatar_url: safeProfile.avatar_url,
             }}
             partnerName={partnerInfo.name}
             partnerAvatar={partnerInfo.avatar}
