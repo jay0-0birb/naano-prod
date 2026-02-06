@@ -513,6 +513,8 @@
     "financesPlans": "Finances & Plans",
     "saasSubtitle": "Manage your subscription and billing",
     "saasError": "Error: SaaS data not found",
+    "saasOnboardingRequired": "Complete your SaaS profile to activate credit purchases.",
+    "creatorOnboardingRequired": "Complete your creator profile to unlock finances and payouts.",
     "myPlan": "My Plan",
     "billing": "Billing",
     "cardRequired": "Card required",

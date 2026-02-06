@@ -6,29 +6,31 @@ import { Loader2, CreditCard } from "lucide-react";
 
 // Volume pricing tiers (from planP.md) - used for instant local calculation
 function getCreditUnitPrice(volume: number): number {
-  if (volume >= 5000) return 1.60;
+  if (volume >= 5000) return 1.6;
   if (volume >= 4000) return 1.75;
   if (volume >= 3000) return 1.85;
   if (volume >= 2500) return 1.95;
   if (volume >= 2000) return 2.05;
-  if (volume >= 1750) return 2.10;
+  if (volume >= 1750) return 2.1;
   if (volume >= 1500) return 2.15;
-  if (volume >= 1250) return 2.20;
+  if (volume >= 1250) return 2.2;
   if (volume >= 1000) return 2.25;
   if (volume >= 750) return 2.35;
   if (volume >= 500) return 2.45;
   if (volume >= 250) return 2.55;
-  return 2.60; // Default for 100-249
+  return 2.6; // Default for 100-249
 }
 
 interface CreditSubscriptionSliderProps {
   currentSubscription?: number | null;
   onSubscribe: (creditVolume: number) => Promise<void>;
+  disabled?: boolean;
 }
 
 export default function CreditSubscriptionSlider({
   currentSubscription,
   onSubscribe,
+  disabled = false,
 }: CreditSubscriptionSliderProps) {
   const t = useTranslations("credits");
   const [creditVolume, setCreditVolume] = useState(currentSubscription || 1000);
@@ -44,6 +46,7 @@ export default function CreditSubscriptionSlider({
   }, [creditVolume]);
 
   const handleSubscribe = async () => {
+    if (disabled) return;
     setLoading(true);
     try {
       await onSubscribe(creditVolume);
@@ -70,9 +73,7 @@ export default function CreditSubscriptionSlider({
         <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-2">
           {t("subscription")}
         </h3>
-        <p className="text-sm text-slate-600">
-          {t("chooseVolume")}
-        </p>
+        <p className="text-sm text-slate-600">{t("chooseVolume")}</p>
       </div>
 
       {/* Slider */}
@@ -93,7 +94,8 @@ export default function CreditSubscriptionSlider({
           step="50"
           value={creditVolume}
           onChange={handleSliderChange}
-          className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+          disabled={disabled}
+          className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
         />
 
         <div className="flex justify-between text-xs text-slate-500 mt-2">
@@ -135,7 +137,7 @@ export default function CreditSubscriptionSlider({
       {/* Subscribe Button */}
       <button
         onClick={handleSubscribe}
-        disabled={loading || creditVolume < 100}
+        disabled={disabled || loading || creditVolume < 100}
         className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors"
       >
         {loading ? (

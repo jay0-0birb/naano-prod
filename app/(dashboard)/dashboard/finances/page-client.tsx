@@ -65,6 +65,7 @@ interface FinancesPageClientProps {
   saasData?: SaasData;
   subscriptionMessage?: string;
   stripeMessage?: string;
+  canManageSubscription?: boolean;
 }
 
 export default function FinancesPageClient({
@@ -73,6 +74,7 @@ export default function FinancesPageClient({
   saasData,
   subscriptionMessage,
   stripeMessage,
+  canManageSubscription,
 }: FinancesPageClientProps) {
   const router = useRouter();
   const t = useTranslations("finances");
@@ -333,8 +335,7 @@ export default function FinancesPageClient({
         </div>
         <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 sm:p-6">
           <p className="text-sm text-yellow-800">
-            Please complete your creator profile in onboarding to unlock your
-            finances and payouts.
+            {t("creatorOnboardingRequired")}
           </p>
         </div>
       </div>
@@ -836,21 +837,7 @@ export default function FinancesPageClient({
 
   // SaaS View
   if (!isCreator) {
-    if (!saasData) {
-      return (
-        <div className="max-w-5xl w-full">
-          <div className="mb-6 sm:mb-8">
-            <h1 className="text-xl sm:text-2xl font-normal text-[#111827] mb-1">
-              {t("financesPlans")}
-            </h1>
-            <p className="text-[#64748B] text-sm">{t("saasSubtitle")}</p>
-          </div>
-          <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 sm:p-6">
-            <p className="text-red-600 text-sm">{t("saasError")}</p>
-          </div>
-        </div>
-      );
-    }
+    const canManage = canManageSubscription ?? true;
     const tabs = [
       { id: "plan", label: t("myPlan") },
       { id: "commissions", label: t("billing") },
@@ -921,8 +908,8 @@ export default function FinancesPageClient({
                 </p>
                 <button
                   onClick={handleAddCard}
-                  disabled={stripeLoading}
-                  className="w-full sm:w-auto px-4 py-2 bg-[#0F172A] hover:bg-[#1E293B] text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  disabled={stripeLoading || !canManage}
+                  className="w-full sm:w-auto px-4 py-2 bg-[#0F172A] hover:bg-[#1E293B] text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {stripeLoading ? (
                     <>
@@ -963,8 +950,8 @@ export default function FinancesPageClient({
               </div>
               <button
                 onClick={handleAddCard}
-                disabled={stripeLoading}
-                className="w-full sm:w-auto shrink-0 px-4 py-2 bg-white hover:bg-gray-50 text-[#166534] border border-green-200 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                disabled={stripeLoading || !canManage}
+                className="w-full sm:w-auto shrink-0 px-4 py-2 bg-white hover:bg-gray-50 text-[#166534] border border-green-200 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {stripeLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -991,6 +978,7 @@ export default function FinancesPageClient({
               <CreditSubscriptionSlider
                 currentSubscription={saasData.monthlyCreditSubscription}
                 onSubscribe={handleCreditSubscription}
+                disabled={!canManage}
               />
             </div>
 
@@ -998,7 +986,7 @@ export default function FinancesPageClient({
               <div className="flex justify-end mt-3">
                 <button
                   onClick={handleCancelCreditSubscription}
-                  disabled={stripeLoading}
+                  disabled={stripeLoading || !canManage}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-red-200 bg-white text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {stripeLoading ? (

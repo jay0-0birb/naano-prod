@@ -235,29 +235,35 @@ export default async function FinancesPage({ searchParams }: PageProps) {
       subscriptionMessage = undefined;
     }
 
-    const saasData =
-      saasCompany &&
-      ({
-        companyName: saasCompany.company_name,
-        subscriptionStatus: saasCompany.subscription_status || "active",
-        activeCreators,
-        invoices,
-        cardOnFile: saasCompany.card_on_file || false,
-        cardLast4: saasCompany.card_last4 || null,
-        cardBrand: saasCompany.card_brand || null,
-        // Credit system data
-        walletCredits: saasCompany.wallet_credits || 0,
-        monthlyCreditSubscription:
-          saasCompany.monthly_credit_subscription || null,
-        creditRenewalDate: saasCompany.credit_renewal_date || null,
-        hasCreditSubscription: !!saasCompany.stripe_subscription_id_credits,
-      } as const);
+    const saasData = {
+      companyName:
+        saasCompany?.company_name ||
+        profile?.full_name ||
+        user.email ||
+        "Your company",
+      subscriptionStatus: saasCompany?.subscription_status || "inactive",
+      activeCreators,
+      invoices,
+      cardOnFile: saasCompany?.card_on_file || false,
+      cardLast4: saasCompany?.card_last4 || null,
+      cardBrand: saasCompany?.card_brand || null,
+      // Credit system data
+      walletCredits: saasCompany?.wallet_credits || 0,
+      monthlyCreditSubscription:
+        saasCompany?.monthly_credit_subscription || null,
+      creditRenewalDate: saasCompany?.credit_renewal_date || null,
+      hasCreditSubscription: !!saasCompany?.stripe_subscription_id_credits,
+    };
+
+    const canManageSubscription =
+      !!saasCompany && (profile?.onboarding_completed ?? false);
 
     return (
       <FinancesPageClient
         isCreator={false}
-        saasData={saasData || undefined}
+        saasData={saasData}
         subscriptionMessage={subscriptionMessage}
+        canManageSubscription={canManageSubscription}
       />
     );
   }

@@ -513,6 +513,8 @@
     "financesPlans": "Finances & Plans",
     "saasSubtitle": "Gérez votre abonnement et votre facturation",
     "saasError": "Erreur : Données SaaS non trouvées",
+    "saasOnboardingRequired": "Complétez votre profil SaaS pour activer l'achat de crédits.",
+    "creatorOnboardingRequired": "Complétez votre profil créateur pour débloquer vos finances et virements.",
     "myPlan": "Mon Plan",
     "billing": "Facturation",
     "cardRequired": "Carte bancaire requise",
