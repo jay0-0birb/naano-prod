@@ -175,7 +175,7 @@ export const HeroSection = ({
                 href={brand.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`relative flex-1 flex items-center justify-center min-w-0 rounded-lg py-2 ${brand.name === "Loops" ? "pl-12 pr-4 sm:pl-16 sm:pr-4 md:pl-20 md:pr-4" : "px-2 sm:px-4"}`}
+                className={`relative flex-1 flex items-center justify-center min-w-0 rounded-lg py-2 ${brand.name === "Loops" ? "pl-2 pr-10 sm:pl-4 sm:pr-12 md:pl-4 md:pr-16" : "px-2 sm:px-4"}`}
                 initial={false}
                 whileHover={{
                   scale: 1.05,
