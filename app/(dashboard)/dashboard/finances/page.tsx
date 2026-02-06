@@ -43,33 +43,22 @@ export default async function FinancesPage({ searchParams }: PageProps) {
       .eq("profile_id", user.id)
       .single();
 
-    if (!creatorProfile) {
-      const t = await getTranslations("finances");
-      const stripeMessage =
-        stripeStatus === "success" ? t("stripeSuccess") : undefined;
-
-      return (
-        <FinancesPageClient
-          isCreator={true}
-          stripeMessage={stripeMessage}
-        />
-      );
-    }
-
     // Count active SaaS - handle if function doesn't exist
     let activeSaas = 0;
-    try {
-      const { data } = await supabase.rpc("count_creator_active_saas", {
-        p_creator_id: creatorProfile.id,
-      });
-      activeSaas = data || 0;
-    } catch {
-      // Function may not exist yet, count manually
-      const { count } = await supabase
-        .from("collaborations")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "active");
-      activeSaas = count || 0;
+    if (creatorProfile) {
+      try {
+        const { data } = await supabase.rpc("count_creator_active_saas", {
+          p_creator_id: creatorProfile.id,
+        });
+        activeSaas = data || 0;
+      } catch {
+        // Function may not exist yet, count manually
+        const { count } = await supabase
+          .from("collaborations")
+          .select("*", { count: "exact", head: true })
+          .eq("status", "active");
+        activeSaas = count || 0;
+      }
     }
 
     // Generate Stripe success message if coming from Stripe
@@ -83,44 +72,46 @@ export default async function FinancesPage({ searchParams }: PageProps) {
     // Check €500 withdrawal cap for Particuliers without SIRET
     let canWithdraw = true;
     let withdrawBlockReason: string | null = null;
-    try {
-      const { data: withdrawResult } = await supabase.rpc(
-        "can_creator_withdraw",
-        { p_creator_id: creatorProfile.id },
-      );
-      const withdrawCheck =
-        Array.isArray(withdrawResult) && withdrawResult.length > 0
-          ? withdrawResult[0]
-          : withdrawResult;
-      if (withdrawCheck && !withdrawCheck.can_withdraw) {
-        canWithdraw = false;
-        withdrawBlockReason = withdrawCheck.reason || null;
+    if (creatorProfile) {
+      try {
+        const { data: withdrawResult } = await supabase.rpc(
+          "can_creator_withdraw",
+          { p_creator_id: creatorProfile.id },
+        );
+        const withdrawCheck =
+          Array.isArray(withdrawResult) && withdrawResult.length > 0
+            ? withdrawResult[0]
+            : withdrawResult;
+        if (withdrawCheck && !withdrawCheck.can_withdraw) {
+          canWithdraw = false;
+          withdrawBlockReason = withdrawCheck.reason || null;
+        }
+      } catch {
+        // RPC may not exist yet; allow withdraw
       }
-    } catch {
-      // RPC may not exist yet; allow withdraw
     }
 
-    const legalStatus = creatorProfile.legal_status || "particulier";
+    const legalStatus = creatorProfile?.legal_status || "particulier";
     const hasSiret = !!(
-      creatorProfile.siret_number && creatorProfile.siret_number.trim()
+      creatorProfile?.siret_number && creatorProfile.siret_number.trim()
     );
 
     return (
       <FinancesPageClient
         isCreator={true}
         creatorData={{
-          creatorId: creatorProfile.id,
+          creatorId: creatorProfile?.id || "",
           activeSaas,
-          stripeConnected: creatorProfile.stripe_onboarding_completed || false,
+          stripeConnected: creatorProfile?.stripe_onboarding_completed || false,
           minPayout: 50,
           availableBalance: walletSummary.availableBalance,
           totalEarned: walletSummary.totalEarned,
           payoutHistory: payoutHistory.payouts,
           // Pro status
-          isPro: creatorProfile.is_pro || false,
-          proStatusSource: creatorProfile.pro_status_source || null,
-          proExpirationDate: creatorProfile.pro_expiration_date || null,
-          hasProSubscription: !!creatorProfile.stripe_subscription_id_pro,
+          isPro: creatorProfile?.is_pro || false,
+          proStatusSource: creatorProfile?.pro_status_source || null,
+          proExpirationDate: creatorProfile?.pro_expiration_date || null,
+          hasProSubscription: !!creatorProfile?.stripe_subscription_id_pro,
           // €500 withdrawal cap (Particulier without SIRET)
           canWithdraw,
           withdrawBlockReason,
