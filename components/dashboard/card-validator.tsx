@@ -18,8 +18,9 @@ export default function CardValidator({
   isSaaS, 
   onboardingCompleted 
 }: CardValidatorProps) {
-  // Card guard is enabled: SaaS must have a card on file
-  const ENABLE_CARD_GUARD = true;
+  // Toggle to enforce card requirement for SaaS users before full dashboard access.
+  // Temporarily disabled to avoid locking users on the settings page when no card is on file.
+  const ENABLE_CARD_GUARD = false;
 
   const router = useRouter();
   const pathname = usePathname();
