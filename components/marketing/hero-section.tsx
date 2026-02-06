@@ -147,7 +147,7 @@ export const HeroSection = ({
             {t("trustedBy")}
           </p>
 
-          <div className="flex justify-between items-center w-full max-w-6xl mx-auto px-6 sm:px-8">
+          <div className="flex justify-between items-center w-full max-w-6xl mx-auto ml-4 sm:ml-6 px-6 sm:px-8">
             {[
               {
                 name: "Loops",
