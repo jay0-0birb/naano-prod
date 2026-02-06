@@ -43,7 +43,18 @@ export default async function FinancesPage({ searchParams }: PageProps) {
       .eq("profile_id", user.id)
       .single();
 
-    if (!creatorProfile) redirect("/dashboard");
+    if (!creatorProfile) {
+      const t = await getTranslations("finances");
+      const stripeMessage =
+        stripeStatus === "success" ? t("stripeSuccess") : undefined;
+
+      return (
+        <FinancesPageClient
+          isCreator={true}
+          stripeMessage={stripeMessage}
+        />
+      );
+    }
 
     // Count active SaaS - handle if function doesn't exist
     let activeSaas = 0;
@@ -129,85 +140,90 @@ export default async function FinancesPage({ searchParams }: PageProps) {
       .eq("profile_id", user.id)
       .single();
 
-    if (!saasCompany) redirect("/dashboard");
-
     // Count active creators - handle if function doesn't exist
     let activeCreators = 0;
-    try {
-      const { data, error } = await supabase.rpc("count_saas_active_creators", {
-        p_saas_id: saasCompany.id,
-      });
+    if (saasCompany) {
+      try {
+        const { data, error } = await supabase.rpc(
+          "count_saas_active_creators",
+          {
+            p_saas_id: saasCompany.id,
+          },
+        );
 
-      if (error) {
-        console.error("Error calling count_saas_active_creators:", error);
-        throw error;
-      }
+        if (error) {
+          console.error("Error calling count_saas_active_creators:", error);
+          throw error;
+        }
 
-      // RPC function returns INTEGER directly, not wrapped
-      activeCreators =
-        typeof data === "number"
-          ? data
-          : data?.[0]?.count_saas_active_creators || 0;
-    } catch (err) {
-      console.error("Error counting active creators, using fallback:", err);
-      // Function may not exist yet, count manually
-      // Get all active collaborations for this SaaS and count distinct creators
-      const { data: collabs, error: collabError } = await supabase
-        .from("collaborations")
-        .select(
-          `
+        // RPC function returns INTEGER directly, not wrapped
+        activeCreators =
+          typeof data === "number"
+            ? data
+            : data?.[0]?.count_saas_active_creators || 0;
+      } catch (err) {
+        console.error("Error counting active creators, using fallback:", err);
+        // Function may not exist yet, count manually
+        // Get all active collaborations for this SaaS and count distinct creators
+        const { data: collabs, error: collabError } = await supabase
+          .from("collaborations")
+          .select(
+            `
           application_id,
           applications!inner(
             creator_id,
             saas_id
           )
         `,
-        )
-        .eq("status", "active");
+          )
+          .eq("status", "active");
 
-      if (collabError) {
-        console.error("Error fetching collaborations:", collabError);
-      } else if (collabs) {
-        // Filter by SaaS ID and get unique creator IDs
-        const uniqueCreators = new Set(
-          collabs
-            .map((c: any) => c.applications)
-            .filter((app: any) => app?.saas_id === saasCompany.id)
-            .map((app: any) => app?.creator_id)
-            .filter(Boolean),
-        );
-        activeCreators = uniqueCreators.size;
-        console.log("Fallback count:", {
-          activeCreators,
-          totalCollabs: collabs.length,
-        });
+        if (collabError) {
+          console.error("Error fetching collaborations:", collabError);
+        } else if (collabs) {
+          // Filter by SaaS ID and get unique creator IDs
+          const uniqueCreators = new Set(
+            collabs
+              .map((c: any) => c.applications)
+              .filter((app: any) => app?.saas_id === saasCompany.id)
+              .map((app: any) => app?.creator_id)
+              .filter(Boolean),
+          );
+          activeCreators = uniqueCreators.size;
+          console.log("Fallback count:", {
+            activeCreators,
+            totalCollabs: collabs.length,
+          });
+        }
       }
     }
 
     // Load SaaS billing history (subscription invoices)
     let invoices: any[] = [];
-    try {
-      const { data: billingInvoices, error: billingError } = await supabase
-        .from("billing_invoices")
-        .select(
-          "id, invoice_number, amount_ht, status, period_start",
-        )
-        .eq("saas_id", saasCompany.id)
-        .order("created_at", { ascending: false })
-        .limit(50);
+    if (saasCompany) {
+      try {
+        const { data: billingInvoices, error: billingError } = await supabase
+          .from("billing_invoices")
+          .select(
+            "id, invoice_number, amount_ht, status, period_start",
+          )
+          .eq("saas_id", saasCompany.id)
+          .order("created_at", { ascending: false })
+          .limit(50);
 
-      if (billingError) {
-        console.error("Error fetching billing invoices:", billingError);
-      } else {
-        invoices = billingInvoices || [];
-        console.log("Loaded SaaS billing invoices for finances page:", {
-          saasId: saasCompany.id,
-          invoiceCount: invoices.length,
-          firstInvoice: invoices[0] || null,
-        });
+        if (billingError) {
+          console.error("Error fetching billing invoices:", billingError);
+        } else {
+          invoices = billingInvoices || [];
+          console.log("Loaded SaaS billing invoices for finances page:", {
+            saasId: saasCompany.id,
+            invoiceCount: invoices.length,
+            firstInvoice: invoices[0] || null,
+          });
+        }
+      } catch (err) {
+        console.error("Unexpected error fetching billing invoices:", err);
       }
-    } catch (err) {
-      console.error("Unexpected error fetching billing invoices:", err);
     }
 
     // Generate subscription message if coming from Stripe (legacy - for credit subscriptions)
@@ -219,24 +235,28 @@ export default async function FinancesPage({ searchParams }: PageProps) {
       subscriptionMessage = undefined;
     }
 
+    const saasData =
+      saasCompany &&
+      ({
+        companyName: saasCompany.company_name,
+        subscriptionStatus: saasCompany.subscription_status || "active",
+        activeCreators,
+        invoices,
+        cardOnFile: saasCompany.card_on_file || false,
+        cardLast4: saasCompany.card_last4 || null,
+        cardBrand: saasCompany.card_brand || null,
+        // Credit system data
+        walletCredits: saasCompany.wallet_credits || 0,
+        monthlyCreditSubscription:
+          saasCompany.monthly_credit_subscription || null,
+        creditRenewalDate: saasCompany.credit_renewal_date || null,
+        hasCreditSubscription: !!saasCompany.stripe_subscription_id_credits,
+      } as const);
+
     return (
       <FinancesPageClient
         isCreator={false}
-        saasData={{
-          companyName: saasCompany.company_name,
-          subscriptionStatus: saasCompany.subscription_status || "active",
-          activeCreators,
-          invoices,
-          cardOnFile: saasCompany.card_on_file || false,
-          cardLast4: saasCompany.card_last4 || null,
-          cardBrand: saasCompany.card_brand || null,
-          // Credit system data
-          walletCredits: saasCompany.wallet_credits || 0,
-          monthlyCreditSubscription:
-            saasCompany.monthly_credit_subscription || null,
-          creditRenewalDate: saasCompany.credit_renewal_date || null,
-          hasCreditSubscription: !!saasCompany.stripe_subscription_id_credits,
-        }}
+        saasData={saasData || undefined}
         subscriptionMessage={subscriptionMessage}
       />
     );

@@ -322,6 +322,25 @@ export default function FinancesPageClient({
   };
 
   // Creator View
+  if (isCreator && !creatorData) {
+    return (
+      <div className="max-w-5xl w-full">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-2xl font-semibold text-[#111827] mb-1">
+            {t("title")}
+          </h1>
+          <p className="text-[#64748B] text-sm">{t("subtitle")}</p>
+        </div>
+        <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 sm:p-6">
+          <p className="text-sm text-yellow-800">
+            Please complete your creator profile in onboarding to unlock your
+            finances and payouts.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (isCreator && creatorData) {
     const canWithdraw = creatorData.canWithdraw ?? true;
     const legalStatus = creatorData.legalStatus ?? "particulier";

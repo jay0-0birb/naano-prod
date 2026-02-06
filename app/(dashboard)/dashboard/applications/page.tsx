@@ -62,15 +62,13 @@ export default async function ApplicationsPage() {
     .eq("profile_id", user.id)
     .single();
 
-  if (!creatorProfile) {
-    redirect("/dashboard/onboarding");
-  }
-
   // Get applications with SaaS company details
-  const { data: applications } = await supabase
-    .from("applications")
-    .select(
-      `
+  let applications: any[] = [];
+  if (creatorProfile?.id) {
+    const { data } = await supabase
+      .from("applications")
+      .select(
+        `
       *,
       saas_companies:saas_id (
         id,
@@ -80,9 +78,12 @@ export default async function ApplicationsPage() {
         website
       )
     `,
-    )
-    .eq("creator_id", creatorProfile.id)
-    .order("created_at", { ascending: false });
+      )
+      .eq("creator_id", creatorProfile.id)
+      .order("created_at", { ascending: false });
+
+    applications = data || [];
+  }
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("fr-FR", {
