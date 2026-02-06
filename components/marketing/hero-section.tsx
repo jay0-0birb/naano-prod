@@ -21,7 +21,7 @@ export const HeroSection = ({
   const [hoveredBrand, setHoveredBrand] = useState<string | null>(null);
 
   const brandHoverFilters: Record<string, string> = {
-    Loops: "brightness(0) saturate(100%) invert(71%) sepia(52%) saturate(10000%) hue-rotate(185deg) brightness(1.1) contrast(101%)",
+    Loops: "brightness(0) saturate(100%) invert(28%) sepia(98%) saturate(5000%) hue-rotate(212deg) brightness(0.95) contrast(101%)",
     Pletor: "brightness(0) saturate(100%) invert(45%) sepia(98%) saturate(2000%) hue-rotate(360deg) brightness(1.05) contrast(101%)",
     Zmirov: "brightness(0) saturate(100%) invert(0%)",
     "We are founders": "brightness(0) saturate(100%) invert(25%) sepia(95%) saturate(5000%) hue-rotate(355deg) brightness(0.95) contrast(105%)",
