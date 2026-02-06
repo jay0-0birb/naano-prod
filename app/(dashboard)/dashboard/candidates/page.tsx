@@ -23,10 +23,6 @@ export default async function CandidatesPage() {
     redirect('/dashboard');
   }
 
-  if (!profile?.onboarding_completed) {
-    redirect('/dashboard/onboarding');
-  }
-
   // Get SaaS company
   const { data: saasCompany } = await supabase
     .from('saas_companies')

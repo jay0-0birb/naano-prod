@@ -52,10 +52,6 @@ export default async function CollaborationsPage() {
     .eq("id", user.id)
     .single();
 
-  if (!profile?.onboarding_completed) {
-    redirect("/dashboard/onboarding");
-  }
-
   const isCreator = profile?.role === "influencer";
 
   // Get collaborations based on role

@@ -24,10 +24,6 @@ export default async function MessagesPage({ searchParams }: PageProps) {
     .eq('id', user.id)
     .single();
 
-  if (!profile?.onboarding_completed) {
-    redirect('/dashboard/onboarding');
-  }
-
   // Get user's conversations
   const { data: participations } = await supabase
     .from('conversation_participants')

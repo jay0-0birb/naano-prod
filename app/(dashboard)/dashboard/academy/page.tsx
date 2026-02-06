@@ -22,10 +22,6 @@ export default async function AcademyPage() {
     .eq("id", user.id)
     .single();
 
-  if (!profile?.onboarding_completed) {
-    redirect("/dashboard/onboarding");
-  }
-
   // Academy is only for creators/influencers
   if (profile?.role !== "influencer") {
     redirect("/dashboard");

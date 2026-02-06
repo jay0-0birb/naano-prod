@@ -27,10 +27,6 @@ export default async function DashboardPage() {
     .eq("id", user.id)
     .single();
 
-  if (!profile?.onboarding_completed) {
-    redirect("/dashboard/onboarding");
-  }
-
   const isCreator = profile?.role === "influencer";
 
   // Fetch basic stats

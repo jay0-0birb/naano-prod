@@ -21,10 +21,6 @@ export default async function SettingsPage({ searchParams }: PageProps) {
     .eq('id', user.id)
     .single();
 
-  if (!profile?.onboarding_completed) {
-    redirect('/dashboard/onboarding');
-  }
-
   const isCreator = profile?.role === 'influencer';
 
   // Get creator profile or saas company

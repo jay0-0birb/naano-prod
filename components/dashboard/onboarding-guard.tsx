@@ -9,6 +9,7 @@ interface OnboardingGuardProps {
 }
 
 const ONBOARDING_PATH = "/dashboard/onboarding";
+const ENABLE_ONBOARDING_GUARD = false;
 
 /**
  * Redirects to /dashboard/onboarding when the user has not completed their profile,
@@ -18,6 +19,11 @@ export default function OnboardingGuard({
   onboardingCompleted,
   children,
 }: OnboardingGuardProps) {
+  // When disabled, just render children and rely on soft UI nudges (e.g. sidebar banner)
+  if (!ENABLE_ONBOARDING_GUARD) {
+    return <>{children}</>;
+  }
+
   const router = useRouter();
   const pathname = usePathname();
 

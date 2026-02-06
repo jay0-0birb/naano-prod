@@ -44,10 +44,6 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
     .eq("id", user.id)
     .single();
 
-  if (!profile?.onboarding_completed) {
-    redirect("/dashboard/onboarding");
-  }
-
   const isCreator = profile?.role === "influencer";
   const t = await getTranslations("collaborationDetail");
 

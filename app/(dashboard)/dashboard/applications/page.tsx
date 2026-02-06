@@ -55,10 +55,6 @@ export default async function ApplicationsPage() {
     redirect("/dashboard");
   }
 
-  if (!profile?.onboarding_completed) {
-    redirect("/dashboard/onboarding");
-  }
-
   // Get creator profile
   const { data: creatorProfile } = await supabase
     .from("creator_profiles")

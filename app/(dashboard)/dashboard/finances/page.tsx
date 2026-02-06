@@ -31,10 +31,6 @@ export default async function FinancesPage({ searchParams }: PageProps) {
     .eq("id", user.id)
     .single();
 
-  if (!profile?.onboarding_completed) {
-    redirect("/dashboard/onboarding");
-  }
-
   const isCreator = profile?.role === "influencer";
 
   if (isCreator) {
