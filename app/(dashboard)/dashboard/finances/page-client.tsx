@@ -837,6 +837,23 @@ export default function FinancesPageClient({
 
   // SaaS View
   if (!isCreator) {
+    // Safety: if for some reason we didn't receive SaaS data, show a soft error state
+    if (!saasData) {
+      return (
+        <div className="max-w-5xl w-full">
+          <div className="mb-6 sm:mb-8">
+            <h1 className="text-xl sm:text-2xl font-semibold text-[#111827] mb-1">
+              {t("financesPlans")}
+            </h1>
+            <p className="text-[#64748B] text-sm">{t("saasSubtitle")}</p>
+          </div>
+          <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 sm:p-6">
+            <p className="text-red-600 text-sm">{t("saasError")}</p>
+          </div>
+        </div>
+      );
+    }
+
     const canManage = canManageSubscription ?? true;
     const tabs = [
       { id: "plan", label: t("myPlan") },
