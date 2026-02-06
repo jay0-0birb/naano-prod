@@ -175,7 +175,7 @@ export const HeroSection = ({
                 href={brand.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`relative flex-1 flex items-center justify-center min-w-0 rounded-lg py-2 ${brand.name === "Loops" ? "px-6 sm:px-8 md:px-10" : "px-2 sm:px-4"}`}
+                className={`relative flex-1 flex items-center justify-center min-w-0 rounded-lg py-2 ${brand.name === "Loops" ? "pl-12 pr-4 sm:pl-16 sm:pr-4 md:pl-20 md:pr-4" : "px-2 sm:px-4"}`}
                 initial={false}
                 whileHover={{
                   scale: 1.05,
@@ -190,7 +190,7 @@ export const HeroSection = ({
                 <img
                   src={brand.logo}
                   alt=""
-                  className="w-auto object-contain h-12 sm:h-14 md:h-16 lg:h-20 transition-[filter] duration-200"
+                  className="w-auto object-contain h-10 sm:h-12 md:h-14 lg:h-16 transition-[filter] duration-200"
                   style={{
                     filter:
                       hoveredBrand === brand.name
