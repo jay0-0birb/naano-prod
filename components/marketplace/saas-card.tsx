@@ -73,11 +73,8 @@ export default function SaasCard({
           </div>
         </div>
 
-        {/* Middle section: description + budget; padding-bottom = gap above Terms */}
-        <div
-          className="flex-1 min-h-0 flex flex-col shrink-0"
-          style={{ paddingBottom: 48 }}
-        >
+        {/* Middle section: description + budget */}
+        <div className="flex-1 min-h-0 flex flex-col shrink-0">
           {/* Description: max 56px — scrolls when content exceeds it */}
           <div
             style={{ height: 40, maxHeight: 40 }}
@@ -106,17 +103,8 @@ export default function SaasCard({
           </div>
         </div>
 
-        {/* Bottom section: Terms + Apply button */}
+        {/* Bottom section: Apply button */}
         <div className="shrink-0 space-y-4">
-          {company.conditions && (
-            <div
-              style={{ height: 56, maxHeight: 56 }}
-              className="text-xs text-[#64748B] p-3 bg-gray-50 rounded-lg border border-gray-100 overflow-y-auto overflow-x-hidden break-words overscroll-contain"
-            >
-              <span className="font-medium text-[#475569]">{t("terms")}:</span>{" "}
-              {company.conditions}
-            </div>
-          )}
           {creatorProfileId ? (
             applied ? (
               <button

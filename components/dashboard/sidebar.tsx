@@ -70,7 +70,11 @@ export default function DashboardSidebar({
       aria-hidden={!mobileOpen}
     >
       <div className="h-16 flex items-center justify-between px-4 sm:px-6 border-b border-gray-200 shrink-0">
-        <Link href="/dashboard" className="flex items-center gap-2" onClick={handleNav}>
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-2"
+          onClick={handleNav}
+        >
           <span className="text-xl font-bold tracking-tight text-[#0F172A]">
             Naano
           </span>
@@ -103,7 +107,11 @@ export default function DashboardSidebar({
           {t("menu")}
         </div>
 
-        <Link href="/dashboard" className={linkClass("/dashboard")} onClick={handleNav}>
+        <Link
+          href="/dashboard"
+          className={linkClass("/dashboard")}
+          onClick={handleNav}
+        >
           <LayoutDashboard className="w-5 h-5" />
           <span>{t("overview")}</span>
         </Link>

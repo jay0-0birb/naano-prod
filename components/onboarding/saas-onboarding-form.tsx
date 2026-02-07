@@ -1,50 +1,59 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { completeSaasOnboarding, uploadMediaPack } from '@/app/(dashboard)/actions';
-import { Loader2, AlertCircle, Upload, CheckCircle2, Building2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useState } from "react";
+import { useTranslations } from "next-intl";
+import {
+  completeSaasOnboarding,
+  uploadMediaPack,
+} from "@/app/(dashboard)/actions";
+import {
+  Loader2,
+  AlertCircle,
+  Upload,
+  CheckCircle2,
+  Building2,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const INDUSTRIES = [
-  'SaaS / Software',
-  'Fintech',
-  'E-commerce',
-  'Marketing',
-  'Human Resources',
-  'Productivity',
-  'Cybersecurity',
-  'AI / Machine Learning',
-  'EdTech',
-  'HealthTech',
-  'Other',
+  "SaaS / Software",
+  "Fintech",
+  "E-commerce",
+  "Marketing",
+  "Human Resources",
+  "Productivity",
+  "Cybersecurity",
+  "AI / Machine Learning",
+  "EdTech",
+  "HealthTech",
+  "Other",
 ];
 
 const COUNTRIES = [
-  { code: 'FR', name: 'France' },
-  { code: 'DE', name: 'Germany' },
-  { code: 'ES', name: 'Spain' },
-  { code: 'IT', name: 'Italy' },
-  { code: 'BE', name: 'Belgium' },
-  { code: 'NL', name: 'Netherlands' },
-  { code: 'GB', name: 'United Kingdom' },
-  { code: 'US', name: 'United States' },
-  { code: 'CA', name: 'Canada' },
-  { code: 'CH', name: 'Switzerland' },
-  { code: 'AT', name: 'Austria' },
-  { code: 'PT', name: 'Portugal' },
-  { code: 'SE', name: 'Sweden' },
-  { code: 'DK', name: 'Denmark' },
-  { code: 'NO', name: 'Norway' },
-  { code: 'FI', name: 'Finland' },
-  { code: 'IE', name: 'Ireland' },
-  { code: 'PL', name: 'Poland' },
-  { code: 'CZ', name: 'Czech Republic' },
-  { code: 'OTHER', name: 'Other' },
+  { code: "FR", name: "France" },
+  { code: "DE", name: "Germany" },
+  { code: "ES", name: "Spain" },
+  { code: "IT", name: "Italy" },
+  { code: "BE", name: "Belgium" },
+  { code: "NL", name: "Netherlands" },
+  { code: "GB", name: "United Kingdom" },
+  { code: "US", name: "United States" },
+  { code: "CA", name: "Canada" },
+  { code: "CH", name: "Switzerland" },
+  { code: "AT", name: "Austria" },
+  { code: "PT", name: "Portugal" },
+  { code: "SE", name: "Sweden" },
+  { code: "DK", name: "Denmark" },
+  { code: "NO", name: "Norway" },
+  { code: "FI", name: "Finland" },
+  { code: "IE", name: "Ireland" },
+  { code: "PL", name: "Poland" },
+  { code: "CZ", name: "Czech Republic" },
+  { code: "OTHER", name: "Other" },
 ];
 
 export default function SaasOnboardingForm() {
-  const t = useTranslations('onboarding');
+  const t = useTranslations("onboarding");
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,10 +67,10 @@ export default function SaasOnboardingForm() {
 
     setIsUploading(true);
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     const result = await uploadMediaPack(formData);
-    
+
     if (result.error) {
       setError(result.error);
     } else if (result.url) {
@@ -77,7 +86,7 @@ export default function SaasOnboardingForm() {
 
     const formData = new FormData(event.currentTarget);
     if (mediaPackUrl) {
-      formData.append('mediaPackUrl', mediaPackUrl);
+      formData.append("mediaPackUrl", mediaPackUrl);
     }
 
     const result = await completeSaasOnboarding(formData);
@@ -86,7 +95,7 @@ export default function SaasOnboardingForm() {
       setError(result.error);
       setIsLoading(false);
     } else {
-      router.push('/dashboard');
+      router.push("/dashboard");
       router.refresh();
     }
   }
@@ -104,13 +113,13 @@ export default function SaasOnboardingForm() {
         {/* Company Name */}
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            {t('companyName')}
+            {t("companyName")}
           </label>
           <input
             name="companyName"
             type="text"
             required
-            placeholder={t('companyPlaceholder')}
+            placeholder={t("companyPlaceholder")}
             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
           />
         </div>
@@ -118,13 +127,13 @@ export default function SaasOnboardingForm() {
         {/* Description */}
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            {t('productDescription')}
+            {t("productDescription")}
           </label>
           <textarea
             name="description"
             required
             rows={4}
-            placeholder={t('productPlaceholder')}
+            placeholder={t("productPlaceholder")}
             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all resize-none"
           />
         </div>
@@ -132,12 +141,12 @@ export default function SaasOnboardingForm() {
         {/* Website */}
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            {t('website')}
+            {t("website")}
           </label>
           <input
             name="website"
             type="url"
-            placeholder={t('websitePlaceholder')}
+            placeholder={t("websitePlaceholder")}
             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
           />
         </div>
@@ -145,14 +154,14 @@ export default function SaasOnboardingForm() {
         {/* Industry */}
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            {t('industry')}
+            {t("industry")}
           </label>
           <select
             name="industry"
             required
             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
           >
-            <option value="">{t('selectIndustry')}</option>
+            <option value="">{t("selectIndustry")}</option>
             {INDUSTRIES.map((industry) => (
               <option key={industry} value={industry}>
                 {industry}
@@ -161,39 +170,24 @@ export default function SaasOnboardingForm() {
           </select>
         </div>
 
-        {/* Conditions */}
-        <div>
-          <label className="block text-sm font-medium text-[#475569] mb-2">
-            {t('collaborationTerms')}
-          </label>
-          <textarea
-            name="conditions"
-            rows={3}
-            placeholder={t('termsPlaceholder')}
-            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all resize-none"
-          />
-        </div>
-
         {/* Country */}
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            {t('country')} *
+            {t("country")} *
           </label>
           <select
             name="country"
             required
             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
           >
-            <option value="">{t('selectCountry')}</option>
+            <option value="">{t("selectCountry")}</option>
             {COUNTRIES.map((country) => (
               <option key={country.code} value={country.code}>
                 {country.name}
               </option>
             ))}
           </select>
-          <p className="text-xs text-[#64748B] mt-1.5">
-            {t('billingNote')}
-          </p>
+          <p className="text-xs text-[#64748B] mt-1.5">{t("billingNote")}</p>
         </div>
 
         {/* VAT Registration */}
@@ -208,23 +202,21 @@ export default function SaasOnboardingForm() {
               className="w-4 h-4 text-[#3B82F6] border-gray-300 rounded focus:ring-[#3B82F6]"
             />
             <label htmlFor="isVatRegistered" className="text-sm text-[#475569]">
-              {t('vatRegistered')}
+              {t("vatRegistered")}
             </label>
           </div>
           {isVatRegistered && (
             <div>
-            <label className="block text-sm font-medium text-[#475569] mb-2">
-              {t('vatNumber')}
-            </label>
-            <input
-              name="vatNumber"
-              type="text"
-              placeholder={t('vatPlaceholder')}
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
-            />
-              <p className="text-xs text-[#64748B] mt-1.5">
-                {t('vatNote')}
-              </p>
+              <label className="block text-sm font-medium text-[#475569] mb-2">
+                {t("vatNumber")}
+              </label>
+              <input
+                name="vatNumber"
+                type="text"
+                placeholder={t("vatPlaceholder")}
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10 transition-all"
+              />
+              <p className="text-xs text-[#64748B] mt-1.5">{t("vatNote")}</p>
             </div>
           )}
         </div>
@@ -232,7 +224,7 @@ export default function SaasOnboardingForm() {
         {/* Media Pack Upload */}
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
-            {t('mediaPack')}
+            {t("mediaPack")}
           </label>
           <div className="relative">
             <input
@@ -246,24 +238,26 @@ export default function SaasOnboardingForm() {
               htmlFor="media-pack-upload"
               className={`flex items-center justify-center gap-3 w-full py-4 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
                 mediaPackUrl
-                  ? 'border-green-200 bg-green-50'
-                  : 'border-gray-200 hover:border-gray-300 bg-gray-50'
+                  ? "border-green-200 bg-green-50"
+                  : "border-gray-200 hover:border-gray-300 bg-gray-50"
               }`}
             >
               {isUploading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin text-[#3B82F6]" />
-                  <span className="text-[#64748B]">{t('uploading')}</span>
+                  <span className="text-[#64748B]">{t("uploading")}</span>
                 </>
               ) : mediaPackUrl ? (
                 <>
                   <CheckCircle2 className="w-5 h-5 text-green-600" />
-                  <span className="text-green-700 font-medium">{t('fileUploaded')}</span>
+                  <span className="text-green-700 font-medium">
+                    {t("fileUploaded")}
+                  </span>
                 </>
               ) : (
                 <>
                   <Upload className="w-5 h-5 text-[#64748B]" />
-                  <span className="text-[#64748B]">{t('clickToUpload')}</span>
+                  <span className="text-[#64748B]">{t("clickToUpload")}</span>
                 </>
               )}
             </label>
@@ -279,12 +273,12 @@ export default function SaasOnboardingForm() {
         {isLoading ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />
-            {t('saving')}
+            {t("saving")}
           </>
         ) : (
           <>
             <Building2 className="w-5 h-5" />
-            {t('createCompanyProfile')}
+            {t("createCompanyProfile")}
           </>
         )}
       </button>

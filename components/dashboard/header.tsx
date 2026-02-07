@@ -26,7 +26,11 @@ const PAGE_KEYS: Record<string, string> = {
   "/dashboard/analytics": "analyticsLeads",
 };
 
-export default function DashboardHeader({ userName, avatarUrl, onMenuClick }: HeaderProps) {
+export default function DashboardHeader({
+  userName,
+  avatarUrl,
+  onMenuClick,
+}: HeaderProps) {
   const pathname = usePathname();
   const t = useTranslations("header");
   const key = PAGE_KEYS[pathname] || "dashboard";

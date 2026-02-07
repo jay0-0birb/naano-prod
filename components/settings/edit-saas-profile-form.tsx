@@ -1,10 +1,22 @@
-'use client';
+"use client";
 
-import { useState, useRef } from 'react';
-import { useTranslations } from 'next-intl';
-import Image from 'next/image';
-import { updateSaasProfile, fetchLogoFromWebsite } from '@/app/(dashboard)/dashboard/settings/actions';
-import { Loader2, Save, X, Building2, Globe, Camera, Sparkles, Trash2 } from 'lucide-react';
+import { useState, useRef } from "react";
+import { useTranslations } from "next-intl";
+import Image from "next/image";
+import {
+  updateSaasProfile,
+  fetchLogoFromWebsite,
+} from "@/app/(dashboard)/dashboard/settings/actions";
+import {
+  Loader2,
+  Save,
+  X,
+  Building2,
+  Globe,
+  Camera,
+  Sparkles,
+  Trash2,
+} from "lucide-react";
 
 interface EditSaasProfileFormProps {
   saasCompany: {
@@ -20,9 +32,13 @@ interface EditSaasProfileFormProps {
   onSuccess: () => void;
 }
 
-export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }: EditSaasProfileFormProps) {
-  const t = useTranslations('forms');
-  const tSettings = useTranslations('settings');
+export default function EditSaasProfileForm({
+  saasCompany,
+  onClose,
+  onSuccess,
+}: EditSaasProfileFormProps) {
+  const t = useTranslations("forms");
+  const tSettings = useTranslations("settings");
   const [isLoading, setIsLoading] = useState(false);
   const [fetchingLogo, setFetchingLogo] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,15 +49,19 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
   const formRef = useRef<HTMLFormElement>(null);
 
   const hasLogo = !removeLogo && (previewUrl ?? saasCompany.logo_url ?? null);
-  const displayUrl = removeLogo ? null : (previewUrl ?? saasCompany.logo_url ?? null);
+  const displayUrl = removeLogo
+    ? null
+    : (previewUrl ?? saasCompany.logo_url ?? null);
   const showImage = displayUrl && !imageLoadError;
   const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 
   const handleFetchLogo = async () => {
-    const website = (formRef.current?.elements.namedItem('website') as HTMLInputElement)?.value?.trim()
-      || saasCompany.website?.trim();
+    const website =
+      (
+        formRef.current?.elements.namedItem("website") as HTMLInputElement
+      )?.value?.trim() || saasCompany.website?.trim();
     if (!website) {
-      setError('Indiquez d\'abord l\'URL de votre site web.');
+      setError("Indiquez d'abord l'URL de votre site web.");
       return;
     }
     setFetchingLogo(true);
@@ -60,9 +80,9 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !file.type.startsWith('image/')) return;
+    if (!file || !file.type.startsWith("image/")) return;
     if (file.size > MAX_FILE_SIZE) {
-      setError(t('imageTooLarge'));
+      setError(t("imageTooLarge"));
       return;
     }
     setError(null);
@@ -76,14 +96,16 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
     setPreviewUrl(null);
     setImageLoadError(false);
     setError(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const logoFile = (event.currentTarget.elements.namedItem('logo') as HTMLInputElement)?.files?.[0];
+    const logoFile = (
+      event.currentTarget.elements.namedItem("logo") as HTMLInputElement
+    )?.files?.[0];
     if (logoFile && logoFile.size > MAX_FILE_SIZE) {
-      setError(t('imageTooLarge'));
+      setError(t("imageTooLarge"));
       return;
     }
     setIsLoading(true);
@@ -91,7 +113,7 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
 
     try {
       const formData = new FormData(event.currentTarget);
-      if (removeLogo) formData.set('removeLogo', 'true');
+      if (removeLogo) formData.set("removeLogo", "true");
       const result = await updateSaasProfile(formData);
 
       if (result?.error) {
@@ -101,9 +123,11 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
       onSuccess();
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      setError(msg.includes('1 MB') || msg.includes('body size')
-        ? t('imageTooLarge')
-        : t('errorTryAgain'));
+      setError(
+        msg.includes("1 MB") || msg.includes("body size")
+          ? t("imageTooLarge")
+          : t("errorTryAgain"),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -113,7 +137,9 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
       <div className="bg-white border border-gray-200 rounded-2xl p-6 max-w-2xl w-full my-8 shadow-xl">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-medium text-[#111827]">{t('editCompanyProfile')}</h3>
+          <h3 className="text-xl font-medium text-[#111827]">
+            {t("editCompanyProfile")}
+          </h3>
           <button
             onClick={onClose}
             className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
@@ -132,7 +158,7 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
           {/* Logo - big and centered */}
           <div className="flex flex-col items-center">
             <label className="block text-sm font-medium text-[#374151] mb-3 w-full text-center">
-              {t('companyLogo')}
+              {t("companyLogo")}
             </label>
             <button
               type="button"
@@ -148,7 +174,7 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
                   className="object-cover rounded-full"
                   sizes="160px"
                   priority
-                  unoptimized={displayUrl.startsWith('blob:')}
+                  unoptimized={displayUrl.startsWith("blob:")}
                   onError={() => setImageLoadError(true)}
                 />
               ) : (
@@ -156,7 +182,9 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
               )}
               <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                 <Camera className="w-10 h-10 text-white" />
-                <span className="absolute bottom-2 left-0 right-0 text-white text-xs font-medium">{t('clickToChange')}</span>
+                <span className="absolute bottom-2 left-0 right-0 text-white text-xs font-medium">
+                  {t("clickToChange")}
+                </span>
               </div>
             </button>
             <input
@@ -174,7 +202,7 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
                 onClick={() => fileInputRef.current?.click()}
                 className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-[#374151] text-sm font-medium transition-colors"
               >
-                {hasLogo ? t('change') : t('addLogo')}
+                {hasLogo ? t("change") : t("addLogo")}
               </button>
               <button
                 type="button"
@@ -185,12 +213,12 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
                 {fetchingLogo ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    {t('detecting')}
+                    {t("detecting")}
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4" />
-                    {t('importFromSite')}
+                    {t("importFromSite")}
                   </>
                 )}
               </button>
@@ -237,7 +265,7 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
               name="description"
               required
               rows={4}
-              defaultValue={saasCompany.description || ''}
+              defaultValue={saasCompany.description || ""}
               placeholder="Décrivez votre entreprise et ce que vous proposez..."
               className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all resize-none"
             />
@@ -254,7 +282,7 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
                 name="website"
                 type="url"
                 required
-                defaultValue={saasCompany.website || ''}
+                defaultValue={saasCompany.website || ""}
                 placeholder="https://votre-site.com"
                 className="w-full bg-white border border-gray-200 rounded-xl pl-12 pr-4 py-3 text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
               />
@@ -269,7 +297,7 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
             <select
               name="industry"
               required
-              defaultValue={saasCompany.industry || ''}
+              defaultValue={saasCompany.industry || ""}
               className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
             >
               <option value="">Sélectionner...</option>
@@ -282,20 +310,6 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
               <option value="Ventes">Ventes</option>
               <option value="Autre">Autre</option>
             </select>
-          </div>
-
-          {/* Conditions */}
-          <div>
-            <label className="block text-sm font-medium text-[#374151] mb-2">
-              Conditions de collaboration
-            </label>
-            <textarea
-              name="conditions"
-              rows={3}
-              defaultValue={saasCompany.conditions || ''}
-              placeholder="Décrivez vos attentes et conditions..."
-              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all resize-none"
-            />
           </div>
 
           <div className="flex gap-3 pt-4">
@@ -330,4 +344,3 @@ export default function EditSaasProfileForm({ saasCompany, onClose, onSuccess }:
     </div>
   );
 }
-
