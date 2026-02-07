@@ -17,7 +17,6 @@ export async function completeSaasOnboarding(formData: FormData) {
   const description = formData.get("description") as string;
   const website = formData.get("website") as string;
   const industry = formData.get("industry") as string;
-  const conditions = formData.get("conditions") as string;
   const mediaPackUrl = formData.get("mediaPackUrl") as string | null;
   const country = formData.get("country") as string;
   const vatNumber = formData.get("vatNumber") as string | null;
@@ -39,7 +38,6 @@ export async function completeSaasOnboarding(formData: FormData) {
         description,
         website,
         industry,
-        conditions,
         media_pack_url: mediaPackUrl,
         country: country || null,
         vat_number: vatNumber || null,
@@ -59,7 +57,6 @@ export async function completeSaasOnboarding(formData: FormData) {
       description,
       website,
       industry,
-      conditions,
       media_pack_url: mediaPackUrl,
       country: country || null,
       vat_number: vatNumber || null,
