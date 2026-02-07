@@ -599,21 +599,46 @@ export default function CreatorOnboardingForm() {
           </div>
         )}
 
-        {/* Step 4: Mandate signature */}
+        {/* Step 4: Terms and certification */}
         <h3 className="text-sm font-semibold text-[#0F172A] pt-4">
           {t("mandateSignature")}
         </h3>
         <div className="space-y-3">
-          <label className="flex items-start gap-3">
+          <label className="flex items-start gap-3 cursor-pointer">
             <input
               type="checkbox"
               name="mandateAccepted"
               required
               className="mt-1 rounded border-gray-300"
             />
-            <span className="text-sm text-[#475569]">{t("acceptMandate")}</span>
+            <span className="text-sm text-[#475569]">
+              {t.rich("acceptTermsAndPrivacy", {
+                terms: (chunks) => (
+                  <a
+                    href="/Terms.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#3B82F6] hover:underline"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {chunks}
+                  </a>
+                ),
+                privacy: (chunks) => (
+                  <a
+                    href="/PRIVACY.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#3B82F6] hover:underline"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {chunks}
+                  </a>
+                ),
+              })}
+            </span>
           </label>
-          <label className="flex items-start gap-3">
+          <label className="flex items-start gap-3 cursor-pointer">
             <input
               type="checkbox"
               name="accuracyCertified"
