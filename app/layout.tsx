@@ -29,12 +29,8 @@ export const metadata: Metadata = {
   title: "naano",
   description: "Passez à l'échelle avec les nano-influenceurs B2B.",
   icons: {
-    icon: [
-      { url: "/logo.svg?v=2", type: "image/svg+xml" },
-      // Fallbacks for different browsers
-      { url: "/logo.svg?v=2", rel: "shortcut icon", type: "image/svg+xml" },
-    ],
-    apple: "/logo.svg?v=2",
+    icon: { url: "/logo.svg?v=3", type: "image/svg+xml" },
+    apple: { url: "/logo.svg?v=3" },
   },
 };
 
@@ -51,7 +47,9 @@ export default async function RootLayout({
           href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap"
           rel="stylesheet"
         />
-        <link rel="icon" href="/logo.svg?v=2" type="image/svg+xml" />
+        {/* Single favicon source so all browsers (including Safari) use the naano logo */}
+        <link rel="icon" href="/logo.svg?v=3" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/logo.svg?v=3" />
       </head>
       <body
         className={`${inter.variable} ${didot.variable} ${plusJakarta.variable} antialiased bg-[#020408] text-slate-300 font-sans selection:bg-blue-500/30 selection:text-blue-200`}
