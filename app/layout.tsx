@@ -28,10 +28,7 @@ const plusJakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "naano",
   description: "Passez à l'échelle avec les nano-influenceurs B2B.",
-  icons: {
-    icon: [{ url: "/favicon.ico", sizes: "any" }, { url: "/logo.svg?v=4", type: "image/svg+xml" }],
-    apple: { url: "/logo.svg?v=4" },
-  },
+  // Favicon is set via app/favicon.ico (file convention). No icons here so Next/Vercel don't override.
 };
 
 export default async function RootLayout({
@@ -47,10 +44,8 @@ export default async function RootLayout({
           href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap"
           rel="stylesheet"
         />
-        {/* favicon.ico = naano logo so Safari/Vercel show it instead of default triangle */}
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/logo.svg?v=4" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/logo.svg?v=4" />
+        {/* Only icon link: naano logo from app/favicon.ico. ?v=2 busts Safari/Vercel cache. */}
+        <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
       </head>
       <body
         className={`${inter.variable} ${didot.variable} ${plusJakarta.variable} antialiased bg-[#020408] text-slate-300 font-sans selection:bg-blue-500/30 selection:text-blue-200`}
