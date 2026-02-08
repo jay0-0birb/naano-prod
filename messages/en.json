@@ -35,6 +35,7 @@
     "finances": "Finances",
     "analyticsLeads": "Analytics & Leads",
     "academy": "Academy",
+    "helpCenter": "Help Center",
     "settings": "Settings",
     "signOut": "Sign out",
     "completeProfile": "Complete your profile"
@@ -51,6 +52,7 @@
     "finances": "Finances",
     "academy": "Academy",
     "analyticsLeads": "Analytics & Leads",
+    "helpCenter": "Help Center",
     "dashboard": "Dashboard"
   },
   "hero": {
@@ -204,7 +206,8 @@
     "contactAfterEmail": ", or reach out to one of us on ",
 
     "linkedin": "LinkedIn",
-    "backToHome": "Back to home"
+    "backToHome": "Back to home",
+    "backToDashboard": "Back to dashboard"
   },
   "legal": {
     "privacyPolicy": "Privacy Policy",

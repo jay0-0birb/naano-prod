@@ -24,6 +24,7 @@ const PAGE_KEYS: Record<string, string> = {
   "/dashboard/finances": "finances",
   "/dashboard/academy": "academy",
   "/dashboard/analytics": "analyticsLeads",
+  "/dashboard/help": "helpCenter",
 };
 
 export default function DashboardHeader({

@@ -18,6 +18,7 @@ import {
   BarChart3,
   ExternalLink,
   X,
+  HelpCircle,
 } from "lucide-react";
 import { forceLogout } from "@/lib/auth-utils";
 import UnreadBadge from "./unread-badge";
@@ -218,6 +219,14 @@ export default function DashboardSidebar({
       </nav>
 
       <div className="p-4 border-t border-gray-200">
+        <Link
+          href="/dashboard/help"
+          className={linkClass("/dashboard/help")}
+          onClick={handleNav}
+        >
+          <HelpCircle className="w-5 h-5" />
+          <span>{t("helpCenter")}</span>
+        </Link>
         <Link
           href="/dashboard/settings"
           className={linkClass("/dashboard/settings")}
