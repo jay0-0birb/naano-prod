@@ -150,7 +150,7 @@ export const HeroSection = ({
             {t("trustedBy")}
           </p>
 
-          <div className="flex justify-between items-center w-full max-w-6xl mx-auto ml-4 sm:ml-6 px-6 sm:px-8">
+          <div className="flex justify-between items-center w-full max-w-6xl mx-auto ml-12 sm:ml-16 md:ml-20 px-6 sm:px-8">
             {[
               {
                 name: "Loops",
@@ -200,7 +200,13 @@ export const HeroSection = ({
                         ? brandHoverFilters[brand.name]
                         : defaultFilter,
                     transform:
-                      brand.name === "Loops" ? "scale(3.7)" : undefined,
+                      brand.name === "Loops"
+                        ? "scale(3.7)"
+                        : brand.name === "Zmirov"
+                          ? "translateY(-6px)"
+                          : brand.name === "We are founders"
+                            ? "translateY(-12px)"
+                            : undefined,
                     transformOrigin: "center",
                   }}
                 />
