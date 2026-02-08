@@ -44,9 +44,9 @@ export default async function RootLayout({
           href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap"
           rel="stylesheet"
         />
-        {/* Safari uses apple-touch-icon for the tab; Chrome uses favicon.ico. Both = naano logo. */}
-        <link rel="apple-touch-icon" href="/apple-icon.png?v=2" />
-        <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
+        {/* Served by route handlers with no-cache so Safari never uses cached triangle */}
+        <link rel="apple-touch-icon" href="/apple-touch-icon" />
+        <link rel="icon" href="/favicon" type="image/x-icon" sizes="any" />
       </head>
       <body
         className={`${inter.variable} ${didot.variable} ${plusJakarta.variable} antialiased bg-[#020408] text-slate-300 font-sans selection:bg-blue-500/30 selection:text-blue-200`}
