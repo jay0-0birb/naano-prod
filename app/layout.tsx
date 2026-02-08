@@ -44,7 +44,8 @@ export default async function RootLayout({
           href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap"
           rel="stylesheet"
         />
-        {/* Only icon link: naano logo from app/favicon.ico. ?v=2 busts Safari/Vercel cache. */}
+        {/* Safari uses apple-touch-icon for the tab; Chrome uses favicon.ico. Both = naano logo. */}
+        <link rel="apple-touch-icon" href="/apple-icon.png?v=2" />
         <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
       </head>
       <body
