@@ -79,6 +79,25 @@ create table public.creator_profiles (
   hourly_rate integer, -- In cents or whole currency units
   stripe_account_id text, -- Stripe Connect account ID
   stripe_onboarding_completed boolean default false,
+  -- Creator onboarding / legal status (particulier vs professionnel)
+  legal_status text check (legal_status in ('particulier', 'professionnel')) default 'particulier',
+  siret_number text,
+  first_name text,
+  last_name text,
+  date_of_birth date,
+  street_address text,
+  postal_code text,
+  city text,
+  country text,
+  theme text,
+  mandate_accepted_at timestamp with time zone,
+  recent_posts_linkedin text,
+  -- Company fields (when legal_status = professionnel)
+  company_legal_name text,
+  company_registration_country text,
+  company_tax_id text,
+  company_vat_number text,
+  company_registered_address text,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
