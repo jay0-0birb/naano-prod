@@ -36,11 +36,14 @@ interface Application {
 interface CandidateCardProps {
   application: Application;
   readonly?: boolean;
+  /** When false, accept button is disabled (brand must add credits first). */
+  canAcceptCollaborations?: boolean;
 }
 
 export default function CandidateCard({
   application,
   readonly = false,
+  canAcceptCollaborations = true,
 }: CandidateCardProps) {
   const t = useTranslations("candidatesActions");
   const tDashboard = useTranslations("dashboard");
@@ -175,7 +178,13 @@ export default function CandidateCard({
 
       {/* Actions */}
       {status === "pending" && !readonly && (
-        <div className="mt-4 flex gap-3">
+        <div className="mt-4 flex flex-col gap-3">
+          {!canAcceptCollaborations && (
+            <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+              {t("addCreditsToAccept")}
+            </p>
+          )}
+          <div className="flex gap-3">
           <button
             onClick={() => handleAction("rejected")}
             disabled={isLoading !== null}
@@ -192,7 +201,8 @@ export default function CandidateCard({
           </button>
           <button
             onClick={() => handleAction("accepted")}
-            disabled={isLoading !== null}
+            disabled={isLoading !== null || !canAcceptCollaborations}
+            title={!canAcceptCollaborations ? t("addCreditsToAccept") : undefined}
             className="flex-1 py-2.5 bg-[#0F172A] hover:bg-[#020617] text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isLoading === "accept" ? (
@@ -204,6 +214,7 @@ export default function CandidateCard({
               </>
             )}
           </button>
+          </div>
         </div>
       )}
     </div>

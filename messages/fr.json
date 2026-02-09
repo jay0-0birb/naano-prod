@@ -245,6 +245,7 @@
     "managePartnerships": "Gérer les partenariats",
     "financesPlans": "Finances & Plans",
     "manageSubscription": "Gérer l'abonnement",
+    "addCreditsFirst": "Ajouter des crédits",
     "completeProfile": "Complétez votre profil",
     "completeProfileToUnlock": "Complétez votre profil pour débloquer",
     "creatorProfile": "Profil Créateur",
@@ -290,6 +291,8 @@
     "cancel": "Annuler",
     "sending": "Envoi...",
     "sendInvitation": "Envoyer l'invitation",
+    "addCreditsToInvite": "Ajoutez des crédits pour inviter des créateurs",
+    "addCreditsToInviteAndAccept": "Ajoutez des crédits pour inviter des créateurs et accepter des collaborations. Allez dans Finances pour souscrire.",
     "applyTo": "Postuler chez {company}",
     "applicationMessage": "Message de candidature",
     "applicationPlaceholder": "Présentez-vous et expliquez pourquoi vous souhaitez collaborer avec cette entreprise...",
@@ -765,7 +768,8 @@
     "rejecting": "Refus...",
     "accepted": "Acceptée",
     "rejected": "Refusée",
-    "applicationMessage": "Message de candidature :"
+    "applicationMessage": "Message de candidature :",
+    "addCreditsToAccept": "Ajoutez des crédits dans Finances pour accepter des collaborations."
   },
   "collaboration": {
     "limitReached": "Limite atteinte",

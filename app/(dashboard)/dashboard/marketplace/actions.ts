@@ -98,7 +98,7 @@ export async function inviteCreator(saasId: string, creatorId: string, message: 
   // Verify that the SaaS company belongs to the current user
   const { data: saasCompany } = await supabase
     .from('saas_companies')
-    .select('id, profile_id, card_on_file')
+    .select('id, profile_id, wallet_credits')
     .eq('id', saasId)
     .single()
 
@@ -106,11 +106,12 @@ export async function inviteCreator(saasId: string, creatorId: string, message: 
     return { error: 'Non autorisé', success: false }
   }
 
-  // Require a card on file before inviting creators
-  if (!saasCompany.card_on_file) {
+  // Require credits before inviting creators (brand must add credits first)
+  const walletCredits = saasCompany.wallet_credits ?? 0
+  if (walletCredits <= 0) {
     return {
       error:
-        "Vous devez enregistrer une carte bancaire dans vos paramètres avant d'inviter des créateurs.",
+        "Vous devez ajouter des crédits avant de pouvoir inviter des créateurs. Allez dans Finances pour souscrire.",
       success: false,
     }
   }

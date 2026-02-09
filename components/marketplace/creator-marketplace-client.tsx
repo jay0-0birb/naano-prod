@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Search, Filter, Users as UsersIcon } from "lucide-react";
+import { Search, Filter, Users as UsersIcon, Wallet } from "lucide-react";
 import CreatorCard from "@/components/marketplace/creator-card";
 
 export interface CreatorMarketplaceCreator {
@@ -25,16 +26,21 @@ interface CreatorMarketplaceClientProps {
   creators: CreatorMarketplaceCreator[];
   invitedCreatorIds: string[];
   saasCompanyId: string | null;
+  /** When 0, invite is disabled and add-credits CTA is shown. */
+  walletCredits?: number;
 }
 
 export default function CreatorMarketplaceClient({
   creators,
   invitedCreatorIds,
   saasCompanyId,
+  walletCredits = 0,
 }: CreatorMarketplaceClientProps) {
   const tDashboard = useTranslations("dashboard");
   const tOnboarding = useTranslations("onboarding");
   const tLeadFeed = useTranslations("leadFeed");
+  const tCredits = useTranslations("credits");
+  const canInviteCreators = walletCredits > 0;
 
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -127,6 +133,22 @@ export default function CreatorMarketplaceClient({
 
   return (
     <div>
+      {/* Add credits banner when brand has no credits */}
+      {!canInviteCreators && saasCompanyId && (
+        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+          <p className="text-sm text-amber-800">
+            {tDashboard("addCreditsToInviteAndAccept")}
+          </p>
+          <Link
+            href="/dashboard/finances"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-medium transition-colors"
+          >
+            <Wallet className="w-4 h-4" />
+            {tCredits("balance")}
+          </Link>
+        </div>
+      )}
+
       {/* Search & Filters */}
       <div className="relative mb-8">
         <div className="flex gap-4">
@@ -256,6 +278,7 @@ export default function CreatorMarketplaceClient({
               creator={creator}
               hasInvited={invitedCreatorIds.includes(creator.id)}
               saasCompanyId={saasCompanyId}
+              canInviteCreators={canInviteCreators}
             />
           ))}
         </div>

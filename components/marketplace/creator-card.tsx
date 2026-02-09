@@ -23,12 +23,15 @@ interface CreatorCardProps {
   };
   hasInvited: boolean;
   saasCompanyId: string | null;
+  /** When false, invite button is disabled (brand must add credits first). */
+  canInviteCreators?: boolean;
 }
 
 export default function CreatorCard({
   creator,
   hasInvited,
   saasCompanyId,
+  canInviteCreators = true,
 }: CreatorCardProps) {
   const t = useTranslations("dashboard");
   const [isInviting, setIsInviting] = useState(false);
@@ -145,8 +148,9 @@ export default function CreatorCard({
             </button>
           ) : (
             <button
-              onClick={() => setShowInviteModal(true)}
-              disabled={!saasCompanyId}
+              onClick={() => canInviteCreators && setShowInviteModal(true)}
+              disabled={!saasCompanyId || !canInviteCreators}
+              title={!canInviteCreators ? t("addCreditsToInvite") : undefined}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#0F172A] hover:bg-[#1E293B] rounded-xl text-white transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Mail className="w-4 h-4" />

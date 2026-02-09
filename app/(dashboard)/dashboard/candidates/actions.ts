@@ -12,14 +12,15 @@ export async function updateApplicationStatus(applicationId: string, status: 'ac
     return { error: 'Non authentifié' }
   }
 
-  // Get the application and verify ownership
+  // Get the application and verify ownership (include wallet_credits for accept gate)
   const { data: application } = await supabase
     .from('applications')
     .select(`
       id,
       saas_id,
       saas_companies:saas_id (
-        profile_id
+        profile_id,
+        wallet_credits
       )
     `)
     .eq('id', applicationId)
@@ -30,9 +31,20 @@ export async function updateApplicationStatus(applicationId: string, status: 'ac
   }
 
   // Verify that the current user owns the SaaS company
-  const saasCompany = application.saas_companies as any
+  const saasCompany = application.saas_companies as { profile_id: string; wallet_credits?: number }
   if (saasCompany?.profile_id !== user.id) {
     return { error: 'Non autorisé' }
+  }
+
+  // Require credits before accepting collaborations
+  if (status === 'accepted') {
+    const walletCredits = saasCompany.wallet_credits ?? 0
+    if (walletCredits <= 0) {
+      return {
+        error:
+          "Vous devez ajouter des crédits avant de pouvoir accepter des collaborations. Allez dans Finances pour souscrire.",
+      }
+    }
   }
 
   // Update the application status

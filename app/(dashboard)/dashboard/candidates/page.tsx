@@ -23,10 +23,10 @@ export default async function CandidatesPage() {
     redirect('/dashboard');
   }
 
-  // Get SaaS company
+  // Get SaaS company (include wallet_credits to gate accept)
   const { data: saasCompany } = await supabase
     .from('saas_companies')
-    .select('id')
+    .select('id, wallet_credits')
     .eq('profile_id', user.id)
     .single();
 
@@ -88,6 +88,7 @@ export default async function CandidatesPage() {
               <CandidateCard
                 key={application.id}
                 application={application as any}
+                canAcceptCollaborations={(saasCompany?.wallet_credits ?? 0) > 0}
               />
             ))}
           </div>

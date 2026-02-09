@@ -245,6 +245,7 @@
     "managePartnerships": "Manage partnerships",
     "financesPlans": "Finances & Plans",
     "manageSubscription": "Manage subscription",
+    "addCreditsFirst": "Add credits",
     "completeProfile": "Complete your profile",
     "completeProfileToUnlock": "Complete your profile to unlock",
     "creatorProfile": "Creator Profile",
@@ -290,6 +291,8 @@
     "cancel": "Cancel",
     "sending": "Sending...",
     "sendInvitation": "Send invitation",
+    "addCreditsToInvite": "Add credits to invite creators",
+    "addCreditsToInviteAndAccept": "Add credits to invite creators and accept collaborations. Go to Finances to subscribe.",
     "applyTo": "Apply to {company}",
     "applicationMessage": "Application message",
     "applicationPlaceholder": "Introduce yourself and explain why you want to collaborate with this company...",
@@ -766,7 +769,8 @@
     "rejecting": "Rejecting...",
     "accepted": "Accepted",
     "rejected": "Rejected",
-    "applicationMessage": "Application message:"
+    "applicationMessage": "Application message:",
+    "addCreditsToAccept": "Add credits in Finances to accept collaborations."
   },
   "collaboration": {
     "limitReached": "Limit reached",

@@ -32,6 +32,7 @@ export default async function DashboardPage() {
 
   // Fetch basic stats
   const stats = { collaborations: 0, pending: 0 };
+  let saasWalletCredits = 0;
 
   if (isCreator) {
     const { data: creatorProfile } = await supabase
@@ -59,11 +60,12 @@ export default async function DashboardPage() {
   } else {
     const { data: saasCompany } = await supabase
       .from("saas_companies")
-      .select("id")
+      .select("id, wallet_credits")
       .eq("profile_id", user.id)
       .single();
 
     if (saasCompany) {
+      saasWalletCredits = saasCompany.wallet_credits ?? 0;
       const [candidatesResult, collaborationsResult] = await Promise.all([
         supabase
           .from("applications")
@@ -260,69 +262,162 @@ export default async function DashboardPage() {
           </>
         ) : (
           <>
-            <Link
-              href="/dashboard/candidates"
-              className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#3B82F6] hover:bg-blue-50/50 transition-all shadow-sm"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
-                    <Users className="w-6 h-6 text-[#3B82F6]" />
+            {saasWalletCredits <= 0 ? (
+              <>
+                <Link
+                  href="/dashboard/finances"
+                  className="group p-6 rounded-2xl border border-amber-200 bg-amber-50/50 hover:border-[#F59E0B] hover:bg-amber-50 transition-all shadow-sm"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
+                        <Wallet className="w-6 h-6 text-[#F59E0B]" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-[#111827]">
+                          {t("addCreditsFirst")}
+                        </h4>
+                        <p className="text-sm text-[#64748B]">
+                          {t("addCreditsToInviteAndAccept")}
+                        </p>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#F59E0B] group-hover:translate-x-1 transition-all" />
                   </div>
-                  <div>
-                    <h4 className="font-semibold text-[#111827]">
-                      {t("viewApplications")}
-                    </h4>
-                    <p className="text-sm text-[#64748B]">
-                      {t("pendingCount", { count: stats.pending })}
-                    </p>
-                  </div>
-                </div>
-                <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#3B82F6] group-hover:translate-x-1 transition-all" />
-              </div>
-            </Link>
-            <Link
-              href="/dashboard/collaborations"
-              className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#10B981] hover:bg-green-50/50 transition-all shadow-sm"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
-                    <Handshake className="w-6 h-6 text-[#10B981]" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-[#111827]">
-                      {t("collaborations")}
-                    </h4>
-                    <p className="text-sm text-[#64748B]">
-                      {t("managePartnerships")}
-                    </p>
-                  </div>
-                </div>
-                <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#10B981] group-hover:translate-x-1 transition-all" />
-              </div>
-            </Link>
-            <Link
-              href="/dashboard/finances"
-              className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#F59E0B] hover:bg-amber-50/50 transition-all shadow-sm"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center">
-                    <Wallet className="w-6 h-6 text-[#F59E0B]" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-[#111827]">
-                      {t("financesPlans")}
-                    </h4>
-                    <p className="text-sm text-[#64748B]">
-                      {t("manageSubscription")}
-                    </p>
+                </Link>
+                <div
+                  className="p-6 rounded-2xl border border-gray-200 bg-gray-50 cursor-not-allowed select-none opacity-75"
+                  title={t("addCreditsToInviteAndAccept")}
+                  aria-disabled="true"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center">
+                        <Users className="w-6 h-6 text-gray-400" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-500">
+                          {t("viewApplications")}
+                        </h4>
+                        <p className="text-sm text-gray-400">
+                          {t("pendingCount", { count: stats.pending })}
+                        </p>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-gray-300" />
                   </div>
                 </div>
-                <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#F59E0B] group-hover:translate-x-1 transition-all" />
-              </div>
-            </Link>
+                <div
+                  className="p-6 rounded-2xl border border-gray-200 bg-gray-50 cursor-not-allowed select-none opacity-75"
+                  title={t("addCreditsToInviteAndAccept")}
+                  aria-disabled="true"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center">
+                        <Handshake className="w-6 h-6 text-gray-400" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-500">
+                          {t("collaborations")}
+                        </h4>
+                        <p className="text-sm text-gray-400">
+                          {t("managePartnerships")}
+                        </p>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-gray-300" />
+                  </div>
+                </div>
+                <Link
+                  href="/dashboard/finances"
+                  className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#F59E0B] hover:bg-amber-50/50 transition-all shadow-sm"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center">
+                        <Wallet className="w-6 h-6 text-[#F59E0B]" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-[#111827]">
+                          {t("financesPlans")}
+                        </h4>
+                        <p className="text-sm text-[#64748B]">
+                          {t("manageSubscription")}
+                        </p>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#F59E0B] group-hover:translate-x-1 transition-all" />
+                  </div>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/dashboard/candidates"
+                  className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#3B82F6] hover:bg-blue-50/50 transition-all shadow-sm"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+                        <Users className="w-6 h-6 text-[#3B82F6]" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-[#111827]">
+                          {t("viewApplications")}
+                        </h4>
+                        <p className="text-sm text-[#64748B]">
+                          {t("pendingCount", { count: stats.pending })}
+                        </p>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#3B82F6] group-hover:translate-x-1 transition-all" />
+                  </div>
+                </Link>
+                <Link
+                  href="/dashboard/collaborations"
+                  className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#10B981] hover:bg-green-50/50 transition-all shadow-sm"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
+                        <Handshake className="w-6 h-6 text-[#10B981]" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-[#111827]">
+                          {t("collaborations")}
+                        </h4>
+                        <p className="text-sm text-[#64748B]">
+                          {t("managePartnerships")}
+                        </p>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#10B981] group-hover:translate-x-1 transition-all" />
+                  </div>
+                </Link>
+                <Link
+                  href="/dashboard/finances"
+                  className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#F59E0B] hover:bg-amber-50/50 transition-all shadow-sm"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center">
+                        <Wallet className="w-6 h-6 text-[#F59E0B]" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-[#111827]">
+                          {t("financesPlans")}
+                        </h4>
+                        <p className="text-sm text-[#64748B]">
+                          {t("manageSubscription")}
+                        </p>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#F59E0B] group-hover:translate-x-1 transition-all" />
+                  </div>
+                </Link>
+              </>
+            )}
           </>
         )}
       </div>

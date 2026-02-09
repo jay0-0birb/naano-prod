@@ -129,7 +129,7 @@ export default async function MarketplacePage() {
     const [saasCompanyResult, creatorsResult] = await Promise.all([
       supabase
         .from("saas_companies")
-        .select("id")
+        .select("id, wallet_credits")
         .eq("profile_id", user.id)
         .single(),
       supabase
@@ -183,6 +183,7 @@ export default async function MarketplacePage() {
           creators={creators}
           invitedCreatorIds={invitedCreatorIds}
           saasCompanyId={saasCompany?.id || null}
+          walletCredits={saasCompany?.wallet_credits ?? 0}
         />
       </div>
     );
