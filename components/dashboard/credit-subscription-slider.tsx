@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Loader2, CreditCard } from "lucide-react";
 
-// Volume pricing tiers (from planP.md) - used for instant local calculation
+// Volume pricing tiers (from planP.md) - used for instant local calculation (100–10000)
 function getCreditUnitPrice(volume: number): number {
-  if (volume >= 5000) return 1.6;
+  if (volume >= 5000) return 1.6; // 5000–10000 same tier
   if (volume >= 4000) return 1.75;
   if (volume >= 3000) return 1.85;
   if (volume >= 2500) return 1.95;
@@ -90,7 +90,7 @@ export default function CreditSubscriptionSlider({
         <input
           type="range"
           min="100"
-          max="5000"
+          max="10000"
           step="50"
           value={creditVolume}
           onChange={handleSliderChange}
@@ -100,8 +100,8 @@ export default function CreditSubscriptionSlider({
 
         <div className="flex justify-between text-xs text-slate-500 mt-2">
           <span>100</span>
-          <span>2,500</span>
-          <span>5,000+</span>
+          <span>5,000</span>
+          <span>10,000</span>
         </div>
       </div>
 
