@@ -663,6 +663,7 @@
     "theme": "Theme",
     "companyProfile": "Company Profile",
     "companyInfo": "Company information",
+    "companyName": "Company name",
     "description": "Description",
     "website": "Website",
     "industry": "Industry",
@@ -870,7 +871,15 @@
     "importFromSite": "Import from website",
     "detecting": "Detecting...",
     "removeLogo": "Remove logo",
-    "errorTryAgain": "An error occurred. Please try again."
+    "errorTryAgain": "An error occurred. Please try again.",
+    "profilePhoto": "Profile photo",
+    "clickToAddPhoto": "Click to add",
+    "addPhoto": "Add a photo",
+    "removePhoto": "Remove photo",
+    "photoFormatsHint": "JPG, PNG, WebP or GIF. Max 2 MB.",
+    "emailNotEditable": "Email cannot be changed",
+    "companyDescriptionPlaceholder": "Describe your company and what you offer...",
+    "websitePlaceholder": "https://your-website.com"
   },
   "collaborationDetail": {
     "backToCollaborations": "Back to collaborations",

@@ -661,6 +661,7 @@
     "theme": "Thématique",
     "companyProfile": "Profil Entreprise",
     "companyInfo": "Informations de l'entreprise",
+    "companyName": "Nom de l'entreprise",
     "description": "Description",
     "website": "Site web",
     "industry": "Secteur",
@@ -868,7 +869,15 @@
     "importFromSite": "Importer depuis le site",
     "detecting": "Détection...",
     "removeLogo": "Supprimer le logo",
-    "errorTryAgain": "Une erreur est survenue. Réessayez."
+    "errorTryAgain": "Une erreur est survenue. Réessayez.",
+    "profilePhoto": "Photo de profil",
+    "clickToAddPhoto": "Cliquer pour ajouter",
+    "addPhoto": "Ajouter une photo",
+    "removePhoto": "Supprimer la photo",
+    "photoFormatsHint": "JPG, PNG, WebP ou GIF. Max 2 Mo.",
+    "emailNotEditable": "L'email ne peut pas être modifié",
+    "companyDescriptionPlaceholder": "Décrivez votre entreprise et ce que vous proposez...",
+    "websitePlaceholder": "https://votre-site.com"
   },
   "collaborationDetail": {
     "backToCollaborations": "Retour aux collaborations",
