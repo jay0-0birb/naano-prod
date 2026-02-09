@@ -56,9 +56,8 @@ export const HeroSection = ({
               className="text-[28px] sm:text-[36px] md:text-[44px] lg:text-[56px] xl:text-[64px] font-bold leading-[1.1] tracking-[-0.03em] text-[#111827] mb-4 sm:mb-6"
               style={{ fontFamily: "Satoshi, sans-serif" }}
             >
-              {t("headlineLine1")}
-              <br />
-              {t("headlineLine2")}
+              <span className="block whitespace-nowrap">{t("headlineLine1")}</span>
+              <span className="block whitespace-nowrap">{t("headlineLine2")}</span>
             </h1>
           </motion.div>
 
