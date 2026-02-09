@@ -61,7 +61,7 @@ export default function EditSaasProfileForm({
         formRef.current?.elements.namedItem("website") as HTMLInputElement
       )?.value?.trim() || saasCompany.website?.trim();
     if (!website) {
-      setError("Indiquez d'abord l'URL de votre site web.");
+      setError(t("provideWebsiteUrl"));
       return;
     }
     setFetchingLogo(true);
@@ -134,8 +134,8 @@ export default function EditSaasProfileForm({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white border border-gray-200 rounded-2xl p-6 max-w-2xl w-full my-8 shadow-xl">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center z-50 px-4 pt-20 pb-6 md:pt-24 md:pb-8 overflow-y-auto">
+      <div className="bg-white border border-gray-200 rounded-2xl p-6 max-w-2xl w-full shadow-xl">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-medium text-[#111827]">
             {t("editCompanyProfile")}
@@ -169,7 +169,7 @@ export default function EditSaasProfileForm({
                 <Image
                   key={displayUrl}
                   src={displayUrl}
-                  alt="Logo"
+                  alt={t("companyLogo")}
                   fill
                   className="object-cover rounded-full"
                   sizes="160px"
@@ -229,19 +229,19 @@ export default function EditSaasProfileForm({
                   className="px-4 py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium transition-colors inline-flex items-center gap-1.5"
                 >
                   <Trash2 className="w-4 h-4" />
-                  Retirer
+                  {t("removeLogo")}
                 </button>
               )}
             </div>
             <p className="text-xs text-[#64748B] mt-2 text-center">
-              JPG, PNG, WebP ou GIF. Max 2 Mo.
+              {t("photoFormatsHint")}
             </p>
           </div>
 
           {/* Company Name */}
           <div>
             <label className="block text-sm font-medium text-[#374151] mb-2">
-              Nom de l&apos;entreprise *
+              {tSettings("companyName")} *
             </label>
             <div className="relative">
               <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9CA3AF]" />
@@ -259,14 +259,14 @@ export default function EditSaasProfileForm({
           {/* Description */}
           <div>
             <label className="block text-sm font-medium text-[#374151] mb-2">
-              Description *
+              {tSettings("description")} *
             </label>
             <textarea
               name="description"
               required
               rows={4}
               defaultValue={saasCompany.description || ""}
-              placeholder="Décrivez votre entreprise et ce que vous proposez..."
+              placeholder={t("companyDescriptionPlaceholder")}
               className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all resize-none"
             />
           </div>
@@ -274,7 +274,7 @@ export default function EditSaasProfileForm({
           {/* Website */}
           <div>
             <label className="block text-sm font-medium text-[#374151] mb-2">
-              Site web *
+              {tSettings("website")} *
             </label>
             <div className="relative">
               <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9CA3AF]" />
@@ -283,7 +283,7 @@ export default function EditSaasProfileForm({
                 type="url"
                 required
                 defaultValue={saasCompany.website || ""}
-                placeholder="https://votre-site.com"
+              placeholder={t("websitePlaceholder")}
                 className="w-full bg-white border border-gray-200 rounded-xl pl-12 pr-4 py-3 text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
               />
             </div>
@@ -292,7 +292,7 @@ export default function EditSaasProfileForm({
           {/* Industry */}
           <div>
             <label className="block text-sm font-medium text-[#374151] mb-2">
-              Secteur *
+              {tSettings("industry")} *
             </label>
             <select
               name="industry"
@@ -300,7 +300,7 @@ export default function EditSaasProfileForm({
               defaultValue={saasCompany.industry || ""}
               className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
             >
-              <option value="">Sélectionner...</option>
+              <option value="">{t("selectIndustry")}</option>
               <option value="SaaS">SaaS</option>
               <option value="Marketing">Marketing</option>
               <option value="Finance">Finance</option>
@@ -319,7 +319,7 @@ export default function EditSaasProfileForm({
               disabled={isLoading}
               className="flex-1 px-4 py-2.5 bg-gray-100 border border-gray-200 rounded-xl text-[#374151] hover:bg-gray-200 transition-all disabled:opacity-50"
             >
-              Annuler
+              {t("cancel")}
             </button>
             <button
               type="submit"
@@ -329,12 +329,12 @@ export default function EditSaasProfileForm({
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Enregistrement...</span>
+                  <span>{t("saving")}</span>
                 </>
               ) : (
                 <>
                   <Save className="w-4 h-4" />
-                  <span>Enregistrer</span>
+                  <span>{t("save")}</span>
                 </>
               )}
             </button>
