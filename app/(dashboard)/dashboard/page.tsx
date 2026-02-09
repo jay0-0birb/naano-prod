@@ -28,6 +28,7 @@ export default async function DashboardPage() {
     .single();
 
   const isCreator = profile?.role === "influencer";
+  const creatorProfileLocked = isCreator && !profile?.onboarding_completed;
 
   // Fetch basic stats
   const stats = { collaborations: 0, pending: 0 };
@@ -118,69 +119,144 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {isCreator ? (
           <>
-            <Link
-              href="/dashboard/marketplace"
-              className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#3B82F6] hover:bg-blue-50/50 transition-all shadow-sm"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
-                    <ShoppingBag className="w-6 h-6 text-[#3B82F6]" />
+            {creatorProfileLocked ? (
+              <div
+                className="p-6 rounded-2xl border border-gray-200 bg-gray-50 cursor-not-allowed select-none opacity-75"
+                title={t("completeProfileToUnlock")}
+                aria-disabled="true"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center">
+                      <ShoppingBag className="w-6 h-6 text-gray-400" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-500">
+                        {t("exploreMarketplace")}
+                      </h4>
+                      <p className="text-sm text-gray-400">
+                        {t("discoverSaaS")}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-semibold text-[#111827]">
-                      {t("exploreMarketplace")}
-                    </h4>
-                    <p className="text-sm text-[#64748B]">
-                      {t("discoverSaaS")}
-                    </p>
-                  </div>
+                  <ArrowRight className="w-5 h-5 text-gray-300" />
                 </div>
-                <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#3B82F6] group-hover:translate-x-1 transition-all" />
               </div>
-            </Link>
-            <Link
-              href="/dashboard/applications"
-              className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#8B5CF6] hover:bg-purple-50/50 transition-all shadow-sm"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center">
-                    <FileText className="w-6 h-6 text-[#8B5CF6]" />
+            ) : (
+              <Link
+                href="/dashboard/marketplace"
+                className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#3B82F6] hover:bg-blue-50/50 transition-all shadow-sm"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+                      <ShoppingBag className="w-6 h-6 text-[#3B82F6]" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-[#111827]">
+                        {t("exploreMarketplace")}
+                      </h4>
+                      <p className="text-sm text-[#64748B]">
+                        {t("discoverSaaS")}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-semibold text-[#111827]">
-                      {t("myApplications")}
-                    </h4>
-                    <p className="text-sm text-[#64748B]">
-                      {t("trackApplications")}
-                    </p>
-                  </div>
+                  <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#3B82F6] group-hover:translate-x-1 transition-all" />
                 </div>
-                <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#8B5CF6] group-hover:translate-x-1 transition-all" />
-              </div>
-            </Link>
-            <Link
-              href="/dashboard/finances"
-              className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#10B981] hover:bg-green-50/50 transition-all shadow-sm"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
-                    <Wallet className="w-6 h-6 text-[#10B981]" />
+              </Link>
+            )}
+            {creatorProfileLocked ? (
+              <div
+                className="p-6 rounded-2xl border border-gray-200 bg-gray-50 cursor-not-allowed select-none opacity-75"
+                title={t("completeProfileToUnlock")}
+                aria-disabled="true"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center">
+                      <FileText className="w-6 h-6 text-gray-400" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-500">
+                        {t("myApplications")}
+                      </h4>
+                      <p className="text-sm text-gray-400">
+                        {t("trackApplications")}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-semibold text-[#111827]">
-                      {t("myFinances")}
-                    </h4>
-                    <p className="text-sm text-[#64748B]">
-                      {t("commissionsPayments")}
-                    </p>
-                  </div>
+                  <ArrowRight className="w-5 h-5 text-gray-300" />
                 </div>
-                <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#10B981] group-hover:translate-x-1 transition-all" />
               </div>
-            </Link>
+            ) : (
+              <Link
+                href="/dashboard/applications"
+                className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#8B5CF6] hover:bg-purple-50/50 transition-all shadow-sm"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center">
+                      <FileText className="w-6 h-6 text-[#8B5CF6]" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-[#111827]">
+                        {t("myApplications")}
+                      </h4>
+                      <p className="text-sm text-[#64748B]">
+                        {t("trackApplications")}
+                      </p>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#8B5CF6] group-hover:translate-x-1 transition-all" />
+                </div>
+              </Link>
+            )}
+            {creatorProfileLocked ? (
+              <div
+                className="p-6 rounded-2xl border border-gray-200 bg-gray-50 cursor-not-allowed select-none opacity-75"
+                title={t("completeProfileToUnlock")}
+                aria-disabled="true"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center">
+                      <Wallet className="w-6 h-6 text-gray-400" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-500">
+                        {t("myFinances")}
+                      </h4>
+                      <p className="text-sm text-gray-400">
+                        {t("commissionsPayments")}
+                      </p>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-gray-300" />
+                </div>
+              </div>
+            ) : (
+              <Link
+                href="/dashboard/finances"
+                className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#10B981] hover:bg-green-50/50 transition-all shadow-sm"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
+                      <Wallet className="w-6 h-6 text-[#10B981]" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-[#111827]">
+                        {t("myFinances")}
+                      </h4>
+                      <p className="text-sm text-[#64748B]">
+                        {t("commissionsPayments")}
+                      </p>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#10B981] group-hover:translate-x-1 transition-all" />
+                </div>
+              </Link>
+            )}
           </>
         ) : (
           <>

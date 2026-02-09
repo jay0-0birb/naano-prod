@@ -705,6 +705,18 @@ export default function SettingsClient({
             </div>
 
             <p className="text-xs text-[#64748B]">{t("stripeConnectDesc")}</p>
+            <p className="text-xs text-[#64748B] mt-3 pt-3 border-t border-gray-100">
+              {t("stripePayoutsCountryWarning")}{" "}
+              <a
+                href="https://stripe.com/docs/connect/cross-border-payouts"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#635BFF] hover:underline"
+              >
+                {t("stripePayoutsDocsLink")}
+              </a>
+              . {t("stripePayoutsInquiries")}
+            </p>
           </div>
         )}
 

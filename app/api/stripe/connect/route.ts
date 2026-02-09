@@ -19,10 +19,10 @@ export async function POST(request: Request) {
     const body = await request.json().catch(() => ({}));
     const returnPath = body.returnPath || 'settings';
 
-    // Get creator profile
+    // Get creator profile (include country so Stripe account uses creator's country)
     const { data: creatorProfile } = await supabase
       .from('creator_profiles')
-      .select('id, stripe_account_id')
+      .select('id, stripe_account_id, country')
       .eq('profile_id', user.id)
       .single();
 
@@ -34,6 +34,14 @@ export async function POST(request: Request) {
 
     // Create Stripe Connect account if not exists
     if (!accountId) {
+      const profileCountry = (creatorProfile.country ?? '').trim().toUpperCase();
+      if (!profileCountry) {
+        return NextResponse.json(
+          { error: 'Country required', code: 'country_required' },
+          { status: 400 }
+        );
+      }
+
       const { data: profile } = await supabase
         .from('profiles')
         .select('email, full_name')
@@ -42,7 +50,7 @@ export async function POST(request: Request) {
 
       const account = await stripe.accounts.create({
         type: 'express',
-        country: 'FR',
+        country: profileCountry,
         email: profile?.email,
         capabilities: {
           card_payments: { requested: true },

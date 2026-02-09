@@ -41,6 +41,7 @@ export default function DashboardSidebar({
   const pathname = usePathname();
   const t = useTranslations("sidebar");
   const isCreator = role === "influencer";
+  const creatorProfileLocked = isCreator && !onboardingCompleted;
 
   const handleSignOut = async () => {
     await forceLogout();
@@ -54,6 +55,9 @@ export default function DashboardSidebar({
         ? "bg-[#0F172A] text-white font-medium"
         : "text-[#64748B] hover:bg-gray-50 hover:text-[#111827]"
     }`;
+
+  const disabledLinkClass =
+    "flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-400 cursor-not-allowed select-none";
 
   const handleNav = () => {
     onClose?.();
@@ -120,22 +124,44 @@ export default function DashboardSidebar({
         {/* Creator-specific menu */}
         {isCreator ? (
           <>
-            <Link
-              href="/dashboard/marketplace"
-              className={linkClass("/dashboard/marketplace")}
-              onClick={handleNav}
-            >
-              <ShoppingBag className="w-5 h-5" />
-              <span>{t("marketplace")}</span>
-            </Link>
-            <Link
-              href="/dashboard/applications"
-              className={linkClass("/dashboard/applications")}
-              onClick={handleNav}
-            >
-              <FileText className="w-5 h-5" />
-              <span>{t("myApplications")}</span>
-            </Link>
+            {creatorProfileLocked ? (
+              <span
+                className={disabledLinkClass}
+                title={t("completeProfileToUnlock")}
+                aria-disabled="true"
+              >
+                <ShoppingBag className="w-5 h-5" />
+                <span>{t("marketplace")}</span>
+              </span>
+            ) : (
+              <Link
+                href="/dashboard/marketplace"
+                className={linkClass("/dashboard/marketplace")}
+                onClick={handleNav}
+              >
+                <ShoppingBag className="w-5 h-5" />
+                <span>{t("marketplace")}</span>
+              </Link>
+            )}
+            {creatorProfileLocked ? (
+              <span
+                className={disabledLinkClass}
+                title={t("completeProfileToUnlock")}
+                aria-disabled="true"
+              >
+                <FileText className="w-5 h-5" />
+                <span>{t("myApplications")}</span>
+              </span>
+            ) : (
+              <Link
+                href="/dashboard/applications"
+                className={linkClass("/dashboard/applications")}
+                onClick={handleNav}
+              >
+                <FileText className="w-5 h-5" />
+                <span>{t("myApplications")}</span>
+              </Link>
+            )}
           </>
         ) : (
           /* SaaS-specific menu */
@@ -160,35 +186,71 @@ export default function DashboardSidebar({
         )}
 
         {/* Common menu items */}
-        <Link
-          href="/dashboard/collaborations"
-          className={linkClass("/dashboard/collaborations")}
-          onClick={handleNav}
-        >
-          <Handshake className="w-5 h-5" />
-          <span>{t("collaborations")}</span>
-        </Link>
+        {creatorProfileLocked ? (
+          <span
+            className={disabledLinkClass}
+            title={t("completeProfileToUnlock")}
+            aria-disabled="true"
+          >
+            <Handshake className="w-5 h-5" />
+            <span>{t("collaborations")}</span>
+          </span>
+        ) : (
+          <Link
+            href="/dashboard/collaborations"
+            className={linkClass("/dashboard/collaborations")}
+            onClick={handleNav}
+          >
+            <Handshake className="w-5 h-5" />
+            <span>{t("collaborations")}</span>
+          </Link>
+        )}
 
-        <Link
-          href="/dashboard/messages"
-          className={`${linkClass("/dashboard/messages")} justify-between`}
-          onClick={handleNav}
-        >
-          <div className="flex items-center gap-3">
-            <MessageSquare className="w-5 h-5" />
-            <span>{t("messages")}</span>
-          </div>
-          <UnreadBadge userId={userId} />
-        </Link>
+        {creatorProfileLocked ? (
+          <span
+            className={`${disabledLinkClass} justify-between`}
+            title={t("completeProfileToUnlock")}
+            aria-disabled="true"
+          >
+            <div className="flex items-center gap-3">
+              <MessageSquare className="w-5 h-5" />
+              <span>{t("messages")}</span>
+            </div>
+            <UnreadBadge userId={userId} />
+          </span>
+        ) : (
+          <Link
+            href="/dashboard/messages"
+            className={`${linkClass("/dashboard/messages")} justify-between`}
+            onClick={handleNav}
+          >
+            <div className="flex items-center gap-3">
+              <MessageSquare className="w-5 h-5" />
+              <span>{t("messages")}</span>
+            </div>
+            <UnreadBadge userId={userId} />
+          </Link>
+        )}
 
-        <Link
-          href="/dashboard/finances"
-          className={linkClass("/dashboard/finances")}
-          onClick={handleNav}
-        >
-          <Wallet className="w-5 h-5" />
-          <span>{t("finances")}</span>
-        </Link>
+        {creatorProfileLocked ? (
+          <span
+            className={disabledLinkClass}
+            title={t("completeProfileToUnlock")}
+            aria-disabled="true"
+          >
+            <Wallet className="w-5 h-5" />
+            <span>{t("finances")}</span>
+          </span>
+        ) : (
+          <Link
+            href="/dashboard/finances"
+            className={linkClass("/dashboard/finances")}
+            onClick={handleNav}
+          >
+            <Wallet className="w-5 h-5" />
+            <span>{t("finances")}</span>
+          </Link>
+        )}
 
         {/* SaaS-only: Global Analytics & Leads */}
         {!isCreator && (
@@ -203,19 +265,32 @@ export default function DashboardSidebar({
         )}
 
         {/* Creator-only: Academy */}
-        {isCreator && (
-          <Link
-            href="/dashboard/academy"
-            className={linkClass("/dashboard/academy")}
-            onClick={handleNav}
-          >
-            <GraduationCap className="w-5 h-5" />
-            <span className="flex items-center gap-1">
-              {t("academy")}
-              <ExternalLink className="w-3 h-3 text-[#9CA3AF]" />
+        {isCreator &&
+          (creatorProfileLocked ? (
+            <span
+              className={disabledLinkClass}
+              title={t("completeProfileToUnlock")}
+              aria-disabled="true"
+            >
+              <GraduationCap className="w-5 h-5" />
+              <span className="flex items-center gap-1">
+                {t("academy")}
+                <ExternalLink className="w-3 h-3 text-[#9CA3AF]" />
+              </span>
             </span>
-          </Link>
-        )}
+          ) : (
+            <Link
+              href="/dashboard/academy"
+              className={linkClass("/dashboard/academy")}
+              onClick={handleNav}
+            >
+              <GraduationCap className="w-5 h-5" />
+              <span className="flex items-center gap-1">
+                {t("academy")}
+                <ExternalLink className="w-3 h-3 text-[#9CA3AF]" />
+              </span>
+            </Link>
+          ))}
       </nav>
 
       <div className="p-4 border-t border-gray-200">

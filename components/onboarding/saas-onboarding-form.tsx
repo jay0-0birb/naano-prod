@@ -14,6 +14,7 @@ import {
   Building2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { COUNTRIES } from "@/lib/countries";
 
 const INDUSTRIES = [
   "SaaS / Software",
@@ -27,29 +28,6 @@ const INDUSTRIES = [
   "EdTech",
   "HealthTech",
   "Other",
-];
-
-const COUNTRIES = [
-  { code: "FR", name: "France" },
-  { code: "DE", name: "Germany" },
-  { code: "ES", name: "Spain" },
-  { code: "IT", name: "Italy" },
-  { code: "BE", name: "Belgium" },
-  { code: "NL", name: "Netherlands" },
-  { code: "GB", name: "United Kingdom" },
-  { code: "US", name: "United States" },
-  { code: "CA", name: "Canada" },
-  { code: "CH", name: "Switzerland" },
-  { code: "AT", name: "Austria" },
-  { code: "PT", name: "Portugal" },
-  { code: "SE", name: "Sweden" },
-  { code: "DK", name: "Denmark" },
-  { code: "NO", name: "Norway" },
-  { code: "FI", name: "Finland" },
-  { code: "IE", name: "Ireland" },
-  { code: "PL", name: "Poland" },
-  { code: "CZ", name: "Czech Republic" },
-  { code: "OTHER", name: "Other" },
 ];
 
 export default function SaasOnboardingForm() {

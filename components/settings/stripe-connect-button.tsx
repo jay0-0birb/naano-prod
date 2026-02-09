@@ -23,7 +23,7 @@ export default function StripeConnectButton() {
       const data = await response.json();
 
       if (data.error) {
-        setError(data.error);
+        setError(data.code === 'country_required' ? t('stripeCountryRequired') : data.error);
         setIsLoading(false);
         return;
       }

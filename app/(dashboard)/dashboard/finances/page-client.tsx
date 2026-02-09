@@ -172,7 +172,7 @@ export default function FinancesPageClient({
       const data = await response.json();
 
       if (data.error) {
-        setError(data.error);
+        setError(data.code === "country_required" ? t("stripeCountryRequired") : data.error);
         setStripeLoading(false);
         return;
       }
@@ -496,6 +496,19 @@ export default function FinancesPageClient({
               </div>
             </div>
           )}
+
+          <p className="text-xs text-[#64748B] mt-4 pt-4 border-t border-gray-100">
+            {t("stripePayoutsCountryWarning")}{" "}
+            <a
+              href="https://stripe.com/docs/connect/cross-border-payouts"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#635BFF] hover:underline"
+            >
+              {t("stripePayoutsDocsLink")}
+            </a>
+            . {t("stripePayoutsInquiries")}
+          </p>
         </div>
 
         {/* Pro Upgrade Banner */}

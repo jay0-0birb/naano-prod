@@ -13,6 +13,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { COUNTRIES, EU_COUNTRY_CODES } from "@/lib/countries";
 
 const CALENDLY_EXPERT_URL =
   process.env.NEXT_PUBLIC_CALENDLY_EXPERT_CALL_URL ||
@@ -20,46 +21,6 @@ const CALENDLY_EXPERT_URL =
 const MICROENTREPRISE_PDF_URL =
   process.env.NEXT_PUBLIC_MICROENTREPRISE_PDF_URL ||
   "/creer-micro-entreprise-15min.pdf";
-
-const COMPANY_COUNTRIES = [
-  { code: "FR", name: "France" },
-  { code: "DE", name: "Germany" },
-  { code: "ES", name: "Spain" },
-  { code: "IT", name: "Italy" },
-  { code: "BE", name: "Belgium" },
-  { code: "NL", name: "Netherlands" },
-  { code: "GB", name: "United Kingdom" },
-  { code: "US", name: "United States" },
-  { code: "CA", name: "Canada" },
-  { code: "CH", name: "Switzerland" },
-  { code: "AT", name: "Austria" },
-  { code: "PT", name: "Portugal" },
-  { code: "SE", name: "Sweden" },
-  { code: "DK", name: "Denmark" },
-  { code: "FI", name: "Finland" },
-  { code: "IE", name: "Ireland" },
-  { code: "PL", name: "Poland" },
-  { code: "CZ", name: "Czech Republic" },
-  { code: "OTHER", name: "Other" },
-] as const;
-
-const EU_COUNTRY_CODES = [
-  "FR",
-  "DE",
-  "ES",
-  "IT",
-  "BE",
-  "NL",
-  "PT",
-  "IE",
-  "AT",
-  "SE",
-  "DK",
-  "FI",
-  "PL",
-  "CZ",
-  "GB",
-] as const;
 
 export default function CreatorOnboardingForm() {
   const t = useTranslations("onboarding");
@@ -94,9 +55,7 @@ export default function CreatorOnboardingForm() {
 
   const isEuCompany =
     companyCountry !== "" &&
-    EU_COUNTRY_CODES.includes(
-      companyCountry as (typeof EU_COUNTRY_CODES)[number],
-    );
+    (EU_COUNTRY_CODES as readonly string[]).includes(companyCountry);
 
   function getCompanyTaxIdLabel() {
     if (companyCountry === "FR") {
@@ -195,9 +154,7 @@ export default function CreatorOnboardingForm() {
 
       // VAT required for European companies and must start with 2-letter country code
       if (
-        EU_COUNTRY_CODES.includes(
-          registrationCountry as (typeof EU_COUNTRY_CODES)[number],
-        )
+        (EU_COUNTRY_CODES as readonly string[]).includes(registrationCountry)
       ) {
         if (!companyVatNumber) {
           setIsLoading(false);
@@ -326,7 +283,7 @@ export default function CreatorOnboardingForm() {
                 className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 pr-10 text-[#111827] focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all appearance-none"
               >
                 <option value="">{t("selectCountry")}</option>
-                {COMPANY_COUNTRIES.map((c) => (
+                {COUNTRIES.map((c) => (
                   <option key={c.code} value={c.code}>
                     {c.name}
                   </option>
@@ -498,7 +455,7 @@ export default function CreatorOnboardingForm() {
                   className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
                 >
                   <option value="">{t("selectCountry")}</option>
-                  {COMPANY_COUNTRIES.map((country) => (
+                  {COUNTRIES.map((country) => (
                     <option key={country.code} value={country.code}>
                       {country.name}
                     </option>
