@@ -306,8 +306,10 @@ export default function CreatorOnboardingForm() {
             <Linkedin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B]" />
             <input
               name="linkedinUrl"
-              type="url"
+              type="text"
               required
+              inputMode="url"
+              autoComplete="url"
               placeholder={t("linkedinPlaceholder")}
               className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-12 pr-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
             />

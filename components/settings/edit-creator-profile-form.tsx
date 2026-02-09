@@ -110,8 +110,10 @@ export default function EditCreatorProfileForm({
               <Linkedin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9CA3AF]" />
               <input
                 name="linkedinUrl"
-                type="url"
+                type="text"
                 required
+                inputMode="url"
+                autoComplete="url"
                 defaultValue={creatorProfile.linkedin_url || ""}
                 placeholder={t("linkedInPlaceholder")}
                 className="w-full bg-white border border-gray-200 rounded-xl pl-12 pr-4 py-3 text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"

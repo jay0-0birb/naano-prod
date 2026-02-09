@@ -2,6 +2,7 @@
 
 import sharp from "sharp";
 import { createClient } from "@/lib/supabase/server";
+import { normalizeLinkedInProfileUrl } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 
 const AVATAR_MAX_SIZE = 2 * 1024 * 1024; // 2MB
@@ -130,7 +131,9 @@ export async function updateCreatorProfile(formData: FormData) {
   }
 
   const bio = formData.get("bio") as string;
-  const linkedinUrl = formData.get("linkedinUrl") as string;
+  const linkedinUrl = normalizeLinkedInProfileUrl(
+    formData.get("linkedinUrl") as string,
+  );
   const followersCount =
     parseInt(formData.get("followersCount") as string) || 0;
   const theme = (formData.get("theme") as string) || null;

@@ -89,6 +89,20 @@ export function getLeadTypeLabel(networkType: string | null): string {
 }
 
 /**
+ * Normalize a LinkedIn profile URL so it always has a scheme.
+ * Accepts inputs like "www.linkedin.com/in/username" or "linkedin.com/in/username"
+ * and returns "https://www.linkedin.com/in/username" (or with http if they typed that).
+ */
+export function normalizeLinkedInProfileUrl(input: string | null | undefined): string {
+  const trimmed = (input ?? "").trim();
+  if (!trimmed) return "";
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
+}
+
+/**
  * Format days ago
  */
 export function formatDaysAgo(days: number | null): string {

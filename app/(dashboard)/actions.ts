@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { normalizeLinkedInProfileUrl } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 
 export async function completeSaasOnboarding(formData: FormData) {
@@ -103,7 +104,9 @@ export async function completeCreatorOnboarding(formData: FormData) {
   const postalCode = formData.get("postalCode") as string;
   const city = formData.get("city") as string;
   const country = formData.get("country") as string;
-  const linkedinUrl = formData.get("linkedinUrl") as string;
+  const linkedinUrl = normalizeLinkedInProfileUrl(
+    formData.get("linkedinUrl") as string,
+  );
   const followersCountRaw = formData.get("followersCount") as string | null;
   const followersCount =
     followersCountRaw && followersCountRaw.trim() !== ""
