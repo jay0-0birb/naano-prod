@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { updateCreatorProfile } from "@/app/(dashboard)/dashboard/settings/actions";
 import { Loader2, Save, X, Linkedin } from "lucide-react";
+import { COUNTRIES } from "@/lib/countries";
 
 const INDUSTRIES = [
   "SaaS / Software",
@@ -26,13 +27,16 @@ interface EditCreatorProfileFormProps {
     linkedin_url: string | null;
     followers_count: number;
     theme: string | null;
+    country: string | null;
   };
+  stripeConnected?: boolean;
   onClose: () => void;
   onSuccess: () => void;
 }
 
 export default function EditCreatorProfileForm({
   creatorProfile,
+  stripeConnected = false,
   onClose,
   onSuccess,
 }: EditCreatorProfileFormProps) {
@@ -128,6 +132,31 @@ export default function EditCreatorProfileForm({
               defaultValue={creatorProfile.followers_count}
               className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
             />
+          </div>
+
+          {/* Country */}
+          <div>
+            <label className="block text-sm font-medium text-[#374151] mb-2">
+              {tSettings("country")} *
+            </label>
+            <select
+              name="country"
+              required
+              defaultValue={creatorProfile.country || ""}
+              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
+            >
+              <option value="">{t("selectCountry")}</option>
+              {COUNTRIES.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+            {stripeConnected && (
+              <p className="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                {tSettings("countryStripeConnectedNotice")}
+              </p>
+            )}
           </div>
 
           {/* Theme */}

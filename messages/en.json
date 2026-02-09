@@ -666,6 +666,7 @@
     "creatorProfile": "Creator Profile",
     "professionalInfo": "Professional information",
     "bio": "Bio",
+    "linkedInProfile": "LinkedIn",
     "followers": "Followers",
     "theme": "Theme",
     "companyProfile": "Company Profile",
@@ -693,6 +694,8 @@
     "stripePayoutsCountryWarning": "Not all countries support automatic payouts.",
     "stripePayoutsDocsLink": "See Stripe's supported countries",
     "stripePayoutsInquiries": "For inquiries, email info@naano.xyz.",
+    "country": "Country",
+    "countryStripeConnectedNotice": "Used for payouts and when connecting Stripe. You have already connected Stripe; changing this updates your profile only and does not change your payout account country.",
     "card": "Card",
     "cardDesc": "Register a card to pay your credit subscription",
     "cardRegistered": "Card registered",
@@ -881,7 +884,12 @@
     "importFromSite": "Import from website",
     "detecting": "Detecting...",
     "removeLogo": "Remove logo",
-    "errorTryAgain": "An error occurred. Please try again."
+    "errorTryAgain": "An error occurred. Please try again.",
+    "profilePhoto": "Profile photo",
+    "clickToAddPhoto": "Click to add photo",
+    "addPhoto": "Add photo",
+    "photoFormatsHint": "JPG, PNG, WebP or GIF. Max 2MB.",
+    "emailNotEditable": "Email cannot be changed here. Contact support if needed."
   },
   "collaborationDetail": {
     "backToCollaborations": "Back to collaborations",

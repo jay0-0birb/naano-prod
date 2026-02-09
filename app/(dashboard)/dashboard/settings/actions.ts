@@ -134,6 +134,7 @@ export async function updateCreatorProfile(formData: FormData) {
   const followersCount =
     parseInt(formData.get("followersCount") as string) || 0;
   const theme = (formData.get("theme") as string) || null;
+  const country = (formData.get("country") as string)?.trim() || null;
 
   const { error } = await supabase
     .from("creator_profiles")
@@ -142,6 +143,7 @@ export async function updateCreatorProfile(formData: FormData) {
       linkedin_url: linkedinUrl,
       followers_count: followersCount,
       theme: theme || null,
+      country: country,
     })
     .eq("profile_id", user.id);
 
@@ -169,6 +171,7 @@ export async function updateSaasProfile(formData: FormData) {
   const website = formData.get("website") as string;
   const industry = formData.get("industry") as string;
   const conditions = formData.get("conditions") as string;
+  const country = (formData.get("country") as string)?.trim() || null;
   const logoFile = formData.get("logo") as File | null;
   const removeLogo = formData.get("removeLogo") === "true";
 
@@ -186,6 +189,7 @@ export async function updateSaasProfile(formData: FormData) {
     website,
     industry,
     conditions,
+    country,
   };
   if (logoUrl !== undefined) updateData.logo_url = logoUrl;
 

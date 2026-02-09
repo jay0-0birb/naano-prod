@@ -24,6 +24,7 @@ import { createClient } from "@/lib/supabase/client";
 import { refreshStripeStatus } from "@/lib/stripe-status";
 import { createClient as createSupabaseClient } from "@/lib/supabase/client";
 import { sendPasswordResetEmail } from "@/app/(auth)/actions";
+import { COUNTRIES } from "@/lib/countries";
 
 interface NotificationPreferences {
   email_new_applications: boolean;
@@ -473,15 +474,43 @@ export default function SettingsClient({
                 </span>
               </div>
               <div className="flex items-center justify-between py-3 border-b border-gray-200">
+                <span className="text-sm text-[#6B7280]">{t("linkedInProfile")}</span>
+                <span className="text-sm text-[#111827]">
+                  {creatorProfile.linkedin_url ? (
+                    <a
+                      href={creatorProfile.linkedin_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#1D4ED8] hover:underline truncate max-w-[240px] inline-block"
+                    >
+                      {creatorProfile.linkedin_url}
+                    </a>
+                  ) : (
+                    "-"
+                  )}
+                </span>
+              </div>
+              <div className="flex items-center justify-between py-3 border-b border-gray-200">
                 <span className="text-sm text-[#6B7280]">{t("followers")}</span>
                 <span className="text-sm text-[#111827]">
                   {creatorProfile.followers_count?.toLocaleString() || "0"}
                 </span>
               </div>
-              <div className="flex items-center justify-between py-3">
+              <div className="flex items-center justify-between py-3 border-b border-gray-200">
                 <span className="text-sm text-[#6B7280]">{t("industry")}</span>
                 <span className="text-sm text-[#111827]">
                   {creatorProfile.theme || "-"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between py-3">
+                <span className="text-sm text-[#6B7280]">{t("country")}</span>
+                <span className="text-sm text-[#111827]">
+                  {creatorProfile.country
+                    ? (() => {
+                        const name = COUNTRIES.find((c) => c.code === creatorProfile.country)?.name;
+                        return name ?? creatorProfile.country;
+                      })()
+                    : "-"}
                 </span>
               </div>
             </div>
@@ -944,6 +973,7 @@ export default function SettingsClient({
       {showEditCreatorProfile && creatorProfile && (
         <EditCreatorProfileForm
           creatorProfile={creatorProfile}
+          stripeConnected={stripeConnected}
           onClose={() => setShowEditCreatorProfile(false)}
           onSuccess={handleSuccess}
         />
