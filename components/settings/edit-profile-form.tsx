@@ -1,8 +1,20 @@
-'use client';
+"use client";
 
-import { useState, useRef } from 'react';
-import { updateProfile, fetchAvatarFromWebsite } from '@/app/(dashboard)/dashboard/settings/actions';
-import { Loader2, Save, X, Camera, User, Sparkles, Trash2 } from 'lucide-react';
+import { useState, useRef } from "react";
+import { useTranslations } from "next-intl";
+import {
+  updateProfile,
+  fetchAvatarFromWebsite,
+} from "@/app/(dashboard)/dashboard/settings/actions";
+import {
+  Loader2,
+  Save,
+  X,
+  Camera,
+  User,
+  Sparkles,
+  Trash2,
+} from "lucide-react";
 
 interface EditProfileFormProps {
   profile: {
@@ -26,6 +38,9 @@ export default function EditProfileForm({ profile, websiteUrl, onClose, onSucces
   const fileInputRef = useRef<HTMLInputElement>(null);
   const websiteInputRef = useRef<HTMLInputElement>(null);
 
+  const t = useTranslations("forms");
+  const tSettings = useTranslations("settings");
+
   const hasPhoto = !removeAvatar && (previewUrl ?? profile.avatar_url ?? null);
   const displayUrl = removeAvatar ? null : (previewUrl ?? profile.avatar_url ?? null);
 
@@ -34,7 +49,7 @@ export default function EditProfileForm({ profile, websiteUrl, onClose, onSucces
   const handleFetchAvatar = async () => {
     const url = websiteInputRef.current?.value?.trim() || websiteUrl?.trim();
     if (!url) {
-      setError('Indiquez l\'URL de votre site web.');
+      setError(t("provideWebsiteUrl"));
       return;
     }
     setFetchingAvatar(true);
@@ -53,7 +68,7 @@ export default function EditProfileForm({ profile, websiteUrl, onClose, onSucces
     const file = e.target.files?.[0];
     if (!file || !file.type.startsWith('image/')) return;
     if (file.size > MAX_FILE_SIZE) {
-      setError('L\'image ne doit pas dépasser 2 Mo. Choisissez une image plus légère.');
+      setError(t("imageTooLarge"));
       return;
     }
     setError(null);
@@ -72,7 +87,7 @@ export default function EditProfileForm({ profile, websiteUrl, onClose, onSucces
     event.preventDefault();
     const avatarFile = (event.currentTarget.elements.namedItem('avatar') as HTMLInputElement)?.files?.[0];
     if (avatarFile && avatarFile.size > MAX_FILE_SIZE) {
-      setError('L\'image ne doit pas dépasser 2 Mo. Choisissez une image plus légère.');
+      setError(t("imageTooLarge"));
       return;
     }
     setIsLoading(true);
@@ -90,9 +105,11 @@ export default function EditProfileForm({ profile, websiteUrl, onClose, onSucces
       onSuccess();
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      setError(msg.includes('1 MB') || msg.includes('body size')
-        ? 'L\'image est trop volumineuse (max 2 Mo). Choisissez une image plus légère.'
-        : 'Une erreur est survenue. Réessayez.');
+      setError(
+        msg.includes("1 MB") || msg.includes("body size")
+          ? t("imageTooLarge")
+          : t("errorTryAgain")
+      );
     } finally {
       setIsLoading(false);
     }
@@ -102,7 +119,9 @@ export default function EditProfileForm({ profile, websiteUrl, onClose, onSucces
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white border border-gray-200 rounded-2xl p-6 max-w-md w-full shadow-xl">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-medium text-[#111827]">Modifier le profil</h3>
+          <h3 className="text-xl font-medium text-[#111827]">
+            {t("editProfile")}
+          </h3>
           <button
             onClick={onClose}
             className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
@@ -121,7 +140,7 @@ export default function EditProfileForm({ profile, websiteUrl, onClose, onSucces
           {/* Photo de profil - simple structure */}
           <div className="flex flex-col items-center">
             <label className="block text-sm font-medium text-[#374151] mb-3 w-full text-center">
-              Photo de profil
+              {t("profilePhoto")}
             </label>
             <label
               htmlFor="avatar-upload"
@@ -139,7 +158,7 @@ export default function EditProfileForm({ profile, websiteUrl, onClose, onSucces
               {displayUrl ? (
                 <img
                   src={displayUrl}
-                  alt="Photo de profil"
+                  alt={t("profilePhoto")}
                   referrerPolicy="no-referrer"
                   style={{
                     width: '100%',
@@ -151,7 +170,9 @@ export default function EditProfileForm({ profile, websiteUrl, onClose, onSucces
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center gap-1 text-[#9CA3AF]">
                   <Camera className="w-12 h-12" />
-                  <span className="text-xs font-medium">Cliquer pour ajouter</span>
+                  <span className="text-xs font-medium">
+                    {t("clickToAddPhoto")}
+                  </span>
                 </div>
               )}
             </label>
@@ -172,7 +193,7 @@ export default function EditProfileForm({ profile, websiteUrl, onClose, onSucces
                 onClick={() => fileInputRef.current?.click()}
                 className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-[#374151] text-sm font-medium transition-colors"
               >
-                {hasPhoto ? 'Changer' : 'Ajouter une photo'}
+                {hasPhoto ? t("change") : t("addPhoto")}
               </button>
               <button
                 type="button"
@@ -183,12 +204,12 @@ export default function EditProfileForm({ profile, websiteUrl, onClose, onSucces
                 {fetchingAvatar ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Détection...
+                    {t("detecting")}
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4" />
-                    Importer depuis le site
+                    {t("importFromSite")}
                   </>
                 )}
               </button>
@@ -199,12 +220,12 @@ export default function EditProfileForm({ profile, websiteUrl, onClose, onSucces
                   className="px-4 py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium transition-colors inline-flex items-center gap-1.5"
                 >
                   <Trash2 className="w-4 h-4" />
-                  Retirer
+                  {t("removePhoto")}
                 </button>
               )}
             </div>
             <p className="text-xs text-[#64748B] mt-2 text-center">
-              JPG, PNG, WebP ou GIF. Max 2 Mo.
+              {t("photoFormatsHint")}
             </p>
 
             {/* Website URL for import */}
@@ -221,7 +242,7 @@ export default function EditProfileForm({ profile, websiteUrl, onClose, onSucces
 
           <div>
             <label className="block text-sm font-medium text-[#374151] mb-2">
-              Nom complet
+              {tSettings("name")}
             </label>
             <input
               name="fullName"
@@ -234,7 +255,7 @@ export default function EditProfileForm({ profile, websiteUrl, onClose, onSucces
 
           <div>
             <label className="block text-sm font-medium text-[#374151] mb-2">
-              Email
+              {tSettings("email")}
             </label>
             <input
               type="email"
@@ -243,7 +264,7 @@ export default function EditProfileForm({ profile, websiteUrl, onClose, onSucces
               className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#64748B] cursor-not-allowed"
             />
             <p className="text-xs text-[#64748B] mt-1.5">
-              L&apos;email ne peut pas être modifié
+              {t("emailNotEditable")}
             </p>
           </div>
 
@@ -254,7 +275,7 @@ export default function EditProfileForm({ profile, websiteUrl, onClose, onSucces
               disabled={isLoading}
               className="flex-1 px-4 py-2.5 bg-gray-100 border border-gray-200 rounded-xl text-[#374151] hover:bg-gray-200 transition-all disabled:opacity-50"
             >
-              Annuler
+              {t("cancel")}
             </button>
             <button
               type="submit"
@@ -264,12 +285,12 @@ export default function EditProfileForm({ profile, websiteUrl, onClose, onSucces
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Enregistrement...</span>
+                  <span>{t("saving")}</span>
                 </>
               ) : (
                 <>
                   <Save className="w-4 h-4" />
-                  <span>Enregistrer</span>
+                  <span>{t("save")}</span>
                 </>
               )}
             </button>
