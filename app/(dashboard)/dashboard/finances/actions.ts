@@ -65,7 +65,7 @@ export async function submitProUnlockPost(linkedinPostUrl: string) {
     .single();
 
   if (profileError || !creatorProfile) {
-    return { error: "Profil créateur non trouvé" };
+    return { error: "creator_profile_not_found" };
   }
 
   // Check eligibility: can unlock if not Pro, or Pro has expired

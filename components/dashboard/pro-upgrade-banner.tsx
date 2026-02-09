@@ -47,7 +47,11 @@ export default function ProUpgradeBanner({
     try {
       const result = await submitProUnlockPost(postUrl.trim());
       if (result.error) {
-        setError(result.error);
+        setError(
+          result.error === "creator_profile_not_found"
+            ? t("creatorProfileNotFound")
+            : result.error,
+        );
       } else {
         setSuccess(true);
         setPostUrl("");
