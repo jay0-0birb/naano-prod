@@ -1004,6 +1004,7 @@ export default function FinancesPageClient({
                 walletCredits={saasData.walletCredits}
                 monthlySubscription={saasData.monthlyCreditSubscription}
                 renewalDate={saasData.creditRenewalDate}
+                hasCreditSubscription={saasData.hasCreditSubscription}
               />
               <CreditSubscriptionSlider
                 currentSubscription={saasData.monthlyCreditSubscription}

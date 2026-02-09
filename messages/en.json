@@ -589,6 +589,7 @@
     "placeholder": "https://www.linkedin.com/posts/...",
     "renewalInDays": "Renewal in {count} day",
     "renewalInDaysPlural": "Renewal in {count} days",
+    "subscriptionCancelledLabel": "Subscription cancelled",
     "loading": "Loading..."
   },
   "proUpgrade": {

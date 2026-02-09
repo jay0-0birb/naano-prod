@@ -7,12 +7,15 @@ interface CreditBalanceWidgetProps {
   walletCredits: number;
   monthlySubscription: number | null;
   renewalDate: string | null;
+  /** When false, show "Subscription cancelled" instead of "Renewal in x days" (credits won't renew). */
+  hasCreditSubscription?: boolean;
 }
 
 export default function CreditBalanceWidget({
   walletCredits,
   monthlySubscription,
   renewalDate,
+  hasCreditSubscription = true,
 }: CreditBalanceWidgetProps) {
   const t = useTranslations("credits");
   const getHealthStatus = (
@@ -100,13 +103,15 @@ export default function CreditBalanceWidget({
         </div>
       )}
 
-      {renewalDate && daysUntilRenewal !== null && (
+      {(renewalDate || monthlySubscription) && (
         <div className="flex items-center gap-2 text-sm text-slate-600">
           <Clock className="w-4 h-4" />
           <span>
-            {daysUntilRenewal === 1
-              ? t("renewalInDays", { count: 1 })
-              : t("renewalInDaysPlural", { count: daysUntilRenewal })}
+            {hasCreditSubscription && renewalDate && daysUntilRenewal !== null
+              ? daysUntilRenewal === 1
+                ? t("renewalInDays", { count: 1 })
+                : t("renewalInDaysPlural", { count: daysUntilRenewal })
+              : t("subscriptionCancelledLabel")}
           </span>
         </div>
       )}
