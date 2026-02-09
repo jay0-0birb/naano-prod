@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { ParticleFace } from "./particle-face";
@@ -16,8 +16,6 @@ export const HeroSection = ({
   showContent,
 }: HeroSectionProps) => {
   const t = useTranslations("hero");
-  const words = [t("scale"), t("boost"), t("grow")];
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [hoveredBrand, setHoveredBrand] = useState<string | null>(null);
 
   const brandHoverFilters: Record<string, string> = {
@@ -30,13 +28,6 @@ export const HeroSection = ({
       "brightness(0) saturate(100%) invert(25%) sepia(95%) saturate(5000%) hue-rotate(355deg) brightness(0.95) contrast(105%)",
   };
   const defaultFilter = "brightness(0) invert(0.84)";
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentWordIndex((prev) => (prev + 1) % words.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
 
   const handleFaceComplete = () => {
     onContentShow(true);
@@ -51,8 +42,8 @@ export const HeroSection = ({
       <div
         className={`max-w-7xl mx-auto relative z-[2] pt-32 sm:pt-36 md:pt-44 lg:pt-52 pb-12 sm:pb-16 md:pb-20 lg:pb-24 px-4 sm:px-6 ${showContent ? "opacity-100" : "opacity-0"}`}
       >
-        {/* Text Content - Aligned along pink line */}
-        <div className="text-left max-w-full sm:max-w-[600px] ml-0 md:ml-8 lg:ml-16 mb-[2.875rem] sm:mb-12 md:mb-16 lg:mb-24">
+        {/* Text Content - Constrained width so long headlines (e.g. EN) wrap and don't push layout */}
+        <div className="text-left max-w-full sm:max-w-[480px] md:max-w-[520px] ml-0 md:ml-4 lg:ml-8 mb-[2.875rem] sm:mb-12 md:mb-16 lg:mb-24">
           {/* Main Heading */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -65,28 +56,9 @@ export const HeroSection = ({
               className="text-[28px] sm:text-[36px] md:text-[44px] lg:text-[56px] xl:text-[64px] font-bold leading-[1.1] tracking-[-0.03em] text-[#111827] mb-4 sm:mb-6"
               style={{ fontFamily: "Satoshi, sans-serif" }}
             >
-              <AnimatePresence mode="wait">
-                <motion.span
-                  key={words[currentWordIndex]}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
-                  className="inline-block"
-                >
-                  {words[currentWordIndex]}
-                </motion.span>
-              </AnimatePresence>
-              {t("line1Suffix") && <> {t("line1Suffix")}</>}
+              {t("headlineLine1")}
               <br />
-              <span>
-                {t("line2Prefix")}
-                <span className="text-[#3B82F6] relative">
-                  {t("nanoCreators")}
-                  <span className="absolute bottom-[-2px] left-0 right-0 h-[3px] bg-[#3B82F6] opacity-30 rounded-full" />
-                </span>
-                .
-              </span>
+              {t("headlineLine2")}
             </h1>
           </motion.div>
 
