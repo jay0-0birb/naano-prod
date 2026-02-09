@@ -30,15 +30,17 @@ export async function updateApplicationStatus(applicationId: string, status: 'ac
     return { error: 'Candidature non trouvée' }
   }
 
-  // Verify that the current user owns the SaaS company
-  const saasCompany = application.saas_companies as { profile_id: string; wallet_credits?: number }
-  if (saasCompany?.profile_id !== user.id) {
+  // Verify that the current user owns the SaaS company (relation may be typed as array by Supabase)
+  const raw = application.saas_companies as unknown
+  const saasCompany = Array.isArray(raw) ? raw[0] : raw
+  const saas = saasCompany as { profile_id: string; wallet_credits?: number } | undefined
+  if (saas?.profile_id !== user.id) {
     return { error: 'Non autorisé' }
   }
 
   // Require credits before accepting collaborations
   if (status === 'accepted') {
-    const walletCredits = saasCompany.wallet_credits ?? 0
+    const walletCredits = saas.wallet_credits ?? 0
     if (walletCredits <= 0) {
       return {
         error:
