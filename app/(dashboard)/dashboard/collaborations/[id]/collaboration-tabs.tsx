@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { FileText, BarChart3, Users } from 'lucide-react'
-import AnalyticsTab from './analytics-tab'
+import { FileText, Users } from 'lucide-react'
 import PostsTab from './posts-tab'
 import { LeadFeedTab } from './lead-feed-tab'
 
@@ -42,7 +41,7 @@ export default function CollaborationTabs({
   creatorPostLimit = 25,
 }: CollaborationTabsProps) {
   const t = useTranslations('collaborationTabs')
-  const [selectedTab, setSelectedTab] = useState<'posts' | 'analytics' | 'leads'>(initialTab)
+  const [selectedTab, setSelectedTab] = useState<'posts' | 'leads'>(initialTab === 'leads' ? 'leads' : 'posts')
 
   // Determine which tabs to show
   const tabs = [
@@ -51,14 +50,6 @@ export default function CollaborationTabs({
       label: t('posts'),
       icon: FileText,
       available: true, // Everyone can see posts
-    },
-    {
-      id: 'analytics' as const,
-      label: t('analytics'),
-      icon: BarChart3,
-      // Analytics only for SaaS with paying tier (starter, growth, or scale)
-      // Part 1 (KPIs) is available to all paying tiers
-      available: isSaaS && subscriptionTier !== null,
     },
     {
       id: 'leads' as const,
@@ -106,9 +97,6 @@ export default function CollaborationTabs({
             creatorTotalPosts={creatorTotalPosts}
             creatorPostLimit={creatorPostLimit}
           />
-        )}
-        {selectedTab === 'analytics' && isSaaS && (
-          <AnalyticsTab collaborationId={collaborationId} />
         )}
         {selectedTab === 'leads' && isSaaS && (
           <LeadFeedTab collaborationId={collaborationId} />

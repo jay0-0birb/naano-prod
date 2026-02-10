@@ -58,87 +58,75 @@ export async function getGlobalAnalytics() {
     return {
       success: true,
       analytics: {
-        totalImpressions: 0,
         totalClicks: 0,
         qualifiedClicks: 0,
-        leadsCount: 0,
-        totalLeadCost: 0,
-        savingsVsLinkedIn: 0,
       },
     };
   }
 
   const collaborationIds = collaborations.map((c) => c.id);
 
-  const { data: trackedLinks } = await supabase
-    .from("tracked_links")
-    .select("id")
-    .in("collaboration_id", collaborationIds);
+  // Aggregate per-collaboration analytics using the same SQL logic
+  // as the collaboration detail page (get_collaboration_analytics).
+  const analyticsPerCollabResults = await Promise.all(
+    collaborationIds.map(async (collabId) => {
+      const { data, error } = await supabase
+        .rpc("get_collaboration_analytics", {
+          collab_id: collabId,
+        })
+        .single();
 
-  if (!trackedLinks || trackedLinks.length === 0) {
-    return {
-      success: true,
-      analytics: {
-        totalImpressions: 0,
-        totalClicks: 0,
-        qualifiedClicks: 0,
-        leadsCount: 0,
-        totalLeadCost: 0,
-        savingsVsLinkedIn: 0,
-      },
-    };
-  }
+      if (error || !data) {
+        console.error(
+          "Error fetching collaboration analytics for",
+          collabId,
+          error,
+        );
+        return null;
+      }
 
-  const trackedLinkIds = trackedLinks.map((tl) => tl.id);
+      return data as {
+        total_impressions?: number;
+        total_clicks?: number;
+        qualified_clicks?: number;
+        leads_count?: number;
+        total_lead_cost?: number;
+        savings_vs_linkedin?: number;
+      };
+    }),
+  );
 
-  // Get all clicks and impressions
-  const { data: allEvents } = await supabase
-    .from("link_events")
-    .select(
-      "event_type, time_on_site, occurred_at, ip_address, user_agent, country",
-    )
-    .in("tracked_link_id", trackedLinkIds);
+  const aggregated = analyticsPerCollabResults.reduce(
+    (acc, row) => {
+      if (!row) return acc;
+      acc.totalImpressions += row.total_impressions ?? 0;
+      acc.totalClicks += row.total_clicks ?? 0;
+      acc.qualifiedClicks += row.qualified_clicks ?? 0;
+      acc.leadsCount += row.leads_count ?? 0;
+      acc.totalLeadCost += Number(row.total_lead_cost ?? 0);
+      return acc;
+    },
+    {
+      totalImpressions: 0,
+      totalClicks: 0,
+      qualifiedClicks: 0,
+      leadsCount: 0,
+      totalLeadCost: 0,
+    },
+  );
 
-  // Calculate totals
-  const totalImpressions =
-    allEvents?.filter((e) => e.event_type === "impression").length || 0;
-  const totalClicks =
-    allEvents?.filter((e) => e.event_type === "click").length || 0;
-
-  // Get qualified clicks (using same logic as RPC)
-  // Need to check bot filtering too - for now, simplified version
-  const qualifiedClicks =
-    allEvents?.filter(
-      (e: any) =>
-        e.event_type === "click" &&
-        (e.time_on_site >= 3 ||
-          (e.time_on_site === null &&
-            e.occurred_at &&
-            new Date(e.occurred_at) > new Date(Date.now() - 5 * 60 * 1000))),
-    ).length || 0;
-
-  // Get leads count
-  const { data: leads } = await supabase
-    .from("leads")
-    .select("id, cost_per_lead")
-    .in("tracked_link_id", trackedLinkIds);
-
-  const leadsCount = leads?.length || 0;
-  const totalLeadCost =
-    leads?.reduce((sum, lead) => sum + (lead.cost_per_lead || 0), 0) || 0;
-
-  // Calculate savings vs LinkedIn Ads
-  const linkedinCost = qualifiedClicks * 8; // 8€ per click
-  const savingsVsLinkedIn = linkedinCost - totalLeadCost;
+  // Savings is linear: sum of per-collab savings = global savings
+  const savingsVsLinkedIn =
+    aggregated.qualifiedClicks * 8 - aggregated.totalLeadCost;
 
   return {
     success: true,
     analytics: {
-      totalImpressions,
-      totalClicks,
-      qualifiedClicks,
-      leadsCount,
-      totalLeadCost,
+      totalImpressions: aggregated.totalImpressions,
+      totalClicks: aggregated.totalClicks,
+      qualifiedClicks: aggregated.qualifiedClicks,
+      leadsCount: aggregated.leadsCount,
+      totalLeadCost: aggregated.totalLeadCost,
       savingsVsLinkedIn,
     },
   };

@@ -640,7 +640,7 @@
     "savingsVsLinkedIn": "Savings vs LinkedIn",
     "totalImpressions": "Total impressions",
     "totalImpressionsDesc": "Raw visibility volume generated",
-    "totalClicks": "Total clicks (raw)",
+      "totalClicks": "Total clicks (bulk)",
     "totalClicksDesc": "All recorded clicks",
     "qualifiedClicksLabel": "Qualified clicks (billable)",
     "qualifiedClicksDesc": "3s rule + Anti-bot + IP + Geo",
