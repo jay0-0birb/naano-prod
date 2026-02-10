@@ -4,6 +4,38 @@ import { createClient } from "@/lib/supabase/server";
 import { normalizeLinkedInProfileUrl } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 
+const AVATAR_MAX_SIZE = 2 * 1024 * 1024; // 2MB
+const AVATAR_ALLOWED_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+];
+
+async function uploadAvatarForUser(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  file: File,
+): Promise<string | null> {
+  if (file.size > AVATAR_MAX_SIZE) return null;
+  if (!AVATAR_ALLOWED_TYPES.includes(file.type)) return null;
+
+  const ext = file.name.split(".").pop() || "jpg";
+  const path = `${userId}/avatar-${Date.now()}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from("avatars")
+    .upload(path, file, { cacheControl: "3600", upsert: true });
+
+  if (error) return null;
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from("avatars").getPublicUrl(path);
+
+  return publicUrl;
+}
+
 export async function completeSaasOnboarding(formData: FormData) {
   const supabase = await createClient();
 
@@ -22,6 +54,15 @@ export async function completeSaasOnboarding(formData: FormData) {
   const country = formData.get("country") as string;
   const vatNumber = formData.get("vatNumber") as string | null;
   const isVatRegistered = formData.get("isVatRegistered") === "on";
+  const avatarFile = formData.get("avatar") as File | null;
+
+  let avatarUrl: string | null = null;
+  if (avatarFile && avatarFile.size > 0) {
+    const uploadedUrl = await uploadAvatarForUser(supabase, user.id, avatarFile);
+    if (uploadedUrl) {
+      avatarUrl = uploadedUrl;
+    }
+  }
 
   // Check if company already exists
   const { data: existingCompany } = await supabase
@@ -70,10 +111,17 @@ export async function completeSaasOnboarding(formData: FormData) {
     }
   }
 
-  // Mark onboarding as completed
+  // Mark onboarding as completed & optionally store avatar
+  const profileUpdate: Record<string, unknown> = {
+    onboarding_completed: true,
+  };
+  if (avatarUrl) {
+    profileUpdate.avatar_url = avatarUrl;
+  }
+
   const { error: profileError } = await supabase
     .from("profiles")
-    .update({ onboarding_completed: true })
+    .update(profileUpdate)
     .eq("id", user.id);
 
   if (profileError) {
@@ -126,6 +174,7 @@ export async function completeCreatorOnboarding(formData: FormData) {
   const companyRegisteredAddress = formData.get("companyRegisteredAddress") as
     | string
     | null;
+  const avatarFile = formData.get("avatar") as File | null;
 
   if (legalStatus === "professionnel") {
     if (
@@ -185,6 +234,14 @@ export async function completeCreatorOnboarding(formData: FormData) {
     updateData.recent_posts_linkedin = recentPostsLinkedin;
   }
 
+  let avatarUrl: string | null = null;
+  if (avatarFile && avatarFile.size > 0) {
+    const uploadedUrl = await uploadAvatarForUser(supabase, user.id, avatarFile);
+    if (uploadedUrl) {
+      avatarUrl = uploadedUrl;
+    }
+  }
+
   // Check if creator profile already exists
   const { data: existingProfile } = await supabase
     .from("creator_profiles")
@@ -212,19 +269,21 @@ export async function completeCreatorOnboarding(formData: FormData) {
     }
   }
 
-  // Update profiles full_name from first + last
+  // Update profiles full_name, optional avatar & mark onboarding as completed
   const fullName = [firstName, lastName].filter(Boolean).join(" ");
+  const profileUpdate: Record<string, unknown> = {
+    onboarding_completed: true,
+  };
   if (fullName) {
-    await supabase
-      .from("profiles")
-      .update({ full_name: fullName })
-      .eq("id", user.id);
+    profileUpdate.full_name = fullName;
+  }
+  if (avatarUrl) {
+    profileUpdate.avatar_url = avatarUrl;
   }
 
-  // Mark onboarding as completed
   const { error: profileError } = await supabase
     .from("profiles")
-    .update({ onboarding_completed: true })
+    .update(profileUpdate)
     .eq("id", user.id);
 
   if (profileError) {

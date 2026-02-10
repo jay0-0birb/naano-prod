@@ -1,17 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   completeSaasOnboarding,
   uploadMediaPack,
 } from "@/app/(dashboard)/actions";
+import { fetchAvatarFromWebsite } from "@/app/(dashboard)/dashboard/settings/actions";
 import {
   Loader2,
   AlertCircle,
   Upload,
   CheckCircle2,
   Building2,
+  Camera,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { COUNTRIES } from "@/lib/countries";
@@ -38,6 +40,11 @@ export default function SaasOnboardingForm() {
   const [mediaPackUrl, setMediaPackUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isVatRegistered, setIsVatRegistered] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [isDetectingAvatar, setIsDetectingAvatar] = useState(false);
+  const AVATAR_MAX_SIZE = 2 * 1024 * 1024; // 2MB
+  const websiteInputRef = useRef<HTMLInputElement | null>(null);
 
   async function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -78,6 +85,49 @@ export default function SaasOnboardingForm() {
     }
   }
 
+  function handleAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setAvatarError(t("profilePhotoInvalidType"));
+      event.target.value = "";
+      setAvatarPreview(null);
+      return;
+    }
+
+    if (file.size > AVATAR_MAX_SIZE) {
+      setAvatarError(t("profilePhotoTooLarge"));
+      event.target.value = "";
+      setAvatarPreview(null);
+      return;
+    }
+
+    setAvatarError(null);
+    setAvatarPreview(URL.createObjectURL(file));
+  }
+
+  async function handleDetectAvatar() {
+    const website = websiteInputRef.current?.value?.trim();
+    if (!website) {
+      setAvatarError(t("profilePhotoInvalidWebsite"));
+      return;
+    }
+
+    setIsDetectingAvatar(true);
+    setAvatarError(null);
+    try {
+      const result = await fetchAvatarFromWebsite(website);
+      if (result.error) {
+        setAvatarError(result.error);
+      } else if (result.avatarUrl) {
+        setAvatarPreview(result.avatarUrl);
+      }
+    } finally {
+      setIsDetectingAvatar(false);
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
@@ -88,6 +138,67 @@ export default function SaasOnboardingForm() {
       )}
 
       <div className="space-y-5">
+        {/* Profile photo */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-4 p-4 rounded-xl border border-gray-200 bg-gray-50/60">
+            <label
+              htmlFor="avatar"
+              className="cursor-pointer shrink-0"
+            >
+              <div className="w-16 h-16 rounded-full overflow-hidden bg-white border border-dashed border-gray-300 flex items-center justify-center">
+                {avatarPreview ? (
+                  <img
+                    src={avatarPreview}
+                    alt={t("profilePhotoTitle")}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-[#9CA3AF] gap-1 w-full h-full">
+                    <Camera className="w-6 h-6" />
+                    <span className="text-[11px] font-medium">
+                      {t("profilePhotoCta")}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <input
+                id="avatar"
+                name="avatar"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                onChange={handleAvatarChange}
+                className="hidden"
+              />
+            </label>
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-[#111827]">
+                {t("profilePhotoTitle")}
+              </p>
+              <p className="text-xs text-[#64748B]">
+                {t("profilePhotoTrustText")}
+              </p>
+              <button
+                type="button"
+                onClick={handleDetectAvatar}
+                disabled={isDetectingAvatar}
+                className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-medium text-[#1D4ED8] hover:text-[#1D4ED8] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isDetectingAvatar ? (
+                  <>
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    <span>{t("profilePhotoDetecting")}</span>
+                  </>
+                ) : (
+                  <span>{t("profilePhotoDetectCta")}</span>
+                )}
+              </button>
+            </div>
+          </div>
+          {avatarError && (
+            <p className="text-xs text-red-600 px-1">{avatarError}</p>
+          )}
+        </div>
+
         {/* Company Name */}
         <div>
           <label className="block text-sm font-medium text-[#475569] mb-2">
@@ -122,6 +233,7 @@ export default function SaasOnboardingForm() {
             {t("website")}
           </label>
           <input
+            ref={websiteInputRef}
             name="website"
             type="url"
             placeholder={t("websitePlaceholder")}
