@@ -43,6 +43,7 @@ export default function SaasOnboardingForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
+  const [lastUploadedFileName, setLastUploadedFileName] = useState<string | null>(null);
   const [mediaLabelInput, setMediaLabelInput] = useState("");
   const [mediaUrlInput, setMediaUrlInput] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -78,12 +79,13 @@ export default function SaasOnboardingForm() {
 
       if ("url" in result && result.url) {
         const url = result.url as string;
-        const label = event.target.files?.[0]?.name || t("mediaPack");
+        const label = file.name || t("mediaPack");
         setMediaItems((prev) => {
           // Avoid duplicates by URL
           if (prev.some((item) => item.url === url)) return prev;
           return [...prev, { label, url }];
         });
+        setLastUploadedFileName(file.name || null);
       }
     } catch (err) {
       console.error(err);
@@ -355,28 +357,28 @@ export default function SaasOnboardingForm() {
             />
             <label
               htmlFor="media-pack-upload"
-              className={`flex items-center justify-center gap-3 w-full py-4 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
-                mediaItems.length > 0
-                  ? "border-green-200 bg-green-50"
-                  : "border-gray-200 hover:border-gray-300 bg-gray-50"
-              }`}
+              className="flex items-center justify-center gap-3 w-full py-4 border-2 border-dashed border-gray-200 bg-gray-50 rounded-xl cursor-pointer transition-all hover:border-gray-300"
             >
               {isUploading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin text-[#3B82F6]" />
                   <span className="text-[#64748B]">{t("uploading")}</span>
                 </>
-              ) : mediaItems.length > 0 ? (
-                <>
-                  <CheckCircle2 className="w-5 h-5 text-green-600" />
-                  <span className="text-green-700 font-medium">
-                    {t("fileUploaded")}
-                  </span>
-                </>
               ) : (
                 <>
                   <Upload className="w-5 h-5 text-[#64748B]" />
-                  <span className="text-[#64748B]">{t("clickToUpload")}</span>
+                  <div className="flex flex-col items-start">
+                    <span className="text-[#64748B]">
+                      {t("clickToUpload")}
+                    </span>
+                    <span className="text-[11px] text-[#9CA3AF]">
+                      {mediaItems.length > 0
+                        ? t("mediaPackUploadMore", {
+                            count: mediaItems.length,
+                          })
+                        : t("mediaPackUploadHint")}
+                    </span>
+                  </div>
                 </>
               )}
             </label>
@@ -431,34 +433,42 @@ export default function SaasOnboardingForm() {
             </p>
 
             {mediaItems.length > 0 && (
-              <ul className="mt-2 space-y-1">
-                {mediaItems.map((item, index) => (
-                  <li
-                    key={`${item.url}-${index}`}
-                    className="flex items-center justify-between gap-3 px-3 py-2 bg-white border border-gray-200 rounded-xl"
-                  >
-                    <div className="min-w-0">
-                      <p className="text-xs font-medium text-[#111827] truncate">
-                        {item.label}
-                      </p>
-                      <p className="text-[11px] text-[#6B7280] break-all">
-                        {item.url}
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setMediaItems((prev) =>
-                          prev.filter((_, i) => i !== index),
-                        )
-                      }
-                      className="text-[11px] text-[#6B7280] hover:text-red-600"
+              <>
+                <p className="mt-3 text-xs font-medium text-[#475569]">
+                  {t("mediaPackUploadedListTitle")}
+                </p>
+                <ul className="mt-2 space-y-1">
+                  {mediaItems.map((item, index) => (
+                    <li
+                      key={`${item.url}-${index}`}
+                      className="flex items-center justify-between gap-3 px-3 py-2 bg-white border border-gray-200 rounded-xl"
                     >
-                      {t("removeMediaLink")}
-                    </button>
-                  </li>
-                ))}
-              </ul>
+                      <div className="flex items-start gap-2 min-w-0">
+                        <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5 shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-xs font-medium text-[#111827] truncate">
+                            {item.label}
+                          </p>
+                          <p className="text-[11px] text-[#6B7280] break-all">
+                            {item.url}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setMediaItems((prev) =>
+                            prev.filter((_, i) => i !== index),
+                          )
+                        }
+                        className="text-[11px] text-[#6B7280] hover:text-red-600"
+                      >
+                        {t("removeMediaLink")}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </>
             )}
           </div>
         </div>

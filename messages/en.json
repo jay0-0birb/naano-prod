@@ -422,12 +422,15 @@
     "uploading": "Uploading...",
     "fileUploaded": "File uploaded",
     "clickToUpload": "Click to upload (PDF, ZIP, images)",
+    "mediaPackUploadHint": "Drag & drop or click to add a media file.",
+    "mediaPackUploadMore": "{count, plural, one {# item uploaded – click to add more} other {# items uploaded – click to add more}}",
     "mediaPackMultipleHint": "You can upload a file and/or add multiple links (brand book, assets, guidelines...).",
     "mediaPackLabelPlaceholder": "Label (e.g. Brand guidelines, Logos)",
     "mediaPackUrlPlaceholder": "https://example.com/media-pack",
     "mediaPackDefaultLabel": "Media asset",
     "addMediaLink": "Add link",
     "mediaPackUrlHelper": "Creators will see these links on your SaaS card (\"See media\" button).",
+    "mediaPackUploadedListTitle": "Uploaded media",
     "removeMediaLink": "Remove",
     "createCompanyProfile": "Create Company Profile"
   },
@@ -694,9 +697,11 @@
     "theme": "Theme",
     "companyProfile": "Company Profile",
     "companyInfo": "Company information",
+    "companyName": "Company name",
     "description": "Description",
     "website": "Website",
     "industry": "Industry",
+    "mediaPack": "Media Pack",
     "brandsUrls": "URLs",
     "brandsDesc": "Define multiple brands and destination pages",
     "noBrands": "No URLs configured yet. By default, your company website is used:",
@@ -917,7 +922,9 @@
     "adjustPhoto": "Adjust your profile photo",
     "zoom": "Zoom",
     "apply": "Apply",
-    "emailNotEditable": "Email cannot be changed here. Contact support if needed."
+    "emailNotEditable": "Email cannot be changed here. Contact support if needed.",
+    "companyDescriptionPlaceholder": "Describe your company and what you offer...",
+    "websitePlaceholder": "https://your-site.com"
   },
   "collaborationDetail": {
     "backToCollaborations": "Back to collaborations",

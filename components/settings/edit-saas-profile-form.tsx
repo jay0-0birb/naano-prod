@@ -341,6 +341,48 @@ export default function EditSaasProfileForm({
             </div>
           </div>
 
+          {/* Industry */}
+          <div>
+            <label className="block text-sm font-medium text-[#374151] mb-2">
+              {tSettings("industry")} *
+            </label>
+            <select
+              name="industry"
+              required
+              defaultValue={saasCompany.industry || ""}
+              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
+            >
+              <option value="">{t("selectIndustry")}</option>
+              <option value="SaaS">SaaS</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Finance">Finance</option>
+              <option value="E-commerce">E-commerce</option>
+              <option value="Productivité">Productivité</option>
+              <option value="RH">Ressources Humaines</option>
+              <option value="Ventes">Ventes</option>
+              <option value="Autre">Autre</option>
+            </select>
+          </div>
+
+          {/* Country */}
+          <div>
+            <label className="block text-sm font-medium text-[#374151] mb-2">
+              {tSettings("country")}
+            </label>
+            <select
+              name="country"
+              defaultValue={saasCompany.country || ""}
+              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
+            >
+              <option value="">{t("selectCountry")}</option>
+              {COUNTRIES.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Media pack (links & files) */}
           <div>
             <label className="block text-sm font-medium text-[#374151] mb-2">
@@ -426,48 +468,6 @@ export default function EditSaasProfileForm({
                 </ul>
               )}
             </div>
-          </div>
-
-          {/* Industry */}
-          <div>
-            <label className="block text-sm font-medium text-[#374151] mb-2">
-              {tSettings("industry")} *
-            </label>
-            <select
-              name="industry"
-              required
-              defaultValue={saasCompany.industry || ""}
-              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
-            >
-              <option value="">{t("selectIndustry")}</option>
-              <option value="SaaS">SaaS</option>
-              <option value="Marketing">Marketing</option>
-              <option value="Finance">Finance</option>
-              <option value="E-commerce">E-commerce</option>
-              <option value="Productivité">Productivité</option>
-              <option value="RH">Ressources Humaines</option>
-              <option value="Ventes">Ventes</option>
-              <option value="Autre">Autre</option>
-            </select>
-          </div>
-
-          {/* Country */}
-          <div>
-            <label className="block text-sm font-medium text-[#374151] mb-2">
-              {tSettings("country")}
-            </label>
-            <select
-              name="country"
-              defaultValue={saasCompany.country || ""}
-              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
-            >
-              <option value="">{t("selectCountry")}</option>
-              {COUNTRIES.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
           </div>
 
           <div className="flex gap-3 pt-4">

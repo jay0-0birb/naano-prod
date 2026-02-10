@@ -57,6 +57,7 @@ export default function SettingsClient({
   const router = useRouter();
   const t = useTranslations("settings");
   const tFinances = useTranslations("finances");
+  const tOnboarding = useTranslations("onboarding");
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showEditCreatorProfile, setShowEditCreatorProfile] = useState(false);
   const [showEditSaasProfile, setShowEditSaasProfile] = useState(false);
@@ -573,6 +574,72 @@ export default function SettingsClient({
                   {saasCompany.industry || "-"}
                 </span>
               </div>
+
+              {/* Media pack summary (last) */}
+              {(() => {
+                const raw = saasCompany.media_pack_url as
+                  | string
+                  | null
+                  | undefined;
+                if (!raw || !raw.trim()) return null;
+
+                type MediaItem = { label: string; url: string };
+                let items: MediaItem[] = [];
+                const trimmed = raw.trim();
+
+                try {
+                  const parsed = JSON.parse(trimmed);
+                  if (Array.isArray(parsed)) {
+                    items = parsed
+                      .map((item) => {
+                        const url =
+                          typeof item?.url === "string" ? item.url.trim() : "";
+                        if (!url) return null;
+                        const labelRaw =
+                          typeof item?.label === "string"
+                            ? item.label.trim()
+                            : "";
+                        return {
+                          label:
+                            labelRaw || tOnboarding("mediaPackDefaultLabel"),
+                          url,
+                        };
+                      })
+                      .filter((i): i is MediaItem => i !== null);
+                  }
+                } catch {
+                  // Fallback: single URL
+                  items = [
+                    {
+                      label: tOnboarding("mediaPack"),
+                      url: trimmed,
+                    },
+                  ];
+                }
+
+                if (items.length === 0) return null;
+
+                return (
+                  <div className="py-3 border-t border-gray-200">
+                    <span className="text-sm text-[#6B7280] block mb-1">
+                      {t("mediaPack")}
+                    </span>
+                    <div className="space-y-1">
+                      {items.map((item) => (
+                        <a
+                          key={`${item.label}-${item.url}`}
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block text-xs text-[#1D4ED8] hover:text-[#1E40AF] truncate"
+                        >
+                          {item.label}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         )}
