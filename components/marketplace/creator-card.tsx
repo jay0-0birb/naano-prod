@@ -64,13 +64,13 @@ export default function CreatorCard({
         })()
       : null;
 
-  const industries =
-    (creator.expertise_sectors && creator.expertise_sectors.length > 0
+  const industries = (
+    creator.expertise_sectors && creator.expertise_sectors.length > 0
       ? creator.expertise_sectors
       : creator.theme
         ? [creator.theme]
         : []
-    ).slice(0, 3);
+  ).slice(0, 3);
 
   const handleInvite = async () => {
     if (!saasCompanyId || !inviteMessage.trim()) return;

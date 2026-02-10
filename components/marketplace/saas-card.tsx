@@ -125,9 +125,9 @@ export default function SaasCard({
 
         {/* Middle section: description + budget */}
         <div className="flex-1 min-h-0 flex flex-col shrink-0">
-          {/* Description: max 56px — scrolls when content exceeds it */}
+          {/* Description: max ~72px — scrolls when content exceeds it */}
           <div
-            style={{ height: 40, maxHeight: 40 }}
+            style={{ height: 72, maxHeight: 72 }}
             className="shrink-0 overflow-y-auto overflow-x-hidden rounded overscroll-contain"
           >
             <p className="text-[#64748B] text-sm break-words pr-1">
