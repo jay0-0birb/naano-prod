@@ -188,6 +188,7 @@ export async function updateSaasProfile(formData: FormData) {
   const industry = formData.get("industry") as string;
   const conditions = formData.get("conditions") as string;
   const country = (formData.get("country") as string)?.trim() || null;
+  const mediaPackUrl = (formData.get("mediaPackUrl") as string | null) || null;
   const logoFile = formData.get("logo") as File | null;
   const removeLogo = formData.get("removeLogo") === "true";
 
@@ -206,6 +207,8 @@ export async function updateSaasProfile(formData: FormData) {
     industry,
     conditions,
     country,
+    media_pack_url:
+      mediaPackUrl && mediaPackUrl.trim() !== "" ? mediaPackUrl : null,
   };
   if (logoUrl !== undefined) updateData.logo_url = logoUrl;
 

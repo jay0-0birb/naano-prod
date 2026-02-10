@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Building2, ExternalLink, Send } from "lucide-react";
+import { Building2, ExternalLink, Send, X } from "lucide-react";
 import type { SaasCompanyWithProfile } from "@/types/database";
 import ApplyModal from "./apply-modal";
 import BudgetWidget from "@/components/collaborations/budget-widget";
@@ -14,6 +14,50 @@ interface SaasCardProps {
   isFull?: boolean;
 }
 
+type MediaItem = {
+  label: string;
+  url: string;
+};
+
+function parseMediaPack(
+  raw: string | null,
+  fallbackLabel: string,
+): MediaItem[] {
+  if (!raw) return [];
+
+  const trimmed = raw.trim();
+  if (!trimmed) return [];
+
+  // Try JSON array format first
+  try {
+    const parsed = JSON.parse(trimmed);
+    if (Array.isArray(parsed)) {
+      return parsed
+        .map((item) => {
+          const url = typeof item?.url === "string" ? item.url.trim() : "";
+          if (!url) return null;
+          const labelRaw =
+            typeof item?.label === "string" ? item.label.trim() : "";
+          return {
+            label: labelRaw || fallbackLabel,
+            url,
+          };
+        })
+        .filter((i): i is MediaItem => i !== null);
+    }
+  } catch {
+    // ignore, will fallback below
+  }
+
+  // Fallback: treat as single URL
+  return [
+    {
+      label: fallbackLabel,
+      url: trimmed,
+    },
+  ];
+}
+
 export default function SaasCard({
   company,
   hasApplied,
@@ -21,8 +65,14 @@ export default function SaasCard({
   isFull,
 }: SaasCardProps) {
   const t = useTranslations("dashboard");
+  const onboardingT = useTranslations("onboarding");
   const [showModal, setShowModal] = useState(false);
   const [applied, setApplied] = useState(hasApplied);
+  const mediaItems = parseMediaPack(
+    company.media_pack_url,
+    onboardingT("mediaPack"),
+  );
+  const [showMediaModal, setShowMediaModal] = useState(false);
 
   return (
     <>
@@ -86,10 +136,7 @@ export default function SaasCard({
           </div>
           <div className="h-5 shrink-0" aria-hidden />
           {/* Budget area */}
-          <div
-            className="shrink-0 flex flex-col"
-            style={{ minHeight: "220px" }}
-          >
+          <div className="shrink-0 flex flex-col" style={{ minHeight: "220px" }}>
             {company.wallet_credits !== undefined ||
             company.credit_renewal_date ? (
               <BudgetWidget
@@ -99,6 +146,20 @@ export default function SaasCard({
               />
             ) : (
               <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 flex-1" />
+            )}
+          </div>
+
+          {/* Media pack button (space is reserved even when absent) */}
+          <div className="mt-3 shrink-0 h-9 flex items-center">
+            {mediaItems.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowMediaModal(true)}
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-[#1D4ED8] hover:text-[#1E40AF]"
+              >
+                {t("seeMedia")}
+                <ExternalLink className="w-3 h-3" />
+              </button>
             )}
           </div>
         </div>
@@ -148,6 +209,53 @@ export default function SaasCard({
             setShowModal(false);
           }}
         />
+      )}
+
+      {/* Media modal */}
+      {showMediaModal && mediaItems.length > 0 && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+          <div className="bg-white border border-gray-200 rounded-2xl shadow-xl max-w-md w-full p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h3 className="text-sm font-semibold text-[#111827]">
+                  {onboardingT("mediaPack")}
+                </h3>
+                <p className="text-xs text-[#64748B]">
+                  {company.company_name}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowMediaModal(false)}
+                className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+              >
+                <X className="w-4 h-4 text-[#64748B]" />
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              {mediaItems.map((item) => (
+                <a
+                  key={`${item.label}-${item.url}`}
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between gap-3 px-3 py-2 rounded-xl border border-gray-200 hover:border-[#1D4ED8] hover:bg-blue-50/30 transition-colors"
+                >
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-[#111827] truncate">
+                      {item.label}
+                    </p>
+                    <p className="text-[11px] text-[#6B7280] break-all">
+                      {item.url}
+                    </p>
+                  </div>
+                  <ExternalLink className="w-3 h-3 text-[#64748B] shrink-0" />
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

@@ -29,6 +29,7 @@ interface EditSaasProfileFormProps {
     conditions: string | null;
     country: string | null;
     logo_url?: string | null;
+    media_pack_url?: string | null;
   };
   onClose: () => void;
   onSuccess: () => void;
@@ -41,6 +42,7 @@ export default function EditSaasProfileForm({
 }: EditSaasProfileFormProps) {
   const t = useTranslations("forms");
   const tSettings = useTranslations("settings");
+  const tOnboarding = useTranslations("onboarding");
   const [isLoading, setIsLoading] = useState(false);
   const [fetchingLogo, setFetchingLogo] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,6 +58,49 @@ export default function EditSaasProfileForm({
     : (previewUrl ?? saasCompany.logo_url ?? null);
   const showImage = displayUrl && !imageLoadError;
   const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+
+  type MediaItem = {
+    label: string;
+    url: string;
+  };
+
+  const parseInitialMediaItems = (): MediaItem[] => {
+    const raw = saasCompany.media_pack_url;
+    if (!raw) return [];
+    const trimmed = raw.trim();
+    if (!trimmed) return [];
+
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) {
+        return parsed
+          .map((item) => {
+            const url = typeof item?.url === "string" ? item.url.trim() : "";
+            if (!url) return null;
+            const labelRaw =
+              typeof item?.label === "string" ? item.label.trim() : "";
+            return {
+              label: labelRaw || tOnboarding("mediaPackDefaultLabel"),
+              url,
+            };
+          })
+          .filter((i): i is MediaItem => i !== null);
+      }
+    } catch {
+      // ignore and fall back
+    }
+
+    return [
+      {
+        label: tOnboarding("mediaPack"),
+        url: trimmed,
+      },
+    ];
+  };
+
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>(parseInitialMediaItems());
+  const [mediaLabelInput, setMediaLabelInput] = useState("");
+  const [mediaUrlInput, setMediaUrlInput] = useState("");
 
   const handleFetchLogo = async () => {
     const website =
@@ -116,6 +161,11 @@ export default function EditSaasProfileForm({
     try {
       const formData = new FormData(event.currentTarget);
       if (removeLogo) formData.set("removeLogo", "true");
+      if (mediaItems.length > 0) {
+        formData.set("mediaPackUrl", JSON.stringify(mediaItems));
+      } else {
+        formData.set("mediaPackUrl", "");
+      }
       const result = await updateSaasProfile(formData);
 
       if (result?.error) {
@@ -288,6 +338,93 @@ export default function EditSaasProfileForm({
               placeholder={t("websitePlaceholder")}
                 className="w-full bg-white border border-gray-200 rounded-xl pl-12 pr-4 py-3 text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
               />
+            </div>
+          </div>
+
+          {/* Media pack (links & files) */}
+          <div>
+            <label className="block text-sm font-medium text-[#374151] mb-2">
+              {tOnboarding("mediaPack")}
+            </label>
+            <p className="text-xs text-[#6B7280] mb-2">
+              {tOnboarding("mediaPackMultipleHint")}
+            </p>
+
+            <div className="space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)_auto] gap-2">
+                <input
+                  type="text"
+                  value={mediaLabelInput}
+                  onChange={(e) => setMediaLabelInput(e.target.value)}
+                  placeholder={tOnboarding("mediaPackLabelPlaceholder")}
+                  className="bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/40"
+                />
+                <input
+                  type="url"
+                  value={mediaUrlInput}
+                  onChange={(e) => setMediaUrlInput(e.target.value)}
+                  placeholder={tOnboarding("mediaPackUrlPlaceholder")}
+                  className="bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/40"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const url = mediaUrlInput.trim();
+                    if (!url) return;
+                    const label =
+                      mediaLabelInput.trim() ||
+                      tOnboarding("mediaPackDefaultLabel");
+                    setMediaItems((prev) => [
+                      ...prev,
+                      {
+                        label,
+                        url,
+                      },
+                    ]);
+                    setMediaLabelInput("");
+                    setMediaUrlInput("");
+                  }}
+                  disabled={mediaUrlInput.trim().length === 0}
+                  className="px-3 py-2 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {tOnboarding("addMediaLink")}
+                </button>
+              </div>
+              <p className="text-[11px] text-[#9CA3AF]">
+                {tOnboarding("mediaPackUrlHelper")}
+              </p>
+
+              {/* Existing items */}
+              {mediaItems.length > 0 && (
+                <ul className="mt-2 space-y-1">
+                  {mediaItems.map((item, index) => (
+                    <li
+                      key={`${item.url}-${index}`}
+                      className="flex items-center justify-between gap-3 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-xs font-medium text-[#111827] truncate">
+                          {item.label}
+                        </p>
+                        <p className="text-[11px] text-[#6B7280] break-all">
+                          {item.url}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setMediaItems((prev) =>
+                            prev.filter((_, i) => i !== index),
+                          )
+                        }
+                        className="text-[11px] text-[#6B7280] hover:text-red-600"
+                      >
+                        {tOnboarding("removeMediaLink")}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
 
