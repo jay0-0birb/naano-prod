@@ -904,6 +904,9 @@
     "clickToAddPhoto": "Click to add photo",
     "addPhoto": "Add photo",
     "photoFormatsHint": "JPG, PNG, WebP or GIF. Max 2MB.",
+    "adjustPhoto": "Adjust your profile photo",
+    "zoom": "Zoom",
+    "apply": "Apply",
     "emailNotEditable": "Email cannot be changed here. Contact support if needed."
   },
   "collaborationDetail": {

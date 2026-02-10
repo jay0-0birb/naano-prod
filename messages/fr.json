@@ -904,6 +904,9 @@
     "addPhoto": "Ajouter une photo",
     "removePhoto": "Supprimer la photo",
     "photoFormatsHint": "JPG, PNG, WebP ou GIF. Max 2 Mo.",
+    "adjustPhoto": "Ajustez votre photo de profil",
+    "zoom": "Zoom",
+    "apply": "Appliquer",
     "emailNotEditable": "L'email ne peut pas être modifié",
     "companyDescriptionPlaceholder": "Décrivez votre entreprise et ce que vous proposez...",
     "websitePlaceholder": "https://votre-site.com"

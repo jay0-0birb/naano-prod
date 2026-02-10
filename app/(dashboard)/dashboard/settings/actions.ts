@@ -96,6 +96,10 @@ export async function updateProfile(formData: FormData) {
   const removeAvatar = formData.get("removeAvatar") === "true";
 
   let avatarUrl: string | null | undefined = undefined;
+  console.log("[updateProfile] received avatar file", {
+    size: avatarFile?.size,
+    type: avatarFile?.type,
+  });
   if (removeAvatar) {
     avatarUrl = null;
   } else if (avatarFile && avatarFile.size > 0) {
@@ -105,6 +109,7 @@ export async function updateProfile(formData: FormData) {
 
   const updateData: Record<string, string | null> = { full_name: fullName };
   if (avatarUrl !== undefined) updateData.avatar_url = avatarUrl;
+  console.log("[updateProfile] updating profile with", updateData);
 
   const { error } = await supabase
     .from("profiles")
