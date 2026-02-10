@@ -426,29 +426,14 @@ export default function SettingsClient({
           </div>
         </div>
 
-        {/* Creator Profile Section */}
+        {/* Creator Card Section */}
         {isCreator && creatorProfile && (
           <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                {profile?.avatar_url ? (
-                  <div className="w-10 h-10 rounded-full overflow-hidden relative shrink-0">
-                    <Image
-                      src={profile.avatar_url}
-                      alt={profile?.full_name || "Avatar"}
-                      fill
-                      className="object-cover"
-                      sizes="40px"
-                    />
-                  </div>
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
-                    <User className="w-5 h-5 text-[#1D4ED8]" />
-                  </div>
-                )}
                 <div>
                   <h3 className="font-medium text-[#111827]">
-                    {t("creatorProfile")}
+                    {t("creatorCard")}
                   </h3>
                   <p className="text-xs text-[#64748B]">
                     {t("professionalInfo")}
