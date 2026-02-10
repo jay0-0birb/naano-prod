@@ -2,13 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import {
-  Linkedin,
-  Users,
-  CheckCircle2,
-  XCircle,
-  Loader2,
-} from "lucide-react";
+import { Linkedin, Users, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { updateApplicationStatus } from "@/app/(dashboard)/dashboard/candidates/actions";
 
 interface CreatorProfile {
@@ -120,7 +114,10 @@ export default function CandidateCard({
           <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-1.5 text-[#64748B]">
               <Users className="w-4 h-4" />
-              <span>{creator.followers_count.toLocaleString()} {tDashboard("followers")}</span>
+              <span>
+                {creator.followers_count.toLocaleString()}{" "}
+                {tDashboard("followers")}
+              </span>
             </div>
             {creator.theme && (
               <span className="text-xs px-2 py-0.5 bg-gray-100 text-[#4B5563] rounded-full capitalize">
@@ -161,8 +158,10 @@ export default function CandidateCard({
 
       {/* Bio */}
       {creator.bio && (
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-          <p className="text-sm text-[#4B5563] line-clamp-2">{creator.bio}</p>
+        <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200 max-h-32 overflow-y-auto">
+          <p className="text-sm text-[#4B5563] whitespace-pre-wrap">
+            {creator.bio}
+          </p>
         </div>
       )}
 
@@ -185,35 +184,37 @@ export default function CandidateCard({
             </p>
           )}
           <div className="flex gap-3">
-          <button
-            onClick={() => handleAction("rejected")}
-            disabled={isLoading !== null}
-            className="flex-1 py-2.5 bg-white hover:bg-rose-50 text-[#111827] hover:text-rose-700 border border-gray-200 hover:border-rose-200 rounded-xl text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {isLoading === "reject" ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <>
-                <XCircle className="w-4 h-4" />
-                {t("reject")}
-              </>
-            )}
-          </button>
-          <button
-            onClick={() => handleAction("accepted")}
-            disabled={isLoading !== null || !canAcceptCollaborations}
-            title={!canAcceptCollaborations ? t("addCreditsToAccept") : undefined}
-            className="flex-1 py-2.5 bg-[#0F172A] hover:bg-[#020617] text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {isLoading === "accept" ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <>
-                <CheckCircle2 className="w-4 h-4" />
-                {t("accept")}
-              </>
-            )}
-          </button>
+            <button
+              onClick={() => handleAction("rejected")}
+              disabled={isLoading !== null}
+              className="flex-1 py-2.5 bg-white hover:bg-rose-50 text-[#111827] hover:text-rose-700 border border-gray-200 hover:border-rose-200 rounded-xl text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isLoading === "reject" ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  <XCircle className="w-4 h-4" />
+                  {t("reject")}
+                </>
+              )}
+            </button>
+            <button
+              onClick={() => handleAction("accepted")}
+              disabled={isLoading !== null || !canAcceptCollaborations}
+              title={
+                !canAcceptCollaborations ? t("addCreditsToAccept") : undefined
+              }
+              className="flex-1 py-2.5 bg-[#0F172A] hover:bg-[#020617] text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isLoading === "accept" ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  <CheckCircle2 className="w-4 h-4" />
+                  {t("accept")}
+                </>
+              )}
+            </button>
           </div>
         </div>
       )}

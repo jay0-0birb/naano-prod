@@ -100,9 +100,7 @@ export default async function ApplicationsPage() {
         <h2 className="text-2xl font-semibold text-[#111827] mb-1">
           {t("myApplications")}
         </h2>
-        <p className="text-[#64748B] text-sm">
-          {t("trackStatus")}
-        </p>
+        <p className="text-[#64748B] text-sm">{t("trackStatus")}</p>
       </div>
 
       {/* Applications List */}
@@ -169,8 +167,8 @@ export default async function ApplicationsPage() {
 
                 {/* Message Preview */}
                 {application.message && (
-                  <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
-                    <p className="text-sm text-[#64748B] line-clamp-2">
+                  <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-100 max-h-32 overflow-y-auto">
+                    <p className="text-sm text-[#64748B] whitespace-pre-wrap">
                       {application.message}
                     </p>
                   </div>
