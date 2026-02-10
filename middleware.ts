@@ -1,9 +1,9 @@
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { updateSession } from "@/lib/supabase/middleware";
 
 const BLOCKED_COUNTRIES = new Set<string>(["IN"]);
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const country = request.headers.get("x-vercel-ip-country") || "";
 
   if (BLOCKED_COUNTRIES.has(country)) {
@@ -14,18 +14,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.rewrite(url);
   }
 
-  return NextResponse.next();
-}
-
-export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
-};
-
-import { type NextRequest } from 'next/server'
-import { updateSession } from '@/lib/supabase/middleware'
-
-export async function middleware(request: NextRequest) {
-  return await updateSession(request)
+  // Preserve existing Supabase session handling for all other traffic.
+  return updateSession(request);
 }
 
 export const config = {
@@ -37,7 +27,7 @@ export const config = {
      * - favicon.ico (favicon file)
      * Feel free to modify this pattern to include more paths.
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|pdf)$).*)',
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|pdf)$).*)",
   ],
-}
+};
 
