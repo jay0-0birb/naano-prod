@@ -111,9 +111,11 @@ export default function EditProfileForm({ profile, websiteUrl, onClose, onSucces
       const blob = await getCroppedImageBlob(
         cropImageSrc,
         croppedAreaPixels,
-        "image/png",
+        "image/jpeg",
       );
-      const croppedFile = new File([blob], "avatar.png", { type: "image/png" });
+      const croppedFile = new File([blob], "avatar.jpg", {
+        type: "image/jpeg",
+      });
 
       // Update preview
       const previewObjectUrl = URL.createObjectURL(croppedFile);
