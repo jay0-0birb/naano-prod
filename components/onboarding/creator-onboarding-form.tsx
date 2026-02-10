@@ -44,7 +44,7 @@ export default function CreatorOnboardingForm() {
   const [legalStatus, setLegalStatus] = useState<
     "particulier" | "professionnel"
   >("particulier");
-  const [theme, setTheme] = useState<string>("");
+  const [selectedThemes, setSelectedThemes] = useState<string[]>([]);
   const [companyCountry, setCompanyCountry] = useState<string>("");
   const [country, setCountry] = useState<string>("");
   const [city, setCity] = useState<string>("");
@@ -98,7 +98,13 @@ export default function CreatorOnboardingForm() {
     const formData = new FormData(formElement);
 
     formData.append("legalStatus", legalStatus);
-    formData.append("theme", theme);
+
+    // Ensure server receives both primary theme and full list
+    const primaryTheme = selectedThemes[0] || "";
+    formData.append("theme", primaryTheme);
+    selectedThemes.forEach((value) => {
+      formData.append("themes", value);
+    });
 
     // Additional validation for professional/company creators
     if (legalStatus === "professionnel") {
@@ -409,20 +415,49 @@ export default function CreatorOnboardingForm() {
           <label className="block text-sm font-medium text-[#475569] mb-2">
             {t("industry")}
           </label>
-          <select
+          <p className="text-xs text-[#64748B] mb-2">
+            Select up to 3 industries that best describe you.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {THEMES.map((themeOption) => {
+              const isSelected = selectedThemes.includes(themeOption);
+              const disabled =
+                !isSelected && selectedThemes.length >= 3;
+              return (
+                <button
+                  key={themeOption}
+                  type="button"
+                  onClick={() => {
+                    setSelectedThemes((prev) => {
+                      const already = prev.includes(themeOption);
+                      if (already) {
+                        return prev.filter((t) => t !== themeOption);
+                      }
+                      if (prev.length >= 3) return prev;
+                      return [...prev, themeOption];
+                    });
+                  }}
+                  disabled={disabled}
+                  className={`px-3 py-1 rounded-full border text-xs transition-all ${
+                    isSelected
+                      ? "bg-blue-600 border-blue-600 text-white"
+                      : "bg-white border-gray-200 text-[#111827] hover:border-blue-400"
+                  } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  {themeOption}
+                </button>
+              );
+            })}
+          </div>
+          {/* Hidden inputs to submit selected themes */}
+          {selectedThemes.map((value) => (
+            <input key={value} type="hidden" name="themes" value={value} />
+          ))}
+          <input
+            type="hidden"
             name="theme"
-            required
-            value={theme}
-            onChange={(e) => setTheme(e.target.value)}
-            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all"
-          >
-            <option value="">{t("selectIndustry")}</option>
-            {THEMES.map((themeOption) => (
-              <option key={themeOption} value={themeOption}>
-                {themeOption}
-              </option>
-            ))}
-          </select>
+            value={selectedThemes[0] || ""}
+          />
         </div>
 
         <div>

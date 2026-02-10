@@ -28,6 +28,7 @@ interface EditCreatorProfileFormProps {
     followers_count: number;
     theme: string | null;
     country: string | null;
+    expertise_sectors?: string[] | null;
   };
   stripeConnected?: boolean;
   onClose: () => void;
@@ -44,7 +45,12 @@ export default function EditCreatorProfileForm({
   const tSettings = useTranslations("settings");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [theme, setTheme] = useState<string>(creatorProfile.theme || "");
+  const [selectedThemes, setSelectedThemes] = useState<string[]>(
+    (creatorProfile.expertise_sectors &&
+      creatorProfile.expertise_sectors.length > 0 &&
+      creatorProfile.expertise_sectors) ||
+      (creatorProfile.theme ? [creatorProfile.theme] : []),
+  );
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -52,7 +58,12 @@ export default function EditCreatorProfileForm({
     setError(null);
 
     const formData = new FormData(event.currentTarget);
-    formData.append("theme", theme);
+
+    const primaryTheme = selectedThemes[0] || "";
+    formData.append("theme", primaryTheme);
+    selectedThemes.forEach((value) => {
+      formData.append("themes", value);
+    });
 
     const result = await updateCreatorProfile(formData);
 
@@ -161,24 +172,54 @@ export default function EditCreatorProfileForm({
             )}
           </div>
 
-          {/* Theme */}
+          {/* Industries (up to 3) */}
           <div>
             <label className="block text-sm font-medium text-[#374151] mb-2">
               {tSettings("industry")}
             </label>
-            <select
+            <p className="text-xs text-[#6B7280] mb-2">
+              Select up to 3 industries that describe your audience.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {INDUSTRIES.map((industry) => {
+                const isSelected = selectedThemes.includes(industry);
+                const disabled =
+                  !isSelected && selectedThemes.length >= 3;
+                return (
+                  <button
+                    key={industry}
+                    type="button"
+                    onClick={() => {
+                      setSelectedThemes((prev) => {
+                        const already = prev.includes(industry);
+                        if (already) {
+                          return prev.filter((t) => t !== industry);
+                        }
+                        if (prev.length >= 3) return prev;
+                        return [...prev, industry];
+                      });
+                    }}
+                    disabled={disabled}
+                    className={`px-3 py-1 rounded-full border text-xs transition-all ${
+                      isSelected
+                        ? "bg-blue-600 border-blue-600 text-white"
+                        : "bg-white border-gray-200 text-[#111827] hover:border-blue-400"
+                    } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    {industry}
+                  </button>
+                );
+              })}
+            </div>
+            {/* Hidden inputs for server */}
+            {selectedThemes.map((value) => (
+              <input key={value} type="hidden" name="themes" value={value} />
+            ))}
+            <input
+              type="hidden"
               name="theme"
-              value={theme}
-              onChange={(e) => setTheme(e.target.value)}
-              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
-            >
-              <option value="">{t("selectIndustry")}</option>
-              {INDUSTRIES.map((industry) => (
-                <option key={industry} value={industry}>
-                  {industry}
-                </option>
-              ))}
-            </select>
+              value={selectedThemes[0] || ""}
+            />
           </div>
 
           <div className="flex gap-3 pt-4">

@@ -160,7 +160,13 @@ export async function completeCreatorOnboarding(formData: FormData) {
     followersCountRaw && followersCountRaw.trim() !== ""
       ? Number.parseInt(followersCountRaw, 10) || 0
       : 0;
-  const theme = formData.get("theme") as string | null;
+  const themesFromForm = formData.getAll("themes") as string[] | null;
+  const cleanedThemes =
+    themesFromForm
+      ?.map((t) => (t || "").toString().trim())
+      .filter((t) => t.length > 0) || [];
+  const theme =
+    (formData.get("theme") as string | null) || cleanedThemes[0] || null;
   const bio = formData.get("bio") as string | null;
   const recentPostsLinkedin = formData.get("recentPostsLinkedin") as
     | string
@@ -201,6 +207,8 @@ export async function completeCreatorOnboarding(formData: FormData) {
     linkedin_url: linkedinUrl,
     followers_count: followersCount,
     theme: theme || null,
+    expertise_sectors:
+      cleanedThemes.length > 0 ? cleanedThemes.slice(0, 3) : null,
     bio: bio || null,
     legal_status: legalStatus || "particulier",
     mandate_accepted_at: new Date().toISOString(),

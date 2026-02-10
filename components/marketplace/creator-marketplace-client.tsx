@@ -2,9 +2,10 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Search, Filter, Users as UsersIcon, Wallet } from "lucide-react";
 import CreatorCard from "@/components/marketplace/creator-card";
+import { COUNTRIES } from "@/lib/countries";
 
 export interface CreatorMarketplaceCreator {
   id: string;
@@ -12,6 +13,7 @@ export interface CreatorMarketplaceCreator {
   linkedin_url: string | null;
   followers_count: number;
   theme: string | null;
+   expertise_sectors?: string[] | null;
   country: string | null;
   is_pro?: boolean;
   profiles: {
@@ -36,6 +38,7 @@ export default function CreatorMarketplaceClient({
   saasCompanyId,
   walletCredits = 0,
 }: CreatorMarketplaceClientProps) {
+  const locale = useLocale();
   const tDashboard = useTranslations("dashboard");
   const tOnboarding = useTranslations("onboarding");
   const tLeadFeed = useTranslations("leadFeed");
@@ -51,24 +54,33 @@ export default function CreatorMarketplaceClient({
   const hasActiveFilters =
     !!countryFilter || !!industryFilter || minFollowers > 0;
 
-  const uniqueCountries = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          creators
-            .map((creator) => creator.country)
-            .filter((country): country is string => !!country && country.trim() !== ""),
-        ),
-      ).sort(),
-    [creators],
-  );
+  const getCreatorIndustries = (creator: CreatorMarketplaceCreator) => {
+    if (creator.expertise_sectors && creator.expertise_sectors.length > 0) {
+      return creator.expertise_sectors;
+    }
+    return creator.theme ? [creator.theme] : [];
+  };
+
+  const uniqueCountries = useMemo(() => {
+    const codes = Array.from(
+      new Set(
+        creators
+          .map((creator) => creator.country)
+          .filter(
+            (country): country is string =>
+              !!country && country.trim() !== "",
+          ),
+      ),
+    );
+    return codes.sort();
+  }, [creators]);
 
   const uniqueIndustries = useMemo(
     () =>
       Array.from(
         new Set(
           creators
-            .map((creator) => creator.theme)
+            .flatMap((creator) => getCreatorIndustries(creator))
             .filter((theme): theme is string => !!theme && theme.trim() !== ""),
         ),
       ).sort(),
@@ -93,9 +105,13 @@ export default function CreatorMarketplaceClient({
       list = list.filter((creator) => {
         const name = creator.profiles.full_name?.toLowerCase() || "";
         const bio = creator.bio?.toLowerCase() || "";
-        const theme = creator.theme?.toLowerCase() || "";
+        const industries = getCreatorIndustries(creator)
+          .join(" ")
+          .toLowerCase();
         return (
-          name.includes(query) || bio.includes(query) || theme.includes(query)
+          name.includes(query) ||
+          bio.includes(query) ||
+          industries.includes(query)
         );
       });
     }
@@ -112,7 +128,9 @@ export default function CreatorMarketplaceClient({
       const industryLower = industryFilter.toLowerCase();
       list = list.filter(
         (creator) =>
-          creator.theme?.toLowerCase() === industryLower,
+          getCreatorIndustries(creator)
+            .map((t) => t.toLowerCase())
+            .includes(industryLower),
       );
     }
 
@@ -205,11 +223,26 @@ export default function CreatorMarketplaceClient({
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm text-[#111827] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10"
                 >
                   <option value="">{tDashboard("allCountries")}</option>
-                  {uniqueCountries.map((country) => (
-                    <option key={country} value={country}>
-                      {country}
-                    </option>
-                  ))}
+                  {uniqueCountries.map((country) => {
+                    const upper = country.toUpperCase();
+                    let label =
+                      COUNTRIES.find((c) => c.code === upper)?.name || country;
+
+                    // Locale-aware label for Ivory Coast
+                    if (upper === "CI") {
+                      if (locale.startsWith("fr")) {
+                        label = "Côte d'Ivoire";
+                      } else if (locale.startsWith("en")) {
+                        label = "Ivory Coast";
+                      }
+                    }
+
+                    return (
+                      <option key={country} value={country}>
+                        {label}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
 

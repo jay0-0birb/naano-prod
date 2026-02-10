@@ -484,7 +484,10 @@ export default function SettingsClient({
               <div className="flex items-center justify-between py-3 border-b border-gray-200">
                 <span className="text-sm text-[#6B7280]">{t("industry")}</span>
                 <span className="text-sm text-[#111827]">
-                  {creatorProfile.theme || "-"}
+                  {creatorProfile.expertise_sectors &&
+                  creatorProfile.expertise_sectors.length > 0
+                    ? (creatorProfile.expertise_sectors as string[]).join(", ")
+                    : creatorProfile.theme || "-"}
                 </span>
               </div>
               <div className="flex items-center justify-between py-3">

@@ -8,7 +8,7 @@
 
 DO $$
 DECLARE
-  target_email text := 'jnamour1@gmail.com';
+  target_email text := 'rexrussell93@gmail.com';
   uid uuid;
 BEGIN
   SELECT id INTO uid FROM auth.users WHERE email = target_email;

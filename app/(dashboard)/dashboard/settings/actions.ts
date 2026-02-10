@@ -141,7 +141,13 @@ export async function updateCreatorProfile(formData: FormData) {
   );
   const followersCount =
     parseInt(formData.get("followersCount") as string) || 0;
-  const theme = (formData.get("theme") as string) || null;
+  const themesFromForm = formData.getAll("themes") as string[] | null;
+  const cleanedThemes =
+    themesFromForm
+      ?.map((t) => (t || "").toString().trim())
+      .filter((t) => t.length > 0) || [];
+  const theme =
+    (formData.get("theme") as string) || cleanedThemes[0] || null;
   const country = (formData.get("country") as string)?.trim() || null;
 
   const { error } = await supabase
@@ -151,6 +157,8 @@ export async function updateCreatorProfile(formData: FormData) {
       linkedin_url: linkedinUrl,
       followers_count: followersCount,
       theme: theme || null,
+      expertise_sectors:
+        cleanedThemes.length > 0 ? cleanedThemes.slice(0, 3) : null,
       country: country,
     })
     .eq("profile_id", user.id);

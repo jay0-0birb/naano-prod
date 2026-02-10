@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { COUNTRIES } from "@/lib/countries";
 import { Users, Mail, CheckCircle2, Loader2, Crown } from "lucide-react";
 import { inviteCreator } from "@/app/(dashboard)/dashboard/marketplace/actions";
 
@@ -12,6 +13,7 @@ interface CreatorCardProps {
     linkedin_url: string | null;
     followers_count: number;
     theme: string | null;
+    expertise_sectors?: string[] | null;
     country?: string | null;
     is_pro?: boolean; // Pro status
     profiles: {
@@ -34,10 +36,41 @@ export default function CreatorCard({
   canInviteCreators = true,
 }: CreatorCardProps) {
   const t = useTranslations("dashboard");
+  const locale = useLocale();
   const [isInviting, setIsInviting] = useState(false);
   const [invited, setInvited] = useState(hasInvited);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteMessage, setInviteMessage] = useState("");
+
+  const countryLabel =
+    creator.country && creator.country.trim().length > 0
+      ? (() => {
+          const value = creator.country.trim();
+          const upper = value.toUpperCase();
+
+          // Special-case Ivory Coast with locale-aware naming
+          if (upper === "CI") {
+            if (locale.startsWith("fr")) return "Côte d'Ivoire";
+            if (locale.startsWith("en")) return "Ivory Coast";
+            return "Côte d'Ivoire";
+          }
+
+          // Prefer our explicit COUNTRIES mapping for other codes
+          const fromCode = COUNTRIES.find((c) => c.code === upper)?.name;
+          if (fromCode) return fromCode;
+
+          // Fallback: if the stored value is already a full name, keep it.
+          return value;
+        })()
+      : null;
+
+  const industries =
+    (creator.expertise_sectors && creator.expertise_sectors.length > 0
+      ? creator.expertise_sectors
+      : creator.theme
+        ? [creator.theme]
+        : []
+    ).slice(0, 3);
 
   const handleInvite = async () => {
     if (!saasCompanyId || !inviteMessage.trim()) return;
@@ -61,10 +94,10 @@ export default function CreatorCard({
 
   return (
     <>
-      <div className="flex flex-col bg-white border border-gray-200 rounded-2xl p-6 hover:border-gray-300 hover:shadow-md transition-all shadow-sm min-h-[280px] max-h-[280px]">
+      <div className="flex flex-col bg-white border border-gray-200 rounded-2xl p-6 hover:border-gray-300 hover:shadow-md transition-all shadow-sm min-h-[390px] max-h-[390px]">
         <div className="flex-1">
           {/* Avatar & Name */}
-          <div className="flex items-start gap-4 mb-4">
+          <div className="flex items-start gap-4 mb-2">
             {creator.profiles.avatar_url ? (
               <img
                 src={creator.profiles.avatar_url}
@@ -88,37 +121,41 @@ export default function CreatorCard({
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-2 text-[#64748B] text-sm mb-1">
+              <div className="flex items-center gap-2 text-[#64748B] text-sm">
                 <Users className="w-4 h-4" />
                 <span>
                   {creator.followers_count.toLocaleString()} {t("followers")}
                 </span>
               </div>
-              {(creator.theme || creator.country) && (
-                <div className="mb-1 flex flex-wrap items-center gap-2">
-                  {creator.theme && (
-                    <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md border border-blue-100 capitalize">
-                      {creator.theme}
-                    </span>
-                  )}
-                  {creator.country && (
-                    <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md border border-gray-200">
-                      {creator.country}
-                    </span>
-                  )}
-                </div>
-              )}
             </div>
           </div>
 
+          {/* Tags – fixed height so description always starts at the same position */}
+          <div
+            style={{ height: "64px" }}
+            className="mb-2 flex flex-wrap items-start gap-2 overflow-hidden"
+          >
+            {industries.map((industry) => (
+              <span
+                key={industry}
+                className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md border border-blue-100 capitalize"
+              >
+                {industry}
+              </span>
+            ))}
+            {countryLabel && (
+              <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md border border-gray-200">
+                {countryLabel}
+              </span>
+            )}
+          </div>
+
           {/* Bio */}
-          {creator.bio && (
-            <div className="mb-4 h-16 overflow-y-auto overflow-x-hidden pr-1">
-              <p className="text-[#64748B] text-sm">
-                {creator.bio}
-              </p>
-            </div>
-          )}
+          <div className="mb-4 h-24 overflow-y-auto overflow-x-hidden pr-1">
+            <p className="text-[#64748B] text-sm">
+              {creator.bio || t("noDescription")}
+            </p>
+          </div>
 
           {/* Theme is rendered under the name */}
         </div>
