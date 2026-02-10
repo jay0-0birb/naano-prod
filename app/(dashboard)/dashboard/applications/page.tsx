@@ -167,7 +167,7 @@ export default async function ApplicationsPage() {
 
                 {/* Message Preview */}
                 {application.message && (
-                  <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-100 max-h-32 overflow-y-auto">
+                  <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
                     <p className="text-sm text-[#64748B] whitespace-pre-wrap">
                       {application.message}
                     </p>

@@ -158,7 +158,7 @@ export default function CandidateCard({
 
       {/* Bio */}
       {creator.bio && (
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200 max-h-32 overflow-y-auto">
+        <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
           <p className="text-sm text-[#4B5563] whitespace-pre-wrap">
             {creator.bio}
           </p>
