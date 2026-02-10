@@ -270,26 +270,20 @@ export async function GET(
             
             <style>
               body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 display: flex;
                 justify-content: center;
                 align-items: center;
                 height: 100vh;
                 margin: 0;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-              }
-              .loader {
-                text-align: center;
+                background: #fff;
               }
               .spinner {
-                width: 40px;
-                height: 40px;
-                border: 3px solid rgba(255,255,255,0.3);
-                border-top-color: white;
+                width: 24px;
+                height: 24px;
+                border: 2px solid #e5e7eb;
+                border-top-color: #9ca3af;
                 border-radius: 50%;
-                animation: spin 1s linear infinite;
-                margin: 0 auto 16px;
+                animation: spin 0.8s linear infinite;
               }
               @keyframes spin {
                 to { transform: rotate(360deg); }
@@ -299,12 +293,8 @@ export async function GET(
           <body>
             <noscript>
               <meta http-equiv="refresh" content="0;url=${destinationUrl.toString().replace(/&/g, "&amp;").replace(/"/g, "&quot;")}">
-              <p>Redirecting...</p>
             </noscript>
-            <div class="loader">
-              <div class="spinner"></div>
-              <p>Redirecting...</p>
-            </div>
+            <div class="spinner"></div>
           </body>
         </html>
       `;
