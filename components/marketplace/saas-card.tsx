@@ -135,8 +135,8 @@ export default function SaasCard({
             </p>
           </div>
           <div className="h-5 shrink-0" aria-hidden />
-          {/* Budget area */}
-          <div className="shrink-0 flex flex-col" style={{ minHeight: "220px" }}>
+          {/* Budget area – reserved height so all cards align without cutting content */}
+          <div className="shrink-0 flex flex-col" style={{ minHeight: 220 }}>
             {company.wallet_credits !== undefined ||
             company.credit_renewal_date ? (
               <BudgetWidget
@@ -220,9 +220,7 @@ export default function SaasCard({
                 <h3 className="text-sm font-semibold text-[#111827]">
                   {onboardingT("mediaPack")}
                 </h3>
-                <p className="text-xs text-[#64748B]">
-                  {company.company_name}
-                </p>
+                <p className="text-xs text-[#64748B]">{company.company_name}</p>
               </div>
               <button
                 type="button"
