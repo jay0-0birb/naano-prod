@@ -450,7 +450,7 @@
     "completed": "Completed",
     "cancelled": "Cancelled",
     "startedOn": "Collaboration started on {date}",
-    "viewPosts": "View posts",
+    "viewCollaboration": "View collaboration →",
     "messages": "Messages",
     "noCollaborations": "No collaborations",
     "creatorEmpty": "You don't have any active collaborations yet. Apply to SaaS companies!",
