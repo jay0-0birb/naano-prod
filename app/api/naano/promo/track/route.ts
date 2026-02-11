@@ -44,6 +44,25 @@ export async function POST(request: NextRequest) {
     const ipAddress = getClientIP(request.headers);
     const userAgent = request.headers.get("user-agent") || "unknown";
 
+    // Self-click protection (private/incognito): if this IP was recently seen for this creator on the dashboard, do not count.
+    if (ipAddress && ipAddress !== "local") {
+      const { data: creatorRow } = await supabase
+        .from("creator_profiles")
+        .select("id, last_seen_ip, last_seen_ip_at")
+        .eq("id", creatorId)
+        .maybeSingle();
+      if (
+        creatorRow?.last_seen_ip === ipAddress &&
+        creatorRow?.last_seen_ip_at
+      ) {
+        const lastSeenAt = new Date(creatorRow.last_seen_ip_at).getTime();
+        const twentyFourHoursAgo = Date.now() - 24 * 60 * 60 * 1000;
+        if (lastSeenAt >= twentyFourHoursAgo) {
+          return NextResponse.json({ success: true });
+        }
+      }
+    }
+
     const { error } = await supabase.rpc("track_naano_promo_click", {
       p_creator_id: creatorId,
       p_ip_address: ipAddress,

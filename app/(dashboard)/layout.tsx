@@ -1,9 +1,13 @@
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
+import { getClientIP } from '@/lib/get-client-ip';
 import DashboardShell from '@/components/dashboard/dashboard-shell';
 import SessionValidator from '@/components/dashboard/session-validator';
 import CardValidator from '@/components/dashboard/card-validator';
 import OnboardingGuard from '@/components/dashboard/onboarding-guard';
+
+const CREATOR_IP_UPDATE_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
 
 export default async function DashboardLayout({
   children,
@@ -24,6 +28,40 @@ export default async function DashboardLayout({
     .select('*')
     .eq('id', user.id)
     .single();
+
+  // Record creator's IP for Naano promo self-click protection (throttled to once per hour)
+  if (profile?.role === 'creator') {
+    try {
+      const h = await headers();
+      const ip = getClientIP(h);
+      if (ip && ip !== 'local') {
+        const { data: creator } = await supabase
+          .from('creator_profiles')
+          .select('id, last_seen_ip, last_seen_ip_at')
+          .eq('profile_id', user.id)
+          .maybeSingle();
+        if (creator) {
+          const lastAt = creator.last_seen_ip_at ? new Date(creator.last_seen_ip_at).getTime() : 0;
+          const now = Date.now();
+          const shouldUpdate =
+            !creator.last_seen_ip_at ||
+            now - lastAt > CREATOR_IP_UPDATE_INTERVAL_MS ||
+            creator.last_seen_ip !== ip;
+          if (shouldUpdate) {
+            await supabase
+              .from('creator_profiles')
+              .update({
+                last_seen_ip: ip,
+                last_seen_ip_at: new Date().toISOString(),
+              })
+              .eq('id', creator.id);
+          }
+        }
+      }
+    } catch {
+      // Non-fatal; don't block dashboard load
+    }
+  }
 
   // Get card status for SaaS
   let cardOnFile = true; // Default to true (creators don't need card)
