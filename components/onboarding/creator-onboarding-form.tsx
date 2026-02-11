@@ -55,7 +55,7 @@ export default function CreatorOnboardingForm() {
   const [companyVatError, setCompanyVatError] = useState<string | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState<string | null>(null);
-  const AVATAR_MAX_SIZE = 2 * 1024 * 1024; // 2MB
+  const AVATAR_MAX_SIZE = 10 * 1024 * 1024; // 10MB
 
   const isEuCompany =
     companyCountry !== "" &&

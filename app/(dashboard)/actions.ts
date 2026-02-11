@@ -1,10 +1,13 @@
 "use server";
 
+import {
+  AVATAR_UPLOAD_MAX_BYTES,
+  compressImageForAvatar,
+} from "@/lib/avatar-upload";
 import { createClient } from "@/lib/supabase/server";
 import { normalizeLinkedInProfileUrl } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 
-const AVATAR_MAX_SIZE = 2 * 1024 * 1024; // 2MB
 const AVATAR_ALLOWED_TYPES = [
   "image/jpeg",
   "image/png",
@@ -17,15 +20,21 @@ async function uploadAvatarForUser(
   userId: string,
   file: File,
 ): Promise<string | null> {
-  if (file.size > AVATAR_MAX_SIZE) return null;
+  if (file.size > AVATAR_UPLOAD_MAX_BYTES) return null;
   if (!AVATAR_ALLOWED_TYPES.includes(file.type)) return null;
 
-  const ext = file.name.split(".").pop() || "jpg";
-  const path = `${userId}/avatar-${Date.now()}.${ext}`;
+  const path = `${userId}/avatar-${Date.now()}.jpg`;
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+  const compressed = await compressImageForAvatar(buffer);
 
   const { error } = await supabase.storage
     .from("avatars")
-    .upload(path, file, { cacheControl: "3600", upsert: true });
+    .upload(path, compressed, {
+      contentType: "image/jpeg",
+      cacheControl: "3600",
+      upsert: true,
+    });
 
   if (error) return null;
 

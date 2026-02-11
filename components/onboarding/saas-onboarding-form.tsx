@@ -51,7 +51,7 @@ export default function SaasOnboardingForm() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const [isDetectingAvatar, setIsDetectingAvatar] = useState(false);
-  const AVATAR_MAX_SIZE = 2 * 1024 * 1024; // 2MB
+  const AVATAR_MAX_SIZE = 10 * 1024 * 1024; // 10MB
   const websiteInputRef = useRef<HTMLInputElement | null>(null);
 
   async function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>) {

@@ -1,11 +1,13 @@
 "use server";
 
 import sharp from "sharp";
+import {
+  AVATAR_UPLOAD_MAX_BYTES,
+  compressImageForAvatar,
+} from "@/lib/avatar-upload";
 import { createClient } from "@/lib/supabase/server";
 import { normalizeLinkedInProfileUrl } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
-
-const AVATAR_MAX_SIZE = 2 * 1024 * 1024; // 2MB
 
 /** Trim padding and ensure square output - logo only, fits in circle */
 async function processLogoForAvatar(
@@ -62,15 +64,21 @@ async function uploadAvatar(
   file: File,
   filename: string,
 ): Promise<string | null> {
-  if (file.size > AVATAR_MAX_SIZE) return null;
+  if (file.size > AVATAR_UPLOAD_MAX_BYTES) return null;
   if (!AVATAR_ALLOWED_TYPES.includes(file.type)) return null;
 
-  const ext = file.name.split(".").pop() || "jpg";
-  const path = `${userId}/${filename}-${Date.now()}.${ext}`;
+  const path = `${userId}/${filename}-${Date.now()}.jpg`;
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+  const compressed = await compressImageForAvatar(buffer);
 
   const { error } = await supabase.storage
     .from("avatars")
-    .upload(path, file, { cacheControl: "3600", upsert: true });
+    .upload(path, compressed, {
+      contentType: "image/jpeg",
+      cacheControl: "3600",
+      upsert: true,
+    });
 
   if (error) return null;
 
@@ -265,12 +273,12 @@ export async function fetchLogoFromWebsite(websiteUrl: string) {
       return { error: "Aucun favicon trouvé pour ce site." };
 
     const arrayBuffer = await imgRes.arrayBuffer();
-    if (arrayBuffer.byteLength > AVATAR_MAX_SIZE)
-      return { error: "L'image est trop volumineuse (max 2 Mo)" };
+    if (arrayBuffer.byteLength > AVATAR_UPLOAD_MAX_BYTES)
+      return { error: "L'image est trop volumineuse (max 10 Mo)" };
 
     const trimmedBuffer = await processLogoForAvatar(arrayBuffer, contentType);
-    if (trimmedBuffer.length > AVATAR_MAX_SIZE)
-      return { error: "L'image est trop volumineuse (max 2 Mo)" };
+    if (trimmedBuffer.length > AVATAR_UPLOAD_MAX_BYTES)
+      return { error: "L'image est trop volumineuse (max 10 Mo)" };
 
     const path = `${user.id}/logo-${Date.now()}.png`;
 
@@ -337,12 +345,12 @@ export async function fetchAvatarFromWebsite(websiteUrl: string) {
       return { error: "Aucun favicon trouvé pour ce site." };
 
     const arrayBuffer = await imgRes.arrayBuffer();
-    if (arrayBuffer.byteLength > AVATAR_MAX_SIZE)
-      return { error: "L'image est trop volumineuse (max 2 Mo)" };
+    if (arrayBuffer.byteLength > AVATAR_UPLOAD_MAX_BYTES)
+      return { error: "L'image est trop volumineuse (max 10 Mo)" };
 
     const trimmedBuffer = await processLogoForAvatar(arrayBuffer, contentType);
-    if (trimmedBuffer.length > AVATAR_MAX_SIZE)
-      return { error: "L'image est trop volumineuse (max 2 Mo)" };
+    if (trimmedBuffer.length > AVATAR_UPLOAD_MAX_BYTES)
+      return { error: "L'image est trop volumineuse (max 10 Mo)" };
 
     const path = `${user.id}/avatar-${Date.now()}.png`;
 

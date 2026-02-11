@@ -57,7 +57,7 @@ export default function EditSaasProfileForm({
     ? null
     : (previewUrl ?? saasCompany.logo_url ?? null);
   const showImage = displayUrl && !imageLoadError;
-  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
   type MediaItem = {
     label: string;

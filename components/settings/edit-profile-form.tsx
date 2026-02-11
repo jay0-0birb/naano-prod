@@ -52,7 +52,7 @@ export default function EditProfileForm({ profile, websiteUrl, onClose, onSucces
   const hasPhoto = !removeAvatar && (previewUrl ?? profile.avatar_url ?? null);
   const displayUrl = removeAvatar ? null : (previewUrl ?? profile.avatar_url ?? null);
 
-  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
   const handleFetchAvatar = async () => {
     const url = websiteInputRef.current?.value?.trim() || websiteUrl?.trim();
