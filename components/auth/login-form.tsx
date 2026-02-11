@@ -22,8 +22,8 @@ export default function LoginForm() {
       setError(result.error);
       setIsLoading(false);
     } else {
-      // Redirection côté client après connexion réussie
-      window.location.href = '/dashboard';
+      // Redirect to onboarding first so we can route based on profile completion
+      window.location.href = '/dashboard/onboarding';
     }
   };
 

@@ -9,6 +9,7 @@ import {
   Users,
   Handshake,
   Wallet,
+  Settings,
 } from "lucide-react";
 
 export default async function DashboardPage() {
@@ -28,11 +29,12 @@ export default async function DashboardPage() {
     .single();
 
   const isCreator = profile?.role === "influencer";
-  const creatorProfileLocked = isCreator && !profile?.onboarding_completed;
+  const onboardingIncomplete = !profile?.onboarding_completed;
+  const creatorProfileLocked = isCreator && onboardingIncomplete;
+  const saasProfileLocked = !isCreator && onboardingIncomplete;
 
   // Fetch basic stats
   const stats = { collaborations: 0, pending: 0 };
-  let saasWalletCredits = 0;
 
   if (isCreator) {
     const { data: creatorProfile } = await supabase
@@ -60,12 +62,11 @@ export default async function DashboardPage() {
   } else {
     const { data: saasCompany } = await supabase
       .from("saas_companies")
-      .select("id, wallet_credits")
+      .select("id")
       .eq("profile_id", user.id)
       .single();
 
     if (saasCompany) {
-      saasWalletCredits = saasCompany.wallet_credits ?? 0;
       const [candidatesResult, collaborationsResult] = await Promise.all([
         supabase
           .from("applications")
@@ -259,35 +260,38 @@ export default async function DashboardPage() {
                 </div>
               </Link>
             )}
+            {creatorProfileLocked && (
+              <Link
+                href="/dashboard/onboarding"
+                className="group p-6 rounded-2xl border border-red-200 bg-white hover:bg-red-50 hover:border-red-300 transition-all shadow-sm"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center">
+                      <Settings className="w-6 h-6 text-red-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-[#111827]">
+                        {t("completeProfile")}
+                      </h4>
+                      <p className="text-sm text-red-700">
+                        {t("completeProfileToUnlock")}
+                      </p>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-red-500 group-hover:translate-x-1 transition-all" />
+                </div>
+              </Link>
+            )}
           </>
         ) : (
           <>
-            {saasWalletCredits <= 0 ? (
+            {saasProfileLocked ? (
               <>
-                <Link
-                  href="/dashboard/finances"
-                  className="group p-6 rounded-2xl border border-amber-200 bg-amber-50/50 hover:border-[#F59E0B] hover:bg-amber-50 transition-all shadow-sm"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
-                        <Wallet className="w-6 h-6 text-[#F59E0B]" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-[#111827]">
-                          {t("addCreditsFirst")}
-                        </h4>
-                        <p className="text-sm text-[#64748B]">
-                          {t("addCreditsToInviteAndAccept")}
-                        </p>
-                      </div>
-                    </div>
-                    <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#F59E0B] group-hover:translate-x-1 transition-all" />
-                  </div>
-                </Link>
+                {/* Same layout as unlocked SaaS overview, but greyed out and non-clickable */}
                 <div
                   className="p-6 rounded-2xl border border-gray-200 bg-gray-50 cursor-not-allowed select-none opacity-75"
-                  title={t("addCreditsToInviteAndAccept")}
+                  title={t("completeProfileToUnlock")}
                   aria-disabled="true"
                 >
                   <div className="flex items-center justify-between">
@@ -309,7 +313,7 @@ export default async function DashboardPage() {
                 </div>
                 <div
                   className="p-6 rounded-2xl border border-gray-200 bg-gray-50 cursor-not-allowed select-none opacity-75"
-                  title={t("addCreditsToInviteAndAccept")}
+                  title={t("completeProfileToUnlock")}
                   aria-disabled="true"
                 >
                   <div className="flex items-center justify-between">
@@ -329,27 +333,28 @@ export default async function DashboardPage() {
                     <ArrowRight className="w-5 h-5 text-gray-300" />
                   </div>
                 </div>
-                <Link
-                  href="/dashboard/finances"
-                  className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#F59E0B] hover:bg-amber-50/50 transition-all shadow-sm"
+                <div
+                  className="p-6 rounded-2xl border border-gray-200 bg-gray-50 cursor-not-allowed select-none opacity-75"
+                  title={t("completeProfileToUnlock")}
+                  aria-disabled="true"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center">
-                        <Wallet className="w-6 h-6 text-[#F59E0B]" />
+                      <div className="w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center">
+                        <Wallet className="w-6 h-6 text-gray-400" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-[#111827]">
+                        <h4 className="font-semibold text-gray-500">
                           {t("financesPlans")}
                         </h4>
-                        <p className="text-sm text-[#64748B]">
+                        <p className="text-sm text-gray-400">
                           {t("manageSubscription")}
                         </p>
                       </div>
                     </div>
-                    <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#F59E0B] group-hover:translate-x-1 transition-all" />
+                    <ArrowRight className="w-5 h-5 text-gray-300" />
                   </div>
-                </Link>
+                </div>
               </>
             ) : (
               <>
@@ -417,6 +422,29 @@ export default async function DashboardPage() {
                   </div>
                 </Link>
               </>
+            )}
+            {onboardingIncomplete && (
+              <Link
+                href="/dashboard/onboarding"
+                className="group p-6 rounded-2xl border border-red-200 bg-white hover:bg-red-50 hover:border-red-300 transition-all shadow-sm"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center">
+                      <Settings className="w-6 h-6 text-red-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-[#111827]">
+                        {t("completeProfile")}
+                      </h4>
+                      <p className="text-sm text-red-700">
+                        {t("completeProfileToUnlock")}
+                      </p>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-red-500 group-hover:translate-x-1 transition-all" />
+                </div>
+              </Link>
             )}
           </>
         )}

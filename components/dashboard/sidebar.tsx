@@ -42,6 +42,7 @@ export default function DashboardSidebar({
   const t = useTranslations("sidebar");
   const isCreator = role === "influencer";
   const creatorProfileLocked = isCreator && !onboardingCompleted;
+  const saasProfileLocked = !isCreator && !onboardingCompleted;
 
   const handleSignOut = async () => {
     await forceLogout();
@@ -171,27 +172,49 @@ export default function DashboardSidebar({
         ) : (
           /* SaaS-specific menu */
           <>
-            <Link
-              href="/dashboard/marketplace"
-              className={linkClass("/dashboard/marketplace")}
-              onClick={handleNav}
-            >
-              <ShoppingBag className="w-5 h-5" />
-              <span>{t("creators")}</span>
-            </Link>
-            <Link
-              href="/dashboard/candidates"
-              className={linkClass("/dashboard/candidates")}
-              onClick={handleNav}
-            >
-              <Users className="w-5 h-5" />
-              <span>{t("applications")}</span>
-            </Link>
+            {saasProfileLocked ? (
+              <span
+                className={disabledLinkClass}
+                title={t("completeProfileToUnlock")}
+                aria-disabled="true"
+              >
+                <ShoppingBag className="w-5 h-5" />
+                <span>{t("creators")}</span>
+              </span>
+            ) : (
+              <Link
+                href="/dashboard/marketplace"
+                className={linkClass("/dashboard/marketplace")}
+                onClick={handleNav}
+              >
+                <ShoppingBag className="w-5 h-5" />
+                <span>{t("creators")}</span>
+              </Link>
+            )}
+            {saasProfileLocked ? (
+              <span
+                className={disabledLinkClass}
+                title={t("completeProfileToUnlock")}
+                aria-disabled="true"
+              >
+                <Users className="w-5 h-5" />
+                <span>{t("applications")}</span>
+              </span>
+            ) : (
+              <Link
+                href="/dashboard/candidates"
+                className={linkClass("/dashboard/candidates")}
+                onClick={handleNav}
+              >
+                <Users className="w-5 h-5" />
+                <span>{t("applications")}</span>
+              </Link>
+            )}
           </>
         )}
 
         {/* Common menu items */}
-        {creatorProfileLocked ? (
+        {creatorProfileLocked || saasProfileLocked ? (
           <span
             className={disabledLinkClass}
             title={t("completeProfileToUnlock")}
@@ -211,7 +234,7 @@ export default function DashboardSidebar({
           </Link>
         )}
 
-        {creatorProfileLocked ? (
+        {creatorProfileLocked || saasProfileLocked ? (
           <span
             className={`${disabledLinkClass} justify-between`}
             title={t("completeProfileToUnlock")}
@@ -237,7 +260,7 @@ export default function DashboardSidebar({
           </Link>
         )}
 
-        {creatorProfileLocked ? (
+        {creatorProfileLocked || saasProfileLocked ? (
           <span
             className={disabledLinkClass}
             title={t("completeProfileToUnlock")}
@@ -258,16 +281,26 @@ export default function DashboardSidebar({
         )}
 
         {/* SaaS-only: Global Analytics & Leads */}
-        {!isCreator && (
-          <Link
-            href="/dashboard/analytics"
-            className={linkClass("/dashboard/analytics")}
-            onClick={handleNav}
-          >
-            <BarChart3 className="w-5 h-5" />
-            <span>{t("analyticsLeads")}</span>
-          </Link>
-        )}
+        {!isCreator &&
+          (saasProfileLocked ? (
+            <span
+              className={disabledLinkClass}
+              title={t("completeProfileToUnlock")}
+              aria-disabled="true"
+            >
+              <BarChart3 className="w-5 h-5" />
+              <span>{t("analyticsLeads")}</span>
+            </span>
+          ) : (
+            <Link
+              href="/dashboard/analytics"
+              className={linkClass("/dashboard/analytics")}
+              onClick={handleNav}
+            >
+              <BarChart3 className="w-5 h-5" />
+              <span>{t("analyticsLeads")}</span>
+            </Link>
+          ))}
 
         {/* Creator-only: Academy */}
         {isCreator &&
