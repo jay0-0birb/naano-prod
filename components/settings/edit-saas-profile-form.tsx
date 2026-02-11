@@ -362,6 +362,9 @@ export default function EditSaasProfileForm({
               <option value="Productivité">Productivité</option>
               <option value="RH">Ressources Humaines</option>
               <option value="Ventes">Ventes</option>
+              <option value="Sales">Sales</option>
+              <option value="Growth">Growth</option>
+              <option value="GTM">GTM</option>
               <option value="Autre">Autre</option>
             </select>
           </div>
