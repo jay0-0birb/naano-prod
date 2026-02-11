@@ -650,7 +650,7 @@
     "savingsVsLinkedIn": "Économies vs LinkedIn",
     "totalImpressions": "Total impressions",
     "totalImpressionsDesc": "Volume de visibilité brut généré",
-    "totalClicks": "Total clics (bulk)",
+    "totalClicks": "Total clics (total)",
     "totalClicksDesc": "Tous les clics enregistrés",
     "qualifiedClicksLabel": "Clics qualifiés (facturables)",
     "qualifiedClicksDesc": "Règle 3s + Anti-bot + IP + Geo",
