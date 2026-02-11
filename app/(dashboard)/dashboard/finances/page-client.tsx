@@ -416,7 +416,7 @@ export default function FinancesPageClient({
         <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6 shadow-sm">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-              <CreditCard className="w-5 h-5 text-[#3B82F6]" />
+              <CreditCard className="w-5 h-5 text-[#1D4ED8]" />
             </div>
             <div className="min-w-0">
               <h3 className="font-semibold text-[#111827]">
@@ -559,9 +559,11 @@ export default function FinancesPageClient({
 
         {/* Wallet Overview - Simplified */}
         <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6 shadow-sm">
-          <h3 className="font-semibold text-[#111827] mb-4 flex items-center gap-2">
-            <Wallet className="w-5 h-5 text-[#1D4ED8] shrink-0" />
-            {t("walletBalance")}
+          <h3 className="font-semibold text-[#111827] mb-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+              <Wallet className="w-5 h-5 text-[#1D4ED8]" />
+            </div>
+            <span>{t("walletBalance")}</span>
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
@@ -592,7 +594,7 @@ export default function FinancesPageClient({
           {/* How it works */}
           <div className="pt-4 sm:pt-6 border-t border-gray-200">
             <h4 className="text-sm font-semibold text-[#111827] mb-3 flex items-center gap-2">
-              <Info className="w-4 h-4 text-[#3B82F6]" />
+              <Info className="w-4 h-4 text-[#1D4ED8]" />
               {t("howItWorks")}
             </h4>
             <div className="space-y-3">

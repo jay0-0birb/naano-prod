@@ -16,9 +16,10 @@ const supabase = createClient(
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { creatorId, timeOnSite } = body as {
+    const { creatorId, timeOnSite, visitorUserId } = body as {
       creatorId?: string;
       timeOnSite?: number;
+      visitorUserId?: string;
     };
 
     if (!creatorId || typeof timeOnSite !== "number") {
@@ -26,6 +27,18 @@ export async function POST(request: NextRequest) {
         { error: "Missing creatorId or timeOnSite" },
         { status: 400 },
       );
+    }
+
+    // Self-click protection: if the visitor is logged in and is the creator, do not count the click.
+    if (visitorUserId) {
+      const { data: creatorRow } = await supabase
+        .from("creator_profiles")
+        .select("id")
+        .eq("profile_id", visitorUserId)
+        .maybeSingle();
+      if (creatorRow?.id === creatorId) {
+        return NextResponse.json({ success: true });
+      }
     }
 
     const ipAddress = getClientIP(request.headers);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { Navbar } from "@/components/marketing/navbar";
 import { HeroSection } from "@/components/marketing/hero-section";
 import { DemoSection } from "@/components/marketing/demo-section";
@@ -38,19 +39,31 @@ export default function LandingPage() {
       const start = Date.now();
       let cancelled = false;
 
-      const timer = setTimeout(() => {
+      const timer = setTimeout(async () => {
         if (cancelled) return;
         const timeOnSiteSeconds = Math.floor(
           (Date.now() - start) / 1000,
         );
 
-        // Fire-and-forget; backend applies bot filter + dedup.
+        // If visitor is logged in, send their user id so backend can block self-clicks.
+        let visitorUserId: string | undefined;
+        try {
+          const supabase = createClient();
+          const { data } = await supabase.auth.getSession();
+          if (data?.session?.user?.id) {
+            visitorUserId = data.session.user.id;
+          }
+        } catch {
+          // Ignore; we'll send without visitorUserId
+        }
+
         fetch("/api/naano/promo/track", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             creatorId: ref,
             timeOnSite: timeOnSiteSeconds,
+            ...(visitorUserId && { visitorUserId }),
           }),
         }).catch(() => {
           // Best-effort only; failure just means no auto-upgrade from this visit.

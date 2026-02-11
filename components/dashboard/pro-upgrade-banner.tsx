@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Crown, Check, Sparkles, Link as LinkIcon } from "lucide-react";
+import { Crown, Check, Link as LinkIcon } from "lucide-react";
 
 const NAANO_LINK = "https://naano.xyz/";
 
@@ -50,10 +50,10 @@ export default function ProUpgradeBanner({
   // If Pro (legacy paid - no longer offered)
   if (isPro && proStatusSource === "PAYMENT") {
     return (
-      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm opacity-80">
+      <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm">
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-slate-100 rounded-lg">
-            <Crown className="w-6 h-6 text-slate-500" />
+          <div className="p-2 bg-blue-50 rounded-lg">
+            <Crown className="w-6 h-6 text-[#1D4ED8]" />
           </div>
           <div>
             <h3 className="text-lg font-semibold text-slate-900">
@@ -79,10 +79,10 @@ export default function ProUpgradeBanner({
   // If Pro (promo/free)
   if (isPro && proStatusSource === "PROMO") {
     return (
-      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm opacity-80">
+      <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm">
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-slate-100 rounded-lg">
-            <Sparkles className="w-6 h-6 text-slate-500" />
+          <div className="p-2 bg-blue-50 rounded-lg">
+            <Crown className="w-6 h-6 text-[#1D4ED8]" />
           </div>
           <div>
             <h3 className="text-lg font-semibold text-slate-900">
@@ -104,7 +104,7 @@ export default function ProUpgradeBanner({
         </div>
         <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-600">
           <Check className="w-4 h-4 text-emerald-600" />
-          <span>{t("earnPerClickProShort")}</span>
+          <span>{t("done")}</span>
         </div>
       </div>
     );
