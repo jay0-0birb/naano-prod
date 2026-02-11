@@ -191,15 +191,11 @@ export const PricingSection = () => {
             >
               {/* Header for creator plans */}
               <div className="text-center mb-10">
-                <span className="inline-block bg-[#ECFDF5] text-[#059669] px-4 py-1.5 rounded-full text-sm font-semibold mb-4">
-                  {t("freeToJoin")}
-                </span>
-                <h3 className="text-2xl md:text-3xl font-bold text-[#0F172A] mb-3">
-                  {t("zeroToStart")}
+                <h3>
+                  <span className="inline-block bg-[#ECFDF5] text-[#059669] px-4 py-1.5 rounded-full text-sm font-semibold">
+                    {t("freeToJoin")}
+                  </span>
                 </h3>
-                <p className="text-[#64748B] text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-                  {t("creatorSubtitle")}
-                </p>
               </div>
 
               {/* Two-column layout: Classic vs Founding Creators */}
@@ -221,7 +217,7 @@ export const PricingSection = () => {
                         €0.90
                       </span>
                       <span className="text-sm text-[#64748B]">
-                        / {t("perQualifiedClick")}
+                        {t("perQualifiedClick")}
                       </span>
                     </div>
                   </div>
@@ -278,7 +274,7 @@ export const PricingSection = () => {
                         €1.10
                       </span>
                       <span className="text-sm font-medium text-[#0F172A]">
-                        / {t("perQualifiedClick")}
+                        {t("perQualifiedClick")}
                       </span>
                     </div>
                   </div>
