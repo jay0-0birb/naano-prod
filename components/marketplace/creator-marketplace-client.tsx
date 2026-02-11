@@ -223,26 +223,40 @@ export default function CreatorMarketplaceClient({
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm text-[#111827] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10"
                 >
                   <option value="">{tDashboard("allCountries")}</option>
-                  {uniqueCountries.map((country) => {
-                    const upper = country.toUpperCase();
-                    let label =
-                      COUNTRIES.find((c) => c.code === upper)?.name || country;
+                  {(() => {
+                    // On trie par label localisé, en mettant "OTHER" à la fin
+                    const decorated = uniqueCountries.map((country) => {
+                      const upper = country.toUpperCase();
+                      let label =
+                        COUNTRIES.find((c) => c.code === upper)?.name ||
+                        country;
 
-                    // Locale-aware label for Ivory Coast
-                    if (upper === "CI") {
-                      if (locale.startsWith("fr")) {
-                        label = "Côte d'Ivoire";
-                      } else if (locale.startsWith("en")) {
-                        label = "Ivory Coast";
+                      // Locale-aware label for Ivory Coast
+                      if (upper === "CI") {
+                        if (locale.startsWith("fr")) {
+                          label = "Côte d'Ivoire";
+                        } else if (locale.startsWith("en")) {
+                          label = "Ivory Coast";
+                        }
                       }
-                    }
 
-                    return (
+                      return { country, upper, label };
+                    });
+
+                    decorated.sort((a, b) => {
+                      const aIsOther = a.upper === "OTHER";
+                      const bIsOther = b.upper === "OTHER";
+                      if (aIsOther && !bIsOther) return 1; // OTHER en dernier
+                      if (!aIsOther && bIsOther) return -1;
+                      return a.label.localeCompare(b.label);
+                    });
+
+                    return decorated.map(({ country, label }) => (
                       <option key={country} value={country}>
                         {label}
                       </option>
-                    );
-                  })}
+                    ));
+                  })()}
                 </select>
               </div>
 
@@ -257,11 +271,22 @@ export default function CreatorMarketplaceClient({
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm text-[#111827] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/10"
                 >
                   <option value="">{tDashboard("allIndustries")}</option>
-                  {uniqueIndustries.map((industry) => (
-                    <option key={industry} value={industry}>
-                      {industry}
-                    </option>
-                  ))}
+                  {(() => {
+                    // Trie alphabétique des secteurs, avec "Other" tout à la fin
+                    const sorted = [...uniqueIndustries].sort((a, b) => {
+                      const aIsOther = a.toLowerCase() === "other";
+                      const bIsOther = b.toLowerCase() === "other";
+                      if (aIsOther && !bIsOther) return 1; // Other en dernier
+                      if (!aIsOther && bIsOther) return -1;
+                      return a.localeCompare(b);
+                    });
+
+                    return sorted.map((industry) => (
+                      <option key={industry} value={industry}>
+                        {industry}
+                      </option>
+                    ));
+                  })()}
                 </select>
               </div>
 
