@@ -80,8 +80,13 @@ export default function DashboardSidebar({
           className="flex items-center gap-2"
           onClick={handleNav}
         >
+          <img
+            src="/logo.svg"
+            alt="naano"
+            className="h-5 w-5 sm:h-6 sm:w-6 object-contain"
+          />
           <span className="text-xl font-bold tracking-tight text-[#0F172A]">
-            Naano
+            naano
           </span>
         </Link>
         <button
