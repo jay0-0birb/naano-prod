@@ -64,12 +64,14 @@ export default function CreatorCard({
         })()
       : null;
 
-  const industries = (
-    creator.expertise_sectors && creator.expertise_sectors.length > 0
-      ? creator.expertise_sectors
-      : creator.theme
-        ? [creator.theme]
-        : []
+  const industries = Array.from(
+    new Set(
+      creator.expertise_sectors && creator.expertise_sectors.length > 0
+        ? creator.expertise_sectors
+        : creator.theme
+          ? [creator.theme]
+          : [],
+    ),
   ).slice(0, 3);
 
   const handleInvite = async () => {
@@ -124,7 +126,8 @@ export default function CreatorCard({
               <div className="flex items-center gap-2 text-[#64748B] text-sm">
                 <Users className="w-4 h-4" />
                 <span>
-                  {creator.followers_count.toLocaleString()} {t("followers")}
+                  {creator.followers_count.toLocaleString(locale)}{" "}
+                  {t("followers")}
                 </span>
               </div>
             </div>
