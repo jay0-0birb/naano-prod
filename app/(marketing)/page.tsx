@@ -25,6 +25,47 @@ export default function LandingPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Naano promotion verification:
+  // If the landing page is loaded with ?ref=CREATOR_ID,
+  // wait ~3s then notify the backend so it can apply
+  // the qualified-click logic and upgrade the creator.
+  useEffect(() => {
+    try {
+      const url = new URL(window.location.href);
+      const ref = url.searchParams.get("ref");
+      if (!ref) return;
+
+      const start = Date.now();
+      let cancelled = false;
+
+      const timer = setTimeout(() => {
+        if (cancelled) return;
+        const timeOnSiteSeconds = Math.floor(
+          (Date.now() - start) / 1000,
+        );
+
+        // Fire-and-forget; backend applies bot filter + dedup.
+        fetch("/api/naano/promo/track", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            creatorId: ref,
+            timeOnSite: timeOnSiteSeconds,
+          }),
+        }).catch(() => {
+          // Best-effort only; failure just means no auto-upgrade from this visit.
+        });
+      }, 3000);
+
+      return () => {
+        cancelled = true;
+        clearTimeout(timer);
+      };
+    } catch {
+      // Ignore invalid URL environments
+    }
+  }, []);
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };

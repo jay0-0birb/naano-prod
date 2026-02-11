@@ -1,18 +1,14 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Crown,
   Check,
-  Loader2,
   Sparkles,
   Link as LinkIcon,
-  Send,
 } from "lucide-react";
-import { submitProUnlockPost } from "@/app/(dashboard)/dashboard/finances/actions";
 
-const NAANO_LINK = "https://naano.vercel.app/";
+const NAANO_LINK = "https://naano.xyz/";
 
 interface ProUpgradeBannerProps {
   creatorId: string;
@@ -23,47 +19,12 @@ interface ProUpgradeBannerProps {
 }
 
 export default function ProUpgradeBanner({
-  creatorId,
   isPro,
   proStatusSource,
   proExpirationDate,
+  creatorId,
 }: ProUpgradeBannerProps) {
-  const [loading, setLoading] = useState(false);
-  const [postUrl, setPostUrl] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-
   const t = useTranslations("proUpgrade");
-  const tCredits = useTranslations("credits");
-
-  const handleUnlockPro = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!postUrl.trim()) return;
-
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
-
-    try {
-      const result = await submitProUnlockPost(postUrl.trim());
-      if (result.error) {
-        setError(
-          result.error === "creator_profile_not_found"
-            ? t("creatorProfileNotFound")
-            : result.error,
-        );
-      } else {
-        setSuccess(true);
-        setPostUrl("");
-        // Simple reload to pick up new Pro status
-        window.location.reload();
-      }
-    } catch {
-      setError(t("error")); // generic error key in translations
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const getExpirationText = (dateString: string | null): string => {
     if (!dateString) return "";
@@ -130,13 +91,18 @@ export default function ProUpgradeBanner({
             <h3 className="text-lg font-semibold text-slate-900">
               {t("memberProFree")}
             </h3>
-            <p className="text-sm text-slate-600">
-              {proExpirationDate && (
+            {proExpirationDate && (
+              <p className="text-sm text-slate-600">
                 <span className="text-slate-500">
                   {getExpirationText(proExpirationDate)}
                 </span>
-              )}
-            </p>
+              </p>
+            )}
+            {!proExpirationDate && (
+              <p className="text-sm text-slate-600">
+                {t("earnPerClickProShort")}
+              </p>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-2 text-sm text-slate-700">
@@ -147,7 +113,7 @@ export default function ProUpgradeBanner({
     );
   }
 
-  // If Standard - show "Unlock Pro by posting" CTA
+  // If Standard - show "Become Naano promoter" CTA
   const naanoLink = `${NAANO_LINK}?ref=${creatorId}`;
 
   return (
@@ -177,12 +143,12 @@ export default function ProUpgradeBanner({
         </div>
       </div>
 
-      {/* Instructions */}
+      {/* Instructions & promotion link */}
       <div className="mb-4 p-3 sm:p-4 bg-slate-50 rounded-xl border border-slate-200">
         <p className="text-sm font-medium text-slate-800 mb-2">{t("howTo")}</p>
-        <ol className="text-xs text-slate-600 space-y-2 list-decimal list-inside">
-          <li>
-            {t("step1")}
+        <div className="space-y-3 text-xs text-slate-600">
+          <div>
+            <p className="mb-1">{t("step1")}</p>
             <div className="mt-1 flex flex-col sm:flex-row sm:items-center gap-2">
               <LinkIcon className="w-4 h-4 text-slate-500 shrink-0" />
               <code className="text-xs bg-white px-2 py-1 rounded border border-slate-200 break-all min-w-0">
@@ -196,42 +162,10 @@ export default function ProUpgradeBanner({
                 {t("copy")}
               </button>
             </div>
-          </li>
-          <li>{t("step2")}</li>
-        </ol>
+          </div>
+          <p>{t("step2")}</p>
+        </div>
       </div>
-
-      {/* Submit form */}
-      <form onSubmit={handleUnlockPro} className="space-y-2">
-        <input
-          type="url"
-          value={postUrl}
-          onChange={(e) => setPostUrl(e.target.value)}
-          placeholder={tCredits("placeholder")}
-          className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
-        {error && <p className="text-xs text-red-600">{error}</p>}
-        {success && (
-          <p className="text-xs text-green-600">{t("proUnlocked")}</p>
-        )}
-        <button
-          type="submit"
-          disabled={loading || !postUrl.trim()}
-          className="w-full bg-[#0F172A] hover:bg-[#020617] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors"
-        >
-          {loading ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin" />
-              <span>{tCredits("loading")}</span>
-            </>
-          ) : (
-            <>
-              <Send className="w-5 h-5" />
-              <span>{t("unlockProBtn")}</span>
-            </>
-          )}
-        </button>
-      </form>
     </div>
   );
 }

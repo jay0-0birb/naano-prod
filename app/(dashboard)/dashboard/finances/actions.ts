@@ -36,7 +36,7 @@ export async function updateCreatorSiret(siret: string) {
   return { success: true };
 }
 
-const NAANO_LINK = "https://naano.vercel.app/";
+const NAANO_LINK = "https://naano.xyz/";
 
 /**
  * Submit a Naano promo post to unlock Pro for 6 months.

@@ -651,9 +651,6 @@ export default function FinancesPageClient({
               <p className="text-2xl sm:text-3xl font-bold text-emerald-600">
                 {creatorData.availableBalance.toFixed(2)}€
               </p>
-              <p className="text-xs text-[#64748B] mt-1">
-                {t("totalGained")}: {creatorData.totalEarned.toFixed(2)}€
-              </p>
             </div>
 
             {creatorData.stripeConnected ? (
