@@ -506,18 +506,6 @@ export default function GlobalLeadFeedTab() {
                       <SortIcon column="company_intent" />
                     </button>
                   </div>
-                  <input
-                    type="text"
-                    placeholder={t("filter")}
-                    value={columnFilters.company || ""}
-                    onChange={(e) =>
-                      setColumnFilters({
-                        ...columnFilters,
-                        company: e.target.value,
-                      })
-                    }
-                    className="mt-1 w-full px-2 py-1 text-xs border border-gray-300 rounded"
-                  />
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
                   {t("domain")}
@@ -548,54 +536,18 @@ export default function GlobalLeadFeedTab() {
                   </div>
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
-                  <input
-                    type="text"
-                    placeholder={t("filter")}
-                    value={columnFilters.country || ""}
-                    onChange={(e) =>
-                      setColumnFilters({
-                        ...columnFilters,
-                        country: e.target.value,
-                      })
-                    }
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded"
-                  />
                   {t("country")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
                   {t("city")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
-                  <input
-                    type="text"
-                    placeholder={t("filter")}
-                    value={columnFilters.industry || ""}
-                    onChange={(e) =>
-                      setColumnFilters({
-                        ...columnFilters,
-                        industry: e.target.value,
-                      })
-                    }
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded"
-                  />
                   {t("industry")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
                   {t("size")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
-                  <input
-                    type="text"
-                    placeholder={t("filter")}
-                    value={columnFilters.creator || ""}
-                    onChange={(e) =>
-                      setColumnFilters({
-                        ...columnFilters,
-                        creator: e.target.value,
-                      })
-                    }
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded"
-                  />
                   {t("creator")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
