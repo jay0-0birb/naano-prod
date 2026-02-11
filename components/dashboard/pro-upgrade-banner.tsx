@@ -158,6 +158,12 @@ export default function ProUpgradeBanner({
                     await navigator.clipboard.writeText(naanoLink);
                     setCopied(true);
                     setTimeout(() => setCopied(false), 1200);
+                    // Record creator IP for self-click protection when they open the link (e.g. in private browsing)
+                    fetch("/api/naano/promo/record-creator-ip", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ creatorId }),
+                    }).catch(() => {});
                   } catch {
                     // Best-effort only; ignore copy errors
                   }

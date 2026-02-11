@@ -71,6 +71,7 @@ $$ LANGUAGE plpgsql;
 --    - Deduplicate per (creator_id, ip, hour)
 --    - Record event
 --    - On first qualified click ever → upgrade creator to lifetime Pro
+--    - Self-click block: if click IP = creator's last_seen_ip (within 24h), do not count (requires creator_profiles.last_seen_ip / last_seen_ip_at)
 
 CREATE OR REPLACE FUNCTION public.track_naano_promo_click(
   p_creator_id UUID,
@@ -83,13 +84,27 @@ DECLARE
   v_hour_bucket TIMESTAMPTZ;
   v_existing_id UUID;
   v_ip TEXT;
+  v_creator_last_ip TEXT;
+  v_creator_last_seen_at TIMESTAMPTZ;
 BEGIN
   IF p_creator_id IS NULL THEN
     RETURN false;
   END IF;
 
-  -- Normalise IP
-  v_ip := COALESCE(NULLIF(p_ip_address, ''), 'unknown');
+  v_ip := COALESCE(NULLIF(TRIM(p_ip_address), ''), 'unknown');
+
+  -- 0) Self-click protection: if this IP was recently seen for this creator (dashboard or copy-link), do not count.
+  IF v_ip IS NOT NULL AND v_ip != 'unknown' AND v_ip != 'local' THEN
+    SELECT last_seen_ip, last_seen_ip_at
+    INTO v_creator_last_ip, v_creator_last_seen_at
+    FROM public.creator_profiles
+    WHERE id = p_creator_id;
+    IF v_creator_last_ip IS NOT NULL AND v_creator_last_ip = v_ip AND v_creator_last_seen_at IS NOT NULL THEN
+      IF v_creator_last_seen_at > (NOW() - INTERVAL '24 hours') THEN
+        RETURN false;
+      END IF;
+    END IF;
+  END IF;
 
   -- 1) Anti-bot filter (reuses global helper)
   IF is_bot_user_agent(p_user_agent) THEN
