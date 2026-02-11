@@ -67,9 +67,6 @@ export default function GlobalAnalyticsTab() {
           <div className="text-3xl font-bold text-[#111827]">
             {analytics.totalClicks.toLocaleString()}
           </div>
-          <div className="text-xs text-[#94A3B8] mt-2">
-            {t("totalClicksDesc")}
-          </div>
         </div>
 
         {/* Qualified Clicks */}
@@ -82,9 +79,6 @@ export default function GlobalAnalyticsTab() {
           </div>
           <div className="text-3xl font-bold text-[#111827]">
             {analytics.qualifiedClicks.toLocaleString()}
-          </div>
-          <div className="text-xs text-[#94A3B8] mt-2">
-            {t("qualifiedClicksDesc")}
           </div>
         </div>
       </div>
