@@ -98,7 +98,9 @@ export default function EditSaasProfileForm({
     ];
   };
 
-  const [mediaItems, setMediaItems] = useState<MediaItem[]>(parseInitialMediaItems());
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>(
+    parseInitialMediaItems(),
+  );
   const [mediaLabelInput, setMediaLabelInput] = useState("");
   const [mediaUrlInput, setMediaUrlInput] = useState("");
 
@@ -335,7 +337,7 @@ export default function EditSaasProfileForm({
                 type="url"
                 required
                 defaultValue={saasCompany.website || ""}
-              placeholder={t("websitePlaceholder")}
+                placeholder={t("websitePlaceholder")}
                 className="w-full bg-white border border-gray-200 rounded-xl pl-12 pr-4 py-3 text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
               />
             </div>
