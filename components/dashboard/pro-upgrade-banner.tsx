@@ -1,12 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
-import {
-  Crown,
-  Check,
-  Sparkles,
-  Link as LinkIcon,
-} from "lucide-react";
+import { Crown, Check, Sparkles, Link as LinkIcon } from "lucide-react";
 
 const NAANO_LINK = "https://naano.xyz/";
 
@@ -25,6 +21,7 @@ export default function ProUpgradeBanner({
   creatorId,
 }: ProUpgradeBannerProps) {
   const t = useTranslations("proUpgrade");
+  const [copied, setCopied] = useState(false);
 
   const getExpirationText = (dateString: string | null): string => {
     if (!dateString) return "";
@@ -53,10 +50,10 @@ export default function ProUpgradeBanner({
   // If Pro (legacy paid - no longer offered)
   if (isPro && proStatusSource === "PAYMENT") {
     return (
-      <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm">
+      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm opacity-80">
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-blue-50 rounded-lg">
-            <Crown className="w-6 h-6 text-[#1D4ED8]" />
+          <div className="p-2 bg-slate-100 rounded-lg">
+            <Crown className="w-6 h-6 text-slate-500" />
           </div>
           <div>
             <h3 className="text-lg font-semibold text-slate-900">
@@ -71,8 +68,8 @@ export default function ProUpgradeBanner({
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2 text-sm text-slate-700">
-          <Check className="w-4 h-4 text-green-600" />
+        <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-600">
+          <Check className="w-4 h-4 text-emerald-600" />
           <span>{t("earnPerClickLegacy")}</span>
         </div>
       </div>
@@ -82,10 +79,10 @@ export default function ProUpgradeBanner({
   // If Pro (promo/free)
   if (isPro && proStatusSource === "PROMO") {
     return (
-      <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm">
+      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm opacity-80">
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-blue-50 rounded-lg">
-            <Sparkles className="w-6 h-6 text-[#1D4ED8]" />
+          <div className="p-2 bg-slate-100 rounded-lg">
+            <Sparkles className="w-6 h-6 text-slate-500" />
           </div>
           <div>
             <h3 className="text-lg font-semibold text-slate-900">
@@ -105,8 +102,8 @@ export default function ProUpgradeBanner({
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2 text-sm text-slate-700">
-          <Check className="w-4 h-4 text-green-600" />
+        <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-600">
+          <Check className="w-4 h-4 text-emerald-600" />
           <span>{t("earnPerClickProShort")}</span>
         </div>
       </div>
@@ -156,10 +153,22 @@ export default function ProUpgradeBanner({
               </code>
               <button
                 type="button"
-                onClick={() => navigator.clipboard.writeText(naanoLink)}
-                className="text-xs text-blue-600 hover:text-blue-700 shrink-0"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(naanoLink);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 1200);
+                  } catch {
+                    // Best-effort only; ignore copy errors
+                  }
+                }}
+                className={`text-xs px-3 py-1 rounded-full border transition-all duration-200 shrink-0 ${
+                  copied
+                    ? "bg-emerald-500 border-emerald-500 text-white scale-105"
+                    : "bg-white border-blue-100 text-blue-600 hover:bg-blue-50 hover:border-blue-200 hover:scale-[1.02]"
+                }`}
               >
-                {t("copy")}
+                {copied ? t("copied") : t("copy")}
               </button>
             </div>
           </div>

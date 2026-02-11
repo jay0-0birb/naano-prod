@@ -23,8 +23,10 @@ CREATE TABLE IF NOT EXISTS public.naano_promo_events (
 CREATE INDEX IF NOT EXISTS idx_naano_promo_events_creator_id
   ON public.naano_promo_events(creator_id);
 
+-- Index to help deduplicate by (creator, IP, hour).
+-- We avoid functional index here to keep compatibility with all Postgres settings.
 CREATE INDEX IF NOT EXISTS idx_naano_promo_events_creator_ip_hour
-  ON public.naano_promo_events(creator_id, ip_address, date_trunc('hour', occurred_at));
+  ON public.naano_promo_events(creator_id, ip_address, occurred_at);
 
 -- 2) Helper: upgrade creator to lifetime Pro via promo
 --    - Sets is_pro = true
