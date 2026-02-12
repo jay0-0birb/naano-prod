@@ -1,6 +1,70 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { stripe } from '@/lib/stripe';
+import type Stripe from 'stripe';
+
+/** Build Stripe Express account create params from creator profile. Uses company (EIN/tax ID) for business accounts, individual (SSN) otherwise. */
+function buildStripeAccountParams(
+  profileCountry: string,
+  email: string | null,
+  creator: {
+    legal_status: string | null;
+    company_legal_name: string | null;
+    company_registration_country: string | null;
+    company_tax_id: string | null;
+    company_vat_number: string | null;
+    company_registered_address: string | null;
+  }
+): Stripe.AccountCreateParams {
+  const isBusiness =
+    creator.legal_status === 'professionnel' &&
+    (creator.company_legal_name ?? '').trim() !== '';
+
+  const base = {
+    type: 'express',
+    country: profileCountry,
+    email: email ?? undefined,
+    capabilities: {
+      card_payments: { requested: true },
+      transfers: { requested: true },
+    },
+    business_profile: {
+      product_description: 'LinkedIn content creation and promotion services',
+    },
+  } as Stripe.AccountCreateParams;
+
+  if (isBusiness) {
+    const companyName = (creator.company_legal_name ?? '').trim();
+    const companyCountry = (creator.company_registration_country ?? '').trim().toUpperCase();
+    const taxId = (creator.company_tax_id ?? '').replace(/\s+/g, '').trim() || undefined;
+    const vatId = (creator.company_vat_number ?? '').trim() || undefined;
+    const addressLine1 = (creator.company_registered_address ?? '').trim() || undefined;
+
+    const company: Stripe.AccountCreateParams.Company = {
+      name: companyName,
+      ...(taxId && { tax_id: taxId }),
+      ...(vatId && { vat_id: vatId }),
+      ...(addressLine1 &&
+        companyCountry && {
+          address: {
+            line1: addressLine1,
+            country: companyCountry,
+          },
+        }),
+    };
+
+    return {
+      ...base,
+      business_type: 'company',
+      company,
+    };
+  }
+
+  return {
+    ...base,
+    business_type: 'individual',
+  };
+}
 
 export async function POST(request: Request) {
   try {
@@ -19,10 +83,12 @@ export async function POST(request: Request) {
     const body = await request.json().catch(() => ({}));
     const returnPath = body.returnPath || 'settings';
 
-    // Get creator profile (include country so Stripe account uses creator's country)
+    // Get creator profile: country, Stripe id, and legal/company fields so we request EIN (company) vs SSN (individual)
     const { data: creatorProfile } = await supabase
       .from('creator_profiles')
-      .select('id, stripe_account_id, country')
+      .select(
+        'id, stripe_account_id, country, legal_status, company_legal_name, company_registration_country, company_tax_id, company_vat_number, company_registered_address'
+      )
       .eq('profile_id', user.id)
       .single();
 
@@ -42,7 +108,7 @@ export async function POST(request: Request) {
 
     // If user has an existing Stripe account, check if onboarding was completed.
     // If not (e.g. they got a wrong default country and left), reset: create a new
-    // account with the correct country so they start over.
+    // account with the correct country and business type so they start over.
     if (accountId) {
       try {
         const existingAccount = await stripe.accounts.retrieve(accountId);
@@ -50,26 +116,18 @@ export async function POST(request: Request) {
           existingAccount.details_submitted ||
           (existingAccount.charges_enabled && existingAccount.payouts_enabled);
         if (!isComplete) {
-          // Incomplete: create new account with creator's country and replace
           const { data: profile } = await supabase
             .from('profiles')
             .select('email, full_name')
             .eq('id', user.id)
             .single();
 
-          const account = await stripe.accounts.create({
-            type: 'express',
-            country: profileCountry,
-            email: profile?.email,
-            capabilities: {
-              card_payments: { requested: true },
-              transfers: { requested: true },
-            },
-            business_type: 'individual',
-            business_profile: {
-              product_description: 'LinkedIn content creation and promotion services',
-            },
-          });
+          const accountParams = buildStripeAccountParams(
+            profileCountry,
+            profile?.email ?? null,
+            creatorProfile
+          );
+          const account = await stripe.accounts.create(accountParams);
 
           accountId = account.id;
           await supabase
@@ -81,7 +139,6 @@ export async function POST(request: Request) {
             .eq('id', creatorProfile.id);
         }
       } catch (err) {
-        // If retrieve fails (e.g. account deleted), treat as no account and create one below
         accountId = null;
       }
     }
@@ -94,19 +151,12 @@ export async function POST(request: Request) {
         .eq('id', user.id)
         .single();
 
-      const account = await stripe.accounts.create({
-        type: 'express',
-        country: profileCountry,
-        email: profile?.email,
-        capabilities: {
-          card_payments: { requested: true },
-          transfers: { requested: true },
-        },
-        business_type: 'individual',
-        business_profile: {
-          product_description: 'LinkedIn content creation and promotion services',
-        },
-      });
+      const accountParams = buildStripeAccountParams(
+        profileCountry,
+        profile?.email ?? null,
+        creatorProfile
+      );
+      const account = await stripe.accounts.create(accountParams);
 
       accountId = account.id;
 
