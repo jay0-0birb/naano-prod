@@ -188,230 +188,234 @@ export default function EditSaasProfileForm({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center z-50 px-4 pt-20 pb-6 md:pt-24 md:pb-8 overflow-y-auto">
-      <div className="bg-white border border-gray-200 rounded-2xl p-6 max-w-2xl w-full shadow-xl">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-medium text-[#111827]">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center z-50 overflow-y-auto py-6 px-4">
+      <div className="bg-white border border-gray-200 rounded-2xl max-w-2xl w-full shadow-xl flex flex-col max-h-[calc(100vh-3rem)] my-auto">
+        {/* En-tête : titre centré pour symétrie des espaces */}
+        <div className="relative flex items-center justify-center p-4 sm:p-5 pb-0 shrink-0">
+          <h3 className="text-xl font-medium text-[#111827] text-center">
             {t("editCompanyProfile")}
           </h3>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+            className="absolute right-4 top-4 w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
           >
             <X className="w-5 h-5 text-[#64748B]" />
           </button>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">
+          <div className="mx-4 sm:mx-5 mt-3 p-2.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm text-center shrink-0">
             {error}
           </div>
         )}
 
-        <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
-          {/* Logo - big and centered */}
-          <div className="flex flex-col items-center">
-            <label className="block text-sm font-medium text-[#374151] mb-3 w-full text-center">
-              {t("companyLogo")}
-            </label>
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="relative w-40 h-40 min-w-40 min-h-40 aspect-square rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 flex items-center justify-center hover:border-[#1D4ED8]/50 hover:bg-gray-50 transition-all group shrink-0"
-            >
-              {showImage ? (
-                <Image
-                  key={displayUrl}
-                  src={displayUrl}
-                  alt={t("companyLogo")}
-                  fill
-                  className="object-cover rounded-full"
-                  sizes="160px"
-                  priority
-                  unoptimized={displayUrl.startsWith("blob:")}
-                  onError={() => setImageLoadError(true)}
-                />
-              ) : (
-                <Building2 className="w-20 h-20 text-[#9CA3AF]" />
-              )}
-              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                <Camera className="w-10 h-10 text-white" />
-                <span className="absolute bottom-2 left-0 right-0 text-white text-xs font-medium">
-                  {t("clickToChange")}
-                </span>
-              </div>
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              name="logo"
-              accept="image/jpeg,image/png,image/webp,image/gif"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-
-            <div className="flex flex-wrap justify-center gap-2 mt-4">
+        {/* Zone scrollable : tout centré sur le même axe qu’Annuler / Enregistrer */}
+        <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 min-h-0 overflow-y-auto pt-4 space-y-4">
+          <div className="max-w-lg mx-auto w-full px-4 sm:px-6 space-y-4">
+            {/* Logo entreprise – centré */}
+            <div className="flex flex-col items-center">
+              <label className="block text-sm font-medium text-[#374151] mb-2 w-full text-center">
+                {t("companyLogo")}
+              </label>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-[#374151] text-sm font-medium transition-colors"
+                className="relative w-32 h-32 min-w-32 min-h-32 aspect-square rounded-full overflow-hidden bg-[#f3f4f6] border-2 border-dashed border-gray-200 flex items-center justify-center hover:border-[#1D4ED8]/50 hover:bg-gray-50 transition-all group"
               >
-                {hasLogo ? t("change") : t("addLogo")}
-              </button>
-              <button
-                type="button"
-                onClick={handleFetchLogo}
-                disabled={fetchingLogo}
-                className="px-4 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#1D4ED8] text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-1.5"
-              >
-                {fetchingLogo ? (
+                {showImage ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    {t("detecting")}
+                    {/* Cercle de rendu : l’image est bien clipée dans le cercle */}
+                    <span className="absolute inset-0 rounded-full overflow-hidden z-[1]">
+                      <Image
+                        key={displayUrl}
+                        src={displayUrl}
+                        alt={t("companyLogo")}
+                        fill
+                        className="object-cover"
+                        sizes="128px"
+                        priority
+                        unoptimized={displayUrl.startsWith("blob:")}
+                        onError={() => setImageLoadError(true)}
+                      />
+                    </span>
+                    <div className="absolute inset-0 rounded-full ring-2 ring-gray-200/80 ring-inset z-[2] pointer-events-none" aria-hidden />
+                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity z-[3] pointer-events-none">
+                      <Camera className="w-10 h-10 text-white" />
+                    </div>
                   </>
                 ) : (
-                  <>
-                    <Sparkles className="w-4 h-4" />
-                    {t("importFromSite")}
-                  </>
+                  <div className="flex flex-col items-center justify-center gap-0.5 text-[#9CA3AF]">
+                    <Camera className="w-10 h-10" />
+                    <span className="text-[11px] font-medium">
+                      {t("clickToAddPhoto")}
+                    </span>
+                  </div>
                 )}
               </button>
-              {hasLogo && (
+              <input
+                ref={fileInputRef}
+                type="file"
+                name="logo"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <div className="flex flex-wrap justify-center gap-1.5 mt-2">
                 <button
                   type="button"
-                  onClick={handleRemoveLogo}
-                  className="px-4 py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium transition-colors inline-flex items-center gap-1.5"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-2.5 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-[#374151] text-xs font-medium transition-colors"
                 >
-                  <Trash2 className="w-4 h-4" />
-                  {t("removeLogo")}
+                  {hasLogo ? t("change") : t("addLogo")}
                 </button>
-              )}
+                <button
+                  type="button"
+                  onClick={handleFetchLogo}
+                  disabled={fetchingLogo}
+                  className="px-2.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#1D4ED8] text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-1"
+                >
+                  {fetchingLogo ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5" />
+                      {t("importFromSite")}
+                    </>
+                  )}
+                </button>
+                {hasLogo && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveLogo}
+                    className="px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium transition-colors inline-flex items-center gap-1"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    {t("removeLogo")}
+                  </button>
+                )}
+              </div>
+              <p className="text-[11px] text-[#64748B] mt-1 text-center">
+                {t("photoFormatsHint")}
+              </p>
             </div>
-            <p className="text-xs text-[#64748B] mt-2 text-center">
-              {t("photoFormatsHint")}
-            </p>
-          </div>
 
-          {/* Company Name */}
-          <div>
-            <label className="block text-sm font-medium text-[#374151] mb-2">
-              {tSettings("companyName")} *
-            </label>
-            <div className="relative">
-              <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9CA3AF]" />
-              <input
-                name="companyName"
-                type="text"
-                required
-                defaultValue={saasCompany.company_name}
-                placeholder="Acme Inc."
-                className="w-full bg-white border border-gray-200 rounded-xl pl-12 pr-4 py-3 text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
-              />
+            {/* Champs : Nom, Description, Site web, Secteur, Pays – même colonne centrée */}
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-[#374151] mb-1 text-center">
+                  {tSettings("companyName")} *
+                </label>
+                <div className="relative">
+                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF] pointer-events-none" />
+                  <input
+                    name="companyName"
+                    type="text"
+                    required
+                    defaultValue={saasCompany.company_name}
+                    placeholder="Acme Inc."
+                    className="w-full bg-white border border-gray-200 rounded-lg pl-10 pr-3 py-2.5 text-sm text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all min-h-[2.5rem]"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#374151] mb-1 text-center">
+                  {tSettings("description")} *
+                </label>
+                <textarea
+                  name="description"
+                  required
+                  rows={3}
+                  defaultValue={saasCompany.description || ""}
+                  placeholder={t("companyDescriptionPlaceholder")}
+                  className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all resize-none min-h-[4.5rem]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#374151] mb-1 text-center">
+                  {tSettings("website")} *
+                </label>
+                <div className="relative">
+                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF] pointer-events-none" />
+                  <input
+                    name="website"
+                    type="url"
+                    required
+                    defaultValue={saasCompany.website || ""}
+                    placeholder={t("websitePlaceholder")}
+                    className="w-full bg-white border border-gray-200 rounded-lg pl-10 pr-3 py-2.5 text-sm text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all min-h-[2.5rem]"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-[#374151] mb-1 text-center">
+                    {tSettings("industry")} *
+                  </label>
+                  <select
+                    name="industry"
+                    required
+                    defaultValue={saasCompany.industry || ""}
+                    className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-[#111827] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
+                  >
+                    <option value="">{t("selectIndustry")}</option>
+                    <option value="SaaS">SaaS</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Finance">Finance</option>
+                    <option value="E-commerce">E-commerce</option>
+                    <option value="Productivité">Productivité</option>
+                    <option value="RH">Ressources Humaines</option>
+                    <option value="Ventes">Ventes</option>
+                    <option value="Sales">Sales</option>
+                    <option value="Growth">Growth</option>
+                    <option value="GTM">GTM</option>
+                    <option value="Autre">Autre</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#374151] mb-1 text-center">
+                    {tSettings("country")}
+                  </label>
+                  <select
+                    name="country"
+                    defaultValue={saasCompany.country || ""}
+                    className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-[#111827] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
+                  >
+                    <option value="">{t("selectCountry")}</option>
+                    {COUNTRIES.map((c) => (
+                      <option key={c.code} value={c.code}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </div>
-          </div>
 
-          {/* Description */}
+          {/* Media pack (links & files) – même colonne centrée */}
           <div>
-            <label className="block text-sm font-medium text-[#374151] mb-2">
-              {tSettings("description")} *
-            </label>
-            <textarea
-              name="description"
-              required
-              rows={4}
-              defaultValue={saasCompany.description || ""}
-              placeholder={t("companyDescriptionPlaceholder")}
-              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all resize-none"
-            />
-          </div>
-
-          {/* Website */}
-          <div>
-            <label className="block text-sm font-medium text-[#374151] mb-2">
-              {tSettings("website")} *
-            </label>
-            <div className="relative">
-              <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9CA3AF]" />
-              <input
-                name="website"
-                type="url"
-                required
-                defaultValue={saasCompany.website || ""}
-                placeholder={t("websitePlaceholder")}
-                className="w-full bg-white border border-gray-200 rounded-xl pl-12 pr-4 py-3 text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
-              />
-            </div>
-          </div>
-
-          {/* Industry */}
-          <div>
-            <label className="block text-sm font-medium text-[#374151] mb-2">
-              {tSettings("industry")} *
-            </label>
-            <select
-              name="industry"
-              required
-              defaultValue={saasCompany.industry || ""}
-              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
-            >
-              <option value="">{t("selectIndustry")}</option>
-              <option value="SaaS">SaaS</option>
-              <option value="Marketing">Marketing</option>
-              <option value="Finance">Finance</option>
-              <option value="E-commerce">E-commerce</option>
-              <option value="Productivité">Productivité</option>
-              <option value="RH">Ressources Humaines</option>
-              <option value="Ventes">Ventes</option>
-              <option value="Sales">Sales</option>
-              <option value="Growth">Growth</option>
-              <option value="GTM">GTM</option>
-              <option value="Autre">Autre</option>
-            </select>
-          </div>
-
-          {/* Country */}
-          <div>
-            <label className="block text-sm font-medium text-[#374151] mb-2">
-              {tSettings("country")}
-            </label>
-            <select
-              name="country"
-              defaultValue={saasCompany.country || ""}
-              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/30 transition-all"
-            >
-              <option value="">{t("selectCountry")}</option>
-              {COUNTRIES.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Media pack (links & files) */}
-          <div>
-            <label className="block text-sm font-medium text-[#374151] mb-2">
+            <label className="block text-sm font-medium text-[#374151] mb-1 text-center">
               {tOnboarding("mediaPack")}
             </label>
-            <p className="text-xs text-[#6B7280] mb-2">
+            <p className="text-[11px] text-[#6B7280] mb-1.5 text-center">
               {tOnboarding("mediaPackMultipleHint")}
             </p>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)_auto] gap-2">
                 <input
                   type="text"
                   value={mediaLabelInput}
                   onChange={(e) => setMediaLabelInput(e.target.value)}
                   placeholder={tOnboarding("mediaPackLabelPlaceholder")}
-                  className="bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/40"
+                  className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/40"
                 />
                 <input
                   type="url"
                   value={mediaUrlInput}
                   onChange={(e) => setMediaUrlInput(e.target.value)}
                   placeholder={tOnboarding("mediaPackUrlPlaceholder")}
-                  className="bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/40"
+                  className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8]/40"
                 />
                 <button
                   type="button"
@@ -432,22 +436,22 @@ export default function EditSaasProfileForm({
                     setMediaUrlInput("");
                   }}
                   disabled={mediaUrlInput.trim().length === 0}
-                  className="px-3 py-2 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-2 rounded-lg bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {tOnboarding("addMediaLink")}
                 </button>
               </div>
-              <p className="text-[11px] text-[#9CA3AF]">
+              <p className="text-[11px] text-[#9CA3AF] text-center">
                 {tOnboarding("mediaPackUrlHelper")}
               </p>
 
               {/* Existing items */}
               {mediaItems.length > 0 && (
-                <ul className="mt-2 space-y-1">
+                <ul className="mt-1.5 space-y-1 max-h-24 overflow-y-auto">
                   {mediaItems.map((item, index) => (
                     <li
                       key={`${item.url}-${index}`}
-                      className="flex items-center justify-between gap-3 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl"
+                      className="flex items-center justify-between gap-2 px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-lg"
                     >
                       <div className="min-w-0">
                         <p className="text-xs font-medium text-[#111827] truncate">
@@ -464,7 +468,7 @@ export default function EditSaasProfileForm({
                             prev.filter((_, i) => i !== index),
                           )
                         }
-                        className="text-[11px] text-[#6B7280] hover:text-red-600"
+                        className="text-[11px] text-[#6B7280] hover:text-red-600 shrink-0"
                       >
                         {tOnboarding("removeMediaLink")}
                       </button>
@@ -474,20 +478,24 @@ export default function EditSaasProfileForm({
               )}
             </div>
           </div>
+          </div>
+          </div>
 
-          <div className="flex gap-3 pt-4">
+          {/* Pied : même largeur et centrage qu’au-dessus (pile au milieu) */}
+          <div className="border-t border-gray-100 shrink-0 px-4 sm:px-6 py-4">
+            <div className="max-w-lg mx-auto w-full flex gap-3">
             <button
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="flex-1 px-4 py-2.5 bg-gray-100 border border-gray-200 rounded-xl text-[#374151] hover:bg-gray-200 transition-all disabled:opacity-50"
+              className="flex-1 px-4 py-2 bg-gray-100 border border-gray-200 rounded-xl text-sm text-[#374151] hover:bg-gray-200 transition-all disabled:opacity-50"
             >
               {t("cancel")}
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0F172A] hover:bg-[#1E293B] rounded-xl text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#0F172A] hover:bg-[#1E293B] rounded-xl text-sm text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <>
@@ -501,6 +509,7 @@ export default function EditSaasProfileForm({
                 </>
               )}
             </button>
+            </div>
           </div>
         </form>
       </div>
