@@ -118,7 +118,7 @@ export const PricingSection = () => {
                       {t("monthlyCredits")}
                     </label>
                     <span className="text-xl font-bold text-[#0F172A]">
-                      {creditVolume.toLocaleString()} {t("credits")}
+                      {creditVolume.toLocaleString("fr-FR")} {t("credits")}
                     </span>
                   </div>
 
