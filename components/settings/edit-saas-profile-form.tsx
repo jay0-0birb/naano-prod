@@ -211,7 +211,7 @@ export default function EditSaasProfileForm({
 
         {/* Zone scrollable : tout centré sur le même axe qu’Annuler / Enregistrer */}
         <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-          <div className="flex-1 min-h-0 overflow-y-auto pt-4 space-y-4">
+          <div className="flex-1 min-h-0 overflow-y-auto pt-4 pb-6 space-y-4">
           <div className="max-w-lg mx-auto w-full px-4 sm:px-6 space-y-4">
             {/* Logo entreprise – centré */}
             <div className="flex flex-col items-center">
@@ -303,7 +303,7 @@ export default function EditSaasProfileForm({
             {/* Champs : Nom, Description, Site web, Secteur, Pays – même colonne centrée */}
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-[#374151] mb-1 text-center">
+                <label className="block text-sm font-medium text-[#374151] mb-1 text-left">
                   {tSettings("companyName")} *
                 </label>
                 <div className="relative">
@@ -319,7 +319,7 @@ export default function EditSaasProfileForm({
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#374151] mb-1 text-center">
+                <label className="block text-sm font-medium text-[#374151] mb-1 text-left">
                   {tSettings("description")} *
                 </label>
                 <textarea
@@ -332,7 +332,7 @@ export default function EditSaasProfileForm({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#374151] mb-1 text-center">
+                <label className="block text-sm font-medium text-[#374151] mb-1 text-left">
                   {tSettings("website")} *
                 </label>
                 <div className="relative">
@@ -349,7 +349,7 @@ export default function EditSaasProfileForm({
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-[#374151] mb-1 text-center">
+                  <label className="block text-sm font-medium text-[#374151] mb-1 text-left">
                     {tSettings("industry")} *
                   </label>
                   <select
@@ -373,7 +373,7 @@ export default function EditSaasProfileForm({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#374151] mb-1 text-center">
+                  <label className="block text-sm font-medium text-[#374151] mb-1 text-left">
                     {tSettings("country")}
                   </label>
                   <select
@@ -392,12 +392,12 @@ export default function EditSaasProfileForm({
               </div>
             </div>
 
-          {/* Media pack (links & files) – même colonne centrée */}
+          {/* Media pack (links & files) – titres alignés à gauche */}
           <div>
-            <label className="block text-sm font-medium text-[#374151] mb-1 text-center">
+            <label className="block text-sm font-medium text-[#374151] mb-1 text-left">
               {tOnboarding("mediaPack")}
             </label>
-            <p className="text-[11px] text-[#6B7280] mb-1.5 text-center">
+            <p className="text-[11px] text-[#6B7280] mb-1.5 text-left">
               {tOnboarding("mediaPackMultipleHint")}
             </p>
 
@@ -441,10 +441,6 @@ export default function EditSaasProfileForm({
                   {tOnboarding("addMediaLink")}
                 </button>
               </div>
-              <p className="text-[11px] text-[#9CA3AF] text-center">
-                {tOnboarding("mediaPackUrlHelper")}
-              </p>
-
               {/* Existing items */}
               {mediaItems.length > 0 && (
                 <ul className="mt-1.5 space-y-1 max-h-24 overflow-y-auto">
