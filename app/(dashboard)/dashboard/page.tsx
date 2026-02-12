@@ -194,12 +194,12 @@ export default async function DashboardPage() {
             ) : (
               <Link
                 href="/dashboard/applications"
-                className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#8B5CF6] hover:bg-purple-50/50 transition-all shadow-sm"
+                className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#10B981] hover:bg-green-50/50 transition-all shadow-sm"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center">
-                      <FileText className="w-6 h-6 text-[#8B5CF6]" />
+                    <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
+                      <FileText className="w-6 h-6 text-[#10B981]" />
                     </div>
                     <div>
                       <h4 className="font-semibold text-[#111827]">
@@ -210,7 +210,7 @@ export default async function DashboardPage() {
                       </p>
                     </div>
                   </div>
-                  <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#8B5CF6] group-hover:translate-x-1 transition-all" />
+                  <ArrowRight className="w-5 h-5 text-[#94A3B8] group-hover:text-[#10B981] group-hover:translate-x-1 transition-all" />
                 </div>
               </Link>
             )}
@@ -240,12 +240,12 @@ export default async function DashboardPage() {
             ) : (
               <Link
                 href="/dashboard/finances"
-                className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#10B981] hover:bg-green-50/50 transition-all shadow-sm"
+                className="group p-6 rounded-2xl border border-gray-200 bg-white hover:border-[#F59E0B] hover:bg-amber-50/50 transition-all shadow-sm"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
-                      <Wallet className="w-6 h-6 text-[#10B981]" />
+                    <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center">
+                      <Wallet className="w-6 h-6 text-[#F59E0B]" />
                     </div>
                     <div>
                       <h4 className="font-semibold text-[#111827]">
