@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import {
   Handshake,
   MessageSquare,
@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 export default async function CollaborationsPage() {
+  const locale = await getLocale();
   const t = await getTranslations("collaborations");
   const STATUS_CONFIG = {
     active: {
@@ -136,7 +137,8 @@ export default async function CollaborationsPage() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    const dateLocale = locale === "fr" ? "fr-FR" : "en-US";
+    return new Date(dateString).toLocaleDateString(dateLocale, {
       day: "numeric",
       month: "long",
       year: "numeric",
