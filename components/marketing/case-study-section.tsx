@@ -82,7 +82,7 @@ export const CaseStudySection = () => {
     const intervalId = setInterval(() => {
       setIframeLoaded(false);
       setCurrentPostIndex((prev) => (prev + 1) % (validPosts.length || 1));
-    }, 5000);
+    }, 3000);
 
     return () => clearInterval(intervalId);
   }, [isPaused, validPosts.length]);
