@@ -19,7 +19,6 @@ import {
   Search,
   ChevronUp,
   ChevronDown,
-  ArrowUpDown,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -81,9 +80,6 @@ export default function GlobalLeadFeedTab() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<
-    "date" | "confidence" | "intent" | "company_intent"
-  >("company_intent");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [filterConfirmed, setFilterConfirmed] = useState(false);
   const [filterHighConfidence, setFilterHighConfidence] = useState(false);
@@ -116,7 +112,7 @@ export default function GlobalLeadFeedTab() {
       setError(null);
 
       const result = await getGlobalLeads(
-        sortBy,
+        "date",
         filterConfirmed,
         filterHighConfidence,
       );
@@ -132,7 +128,7 @@ export default function GlobalLeadFeedTab() {
     }
 
     fetchLeads();
-  }, [sortBy, filterConfirmed, filterHighConfidence]);
+  }, [filterConfirmed, filterHighConfidence]);
 
   // Calculate effective confidence with decay
   const getEffectiveConfidence = (lead: Lead): number => {
@@ -198,41 +194,18 @@ export default function GlobalLeadFeedTab() {
       });
     });
 
-    // Apply sorting
+    // Tri uniquement par date (plus ancienne → plus récente ou inverse)
     filtered.sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
-
-      switch (sortBy) {
-        case "date":
-          aValue = new Date(a.occurredAt).getTime();
-          bValue = new Date(b.occurredAt).getTime();
-          break;
-        case "confidence":
-          aValue = getEffectiveConfidence(a);
-          bValue = getEffectiveConfidence(b);
-          break;
-        case "intent":
-          aValue = a.intent?.score || 0;
-          bValue = b.intent?.score || 0;
-          break;
-        case "company_intent":
-          aValue = a.company?.aggregatedIntent?.avg_intent_score || 0;
-          bValue = b.company?.aggregatedIntent?.avg_intent_score || 0;
-          break;
-        default:
-          return 0;
-      }
-
+      const aValue = new Date(a.occurredAt).getTime();
+      const bValue = new Date(b.occurredAt).getTime();
       if (sortDirection === "asc") {
         return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
       }
+      return aValue < bValue ? 1 : -1;
     });
 
     return filtered;
-  }, [leads, searchQuery, columnFilters, sortBy, sortDirection]);
+  }, [leads, searchQuery, columnFilters, sortDirection]);
 
   // Download CSV with all fields (English)
   const handleDownloadCSV = () => {
@@ -402,25 +375,16 @@ export default function GlobalLeadFeedTab() {
     );
   }
 
-  const handleSort = (column: typeof sortBy) => {
-    if (sortBy === column) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortBy(column);
-      setSortDirection("desc");
-    }
+  const handleDateSort = () => {
+    setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
   };
 
-  const SortIcon = ({ column }: { column: typeof sortBy }) => {
-    if (sortBy !== column) {
-      return <ArrowUpDown className="w-3 h-3 text-gray-400" />;
-    }
-    return sortDirection === "asc" ? (
+  const DateSortIcon = () =>
+    sortDirection === "asc" ? (
       <ChevronUp className="w-3 h-3 text-blue-600" />
     ) : (
       <ChevronDown className="w-3 h-3 text-blue-600" />
     );
-  };
 
   if (leads.length === 0) {
     return (
@@ -489,51 +453,29 @@ export default function GlobalLeadFeedTab() {
                   <div className="flex items-center gap-2">
                     {t("date")}
                     <button
-                      onClick={() => handleSort("date")}
-                      className="hover:text-blue-600"
+                      type="button"
+                      onClick={handleDateSort}
+                      className="hover:text-blue-600 p-0.5"
+                      aria-label={sortDirection === "asc" ? t("sortNewestFirst") : t("sortOldestFirst")}
                     >
-                      <SortIcon column="date" />
+                      <DateSortIcon />
                     </button>
                   </div>
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
-                  <div className="flex items-center gap-2">
-                    {t("company")}
-                    <button
-                      onClick={() => handleSort("company_intent")}
-                      className="hover:text-blue-600"
-                    >
-                      <SortIcon column="company_intent" />
-                    </button>
-                  </div>
+                  {t("company")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
                   {t("domain")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
-                  <div className="flex items-center gap-2">
-                    {t("confidence")}
-                    <button
-                      onClick={() => handleSort("confidence")}
-                      className="hover:text-blue-600"
-                    >
-                      <SortIcon column="confidence" />
-                    </button>
-                  </div>
+                  {t("confidence")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
                   {t("state")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
-                  <div className="flex items-center gap-2">
-                    {t("intent")}
-                    <button
-                      onClick={() => handleSort("intent")}
-                      className="hover:text-blue-600"
-                    >
-                      <SortIcon column="intent" />
-                    </button>
-                  </div>
+                  {t("intent")}
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
                   {t("country")}

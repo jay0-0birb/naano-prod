@@ -883,7 +883,9 @@
     "no": "Non",
     "noResults": "Aucun résultat trouvé avec les filtres actuels.",
     "showingCount": "Affichage de {filtered} sur {total} leads",
-    "noDataExport": "Aucune donnée à exporter"
+    "noDataExport": "Aucune donnée à exporter",
+    "sortOldestFirst": "Plus ancienne d'abord",
+    "sortNewestFirst": "Plus récente d'abord"
   },
   "forms": {
     "registerCard": "Enregistrer une carte",

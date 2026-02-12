@@ -885,7 +885,9 @@
     "no": "No",
     "noResults": "No results found with current filters.",
     "showingCount": "Showing {filtered} of {total} leads",
-    "noDataExport": "No data to export"
+    "noDataExport": "No data to export",
+    "sortOldestFirst": "Oldest first",
+    "sortNewestFirst": "Newest first"
   },
   "forms": {
     "registerCard": "Register card",
