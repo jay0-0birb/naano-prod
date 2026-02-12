@@ -98,6 +98,20 @@ export default function SettingsClient({
 
   const isCreator = profile?.role === "influencer";
 
+  // Prevent background page from scrolling when any settings modal is open
+  useEffect(() => {
+    const hasOpenModal =
+      showEditProfile || showEditCreatorProfile || showEditSaasProfile;
+    if (!hasOpenModal) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [showEditProfile, showEditCreatorProfile, showEditSaasProfile]);
+
   const handleChangePassword = async () => {
     const email = profile?.email;
     if (!email) return;
