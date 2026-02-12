@@ -430,7 +430,7 @@
     "mediaPackUrlPlaceholder": "https://exemple.com/media-pack",
     "mediaPackDefaultLabel": "Ressource média",
     "addMediaLink": "Ajouter un lien",
-    "mediaPackUrlHelper": "Les créateurs verront ces liens sur votre carte SaaS (bouton « Voir les médias »).",
+
     "mediaPackUploadedListTitle": "Médias téléversés",
     "removeMediaLink": "Supprimer",
     "createCompanyProfile": "Créer le profil entreprise"
