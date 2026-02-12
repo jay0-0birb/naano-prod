@@ -27,7 +27,8 @@ const MatchCard = ({ t }: { t: (key: string) => string }) => (
       <div className="relative">
         <div className="w-12 h-12 rounded-full bg-gray-200 border-2 border-white shadow-sm overflow-hidden">
           <Image
-            src="https://i.pravatar.cc/150?img=17"
+            // Même avatar qu'utilisé pour Alex Rivera dans le Creator Showcase
+            src="https://i.pravatar.cc/150?u=alex"
             alt="Alex Rivera"
             width={48}
             height={48}
