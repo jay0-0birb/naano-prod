@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Zap, BarChart3, Target, Linkedin } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -44,6 +44,8 @@ export const CaseStudySection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
   const [currentPostIndex, setCurrentPostIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
   const t = useTranslations("caseStudy");
 
   const features = [
@@ -71,6 +73,19 @@ export const CaseStudySection = () => {
   const embedId = currentPostUrl
     ? extractLinkedInPostId(currentPostUrl)
     : null;
+
+  // Rotation auto des posts toutes les 5s, sauf si l'utilisateur survole la zone LinkedIn
+  useEffect(() => {
+    if (!validPosts.length) return;
+    if (isPaused) return;
+
+    const intervalId = setInterval(() => {
+      setIframeLoaded(false);
+      setCurrentPostIndex((prev) => (prev + 1) % (validPosts.length || 1));
+    }, 5000);
+
+    return () => clearInterval(intervalId);
+  }, [isPaused, validPosts.length]);
 
   return (
     <section
@@ -159,7 +174,11 @@ export const CaseStudySection = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="flex-1 flex flex-col items-center justify-center pt-8 sm:pt-12 lg:pt-16 pb-8 sm:pb-12 lg:pb-0 w-full"
           >
-            <div className="relative flex flex-col items-center w-full">
+            <div
+              className="relative flex flex-col items-center w-full"
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
+            >
               {/* Browser window */}
               <div className="w-full max-w-[480px] sm:max-w-[560px] rounded-lg overflow-hidden shadow-[0_20px_50px_-12px_rgba(0,0,0,0.18)] border border-gray-200/80 bg-white">
                 {/* Browser chrome */}
@@ -178,26 +197,43 @@ export const CaseStudySection = () => {
                 </div>
 
                 {/* Content area */}
-                <div className="bg-white min-h-[360px] sm:min-h-[400px] overflow-hidden">
+                <div className="relative bg-white min-h-[360px] sm:min-h-[400px] overflow-hidden">
                   {embedId ? (
-                    <AnimatePresence mode="wait">
-                      <motion.div
-                        key={currentPostIndex}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.25 }}
-                        className="w-full overflow-hidden"
-                      >
-                        <iframe
-                          src={`https://www.linkedin.com/embed/feed/update/${embedId}`}
-                          className="w-full border-0"
-                          style={{ height: "400px", minHeight: "360px" }}
-                          allowFullScreen
-                          title={`LinkedIn Post ${currentPostIndex + 1}`}
-                        />
-                      </motion.div>
-                    </AnimatePresence>
+                    <>
+                      {/* Skeleton de chargement pour éviter le flash blanc pendant le chargement de l'iframe */}
+                      {!iframeLoaded && (
+                        <div
+                          className="absolute inset-0 bg-gray-50 flex flex-col gap-3 animate-pulse px-4 py-6"
+                          aria-hidden="true"
+                        >
+                          <div className="h-4 w-32 bg-gray-200 rounded" />
+                          <div className="h-4 w-48 bg-gray-200 rounded" />
+                          <div className="h-3 w-full bg-gray-200 rounded" />
+                          <div className="h-3 w-5/6 bg-gray-200 rounded" />
+                          <div className="h-3 w-4/6 bg-gray-200 rounded" />
+                          <div className="mt-4 h-28 w-full bg-gray-200 rounded-lg" />
+                        </div>
+                      )}
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={currentPostIndex}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.25 }}
+                          className="w-full overflow-hidden"
+                        >
+                          <iframe
+                            src={`https://www.linkedin.com/embed/feed/update/${embedId}`}
+                            className="w-full border-0"
+                            style={{ height: "400px", minHeight: "360px" }}
+                            allowFullScreen
+                            title={`LinkedIn Post ${currentPostIndex + 1}`}
+                            onLoad={() => setIframeLoaded(true)}
+                          />
+                        </motion.div>
+                      </AnimatePresence>
+                    </>
                   ) : (
                     <div className="w-full min-h-[360px] flex items-center justify-center p-6">
                       <p className="text-gray-400 text-sm text-center">
@@ -216,7 +252,10 @@ export const CaseStudySection = () => {
                   <button
                     key={i}
                     type="button"
-                    onClick={() => setCurrentPostIndex(i)}
+                    onClick={() => {
+                      setIframeLoaded(false);
+                      setCurrentPostIndex(i);
+                    }}
                     className={`w-2 h-2 rounded-full transition-all ${
                       i === currentPostIndex
                         ? "bg-[#0A66C2] w-6"

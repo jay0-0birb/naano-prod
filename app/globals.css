@@ -166,6 +166,30 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
+/* Global scrollbar styling – fond gris clair, thumb gris un peu plus foncé */
+@layer base {
+  /* Navigateurs basés sur WebKit (Chrome, Edge, Safari, etc.) */
+  *::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  *::-webkit-scrollbar-track {
+    /* gris très clair, comme dans ton exemple */
+    background: #f3f4f6; /* tailwind gray-100 */
+  }
+
+  *::-webkit-scrollbar-thumb {
+    /* thumb plus visible, gris moyen */
+    background: #d1d5db; /* tailwind gray-300 */
+    border-radius: 9999px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    /* légèrement plus foncé au survol */
+    background: #9ca3af; /* tailwind gray-400 */
+  }
+}
+
 /* All headings use Satoshi in dashboard, Plus Jakarta Sans elsewhere */
 h1,
 h2,
