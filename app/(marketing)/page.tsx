@@ -104,7 +104,7 @@ export default function LandingPage() {
         <button
           type="button"
           onClick={scrollToTop}
-          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[900] w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg bg-white/90 shadow-md hover:bg-gray-100 transition-colors"
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[900] w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg bg-white/90 shadow-md hover:bg-gray-100 transition-all duration-150 hover:scale-105"
         >
           <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-[#4B5563]" />
         </button>
