@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import {
   Clock,
   CheckCircle2,
@@ -12,6 +12,7 @@ import Link from "next/link";
 import ApplicationActions from "@/components/applications/application-actions";
 
 export default async function ApplicationsPage() {
+  const locale = await getLocale();
   const t = await getTranslations("applications");
   const STATUS_CONFIG = {
     pending: {
@@ -86,7 +87,9 @@ export default async function ApplicationsPage() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("fr-FR", {
+    // Affichage de la date en fonction de la langue de l'interface
+    const dateLocale = locale === "fr" ? "fr-FR" : "en-US";
+    return new Date(dateString).toLocaleDateString(dateLocale, {
       day: "numeric",
       month: "long",
       year: "numeric",
