@@ -136,13 +136,22 @@ export default async function CollaborationsPage() {
     }
   }
 
+  const dateLocale = locale === "fr" ? "fr-FR" : "en-US";
   const formatDate = (dateString: string) => {
-    const dateLocale = locale === "fr" ? "fr-FR" : "en-US";
-    return new Date(dateString).toLocaleDateString(dateLocale, {
+    const formatted = new Date(dateString).toLocaleDateString(dateLocale, {
       day: "numeric",
       month: "long",
       year: "numeric",
     });
+    // Majuscule au mois en français (ex. "9 février 2026" → "9 Février 2026")
+    if (dateLocale === "fr-FR") {
+      const parts = formatted.split(" ");
+      if (parts[1]) {
+        parts[1] = parts[1].charAt(0).toUpperCase() + parts[1].slice(1);
+      }
+      return parts.join(" ");
+    }
+    return formatted;
   };
 
   return (
