@@ -110,7 +110,7 @@ export const PricingSection = () => {
               transition={{ duration: 0.3 }}
               className="max-w-[560px] mx-auto"
             >
-              <div className="bg-white rounded-2xl p-6 sm:p-8 border-2 border-[#0F172A] shadow-sm">
+              <div className="bg-white rounded-2xl p-6 sm:p-8 border-2 border-[#0F172A] shadow-sm transition-transform duration-150 hover:scale-[1.02] hover:shadow-lg">
                 {/* Slider */}
                 <div className="mb-6">
                   <div className="flex justify-between items-center mb-4">
@@ -201,7 +201,7 @@ export const PricingSection = () => {
               {/* Two-column layout: Classic vs Founding Creators */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
                 {/* Classic Plan */}
-                <div className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-2xl p-6 md:p-8 flex flex-col">
+                <div className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-2xl p-6 md:p-8 flex flex-col transition-transform duration-150 hover:scale-[1.02] hover:shadow-md">
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#64748B]">
                       {t("classicTitle")}
@@ -250,7 +250,7 @@ export const PricingSection = () => {
                 </div>
 
                 {/* Founding Creators Plan */}
-                <div className="relative bg-white border-2 border-[#0F172A] rounded-2xl p-6 md:p-8 shadow-sm flex flex-col">
+                <div className="relative bg-white border-2 border-[#0F172A] rounded-2xl p-6 md:p-8 shadow-sm flex flex-col transition-transform duration-150 hover:scale-[1.02] hover:shadow-lg">
                   {/* Most popular badge */}
                   <div className="absolute -top-3 right-4">
                     <span className="inline-flex items-center gap-1 rounded-full bg-[#0F172A] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white">
