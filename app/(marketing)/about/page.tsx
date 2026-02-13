@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Navbar } from "@/components/marketing/navbar";
 import { FooterSection } from "@/components/marketing/footer-section";
@@ -21,6 +22,14 @@ import tomImage from "../../../docs/tom.png";
 export default function AboutPage() {
   const t = useTranslations("about");
   const tCommon = useTranslations("common");
+  const card1Ref = useRef(null);
+  const card2Ref = useRef(null);
+  const card3Ref = useRef(null);
+  const card4Ref = useRef(null);
+  const card1InView = useInView(card1Ref, { once: true, amount: 0.2 });
+  const card2InView = useInView(card2Ref, { once: true, amount: 0.2 });
+  const card3InView = useInView(card3Ref, { once: true, amount: 0.2 });
+  const card4InView = useInView(card4Ref, { once: true, amount: 0.2 });
 
   return (
     <main
@@ -98,54 +107,69 @@ export default function AboutPage() {
               </div>
             </div>
 
-            {/* Section 2: Our Mission */}
-            <div className="space-y-6" style={{ marginBottom: "2rem" }}>
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-blue-50 text-[#3B82F6]">
-                  <Target className="w-6 h-6" />
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-[#111827] tracking-tight">
+            {/* Section 2: Our Mission – carte (décalée à gauche, animation depuis la gauche) */}
+            <motion.div
+              ref={card1Ref}
+              initial={{ opacity: 0, x: -48 }}
+              animate={card1InView ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="mb-6 ml-0 mr-auto max-w-xl min-h-[280px]"
+            >
+              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm h-full transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:shadow-lg hover:border-gray-300">
+                <h2 className="font-semibold text-[#111827] mb-4 flex items-center gap-2 text-xl sm:text-2xl">
+                  <Target className="w-5 h-5 text-[#3B82F6]" />
                   {t("section2Title")}
                 </h2>
-              </div>
-              <div className="space-y-4 text-[#4B5563] leading-relaxed">
-                <p>{t("section2P1")}</p>
-                <p>{t("section2P2")}</p>
-              </div>
-            </div>
-
-            {/* Section 3: Built on Proven Results (pushed to the right) */}
-            <div className="flex justify-end mb-20" style={{ marginBottom: "4rem" }}>
-              <div className="space-y-4 max-w-xl text-right">
-                <div className="flex items-center gap-3 justify-end">
-                  <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600">
-                    <Zap className="w-6 h-6" />
-                  </div>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-[#111827] tracking-tight">
-                    {t("section3Title")}
-                  </h2>
+                <div className="space-y-3 text-[#4B5563] text-sm leading-relaxed">
+                  <p>{t("section2P1")}</p>
+                  <p>{t("section2P2")}</p>
+                  <ul className="space-y-2 pt-1">
+                    <li className="flex gap-2">
+                      <span className="text-[#3B82F6] mt-1 shrink-0">•</span>
+                      {t("section2Bullet1")}
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-[#3B82F6] mt-1 shrink-0">•</span>
+                      {t("section2Bullet2")}
+                    </li>
+                  </ul>
+                  <p>{t("section2P3")}</p>
                 </div>
-                <div className="space-y-4 text-[#4B5563] leading-relaxed">
+              </div>
+            </motion.div>
+
+            {/* Section 3: Built on Proven Results – carte (décalée à droite, animation depuis la droite) */}
+            <motion.div
+              ref={card2Ref}
+              initial={{ opacity: 0, x: 48 }}
+              animate={card2InView ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="mb-20 flex justify-end"
+            >
+              <div className="max-w-xl w-full sm:w-auto min-h-[280px]">
+              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm h-full transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:shadow-lg hover:border-gray-300">
+                <h2 className="font-semibold text-[#111827] mb-4 flex items-center gap-2 text-xl sm:text-2xl">
+                  <Zap className="w-5 h-5 text-emerald-500" />
+                  {t("section3Title")}
+                </h2>
+                <div className="space-y-3 text-[#4B5563] text-sm leading-relaxed">
                   <p>{t("section3P1")}</p>
                   <p>{t("section3P2")}</p>
-
-                  <div className="flex justify-end">
-                    <ul className="space-y-2 pl-4 border-l-2 border-blue-200">
-                      <li className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#3B82F6]" />
-                        {t("section3Bullet1")}
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#3B82F6]" />
-                        {t("section3Bullet2")}
-                      </li>
-                    </ul>
-                  </div>
-
+                  <ul className="space-y-2 pt-1">
+                    <li className="flex gap-2">
+                      <span className="text-[#3B82F6] mt-1 shrink-0">•</span>
+                      {t("section3Bullet1")}
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-[#3B82F6] mt-1 shrink-0">•</span>
+                      {t("section3Bullet2")}
+                    </li>
+                  </ul>
                   <p>{t("section3P3")}</p>
                 </div>
               </div>
-            </div>
+              </div>
+            </motion.div>
 
             {/* Section 4: Why Naano */}
             <div className="space-y-8" style={{ marginBottom: "2rem" }}>
@@ -162,8 +186,15 @@ export default function AboutPage() {
                 className="grid sm:grid-cols-2 gap-6"
                 style={{ marginTop: "2rem" }}
               >
-                {/* For Brands */}
-                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+                {/* For Brands – animation depuis la gauche */}
+                <motion.div
+                  ref={card3Ref}
+                  initial={{ opacity: 0, x: -48 }}
+                  animate={card3InView ? { opacity: 1, x: 0 } : {}}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  className="h-full"
+                >
+                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:shadow-lg hover:border-gray-300 h-full min-h-[260px]">
                   <h3 className="font-semibold text-[#111827] mb-4 flex items-center gap-2">
                     <Users className="w-5 h-5 text-[#3B82F6]" />
                     {t("section4ForBrands")}
@@ -183,9 +214,17 @@ export default function AboutPage() {
                     </li>
                   </ul>
                 </div>
+                </motion.div>
 
-                {/* For Creators */}
-                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+                {/* For Creators – animation depuis la droite */}
+                <motion.div
+                  ref={card4Ref}
+                  initial={{ opacity: 0, x: 48 }}
+                  animate={card4InView ? { opacity: 1, x: 0 } : {}}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  className="h-full"
+                >
+                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:shadow-lg hover:border-gray-300 h-full min-h-[260px]">
                   <h3 className="font-semibold text-[#111827] mb-4 flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-emerald-500" />
                     {t("section4ForCreators")}
@@ -205,6 +244,7 @@ export default function AboutPage() {
                     </li>
                   </ul>
                 </div>
+                </motion.div>
               </div>
             </div>
 
