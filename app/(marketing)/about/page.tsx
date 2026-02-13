@@ -13,6 +13,7 @@ import {
   Users,
   Sparkles,
   ArrowRight,
+  Linkedin,
 } from "lucide-react";
 import juImage from "../../../docs/ju.jpeg";
 import alexImage from "../../../docs/alex.png";
@@ -49,34 +50,64 @@ export default function AboutPage() {
             <div className="mt-8 flex flex-col items-center gap-4 sm:gap-6">
               <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
                 <div className="flex flex-col items-center gap-2">
-                  <Image
-                    src={juImage}
-                    alt="Justine, co-founder & cto"
-                    className="h-20 w-20 sm:h-24 sm:w-24 rounded-full object-cover shadow-md"
-                    style={{ objectPosition: "center 10%" }}
-                  />
-                  <span className="text-xs sm:text-sm font-medium text-[#111827]">
-                    Justine
-                  </span>
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  <Image
-                    src={alexImage}
-                    alt="Alexis, co-founder of Naano"
-                    className="h-20 w-20 sm:h-24 sm:w-24 rounded-full object-cover shadow-md"
-                    style={{ objectPosition: "center 0.2%" }}
-                  />
+                  <a
+                    href="https://www.linkedin.com/in/alexis-jarre/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative group cursor-pointer transition-transform duration-200 ease-out hover:scale-105 block"
+                  >
+                    <Image
+                      src={alexImage}
+                      alt="Alexis, co-founder of Naano"
+                      className="h-20 w-20 sm:h-24 sm:w-24 rounded-full object-cover shadow-md"
+                      style={{ objectPosition: "center 0.2%" }}
+                    />
+                    <div className="absolute bottom-0 right-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#0A66C2] flex items-center justify-center ring-2 ring-white shadow-[0_2px_8px_rgba(0,0,0,0.15)] opacity-0 group-hover:opacity-100 transition-all duration-200 group-hover:scale-100 scale-95">
+                      <Linkedin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+                    </div>
+                  </a>
                   <span className="text-xs sm:text-sm font-medium text-[#111827]">
                     Alexis
                   </span>
                 </div>
                 <div className="flex flex-col items-center gap-2">
-                  <Image
-                    src={tomImage}
-                    alt="Thomas, co-founder of Naano"
-                    className="h-20 w-20 sm:h-24 sm:w-24 rounded-full object-cover shadow-md"
-                    style={{ objectPosition: "center 10%" }}
-                  />
+                  <a
+                    href="https://www.linkedin.com/in/justine-namour-709951388/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative group cursor-pointer transition-transform duration-200 ease-out hover:scale-105 block"
+                  >
+                    <Image
+                      src={juImage}
+                      alt="Justine, co-founder & cto"
+                      className="h-20 w-20 sm:h-24 sm:w-24 rounded-full object-cover shadow-md"
+                      style={{ objectPosition: "center 10%" }}
+                    />
+                    <div className="absolute bottom-0 right-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#0A66C2] flex items-center justify-center ring-2 ring-white shadow-[0_2px_8px_rgba(0,0,0,0.15)] opacity-0 group-hover:opacity-100 transition-all duration-200 group-hover:scale-100 scale-95">
+                      <Linkedin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+                    </div>
+                  </a>
+                  <span className="text-xs sm:text-sm font-medium text-[#111827]">
+                    Justine
+                  </span>
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <a
+                    href="https://www.linkedin.com/in/thomas-marcelle/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative group cursor-pointer transition-transform duration-200 ease-out hover:scale-105 block"
+                  >
+                    <Image
+                      src={tomImage}
+                      alt="Thomas, co-founder of Naano"
+                      className="h-20 w-20 sm:h-24 sm:w-24 rounded-full object-cover shadow-md"
+                      style={{ objectPosition: "center 10%" }}
+                    />
+                    <div className="absolute bottom-0 right-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#0A66C2] flex items-center justify-center ring-2 ring-white shadow-[0_2px_8px_rgba(0,0,0,0.15)] opacity-0 group-hover:opacity-100 transition-all duration-200 group-hover:scale-100 scale-95">
+                      <Linkedin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+                    </div>
+                  </a>
                   <span className="text-xs sm:text-sm font-medium text-[#111827]">
                     Thomas
                   </span>
