@@ -166,27 +166,20 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
-/* Global scrollbar styling – fond gris clair, thumb gris un peu plus foncé */
+/* Global scrollbar – track blanc, thumb gris clair (dans @layer base) */
 @layer base {
-  /* Navigateurs basés sur WebKit (Chrome, Edge, Safari, etc.) */
   *::-webkit-scrollbar {
     width: 10px;
   }
-
   *::-webkit-scrollbar-track {
-    /* gris très clair, comme dans ton exemple */
-    background: #f3f4f6; /* tailwind gray-100 */
+    background: #ffffff !important;
   }
-
   *::-webkit-scrollbar-thumb {
-    /* thumb plus visible, gris moyen */
-    background: #d1d5db; /* tailwind gray-300 */
+    background: #d1d5db !important;
     border-radius: 9999px;
   }
-
   *::-webkit-scrollbar-thumb:hover {
-    /* légèrement plus foncé au survol */
-    background: #9ca3af; /* tailwind gray-400 */
+    background: #9ca3af !important;
   }
 }
 
@@ -313,19 +306,27 @@ main.bg-white * {
   animation-delay: 0.5s;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
+/* Scrollbar – track blanc, thumb gris clair (forcé sur html, body et tous les éléments) */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
   width: 8px;
 }
-::-webkit-scrollbar-track {
-  background: #020408;
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track {
+  background: #ffffff !important;
 }
-::-webkit-scrollbar-thumb {
-  background: #334155;
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb {
+  background: #d1d5db !important;
   border-radius: 4px;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+*::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af !important;
 }
 
 /* Navbar logo + text: vertical center alignment */
