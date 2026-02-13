@@ -29,15 +29,9 @@ export const Navbar = ({ showContent }: NavbarProps) => {
       }`}
     >
       <div className="flex items-center justify-between max-w-7xl mx-auto relative">
-        {/* Logo + Brand - clique = remonter tout en haut */}
-        <button
-          type="button"
-          onClick={() =>
-            window.scrollTo({
-              top: 0,
-              behavior: "smooth",
-            })
-          }
+        {/* Logo + Brand - clique = retour à la landing naano.xyz */}
+        <Link
+          href="https://www.naano.xyz"
           className="navbar-brand cursor-pointer transition-transform duration-150 hover:scale-[1.03]"
           style={{ fontFamily: "Satoshi, sans-serif" }}
         >
@@ -49,7 +43,7 @@ export const Navbar = ({ showContent }: NavbarProps) => {
           <span className="font-bold text-lg sm:text-xl text-[#111827]">
             naano
           </span>
-        </button>
+        </Link>
 
         <div className="flex items-center gap-3 sm:gap-4">
           {/* Menu Items - to the left of hamburger & toggle when open */}
