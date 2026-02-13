@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import {
   User,
@@ -55,6 +55,7 @@ export default function SettingsClient({
   initialNotificationPrefs,
 }: SettingsClientProps) {
   const router = useRouter();
+  const locale = useLocale();
   const t = useTranslations("settings");
   const tFinances = useTranslations("finances");
   const tOnboarding = useTranslations("onboarding");
@@ -493,7 +494,7 @@ export default function SettingsClient({
               <div className="flex items-center justify-between py-3 border-b border-gray-200">
                 <span className="text-sm text-[#6B7280]">{t("followers")}</span>
                 <span className="text-sm text-[#111827]">
-                  {creatorProfile.followers_count?.toLocaleString() || "0"}
+                  {creatorProfile.followers_count?.toLocaleString(locale === "fr" ? "fr-FR" : "en-US") || "0"}
                 </span>
               </div>
               <div className="flex items-center justify-between py-3 border-b border-gray-200">

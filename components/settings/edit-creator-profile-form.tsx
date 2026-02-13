@@ -219,9 +219,9 @@ export default function EditCreatorProfileForm({
                   })}
                 </div>
                 {/* Hidden inputs for server */}
-                {selectedThemes.map((value) => (
+                {selectedThemes.map((value, index) => (
                   <input
-                    key={value}
+                    key={`themes-${index}`}
                     type="hidden"
                     name="themes"
                     value={value}
