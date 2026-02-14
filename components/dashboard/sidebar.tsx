@@ -19,6 +19,7 @@ import {
   ExternalLink,
   X,
   HelpCircle,
+  ShieldCheck,
 } from "lucide-react";
 import { forceLogout } from "@/lib/auth-utils";
 import UnreadBadge from "./unread-badge";
@@ -77,7 +78,7 @@ export default function DashboardSidebar({
     >
       <div className="h-16 flex items-center justify-between px-4 sm:px-6 border-b border-gray-200 shrink-0">
         <Link
-          href="/dashboard"
+          href={role === "admin" ? "/dashboard/admin/affiliates" : "/dashboard"}
           className="flex items-center gap-2"
           onClick={handleNav}
         >
@@ -100,8 +101,8 @@ export default function DashboardSidebar({
         </button>
       </div>
 
-      {/* Onboarding Alert */}
-      {!onboardingCompleted && (
+      {/* Onboarding Alert (only for non-admin) */}
+      {role !== "admin" && !onboardingCompleted && (
         <Link
           href="/dashboard/onboarding"
           className="mx-4 mt-4 p-3 bg-slate-100 border border-slate-200 rounded-lg flex items-center gap-2 hover:bg-slate-200 transition-colors"
@@ -114,21 +115,37 @@ export default function DashboardSidebar({
       )}
 
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        <div className="px-2 py-2 text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">
-          {t("menu")}
-        </div>
+        {role === "admin" ? (
+          <>
+            <div className="px-2 py-2 text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">
+              Admin
+            </div>
+            <Link
+              href="/dashboard/admin/affiliates"
+              className={linkClass("/dashboard/admin/affiliates")}
+              onClick={handleNav}
+            >
+              <ShieldCheck className="w-5 h-5" />
+              <span>Affiliates</span>
+            </Link>
+          </>
+        ) : (
+          <>
+            <div className="px-2 py-2 text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">
+              {t("menu")}
+            </div>
 
-        <Link
-          href="/dashboard"
-          className={linkClass("/dashboard")}
-          onClick={handleNav}
-        >
-          <LayoutDashboard className="w-5 h-5" />
-          <span>{t("overview")}</span>
-        </Link>
+            <Link
+              href="/dashboard"
+              className={linkClass("/dashboard")}
+              onClick={handleNav}
+            >
+              <LayoutDashboard className="w-5 h-5" />
+              <span>{t("overview")}</span>
+            </Link>
 
-        {/* Creator-specific menu */}
-        {isCreator ? (
+            {/* Creator-specific menu */}
+            {isCreator ? (
           <>
             {creatorProfileLocked ? (
               <span
@@ -329,17 +346,21 @@ export default function DashboardSidebar({
               </span>
             </Link>
           ))}
+          </>
+        )}
       </nav>
 
       <div className="p-4 border-t border-gray-200">
-        <Link
-          href="/dashboard/help"
-          className={linkClass("/dashboard/help")}
-          onClick={handleNav}
-        >
-          <HelpCircle className="w-5 h-5" />
-          <span>{t("helpCenter")}</span>
-        </Link>
+        {role !== "admin" && (
+          <Link
+            href="/dashboard/help"
+            className={linkClass("/dashboard/help")}
+            onClick={handleNav}
+          >
+            <HelpCircle className="w-5 h-5" />
+            <span>{t("helpCenter")}</span>
+          </Link>
+        )}
         <Link
           href="/dashboard/settings"
           className={linkClass("/dashboard/settings")}

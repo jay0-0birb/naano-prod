@@ -6,6 +6,7 @@ import {
   completeSaasOnboarding,
   uploadMediaPack,
 } from "@/app/(dashboard)/actions";
+import { getAffiliateCodeFromCookie, AFFILIATE_FORM_FIELD } from "@/lib/affiliate";
 import { fetchAvatarFromWebsite } from "@/app/(dashboard)/dashboard/settings/actions";
 import {
   Loader2,
@@ -46,7 +47,9 @@ export default function SaasOnboardingForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
-  const [lastUploadedFileName, setLastUploadedFileName] = useState<string | null>(null);
+  const [lastUploadedFileName, setLastUploadedFileName] = useState<
+    string | null
+  >(null);
   const [mediaLabelInput, setMediaLabelInput] = useState("");
   const [mediaUrlInput, setMediaUrlInput] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -106,6 +109,10 @@ export default function SaasOnboardingForm() {
     const formData = new FormData(event.currentTarget);
     if (mediaItems.length > 0) {
       formData.append("mediaPackUrl", JSON.stringify(mediaItems));
+    }
+    const affiliateCode = getAffiliateCodeFromCookie();
+    if (affiliateCode) {
+      formData.append(AFFILIATE_FORM_FIELD, affiliateCode);
     }
 
     const result = await completeSaasOnboarding(formData);
@@ -175,10 +182,7 @@ export default function SaasOnboardingForm() {
         {/* Profile photo */}
         <div className="space-y-2">
           <div className="flex items-center gap-4 p-4 rounded-xl border border-gray-200 bg-gray-50/60">
-            <label
-              htmlFor="avatar"
-              className="cursor-pointer shrink-0"
-            >
+            <label htmlFor="avatar" className="cursor-pointer shrink-0">
               <div className="w-16 h-16 rounded-full overflow-hidden bg-white border border-dashed border-gray-300 flex items-center justify-center">
                 {avatarPreview ? (
                   <img
@@ -371,9 +375,7 @@ export default function SaasOnboardingForm() {
                 <>
                   <Upload className="w-5 h-5 text-[#64748B]" />
                   <div className="flex flex-col items-start">
-                    <span className="text-[#64748B]">
-                      {t("clickToUpload")}
-                    </span>
+                    <span className="text-[#64748B]">{t("clickToUpload")}</span>
                     <span className="text-[11px] text-[#9CA3AF]">
                       {mediaItems.length > 0
                         ? t("mediaPackUploadMore", {
@@ -523,9 +525,7 @@ export default function SaasOnboardingForm() {
             required
             className="mt-1 rounded border-gray-300"
           />
-          <span className="text-sm text-[#475569]">
-            {t("certifyAccuracy")}
-          </span>
+          <span className="text-sm text-[#475569]">{t("certifyAccuracy")}</span>
         </label>
       </div>
 

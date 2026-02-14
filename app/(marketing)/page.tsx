@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { AFFILIATE_COOKIE_NAME, AFFILIATE_COOKIE_MAX_AGE_DAYS } from "@/lib/affiliate";
 import { Navbar } from "@/components/marketing/navbar";
 import { HeroSection } from "@/components/marketing/hero-section";
 import { DemoSection } from "@/components/marketing/demo-section";
@@ -26,6 +27,30 @@ export default function LandingPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Affiliate: ?aff=CODE → validate and set cookie for 30 days (only if code exists).
+  useEffect(() => {
+    try {
+      const url = new URL(window.location.href);
+      const aff = url.searchParams.get("aff");
+      if (!aff) return;
+
+      const code = aff.trim().toUpperCase();
+      if (!code) return;
+
+      fetch(`/api/affiliate/validate?code=${encodeURIComponent(code)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.valid) {
+            const maxAge = AFFILIATE_COOKIE_MAX_AGE_DAYS * 24 * 60 * 60;
+            document.cookie = `${AFFILIATE_COOKIE_NAME}=${encodeURIComponent(code)}; path=/; max-age=${maxAge}; samesite=lax`;
+          }
+        })
+        .catch(() => {});
+    } catch {
+      // Ignore invalid URL environments
+    }
+  }, []);
+
   // Naano promotion verification:
   // If the landing page is loaded with ?ref=CREATOR_ID,
   // wait ~3s then notify the backend so it can apply
@@ -41,9 +66,7 @@ export default function LandingPage() {
 
       const timer = setTimeout(async () => {
         if (cancelled) return;
-        const timeOnSiteSeconds = Math.floor(
-          (Date.now() - start) / 1000,
-        );
+        const timeOnSiteSeconds = Math.floor((Date.now() - start) / 1000);
 
         // If visitor is logged in, send their user id so backend can block self-clicks.
         let visitorUserId: string | undefined;

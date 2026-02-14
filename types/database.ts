@@ -1,10 +1,10 @@
-export type UserRole = 'saas' | 'influencer' | 'admin';
+export type UserRole = "saas" | "influencer" | "admin";
 
-export type ApplicationStatus = 'pending' | 'accepted' | 'rejected';
+export type ApplicationStatus = "pending" | "accepted" | "rejected";
 
-export type CollaborationStatus = 'active' | 'completed' | 'cancelled';
+export type CollaborationStatus = "active" | "completed" | "cancelled";
 
-export type PaymentStatus = 'pending' | 'processing' | 'completed' | 'failed';
+export type PaymentStatus = "pending" | "processing" | "completed" | "failed";
 
 export interface Profile {
   id: string;
@@ -121,4 +121,3 @@ export interface ApplicationWithDetails extends Application {
 export interface CollaborationWithDetails extends Collaboration {
   applications: ApplicationWithDetails;
 }
-

@@ -28,6 +28,10 @@ export default async function DashboardPage() {
     .eq("id", user.id)
     .single();
 
+  if (profile?.role === "admin") {
+    redirect("/dashboard/admin/affiliates");
+  }
+
   const isCreator = profile?.role === "influencer";
   const onboardingIncomplete = !profile?.onboarding_completed;
   const creatorProfileLocked = isCreator && onboardingIncomplete;

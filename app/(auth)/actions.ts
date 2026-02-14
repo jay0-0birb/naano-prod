@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import { isAdminEmail } from "@/lib/admin-allowlist";
 
 export async function signup(formData: FormData) {
   const email = formData.get("email") as string;
@@ -91,4 +92,45 @@ export async function sendPasswordResetEmail(email: string) {
 
   if (error) return { error: error.message };
   return { success: true };
+}
+
+/**
+ * Admin-only signup. Only emails in ADMIN_EMAILS can register.
+ * Creates profile with role 'admin' (no creator/saas choice, no onboarding).
+ */
+export async function adminSignup(formData: FormData) {
+  const email = (formData.get("email") as string)?.trim();
+  const password = formData.get("password") as string;
+  const fullName = (formData.get("fullName") as string)?.trim();
+
+  if (!email || !password) {
+    return { error: "Email et mot de passe requis." };
+  }
+
+  if (!isAdminEmail(email)) {
+    return { error: "Cette adresse email n'est pas autorisée à créer un compte admin." };
+  }
+
+  const headersList = await headers();
+  const origin = headersList.get("origin") || "http://localhost:3002";
+  const supabase = await createClient();
+
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: `${origin}/auth/callback`,
+      data: {
+        full_name: fullName ?? undefined,
+        role: "admin",
+      },
+    },
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  await supabase.auth.signOut();
+  return { success: true, message: "Consultez votre email pour confirmer votre compte." };
 }

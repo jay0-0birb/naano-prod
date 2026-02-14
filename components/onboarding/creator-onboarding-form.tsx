@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { completeCreatorOnboarding } from "@/app/(dashboard)/actions";
+import { getAffiliateCodeFromCookie, AFFILIATE_FORM_FIELD } from "@/lib/affiliate";
 import {
   Loader2,
   AlertCircle,
@@ -108,6 +109,11 @@ export default function CreatorOnboardingForm() {
     selectedThemes.forEach((value) => {
       formData.append("themes", value);
     });
+
+    const affiliateCode = getAffiliateCodeFromCookie();
+    if (affiliateCode) {
+      formData.append(AFFILIATE_FORM_FIELD, affiliateCode);
+    }
 
     // Additional validation for professional/company creators
     if (legalStatus === "professionnel") {
@@ -228,10 +234,7 @@ export default function CreatorOnboardingForm() {
       {/* Step 1: Profile photo */}
       <div className="space-y-2">
         <div className="flex items-center gap-4 p-4 rounded-xl border border-gray-200 bg-gray-50/60">
-          <label
-            htmlFor="avatar"
-            className="cursor-pointer shrink-0"
-          >
+          <label htmlFor="avatar" className="cursor-pointer shrink-0">
             <div className="w-16 h-16 rounded-full overflow-hidden bg-white border border-dashed border-gray-300 flex items-center justify-center">
               {avatarPreview ? (
                 <img
@@ -424,8 +427,7 @@ export default function CreatorOnboardingForm() {
           <div className="flex flex-wrap gap-2">
             {THEMES.map((themeOption) => {
               const isSelected = selectedThemes.includes(themeOption);
-              const disabled =
-                !isSelected && selectedThemes.length >= 3;
+              const disabled = !isSelected && selectedThemes.length >= 3;
               return (
                 <button
                   key={themeOption}
@@ -456,11 +458,7 @@ export default function CreatorOnboardingForm() {
           {selectedThemes.map((value) => (
             <input key={value} type="hidden" name="themes" value={value} />
           ))}
-          <input
-            type="hidden"
-            name="theme"
-            value={selectedThemes[0] || ""}
-          />
+          <input type="hidden" name="theme" value={selectedThemes[0] || ""} />
         </div>
 
         <div>
