@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { createAffiliateCode } from "./actions";
 import type { AffiliateReportRow } from "@/lib/affiliate-report";
-import { Loader2, Download, Plus } from "lucide-react";
+import { Loader2, Download, Plus, Copy, Check } from "lucide-react";
 
 type CodeRow = {
   code: string;
@@ -59,8 +59,25 @@ export default function AffiliatesAdminClient({
   const [createLoading, setCreateLoading] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [filterInput, setFilterInput] = useState(codeFilter);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const monthOptions = useMemo(() => getMonthOptions(locale), [locale]);
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://naano.xyz";
+  const getReferrerUrl = (code: string) =>
+    `${baseUrl.replace(/\/$/, "")}/?aff=${encodeURIComponent(code)}`;
+  const copyReferrerLink = (code: string) => {
+    const url = getReferrerUrl(code);
+    if (url) {
+      void navigator.clipboard.writeText(url);
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+      setCopiedCode(code);
+      copyTimeoutRef.current = setTimeout(() => {
+        setCopiedCode(null);
+        copyTimeoutRef.current = null;
+      }, 2000);
+    }
+  };
   const formatCents = (cents: number) =>
     new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US", {
       style: "currency",
@@ -148,13 +165,14 @@ export default function AffiliatesAdminClient({
               <tr className="border-b border-gray-200 text-left text-[#64748B]">
                 <th className="pb-2 pr-4">{t("code")}</th>
                 <th className="pb-2 pr-4">{t("referrerName")}</th>
+                <th className="pb-2 pr-4">{t("referrerLink")}</th>
                 <th className="pb-2">{t("createdAt")}</th>
               </tr>
             </thead>
             <tbody>
               {codes.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="py-4 text-[#64748B]">
+                  <td colSpan={4} className="py-4 text-[#64748B]">
                     {t("noCodes")}
                   </td>
                 </tr>
@@ -163,6 +181,35 @@ export default function AffiliatesAdminClient({
                   <tr key={r.code} className="border-b border-gray-100">
                     <td className="py-2 pr-4 font-medium">{r.code}</td>
                     <td className="py-2 pr-4">{r.referrer_name}</td>
+                    <td className="py-2 pr-4">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-[#1D4ED8] font-mono text-xs truncate max-w-[200px]" title={getReferrerUrl(r.code)}>
+                          {getReferrerUrl(r.code)}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => copyReferrerLink(r.code)}
+                          className={`shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded border text-xs transition-all duration-200 ${
+                            copiedCode === r.code
+                              ? "border-green-300 bg-green-50 text-green-700"
+                              : "border-gray-200 bg-gray-50 hover:bg-gray-100"
+                          }`}
+                          title={t("copyLink")}
+                        >
+                          {copiedCode === r.code ? (
+                            <>
+                              <Check className="w-3 h-3 animate-in zoom-in-50 duration-200" />
+                              <span className="animate-in fade-in duration-200">{t("copied")}</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3 h-3" />
+                              {t("copyLink")}
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </td>
                     <td className="py-2 text-[#64748B]">
                       {r.created_at
                         ? new Date(r.created_at).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US")

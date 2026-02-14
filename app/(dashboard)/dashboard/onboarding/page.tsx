@@ -29,6 +29,11 @@ export default async function OnboardingPage() {
     redirect("/dashboard");
   }
 
+  // Admins never see onboarding; send them to dashboard (then to admin/affiliates)
+  if (profile?.role === "admin") {
+    redirect("/dashboard");
+  }
+
   const isCreator = profile?.role === "influencer";
 
   return (
