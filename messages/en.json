@@ -689,6 +689,7 @@
     "role": "Role",
     "creator": "Creator",
     "company": "Company",
+    "admin": "Admin",
     "creatorProfile": "Creator Profile",
     "creatorCard": "Creator Card",
     "professionalInfo": "Professional information",

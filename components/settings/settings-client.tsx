@@ -97,6 +97,7 @@ export default function SettingsClient({
   const [passwordResetLoading, setPasswordResetLoading] = useState(false);
 
   const isCreator = profile?.role === "influencer";
+  const isAdmin = profile?.role === "admin";
 
   // Prevent background page from scrolling when any settings modal is open
   useEffect(() => {
@@ -430,12 +431,14 @@ export default function SettingsClient({
               <span className="text-sm text-[#6B7280]">{t("role")}</span>
               <span
                 className={`text-sm px-2 py-0.5 rounded-full ${
-                  isCreator
-                    ? "bg-emerald-50 text-emerald-700"
-                    : "bg-blue-50 text-[#1D4ED8]"
+                  isAdmin
+                    ? "bg-slate-100 text-slate-700"
+                    : isCreator
+                      ? "bg-emerald-50 text-emerald-700"
+                      : "bg-blue-50 text-[#1D4ED8]"
                 }`}
               >
-                {isCreator ? t("creator") : t("company")}
+                {isAdmin ? t("admin") : isCreator ? t("creator") : t("company")}
               </span>
             </div>
           </div>
@@ -882,114 +885,116 @@ export default function SettingsClient({
           </div>
         )}
 
-        {/* Notifications Section */}
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
-                <Bell className="w-5 h-5 text-amber-500" />
+        {/* Notifications Section (hidden for admin) */}
+        {!isAdmin && (
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
+                  <Bell className="w-5 h-5 text-amber-500" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-[#111827]">
+                    {t("emailNotifications")}
+                  </h3>
+                  <p className="text-xs text-[#64748B]">{t("receiveEmails")}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-medium text-[#111827]">
-                  {t("emailNotifications")}
-                </h3>
-                <p className="text-xs text-[#64748B]">{t("receiveEmails")}</p>
-              </div>
+              {savingNotifs && (
+                <Loader2 className="w-4 h-4 animate-spin text-[#9CA3AF]" />
+              )}
             </div>
-            {savingNotifs && (
-              <Loader2 className="w-4 h-4 animate-spin text-[#9CA3AF]" />
-            )}
-          </div>
 
-          <div className="space-y-4">
-            <label className="flex items-center justify-between py-3 border-b border-gray-200 cursor-pointer group">
-              <div>
-                <span className="text-sm text-[#111827] block">
-                  {t("newApplications")}
-                </span>
-                <span className="text-xs text-[#64748B]">
-                  {isCreator
-                    ? t("whenCompanyContacts")
-                    : t("whenCreatorApplies")}
-                </span>
-              </div>
-              <input
-                type="checkbox"
-                checked={notifPrefs.email_new_applications}
-                onChange={(e) =>
-                  handleNotificationChange(
-                    "email_new_applications",
-                    e.target.checked,
-                  )
-                }
-                className="w-5 h-5 accent-blue-500 cursor-pointer"
-              />
-            </label>
-            <label className="flex items-center justify-between py-3 border-b border-gray-200 cursor-pointer group">
-              <div>
-                <span className="text-sm text-[#111827] block">
-                  {t("newMessages")}
-                </span>
-                <span className="text-xs text-[#64748B]">
-                  {t("whenYouReceiveMessage")}
-                </span>
-              </div>
-              <input
-                type="checkbox"
-                checked={notifPrefs.email_new_messages}
-                onChange={(e) =>
-                  handleNotificationChange(
-                    "email_new_messages",
-                    e.target.checked,
-                  )
-                }
-                className="w-5 h-5 accent-blue-500 cursor-pointer"
-              />
-            </label>
-            <label className="flex items-center justify-between py-3 border-b border-gray-200 cursor-pointer group">
-              <div>
-                <span className="text-sm text-[#111827] block">
-                  {t("collaborationUpdates")}
-                </span>
-                <span className="text-xs text-[#64748B]">
-                  {isCreator ? t("creatorUpdates") : t("saasUpdates")}
-                </span>
-              </div>
-              <input
-                type="checkbox"
-                checked={notifPrefs.email_collaboration_updates}
-                onChange={(e) =>
-                  handleNotificationChange(
-                    "email_collaboration_updates",
-                    e.target.checked,
-                  )
-                }
-                className="w-5 h-5 accent-blue-500 cursor-pointer"
-              />
-            </label>
-            <label className="flex items-center justify-between py-3 cursor-pointer group">
-              <div>
-                <span className="text-sm text-[#111827] block">
-                  {t("collaborationStopped")}
-                </span>
-                <span className="text-xs text-[#64748B]">
-                  {t("collaborationStoppedDesc")}
-                </span>
-              </div>
-              <input
-                type="checkbox"
-                checked={notifPrefs.email_collaboration_stopped}
-                onChange={(e) =>
-                  handleNotificationChange(
-                    "email_collaboration_stopped",
-                    e.target.checked,
-                  )
-                }
-                className="w-5 h-5 accent-blue-500 cursor-pointer"
-              />
-            </label>
+            <div className="space-y-4">
+              <label className="flex items-center justify-between py-3 border-b border-gray-200 cursor-pointer group">
+                <div>
+                  <span className="text-sm text-[#111827] block">
+                    {t("newApplications")}
+                  </span>
+                  <span className="text-xs text-[#64748B]">
+                    {isCreator
+                      ? t("whenCompanyContacts")
+                      : t("whenCreatorApplies")}
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={notifPrefs.email_new_applications}
+                  onChange={(e) =>
+                    handleNotificationChange(
+                      "email_new_applications",
+                      e.target.checked,
+                    )
+                  }
+                  className="w-5 h-5 accent-blue-500 cursor-pointer"
+                />
+              </label>
+              <label className="flex items-center justify-between py-3 border-b border-gray-200 cursor-pointer group">
+                <div>
+                  <span className="text-sm text-[#111827] block">
+                    {t("newMessages")}
+                  </span>
+                  <span className="text-xs text-[#64748B]">
+                    {t("whenYouReceiveMessage")}
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={notifPrefs.email_new_messages}
+                  onChange={(e) =>
+                    handleNotificationChange(
+                      "email_new_messages",
+                      e.target.checked,
+                    )
+                  }
+                  className="w-5 h-5 accent-blue-500 cursor-pointer"
+                />
+              </label>
+              <label className="flex items-center justify-between py-3 border-b border-gray-200 cursor-pointer group">
+                <div>
+                  <span className="text-sm text-[#111827] block">
+                    {t("collaborationUpdates")}
+                  </span>
+                  <span className="text-xs text-[#64748B]">
+                    {isCreator ? t("creatorUpdates") : t("saasUpdates")}
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={notifPrefs.email_collaboration_updates}
+                  onChange={(e) =>
+                    handleNotificationChange(
+                      "email_collaboration_updates",
+                      e.target.checked,
+                    )
+                  }
+                  className="w-5 h-5 accent-blue-500 cursor-pointer"
+                />
+              </label>
+              <label className="flex items-center justify-between py-3 cursor-pointer group">
+                <div>
+                  <span className="text-sm text-[#111827] block">
+                    {t("collaborationStopped")}
+                  </span>
+                  <span className="text-xs text-[#64748B]">
+                    {t("collaborationStoppedDesc")}
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={notifPrefs.email_collaboration_stopped}
+                  onChange={(e) =>
+                    handleNotificationChange(
+                      "email_collaboration_stopped",
+                      e.target.checked,
+                    )
+                  }
+                  className="w-5 h-5 accent-blue-500 cursor-pointer"
+                />
+              </label>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Security Section */}
         <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
