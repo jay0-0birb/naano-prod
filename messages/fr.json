@@ -26,6 +26,7 @@
   "sidebar": {
     "menu": "Menu",
     "overview": "Aperçu",
+    "affiliates": "Affiliates",
     "marketplace": "Marketplace",
     "creators": "Créateurs",
     "myApplications": "Mes candidatures",
@@ -1029,5 +1030,30 @@
     "sessions": "session",
     "sessionsPlural": "sessions",
     "onlyCompanyClicks": "Seuls les clics avec identification d'entreprise sont affichés ici."
+  },
+  "affiliates": {
+    "title": "Affiliates (apporteurs)",
+    "subtitle": "Codes apporteurs et rapport de commission (6 mois par entité, paiement manuel).",
+    "codesTitle": "Codes apporteurs",
+    "code": "Code",
+    "name": "Nom",
+    "referrerName": "Nom de l'apporteur",
+    "createdAt": "Créé le",
+    "noCodes": "Aucun code. Créez-en un ci-dessous.",
+    "codeStoredUppercase": "Code (stocké en majuscules)",
+    "create": "Créer",
+    "reportTitle": "Rapport de commission",
+    "reportNote": "Paiements calculés mensuellement ; seules les transactions dans la fenêtre de 6 mois après attribution sont prises en compte.",
+    "month": "Mois",
+    "filterByCode": "Filtrer par code",
+    "optional": "Optionnel",
+    "apply": "Appliquer",
+    "exportCsv": "Export CSV",
+    "creatorsCount": "# Créateurs",
+    "companiesCount": "# Entreprises",
+    "creatorEarnings": "Gains créateurs (6 mois)",
+    "companyCredits": "Crédits entreprises (6 mois)",
+    "commission": "Commission 10 %",
+    "noData": "Aucune donnée pour ce mois / ce filtre."
   }
 }

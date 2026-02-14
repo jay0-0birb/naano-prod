@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
 import { createAffiliateCode } from "./actions";
 import type { AffiliateReportRow } from "@/lib/affiliate-report";
 import { Loader2, Download, Plus } from "lucide-react";
@@ -12,17 +13,28 @@ type CodeRow = {
   created_at: string;
 };
 
-const MONTHS = [
+const MONTH_NAMES_EN = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
+const MONTH_NAMES_FR = [
+  "Janv", "Févr", "Mars", "Avr", "Mai", "Juin",
+  "Juil", "Août", "Sept", "Oct", "Nov", "Déc",
+];
 
-function formatCents(cents: number): string {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "EUR",
-    minimumFractionDigits: 2,
-  }).format(cents / 100);
+/** Months from Jan 2026 up to and including current month */
+function getMonthOptions(locale: string): { year: number; month: number; label: string }[] {
+  const options: { year: number; month: number; label: string }[] = [];
+  const names = locale.startsWith("fr") ? MONTH_NAMES_FR : MONTH_NAMES_EN;
+  const end = new Date();
+  let d = new Date(2026, 0, 1); // Jan 2026
+  while (d <= end) {
+    const y = d.getFullYear();
+    const m = d.getMonth() + 1;
+    options.push({ year: y, month: m, label: `${names[m - 1]} ${y}` });
+    d.setMonth(d.getMonth() + 1);
+  }
+  return options.reverse(); // most recent first
 }
 
 export default function AffiliatesAdminClient({
@@ -38,6 +50,8 @@ export default function AffiliatesAdminClient({
   currentMonth: number;
   codeFilter: string;
 }) {
+  const t = useTranslations("affiliates");
+  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [createCode, setCreateCode] = useState("");
@@ -45,6 +59,15 @@ export default function AffiliatesAdminClient({
   const [createLoading, setCreateLoading] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [filterInput, setFilterInput] = useState(codeFilter);
+
+  const monthOptions = useMemo(() => getMonthOptions(locale), [locale]);
+  const formatCents = (cents: number) =>
+    new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US", {
+      style: "currency",
+      currency: "EUR",
+      minimumFractionDigits: 2,
+    }).format(cents / 100);
+
   useEffect(() => {
     setFilterInput(codeFilter);
   }, [codeFilter]);
@@ -110,29 +133,29 @@ export default function AffiliatesAdminClient({
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-[#0F172A]">Affiliates (apporteurs)</h1>
+        <h1 className="text-2xl font-bold text-[#0F172A]">{t("title")}</h1>
         <p className="text-sm text-[#64748B] mt-1">
-          Codes apporteurs et rapport de commission (6 mois par entité, paiement manuel).
+          {t("subtitle")}
         </p>
       </div>
 
       {/* Section 1: Codes */}
       <section className="bg-white border border-gray-200 rounded-xl p-6">
-        <h2 className="text-lg font-semibold text-[#111827] mb-4">Codes apporteurs</h2>
+        <h2 className="text-lg font-semibold text-[#111827] mb-4">{t("codesTitle")}</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200 text-left text-[#64748B]">
-                <th className="pb-2 pr-4">Code</th>
-                <th className="pb-2 pr-4">Nom de l&apos;apporteur</th>
-                <th className="pb-2">Créé le</th>
+                <th className="pb-2 pr-4">{t("code")}</th>
+                <th className="pb-2 pr-4">{t("referrerName")}</th>
+                <th className="pb-2">{t("createdAt")}</th>
               </tr>
             </thead>
             <tbody>
               {codes.length === 0 ? (
                 <tr>
                   <td colSpan={3} className="py-4 text-[#64748B]">
-                    Aucun code. Créez-en un ci-dessous.
+                    {t("noCodes")}
                   </td>
                 </tr>
               ) : (
@@ -142,7 +165,7 @@ export default function AffiliatesAdminClient({
                     <td className="py-2 pr-4">{r.referrer_name}</td>
                     <td className="py-2 text-[#64748B]">
                       {r.created_at
-                        ? new Date(r.created_at).toLocaleDateString("fr-FR")
+                        ? new Date(r.created_at).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US")
                         : "—"}
                     </td>
                   </tr>
@@ -154,7 +177,7 @@ export default function AffiliatesAdminClient({
 
         <form onSubmit={handleCreate} className="mt-4 flex flex-wrap items-end gap-3">
           <label className="flex flex-col gap-1">
-            <span className="text-xs text-[#64748B]">Code (stocké en majuscules)</span>
+            <span className="text-xs text-[#64748B]">{t("codeStoredUppercase")}</span>
             <input
               type="text"
               value={createCode}
@@ -164,7 +187,7 @@ export default function AffiliatesAdminClient({
             />
           </label>
           <label className="flex flex-col gap-1">
-            <span className="text-xs text-[#64748B]">Nom de l&apos;apporteur</span>
+            <span className="text-xs text-[#64748B]">{t("referrerName")}</span>
             <input
               type="text"
               value={createName}
@@ -183,7 +206,7 @@ export default function AffiliatesAdminClient({
             ) : (
               <Plus className="w-4 h-4" />
             )}
-            Créer
+            {t("create")}
           </button>
           {createError && (
             <p className="text-sm text-red-600 w-full">{createError}</p>
@@ -193,15 +216,14 @@ export default function AffiliatesAdminClient({
 
       {/* Section 2: Report */}
       <section className="bg-white border border-gray-200 rounded-xl p-6">
-        <h2 className="text-lg font-semibold text-[#111827] mb-4">Rapport de commission</h2>
+        <h2 className="text-lg font-semibold text-[#111827] mb-4">{t("reportTitle")}</h2>
         <p className="text-sm text-[#64748B] mb-4">
-          Paiements calculés mensuellement ; seules les transactions dans la fenêtre de 6 mois
-          après attribution sont prises en compte.
+          {t("reportNote")}
         </p>
 
         <div className="flex flex-wrap items-center gap-4 mb-4">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-[#64748B]">Mois :</span>
+            <span className="text-sm text-[#64748B]">{t("month")} :</span>
             <select
               value={`${currentYear}-${currentMonth}`}
               onChange={(e) => {
@@ -210,17 +232,11 @@ export default function AffiliatesAdminClient({
               }}
               className="border border-gray-200 rounded-lg px-3 py-2 text-sm"
             >
-              {Array.from({ length: 24 }, (_, i) => {
-                const d = new Date();
-                d.setMonth(d.getMonth() - (23 - i));
-                const y = d.getFullYear();
-                const m = d.getMonth() + 1;
-                return (
-                  <option key={`${y}-${m}`} value={`${y}-${m}`}>
-                    {MONTHS[m - 1]} {y}
-                  </option>
-                );
-              })}
+              {monthOptions.map((opt) => (
+                <option key={`${opt.year}-${opt.month}`} value={`${opt.year}-${opt.month}`}>
+                  {opt.label}
+                </option>
+              ))}
             </select>
           </div>
           <form
@@ -230,19 +246,19 @@ export default function AffiliatesAdminClient({
               setFilter(filterInput);
             }}
           >
-            <span className="text-sm text-[#64748B]">Filtrer par code :</span>
+            <span className="text-sm text-[#64748B]">{t("filterByCode")} :</span>
             <input
               type="text"
               value={filterInput}
               onChange={(e) => setFilterInput(e.target.value)}
-              placeholder="Optionnel"
+              placeholder={t("optional")}
               className="border border-gray-200 rounded-lg px-3 py-2 text-sm w-40"
             />
             <button
               type="submit"
               className="px-3 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200"
             >
-              Appliquer
+              {t("apply")}
             </button>
           </form>
           <button
@@ -251,7 +267,7 @@ export default function AffiliatesAdminClient({
             className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50"
           >
             <Download className="w-4 h-4" />
-            Export CSV
+            {t("exportCsv")}
           </button>
         </div>
 
@@ -259,20 +275,20 @@ export default function AffiliatesAdminClient({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200 text-left text-[#64748B]">
-                <th className="pb-2 pr-4">Code</th>
-                <th className="pb-2 pr-4">Nom</th>
-                <th className="pb-2 pr-4"># Créateurs</th>
-                <th className="pb-2 pr-4"># Entreprises</th>
-                <th className="pb-2 pr-4">Gains créateurs (6 mois)</th>
-                <th className="pb-2 pr-4">Credits entreprises (6 mois)</th>
-                <th className="pb-2">Commission 10 %</th>
+                <th className="pb-2 pr-4">{t("code")}</th>
+                <th className="pb-2 pr-4">{t("name")}</th>
+                <th className="pb-2 pr-4">{t("creatorsCount")}</th>
+                <th className="pb-2 pr-4">{t("companiesCount")}</th>
+                <th className="pb-2 pr-4">{t("creatorEarnings")}</th>
+                <th className="pb-2 pr-4">{t("companyCredits")}</th>
+                <th className="pb-2">{t("commission")}</th>
               </tr>
             </thead>
             <tbody>
               {report.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-4 text-[#64748B]">
-                    Aucune donnée pour ce mois / ce filtre.
+                    {t("noData")}
                   </td>
                 </tr>
               ) : (

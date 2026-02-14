@@ -126,7 +126,7 @@ export default function DashboardSidebar({
               onClick={handleNav}
             >
               <ShieldCheck className="w-5 h-5" />
-              <span>Affiliates</span>
+              <span>{t("affiliates")}</span>
             </Link>
           </>
         ) : (

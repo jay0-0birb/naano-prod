@@ -26,6 +26,7 @@
   "sidebar": {
     "menu": "Menu",
     "overview": "Overview",
+    "affiliates": "Affiliates",
     "marketplace": "Marketplace",
     "creators": "Creators",
     "myApplications": "My Applications",
@@ -1031,5 +1032,30 @@
     "sessions": "session",
     "sessionsPlural": "sessions",
     "onlyCompanyClicks": "Only clicks with company identification are shown here."
+  },
+  "affiliates": {
+    "title": "Affiliates (referrers)",
+    "subtitle": "Referrer codes and commission report (6 months per entity, manual payment).",
+    "codesTitle": "Referrer codes",
+    "code": "Code",
+    "name": "Name",
+    "referrerName": "Referrer name",
+    "createdAt": "Created at",
+    "noCodes": "No codes. Create one below.",
+    "codeStoredUppercase": "Code (stored in uppercase)",
+    "create": "Create",
+    "reportTitle": "Commission report",
+    "reportNote": "Payouts are calculated monthly; only transactions within the 6-month window after attribution are included.",
+    "month": "Month",
+    "filterByCode": "Filter by code",
+    "optional": "Optional",
+    "apply": "Apply",
+    "exportCsv": "Export CSV",
+    "creatorsCount": "# Creators",
+    "companiesCount": "# Companies",
+    "creatorEarnings": "Creator earnings (6mo)",
+    "companyCredits": "Company credits (6mo)",
+    "commission": "Commission 10%",
+    "noData": "No data for this month / filter."
   }
 }
